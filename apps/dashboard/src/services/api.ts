@@ -11,7 +11,7 @@ import {
   createAnalyticsEndpoints,
 } from '@signage/api-client'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://5te33orwoc.execute-api.us-east-1.amazonaws.com'
 const TOKEN_KEY = 'signage_access_token'
 
 const getToken = async (): Promise<string | null> => {
