@@ -14,9 +14,9 @@ interface FloatingPanelProps {
   glass?: boolean
 }
 
-export function FloatingPanel({ 
-  children, 
-  isOpen, 
+export function FloatingPanel({
+  children,
+  isOpen,
   onClose,
   position = 'center',
   className,
@@ -30,14 +30,14 @@ export function FloatingPanel({
     center: 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
   }
 
-  const animationVariants = {
-    hidden: { 
-      opacity: 0, 
+  const animationVariants: any = {
+    hidden: {
+      opacity: 0,
       scale: 0.95,
       y: position === 'top' ? -20 : position === 'bottom' ? 20 : 0,
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       scale: 1,
       y: 0,
       transition: {
@@ -46,8 +46,8 @@ export function FloatingPanel({
         stiffness: 300
       }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       scale: 0.95,
       y: position === 'top' ? -20 : position === 'bottom' ? 20 : 0,
       transition: {

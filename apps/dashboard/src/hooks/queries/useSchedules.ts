@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/services/api'
-import type { Schedule, ScheduleOverride } from '@signage/api-client/src/endpoints/schedules'
+import type { Schedule, ScheduleOverride, ScheduleCreateRequest } from '@signage/types'
 
 export type { Schedule, ScheduleOverride }
 
@@ -24,7 +24,7 @@ export function useCreateSchedule() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: Partial<Schedule> }) =>
+    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: ScheduleCreateRequest }) =>
       api.schedules.create(workspaceId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['schedules', variables.workspaceId] })

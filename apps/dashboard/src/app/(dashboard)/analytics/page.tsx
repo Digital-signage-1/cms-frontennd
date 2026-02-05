@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/ui/empty-state'
 import { DataTable } from '@/components/ui/data-table'
 import { StatusDot } from '@/components/ui/status-dot'
-import { ArrowDownRight, ArrowUpRight, Calendar, Download, Eye, MousePointerClick, Users, Activity } from 'lucide-react'
+import { ArrowDownRight, ArrowUpRight, Calendar, Download, Eye, MousePointerClick, Users as UsersIcon, Activity } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { useAnalyticsSummary, usePlayers } from '@/hooks/queries'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -43,9 +43,9 @@ export default function AnalyticsPage() {
 
   const summary = summaryData || {
     total_impressions: 0,
-    unique_viewers: 0,
-    engagement_rate: 0,
-    uptime_percentage: 0,
+    total_play_time_seconds: 0,
+    active_players: 0,
+    total_content_plays: 0,
   }
 
   const kpiMetrics = [
@@ -58,21 +58,21 @@ export default function AnalyticsPage() {
     },
     {
       label: 'Unique Viewers',
-      value: summary.unique_viewers?.toLocaleString() || '0',
+      value: (summary as any).unique_viewers?.toLocaleString() || '0',
       change: '+5%',
       trend: 'up' as const,
-      icon: Users,
+      icon: UsersIcon,
     },
     {
       label: 'Engagement Rate',
-      value: `${summary.engagement_rate || 0}%`,
+      value: `${(summary as any).engagement_rate || 0}%`,
       change: '-0.5%',
       trend: 'down' as const,
       icon: MousePointerClick,
     },
     {
       label: 'System Uptime',
-      value: `${summary.uptime_percentage || 0}%`,
+      value: `${(summary as any).uptime_percentage || 0}%`,
       change: '0%',
       trend: 'neutral' as const,
       icon: Activity,
@@ -85,8 +85,8 @@ export default function AnalyticsPage() {
       header: 'Device',
       cell: (player: any) => (
         <div className="flex items-center gap-3">
-          <StatusDot 
-            status={player.status === 'online' ? 'online' : player.status === 'offline' ? 'offline' : 'pending'} 
+          <StatusDot
+            status={player.status === 'online' ? 'online' : player.status === 'offline' ? 'offline' : 'pending'}
             pulse={player.status === 'online'}
           />
           <span className="font-medium">{player.name}</span>
@@ -97,11 +97,10 @@ export default function AnalyticsPage() {
       key: 'status',
       header: 'Status',
       cell: (player: any) => (
-        <span className={`text-xs font-medium capitalize ${
-          player.status === 'online' ? 'text-success' : 
-          player.status === 'offline' ? 'text-error' : 
-          'text-warning'
-        }`}>
+        <span className={`text-xs font-medium capitalize ${player.status === 'online' ? 'text-success' :
+          player.status === 'offline' ? 'text-error' :
+            'text-warning'
+          }`}>
           {player.status}
         </span>
       ),
@@ -118,8 +117,8 @@ export default function AnalyticsPage() {
       header: 'Last Seen',
       cell: (player: any) => (
         <span className="text-text-muted text-sm">
-          {player.last_heartbeat 
-            ? new Date(player.last_heartbeat).toLocaleString() 
+          {player.last_heartbeat
+            ? new Date(player.last_heartbeat).toLocaleString()
             : 'Never'}
         </span>
       ),
@@ -148,11 +147,10 @@ export default function AnalyticsPage() {
                   <button
                     key={range}
                     onClick={() => setDateRange(range)}
-                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
-                      dateRange === range
-                        ? 'bg-primary text-white'
-                        : 'text-text-muted hover:text-text-primary hover:bg-surface-alt'
-                    }`}
+                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${dateRange === range
+                      ? 'bg-primary text-white'
+                      : 'text-text-muted hover:text-text-primary hover:bg-surface-alt'
+                      }`}
                   >
                     Last {range.replace('d', ' days').replace('90', '90')}
                   </button>
@@ -196,13 +194,12 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
                   <div
-                    className={`flex items-center gap-1 mt-3 text-xs font-medium ${
-                      metric.trend === 'up'
-                        ? 'text-success'
-                        : metric.trend === 'down'
+                    className={`flex items-center gap-1 mt-3 text-xs font-medium ${metric.trend === 'up'
+                      ? 'text-success'
+                      : metric.trend === 'down'
                         ? 'text-error'
                         : 'text-text-secondary'
-                    }`}
+                      }`}
                   >
                     {metric.trend === 'up' ? (
                       <ArrowUpRight className="h-3 w-3" />
@@ -230,9 +227,9 @@ export default function AnalyticsPage() {
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={mockViewerTrends}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis 
-                      dataKey="date" 
-                      stroke="var(--text-muted)" 
+                    <XAxis
+                      dataKey="date"
+                      stroke="var(--text-muted)"
                       fontSize={12}
                     />
                     <YAxis stroke="var(--text-muted)" fontSize={12} />

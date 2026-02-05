@@ -113,7 +113,7 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
     }
 
     pairPlayerMutation.mutate({
-      pairing_code: pairingFormData.pairing_code,
+      code: pairingFormData.pairing_code,
       name: pairingFormData.name,
     })
   }
@@ -166,21 +166,19 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
             <div className="flex bg-surface-alt rounded-lg p-1 mb-6">
               <button
                 onClick={() => setRegistrationMethod('pairing')}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
-                  registrationMethod === 'pairing'
+                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${registrationMethod === 'pairing'
                     ? 'bg-background text-text-primary shadow-sm'
                     : 'text-text-muted hover:text-text-primary'
-                }`}
+                  }`}
               >
                 Auto Pairing
               </button>
               <button
                 onClick={() => setRegistrationMethod('manual')}
-                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${
-                  registrationMethod === 'manual'
+                className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all ${registrationMethod === 'manual'
                     ? 'bg-background text-text-primary shadow-sm'
                     : 'text-text-muted hover:text-text-primary'
-                }`}
+                  }`}
               >
                 Manual Setup
               </button>

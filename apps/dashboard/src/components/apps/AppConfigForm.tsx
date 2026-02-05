@@ -39,7 +39,7 @@ export function AppConfigForm({ appType, workspaceId, onBack, onSuccess, onCance
   const [contentSelectorField, setContentSelectorField] = useState<string>('')
 
   const createAppMutation = useCreateApp()
-  
+
   const { data: contentData } = useContent(workspaceId, {})
 
   const { data: schemaData, isLoading: isLoadingSchema } = useQuery({
@@ -109,7 +109,7 @@ export function AppConfigForm({ appType, workspaceId, onBack, onSuccess, onCance
 
     try {
       const config: Record<string, any> = { ...defaultConfig }
-      
+
       if (schema?.fields) {
         schema.fields.forEach((field: FormField) => {
           if (formData[field.name] !== undefined) {
@@ -149,7 +149,7 @@ export function AppConfigForm({ appType, workspaceId, onBack, onSuccess, onCance
   }
 
   const requiresContent = appType.requires_content || schema?.fields?.some((f: FormField) => f.name === 'content_id')
-  const currentContent = contentData?.content?.find((c: Content) => c.content_id === formData.content_id)
+  const currentContent = contentData?.items?.find((c: Content) => c.content_id === formData.content_id)
 
   return (
     <>
@@ -232,7 +232,7 @@ export function AppConfigForm({ appType, workspaceId, onBack, onSuccess, onCance
 
           {schema?.fields?.map((field: FormField) => {
             if (field.name === 'content_id') return null
-            
+
             return (
               <FormFieldRenderer
                 key={field.name}

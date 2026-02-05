@@ -63,34 +63,35 @@ export function ContentSelector({
 
   const filteredContent = useMemo(() => {
     const contentList = assets
-    
+
     return contentList.filter((item: Content) => {
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      
+
       if (acceptedTypes && acceptedTypes.length > 0) {
-        const matchesType = acceptedTypes.some(type => 
-          item.content_type.startsWith(type.replace('/*', ''))
+        const matchesType = acceptedTypes.some(type =>
+          item.mime_type.startsWith(type.replace('/*', ''))
         )
         return matchesSearch && matchesType
       }
-      
+
       return matchesSearch
     })
   }, [assets, searchQuery, acceptedTypes])
 
   const getBreadcrumbPath = () => {
     if (!currentFolder) return []
-    
+
     const path: FolderType[] = []
-    let folderId = currentFolder
-    
+    let folderId: string | undefined = currentFolder || undefined
+
     while (folderId) {
-      const folder = allFolders.find((f: FolderType) => f.folder_id === folderId)
+      const currentId: string = folderId
+      const folder = allFolders.find((f: FolderType) => f.folder_id === currentId)
       if (!folder) break
       path.unshift(folder)
       folderId = folder.parent_id
     }
-    
+
     return path
   }
 
@@ -158,9 +159,8 @@ export function ContentSelector({
                   <ChevronRight className="h-3.5 w-3.5" />
                   <button
                     onClick={() => handleBreadcrumbClick(folder.folder_id)}
-                    className={`hover:text-primary transition-colors ${
-                      index === breadcrumbPath.length - 1 ? 'text-text-primary font-medium' : ''
-                    }`}
+                    className={`hover:text-primary transition-colors ${index === breadcrumbPath.length - 1 ? 'text-text-primary font-medium' : ''
+                      }`}
                   >
                     {folder.name}
                   </button>
@@ -219,7 +219,7 @@ export function ContentSelector({
                   <h3 className="text-sm font-medium text-text-secondary mb-3">Content</h3>
                   <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2">
                     {filteredContent.map((content: Content) => {
-                      const Icon = getContentIcon(content.content_type)
+                      const Icon = getContentIcon(content.mime_type)
                       const isSelected = content.content_id === currentContentId
 
                       return (
@@ -228,22 +228,19 @@ export function ContentSelector({
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           onClick={() => handleSelect(content)}
-                          className={`flex flex-col items-center p-2 rounded-lg transition-colors group ${
-                            isSelected ? 'bg-primary/10 ring-1 ring-primary' : 'hover:bg-surface-alt'
-                          }`}
+                          className={`flex flex-col items-center p-2 rounded-lg transition-colors group ${isSelected ? 'bg-primary/10 ring-1 ring-primary' : 'hover:bg-surface-alt'
+                            }`}
                         >
-                          <div className={`w-full aspect-square rounded-lg flex items-center justify-center mb-1.5 transition-colors ${
-                            isSelected ? 'bg-primary/20' : 'bg-surface-alt group-hover:bg-surface'
-                          }`}>
+                          <div className={`w-full aspect-square rounded-lg flex items-center justify-center mb-1.5 transition-colors ${isSelected ? 'bg-primary/20' : 'bg-surface-alt group-hover:bg-surface'
+                            }`}>
                             <Icon className={`h-4 w-4 ${isSelected ? 'text-primary' : 'text-text-muted'}`} />
                           </div>
-                          <span className={`text-xs font-medium truncate w-full text-center ${
-                            isSelected ? 'text-primary' : 'text-text-primary'
-                          }`}>
+                          <span className={`text-xs font-medium truncate w-full text-center ${isSelected ? 'text-primary' : 'text-text-primary'
+                            }`}>
                             {content.name}
                           </span>
                           <span className="text-[10px] text-text-muted">
-                            {getContentTypeLabel(content.content_type)}
+                            {getContentTypeLabel(content.mime_type)}
                           </span>
                         </motion.button>
                       )

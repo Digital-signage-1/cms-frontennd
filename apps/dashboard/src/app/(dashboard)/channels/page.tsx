@@ -5,7 +5,7 @@ import { GlassCard } from '@/components/ui/glass-card'
 import { useChannels } from '@/hooks/queries'
 import { Plus, Search, Monitor, Layers, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -13,7 +13,7 @@ import { fadeInUpVariants, staggerChildrenVariants, hoverLiftVariants } from '@/
 import { formatDate } from '@/lib/utils'
 
 const LayoutPreview = ({ layout }: { layout: string }) => {
-  const layouts: Record<string, JSX.Element> = {
+  const layouts: Record<string, React.ReactElement> = {
     'SINGLE': (
       <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg" />
     ),
@@ -58,10 +58,10 @@ export default function ChannelsPage() {
   const { data: channels = [], isLoading: channelsLoading } = useChannels(workspaceId)
   const [searchQuery, setSearchQuery] = useState('')
 
-  const filteredChannels = Array.isArray(channels) 
+  const filteredChannels = Array.isArray(channels)
     ? channels.filter((channel: any) =>
-        channel.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      channel.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : []
 
   return (
@@ -171,17 +171,17 @@ export default function ChannelsPage() {
                       <div className="absolute inset-0 p-8">
                         <LayoutPreview layout={channel.layout_type} />
                       </div>
-                      
+
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                         <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             className="bg-surface/90 hover:bg-primary text-text-primary hover:text-white shadow-lg backdrop-blur-sm rounded-lg"
                           >
                             Edit Layout
                           </Button>
-                          <Button 
-                            size="sm" 
+                          <Button
+                            size="sm"
                             variant="outline"
                             className="bg-surface/90 hover:bg-surface border-border/50 backdrop-blur-sm rounded-lg"
                           >

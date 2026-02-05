@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { StatusDot } from '@/components/ui/status-dot'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
-  ArrowLeft, Play, Save, Upload, Plus, Trash2, Settings, 
+  ArrowLeft, Play, Save, Upload, Plus, Trash2, Settings,
   Image, Video, Clock, Cloud, Globe, Code, LayoutGrid, GripVertical
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -24,6 +24,18 @@ const layoutTemplates = [
   { id: 'SPLIT_VERTICAL', name: '2-Zone Vertical', zones: [{ name: 'Left', x: 0, y: 0, width: 50, height: 100 }, { name: 'Right', x: 50, y: 0, width: 50, height: 100 }] },
   { id: 'CUSTOM', name: 'L-Shape (3 zones)', zones: [{ name: 'Main', x: 0, y: 0, width: 70, height: 100 }, { name: 'Top Right', x: 70, y: 0, width: 30, height: 50 }, { name: 'Bottom Right', x: 70, y: 50, width: 30, height: 50 }] },
 ]
+
+interface Zone {
+  zone_id: string
+  name: string
+  x_percent: number
+  y_percent: number
+  width_percent: number
+  height_percent: number
+  z_index: number
+  background?: any
+  apps?: any[]
+}
 
 export default function ChannelBuilderPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
@@ -45,7 +57,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
   const addZoneAppMutation = useAddZoneApp()
 
   const availableApps = Array.isArray(appsData) ? appsData : []
-  const zones = manifestData?.zones || []
+  const zones: Zone[] = manifestData?.zones || []
   const selectedZoneData = zones.find((z: any) => z.zone_id === selectedZone)
 
   // Debug logging
@@ -153,13 +165,12 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
                   className="text-xl font-semibold border-0 bg-transparent focus-visible:ring-0 px-0 h-auto"
                 />
                 <div className="flex items-center gap-3 mt-1">
-                  <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium ${
-                    channelData?.status === 'published' 
-                      ? 'bg-success/10 text-success border border-success/20' 
+                  <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium ${channelData?.status === 'published'
+                      ? 'bg-success/10 text-success border border-success/20'
                       : 'bg-warning/10 text-warning border border-warning/20'
-                  }`}>
-                    <StatusDot 
-                      status={channelData?.status === 'published' ? 'online' : 'pending'} 
+                    }`}>
+                    <StatusDot
+                      status={channelData?.status === 'published' ? 'online' : 'pending'}
                       size="sm"
                     />
                     {channelData?.status === 'published' ? 'Published' : 'Draft'}
@@ -228,9 +239,8 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
                       : 'border-border hover:border-primary/50 hover:bg-surface-alt'
                   )}
                 >
-                  <div className={`w-3 h-3 rounded-full ${
-                    i === 0 ? 'bg-primary' : i === 1 ? 'bg-success' : 'bg-warning'
-                  }`} />
+                  <div className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-primary' : i === 1 ? 'bg-success' : 'bg-warning'
+                    }`} />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-text-primary text-sm truncate">{zone.name}</p>
                     <p className="text-xs text-text-muted">
@@ -244,8 +254,8 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
                 <div className="text-center py-8 text-text-muted">
                   <LayoutGrid className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p className="text-xs">No zones</p>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     variant="outline"
                     onClick={() => setShowTemplates(true)}
                     className="mt-3 text-xs"

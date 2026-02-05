@@ -30,7 +30,7 @@ interface Zone {
   width_percent: number
   height_percent: number
   z_index: number
-  background: any
+  background?: any
   apps?: any[]
 }
 
@@ -100,7 +100,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const handleZoneCreate = async (zoneConfig: Omit<Zone, 'zone_id'>) => {
+  const handleZoneCreate = async (zoneConfig: any) => {
     if (!workspaceId || !channelData) return
 
     try {
@@ -425,8 +425,8 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                               width: `${zone.width_percent}%`,
                               height: `${zone.height_percent}%`,
                               background: zone.background?.type === 'color' ? zone.background.value :
-                                         zone.background?.type === 'gradient' ? zone.background.value :
-                                         'rgba(255, 255, 255, 0.05)',
+                                zone.background?.type === 'gradient' ? zone.background.value :
+                                  'rgba(255, 255, 255, 0.05)',
                               zIndex: zone.z_index
                             }}
                           >

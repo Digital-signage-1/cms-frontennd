@@ -66,16 +66,6 @@ export default function CreateChannelPage() {
           description: channelDescription.trim() || undefined,
           layout_type: selectedTemplate.id,
           background: { type: 'color', value: '#1a1a2e' },
-          zones: selectedTemplate.zones.map((zone, index) => ({
-            name: zone.name,
-            x: zone.x,
-            y: zone.y,
-            width: zone.width,
-            height: zone.height,
-            z_index: zone.z_index,
-            position: index + 1,
-            background: zone.background
-          }))
         }
       })
 
@@ -116,20 +106,18 @@ export default function CreateChannelPage() {
 
           {/* Progress Steps */}
           <motion.div variants={fadeInUpVariants} className="flex items-center gap-4 mt-6">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium ${
-              currentStep === 'template'
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium ${currentStep === 'template'
                 ? 'bg-primary/10 text-primary border border-primary/20'
                 : 'bg-surface text-text-muted border border-border'
-            }`}>
+              }`}>
               <Layout className="h-4 w-4" />
               Layout Template
             </div>
             <ArrowRight className="h-4 w-4 text-text-muted" />
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium ${
-              currentStep === 'details'
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium ${currentStep === 'details'
                 ? 'bg-primary/10 text-primary border border-primary/20'
                 : 'bg-surface text-text-muted border border-border'
-            }`}>
+              }`}>
               <Sparkles className="h-4 w-4" />
               Channel Details
             </div>

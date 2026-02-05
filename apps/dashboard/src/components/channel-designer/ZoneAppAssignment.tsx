@@ -31,10 +31,10 @@ function AppSelectorModal({ isOpen, onClose, onSelectApp, excludeAppIds }: AppSe
 
   const availableApps = Array.isArray(apps)
     ? apps.filter((app: App) =>
-        !excludeAppIds.includes(app.app_id) &&
-        app.status === 'active' &&
-        app.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      !excludeAppIds.includes(app.app_id) &&
+      app.status === 'active' &&
+      app.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : []
 
   if (!isOpen) return null
@@ -215,7 +215,7 @@ export function ZoneAppAssignment({
                 </div>
 
                 {/* Duration Range */}
-                {zoneApp.start_date || zoneApp.end_date ? (
+                {(zoneApp.start_date || zoneApp.end_date) && (
                   <div className="mt-3 pt-3 border-t border-border">
                     <div className="text-xs text-text-muted">
                       {zoneApp.start_date && (

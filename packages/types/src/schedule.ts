@@ -8,7 +8,7 @@ export interface Schedule {
   end_date?: string
   start_time?: string
   end_time?: string
-  days_of_week?: string[]
+  days_of_week?: number[]
   timezone: string
   priority: number
   is_active: boolean
@@ -35,7 +35,7 @@ export interface ScheduleCreateRequest {
   end_date?: string
   start_time?: string
   end_time?: string
-  days_of_week?: string[]
+  days_of_week?: number[]
   timezone?: string
   priority?: number
 }
@@ -48,7 +48,7 @@ export interface ScheduleUpdateRequest {
   end_date?: string
   start_time?: string
   end_time?: string
-  days_of_week?: string[]
+  days_of_week?: number[]
   timezone?: string
   priority?: number
   is_active?: boolean

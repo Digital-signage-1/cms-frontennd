@@ -3,7 +3,7 @@
 import React, { useState, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input, Label } from '@/components/ui'
-import { Plus, Trash2, Move, Resize } from 'lucide-react'
+import { Plus, Trash2, Move } from 'lucide-react'
 import type { ChannelZone } from '@signage/types'
 
 interface ZoneEditorProps {
@@ -222,7 +222,7 @@ export function ZoneEditor({
             <svg width="100%" height="100%" className="text-border">
               <defs>
                 <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="1"/>
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="1" />
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#grid)" />
@@ -237,11 +237,10 @@ export function ZoneEditor({
             return (
               <div
                 key={zone.zone_id}
-                className={`absolute border-2 cursor-move transition-all ${
-                  isSelected
+                className={`absolute border-2 cursor-move transition-all ${isSelected
                     ? 'border-primary bg-primary/10 shadow-lg'
                     : 'border-border bg-surface-alt/30 hover:border-primary/50'
-                } ${isDragging ? 'opacity-75' : ''}`}
+                  } ${isDragging ? 'opacity-75' : ''}`}
                 style={{
                   left: `${zone.x_percent}%`,
                   top: `${zone.y_percent}%`,

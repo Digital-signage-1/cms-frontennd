@@ -17,6 +17,18 @@ import { LAYOUT_TEMPLATES } from '@/lib/layout-templates'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
+interface Zone {
+  zone_id: string
+  name: string
+  x_percent: number
+  y_percent: number
+  width_percent: number
+  height_percent: number
+  z_index: number
+  background?: any
+  apps?: any[]
+}
+
 export default function ChannelBuilderPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params)
   const router = useRouter()
@@ -35,7 +47,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
   const addZoneAppMutation = useAddZoneApp()
 
   const availableApps = Array.isArray(appsData) ? appsData : []
-  const zones = manifestData?.zones || []
+  const zones: Zone[] = manifestData?.zones || []
   const selectedZoneData = zones.find((z: any) => z.zone_id === selectedZone)
 
   useEffect(() => {

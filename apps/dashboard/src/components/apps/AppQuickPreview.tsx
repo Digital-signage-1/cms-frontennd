@@ -80,7 +80,7 @@ export function AppQuickPreview({
           </button>
 
           <div className="p-3">
-            <div 
+            <div
               className="relative bg-background rounded border border-border/50 overflow-hidden shadow-inner"
               style={{
                 width: '100%',
@@ -90,8 +90,8 @@ export function AppQuickPreview({
               <div className="absolute inset-0">
                 {contentUrl ? (
                   <ContentRenderer
-                    app={appWithUrl}
-                    className="w-full h-full"
+                    appId={app.app_id}
+                    app={appWithUrl as any}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-text-muted text-xs">

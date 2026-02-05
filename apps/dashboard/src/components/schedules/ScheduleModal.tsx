@@ -74,7 +74,10 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
         end_time: endTime,
         days_of_week: selectedDays,
         is_active: isActive,
-        channel_ids: selectedChannelIds,
+        channel_id: selectedChannelIds[0] || '',
+        type: 'recurring' as const,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        priority: 1
       }
 
       if (schedule) {
@@ -166,11 +169,10 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                     key={day}
                     type="button"
                     onClick={() => toggleDay(idx)}
-                    className={`flex-1 h-12 rounded-lg text-sm font-medium transition-all ${
-                      isSelected
+                    className={`flex-1 h-12 rounded-lg text-sm font-medium transition-all ${isSelected
                         ? 'bg-primary text-white'
                         : 'bg-surface border border-border text-text-secondary hover:border-primary/50'
-                    }`}
+                      }`}
                   >
                     {day}
                   </button>
@@ -243,8 +245,8 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
               {createScheduleMutation.isPending || updateScheduleMutation.isPending
                 ? 'Saving...'
                 : schedule
-                ? 'Update Schedule'
-                : 'Create Schedule'}
+                  ? 'Update Schedule'
+                  : 'Create Schedule'}
             </Button>
           </div>
         </form>

@@ -27,21 +27,21 @@ const slideVariants = {
     x: '100%',
     transition: {
       duration: 0.3,
-      ease: [0.4, 0, 0.2, 1],
+      ease: [0.4, 0, 0.2, 1] as any,
     },
   },
   visible: {
     x: 0,
     transition: {
       duration: 0.3,
-      ease: [0.4, 0, 0.2, 1],
+      ease: [0.4, 0, 0.2, 1] as any,
     },
   },
   exit: {
     x: '100%',
     transition: {
       duration: 0.3,
-      ease: [0.4, 0, 0.2, 1],
+      ease: [0.4, 0, 0.2, 1] as any,
     },
   },
 }

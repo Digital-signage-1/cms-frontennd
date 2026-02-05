@@ -13,14 +13,14 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false)
 
   const [formData, setFormData] = useState({
-    firstName: account?.first_name || user?.given_name || '',
-    lastName: account?.last_name || user?.family_name || '',
+    firstName: user?.given_name || '',
+    lastName: user?.family_name || '',
     email: user?.email || '',
-    phone: account?.phone || '',
-    company: account?.company || '',
-    location: account?.location || '',
-    website: account?.website || '',
-    bio: account?.bio || '',
+    phone: (account as any)?.phone || '',
+    company: (account as any)?.company || '',
+    location: (account as any)?.location || '',
+    website: (account as any)?.website || '',
+    bio: (account as any)?.bio || '',
   })
 
   const userInitials = `${formData.firstName[0] || ''}${formData.lastName[0] || ''}`
@@ -245,7 +245,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <p className="text-sm text-text-muted mb-1">Subscription Plan</p>
-              <p className="text-sm text-text-primary capitalize">{account?.subscription_plan || 'Free'}</p>
+              <p className="text-sm text-text-primary capitalize">{account?.plan || 'Free'}</p>
             </div>
             <div>
               <p className="text-sm text-text-muted mb-1">Account Status</p>

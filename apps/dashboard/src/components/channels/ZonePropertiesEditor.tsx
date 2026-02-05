@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button, Input, Label } from '@/components/ui'
 import { Trash2, Copy, Move, Palette, Clock, Layers } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -52,7 +52,7 @@ export function ZonePropertiesEditor({
   })
 
   // Update local values when zone changes
-  useState(() => {
+  useEffect(() => {
     if (zone) {
       setLocalValues({
         name: zone.name,
@@ -74,7 +74,7 @@ export function ZonePropertiesEditor({
     }
   }
 
-  const handleBackgroundChange = (background: { type: string; value?: string }) => {
+  const handleBackgroundChange = (background: { type: 'transparent' | 'color' | 'gradient'; value?: string }) => {
     if (zone) {
       onZoneUpdate(zone.zone_id, { background })
     }

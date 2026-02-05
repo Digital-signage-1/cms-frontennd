@@ -25,7 +25,7 @@ export default function WorkspaceSettingsPage() {
   const [workspaceData, setWorkspaceData] = useState({
     name: workspace?.name || '',
     slug: workspace?.slug || '',
-    description: workspace?.description || '',
+    description: (workspace as any)?.description || '',
   })
 
   const handleSave = async () => {

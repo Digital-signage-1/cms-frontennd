@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
 import { useApps, useDeleteApp } from '@/hooks/queries/useApps'
 import { useContentItem } from '@/hooks/queries'
-import type { App } from '@signage/types'
+import type { App as SignageApp } from '@signage/types'
 import { motion } from 'framer-motion'
 import { formatDate } from '@/lib/utils'
 
@@ -51,21 +51,21 @@ export default function AppsPage() {
   const { data: apps = [], isLoading, error, refetch } = useApps(workspaceId)
   const deleteAppMutation = useDeleteApp()
 
-  const filteredApps = Array.isArray(apps) ? apps.filter((app: App) => {
+  const filteredSignageApps = Array.isArray(apps) ? apps.filter((app: SignageApp) => {
     const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         app.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      app.description?.toLowerCase().includes(searchQuery.toLowerCase())
     const matchesStatus = selectedStatus === 'all' || app.status === selectedStatus
     return matchesSearch && matchesStatus
   }) : []
 
   const statusCounts = {
     all: Array.isArray(apps) ? apps.length : 0,
-    active: Array.isArray(apps) ? apps.filter((a: App) => a.status === 'active').length : 0,
-    draft: Array.isArray(apps) ? apps.filter((a: App) => a.status === 'draft').length : 0,
-    archived: Array.isArray(apps) ? apps.filter((a: App) => a.status === 'archived').length : 0,
+    active: Array.isArray(apps) ? apps.filter((a: SignageApp) => a.status === 'active').length : 0,
+    draft: Array.isArray(apps) ? apps.filter((a: SignageApp) => a.status === 'draft').length : 0,
+    archived: Array.isArray(apps) ? apps.filter((a: any) => a.status === 'archived').length : 0,
   }
 
-  const handleDelete = async (app: App) => {
+  const handleDelete = async (app: SignageApp) => {
     if (!confirm(`Are you sure you want to delete "${app.name}"?`)) return
     try {
       await deleteAppMutation.mutateAsync({ workspaceId, appId: app.app_id })
@@ -98,7 +98,7 @@ export default function AppsPage() {
                 {statusCounts.all} {statusCounts.all === 1 ? 'app' : 'apps'}
               </p>
             </div>
-            <Button 
+            <Button
               onClick={() => router.push('/apps/create')}
               className="bg-primary hover:bg-primary-hover text-white gap-2"
             >
@@ -114,11 +114,10 @@ export default function AppsPage() {
                   <button
                     key={status}
                     onClick={() => setSelectedStatus(status)}
-                    className={`transition-colors ${
-                      isActive
-                        ? 'text-primary font-medium'
-                        : 'text-text-muted hover:text-text-primary'
-                    }`}
+                    className={`transition-colors ${isActive
+                      ? 'text-primary font-medium'
+                      : 'text-text-muted hover:text-text-primary'
+                      }`}
                   >
                     {status.charAt(0).toUpperCase() + status.slice(1)}
                   </button>
@@ -146,7 +145,7 @@ export default function AppsPage() {
               <Skeleton key={i} className="h-64" />
             ))}
           </div>
-        ) : filteredApps.length === 0 ? (
+        ) : filteredSignageApps.length === 0 ? (
           <EmptyState
             title={searchQuery ? 'No apps found' : 'No apps yet'}
             description={searchQuery ? 'Try adjusting your search query or filters' : 'Create your first app to display content on your screens'}
@@ -158,8 +157,8 @@ export default function AppsPage() {
           />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredApps.map((app: App, index) => (
-              <AppCard
+            {filteredSignageApps.map((app: SignageApp, index) => (
+              <SignageAppCard
                 key={app.app_id}
                 app={app}
                 index={index}
@@ -177,8 +176,8 @@ export default function AppsPage() {
   )
 }
 
-interface AppCardProps {
-  app: App
+interface SignageAppCardProps {
+  app: SignageApp
   index: number
   workspaceId: string
   isHovered: boolean
@@ -187,9 +186,9 @@ interface AppCardProps {
   onDelete: () => void
 }
 
-function AppCard({ app, index, workspaceId, isHovered, onHover, onEdit, onDelete }: AppCardProps) {
+function SignageAppCard({ app, index, workspaceId, isHovered, onHover, onEdit, onDelete }: SignageAppCardProps) {
   const Icon = getAppIcon(app.template_type)
-  
+
   const { data: contentItem } = useContentItem(
     workspaceId,
     app.content_id || '',
@@ -210,31 +209,30 @@ function AppCard({ app, index, workspaceId, isHovered, onHover, onEdit, onDelete
       onMouseEnter={() => onHover(app.app_id)}
       onMouseLeave={() => onHover(null)}
     >
-      <div 
+      <div
         onClick={onEdit}
         className="bg-surface border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-all cursor-pointer"
       >
         <div className="aspect-video bg-background relative overflow-hidden">
-          <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
-            isHovered ? 'opacity-0' : 'opacity-100'
-          }`}>
+          <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'
+            }`}>
             <Icon className="h-20 w-20 text-text-muted/20" />
           </div>
-          
+
           {isHovered && contentItem?.url && (
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <ContentRenderer
-                app={appWithUrl}
-                className="w-full h-full"
+                appId={app.app_id}
+                app={appWithUrl as any}
               />
             </div>
           )}
-          
+
           <div className="absolute top-3 right-3">
             <div className={`w-2 h-2 rounded-full ${getStatusColor(app.status)}`} />
           </div>
         </div>
-        
+
         <div className="p-4">
           <h3 className="font-semibold text-text-primary mb-1 truncate">
             {app.name}
@@ -244,11 +242,11 @@ function AppCard({ app, index, workspaceId, isHovered, onHover, onEdit, onDelete
           </p>
         </div>
       </div>
-      
+
       <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 pointer-events-none group-hover:pointer-events-auto">
-        <Button 
-          size="icon" 
-          variant="secondary" 
+        <Button
+          size="icon"
+          variant="secondary"
           onClick={(e) => {
             e.stopPropagation()
             onEdit()
@@ -257,8 +255,8 @@ function AppCard({ app, index, workspaceId, isHovered, onHover, onEdit, onDelete
         >
           <Edit2 className="h-4 w-4" />
         </Button>
-        <Button 
-          size="icon" 
+        <Button
+          size="icon"
           variant="secondary"
           onClick={(e) => {
             e.stopPropagation()

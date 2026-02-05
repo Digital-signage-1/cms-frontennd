@@ -46,13 +46,7 @@ export { EmptyState } from './empty-state'
 export { StatusDot } from './status-dot'
 export {
   Drawer,
-  DrawerPortal,
-  DrawerOverlay,
-  DrawerTrigger,
   DrawerContent,
   DrawerHeader,
   DrawerFooter,
-  DrawerTitle,
-  DrawerDescription,
-  DrawerClose,
 } from './drawer'

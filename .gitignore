@@ -1,4 +1,4 @@
-# Dependencies
+  # Dependencies
 node_modules/
 /.pnp
 .pnp.js
@@ -56,6 +56,7 @@ coverage/
 
 # Miscellaneous
 *.log
+build_output*.txt
 .cache/
 
 # Local development
