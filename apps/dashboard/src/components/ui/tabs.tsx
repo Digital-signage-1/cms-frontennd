@@ -45,7 +45,7 @@ export function TabsList({ children, className }: TabsListProps) {
   return (
     <div
       className={cn(
-        'inline-flex h-10 items-center justify-center rounded-lg bg-surface-alt p-1 text-text-muted',
+        'inline-flex h-9 items-center justify-center gap-1 rounded-lg bg-surface-alt/50 p-1 text-text-muted border border-border-subtle',
         className
       )}
     >
@@ -74,8 +74,8 @@ export function TabsTrigger({ value, children, className }: TabsTriggerProps) {
       className={cn(
         'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
         isSelected
-          ? 'bg-background text-foreground shadow-sm'
-          : 'text-text-muted hover:text-text-primary',
+          ? 'bg-surface text-text-primary shadow-xs border border-border'
+          : 'text-text-muted hover:text-text-secondary',
         className
       )}
       onClick={() => onValueChange(value)}

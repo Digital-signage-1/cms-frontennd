@@ -21,7 +21,7 @@ const TimelineGrid = ({ schedules }: { schedules: any[] }) => {
       <div className="min-w-[800px]">
         <div className="grid grid-cols-[80px_1fr] gap-0">
           <div className="sticky left-0 bg-surface z-10">
-            <div className="h-12 border-b border-border/50" />
+            <div className="h-12 border-b border-border" />
             {HOURS.map((hour) => (
               <div
                 key={hour}
@@ -33,7 +33,7 @@ const TimelineGrid = ({ schedules }: { schedules: any[] }) => {
           </div>
 
           <div className="relative">
-            <div className="grid grid-cols-7 h-12 border-b border-border/50">
+            <div className="grid grid-cols-7 h-12 border-b border-border">
               {DAYS.map((day) => (
                 <div
                   key={day}
@@ -109,7 +109,7 @@ const ScheduleCard = ({ schedule, onDelete, onEdit }: { schedule: any; onDelete:
       <GlassCard variant="light" className="group">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-xl">
+            <div className="p-2 bg-primary/10 rounded-lg">
               <Clock className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -148,7 +148,7 @@ const ScheduleCard = ({ schedule, onDelete, onEdit }: { schedule: any; onDelete:
                   className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-medium transition-colors ${
                     isActive
                       ? 'bg-primary/20 text-primary border border-primary/30'
-                      : 'bg-surface-alt text-text-muted border border-border/50'
+                      : 'bg-surface-alt text-text-muted border border-border'
                   }`}
                 >
                   {day[0]}
@@ -158,7 +158,7 @@ const ScheduleCard = ({ schedule, onDelete, onEdit }: { schedule: any; onDelete:
           </div>
         )}
 
-        <div className="flex gap-2 pt-3 border-t border-border/50">
+        <div className="flex gap-2 pt-3 border-t border-border">
           <Button size="sm" variant="outline" onClick={onEdit} className="flex-1 gap-2 rounded-lg">
             <Edit className="h-3 w-3" /> Edit
           </Button>
@@ -219,7 +219,7 @@ export default function SchedulesPage() {
       animate="visible"
       className="min-h-screen bg-background"
     >
-      <div className="glass-light sticky top-0 z-20 border-b border-border/50">
+      <div className="bg-surface/95 backdrop-blur-sm sticky top-0 z-20 border-b border-border">
         <div className="max-w-7xl mx-auto px-8 py-6">
           <motion.div variants={fadeInUpVariants} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
@@ -230,7 +230,7 @@ export default function SchedulesPage() {
             </div>
             <Button 
               onClick={() => setIsModalOpen(true)}
-              className="bg-primary hover:bg-primary-hover text-white shadow-lg border-0 gap-2 rounded-xl"
+              className="bg-primary hover:bg-primary-hover text-white shadow-lg border-0 gap-2 rounded-md"
             >
               <Plus className="h-4 w-4" /> New Schedule
             </Button>
@@ -243,11 +243,11 @@ export default function SchedulesPage() {
                 placeholder="Search schedules..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-surface/50 border-border/50 focus:border-primary/30 rounded-xl"
+                className="pl-9 bg-transparent border-border focus:border-primary/50 rounded-md"
               />
             </div>
 
-            <div className="flex gap-1 p-1 rounded-xl bg-surface/50 border border-border/50">
+            <div className="flex gap-1 p-1 rounded-md bg-surface/50 border border-border">
               <button
                 onClick={() => setViewMode('timeline')}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -277,7 +277,7 @@ export default function SchedulesPage() {
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 bg-surface/50 rounded-2xl animate-pulse" />
+              <div key={i} className="h-32 bg-surface/50 rounded-lg animate-pulse" />
             ))}
           </div>
         ) : filteredSchedules.length === 0 ? (

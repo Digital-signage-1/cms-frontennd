@@ -331,7 +331,7 @@ export default function ContentPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-        <div className="glass-light sticky top-0 z-10 border-b border-border/50">
+        <div className="bg-surface/95 backdrop-blur-sm sticky top-0 z-10 border-b border-border">
           <div className="px-8 py-6">
             <motion.div variants={fadeInUpVariants} className="flex items-center justify-between mb-6">
               <div className="flex-1">
@@ -358,13 +358,13 @@ export default function ContentPage() {
                 <Button 
                   onClick={() => handleCreateFolder(currentFolder)}
                   variant="outline"
-                  className="gap-2 rounded-xl border-border/50 bg-surface/50 hover:bg-surface"
+                  className="gap-2 rounded-md border-border bg-surface/50 hover:bg-surface"
                 >
                   <FolderPlus className="h-4 w-4" /> New Folder
                 </Button>
                 <Button 
                   onClick={() => document.getElementById('file-upload')?.click()}
-                  className="bg-primary hover:bg-primary-hover text-white gap-2 shadow-lg rounded-xl"
+                  className="bg-primary hover:bg-primary-hover text-white gap-2 shadow-lg rounded-md"
                 >
                   <UploadCloud className="h-4 w-4" /> Upload
                 </Button>
@@ -429,7 +429,7 @@ export default function ContentPage() {
                   placeholder="Search media..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 bg-surface/50 border-border/50 focus:border-primary/30 rounded-xl"
+                  className="pl-9 bg-transparent border-border focus:border-primary/50 rounded-md"
                 />
               </div>
 
@@ -437,7 +437,7 @@ export default function ContentPage() {
                 <Button
                   variant="outline"
                   onClick={() => handleDelete(selectedAssets)}
-                  className="text-error border-error hover:bg-error/10 rounded-xl"
+                  className="text-error border-error hover:bg-error/10 rounded-md"
                 >
                   Delete ({selectedAssets.length})
                 </Button>

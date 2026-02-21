@@ -99,7 +99,7 @@ export default function WorkspaceSettingsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="glass-light sticky top-0 z-20 border-b border-border/50">
+      <div className="bg-surface/95 backdrop-blur-sm sticky top-0 z-20 border-b border-border">
         <div className="max-w-5xl mx-auto px-8 py-6">
           <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Workspace Settings</h1>
           <p className="text-sm text-text-secondary mt-1">

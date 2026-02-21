@@ -26,6 +26,24 @@
   </head>
   <body>
     <div id="root"></div>
+    <div id="unsupported" style="display:none;background:#000;color:#fff;width:100%;height:100%;position:fixed;top:0;left:0;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;padding:2rem;">
+      <p style="font-size:1.5rem;margin-bottom:1rem;">Browser Not Supported</p>
+      <p>This player requires Chrome 51 or newer. Please update your device browser.</p>
+    </div>
+    <script>
+      // Show fallback if browser is too old for both module and nomodule scripts
+      (function() {
+        try {
+          // Test for basic ES2015 features needed by the legacy bundle
+          new Function('var f = () => {}; var p = Promise.resolve();');
+        } catch(e) {
+          var el = document.getElementById('unsupported');
+          if (el) { el.style.display = 'flex'; }
+          var root = document.getElementById('root');
+          if (root) { root.style.display = 'none'; }
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

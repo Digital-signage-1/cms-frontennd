@@ -25,9 +25,9 @@ export function GlassCard({
   return (
     <div
       className={cn(
-        'rounded-2xl p-6',
+        'rounded-lg p-5',
         variantClasses[variant],
-        hover && 'transition-all duration-300 hover:shadow-lg hover:-translate-y-1',
+        hover && 'transition-colors duration-150 hover:border-primary/20',
         className
       )}
     >

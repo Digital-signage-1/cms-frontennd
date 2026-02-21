@@ -132,7 +132,7 @@ export default function AnalyticsPage() {
       animate="visible"
       className="min-h-screen bg-background"
     >
-      <div className="glass-light sticky top-0 z-20 border-b border-border/50">
+      <div className="bg-surface/95 backdrop-blur-sm sticky top-0 z-20 border-b border-border">
         <div className="max-w-7xl mx-auto px-8 py-6">
           <motion.div variants={fadeInUpVariants} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>

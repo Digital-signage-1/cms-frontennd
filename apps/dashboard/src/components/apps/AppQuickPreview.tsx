@@ -81,7 +81,7 @@ export function AppQuickPreview({
 
           <div className="p-3">
             <div
-              className="relative bg-background rounded border border-border/50 overflow-hidden shadow-inner"
+              className="relative bg-background rounded border border-border overflow-hidden shadow-inner"
               style={{
                 width: '100%',
                 aspectRatio: '16 / 9',

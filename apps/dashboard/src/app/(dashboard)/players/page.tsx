@@ -37,7 +37,7 @@ export default function PlayersPage() {
       animate="visible"
       className="h-screen bg-background flex flex-col overflow-hidden"
     >
-      <div className="glass-light border-b border-border/50 shrink-0">
+      <div className="bg-surface/95 backdrop-blur-sm border-b border-border shrink-0">
         <div className="px-8 py-6">
           <motion.div variants={fadeInUpVariants} className="flex items-center justify-between mb-6">
             <div>
@@ -46,7 +46,7 @@ export default function PlayersPage() {
             </div>
             <Button
               onClick={() => setIsRegistrationModalOpen(true)}
-              className="bg-primary hover:bg-primary-hover text-white shadow-lg border-0 gap-2 rounded-xl"
+              className="bg-primary hover:bg-primary-hover text-white shadow-lg border-0 gap-2 rounded-md"
             >
               <Plus className="h-4 w-4" /> Register Player
             </Button>
@@ -68,7 +68,7 @@ export default function PlayersPage() {
               </div>
             </div>
 
-            <div className="h-6 w-px bg-border/50" />
+            <div className="h-6 w-px bg-border" />
 
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
@@ -76,7 +76,7 @@ export default function PlayersPage() {
                 placeholder="Search players..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-surface/50 border-border/50 focus:border-primary/30 h-10 rounded-xl"
+                className="pl-9 bg-transparent border-border focus:border-primary/50 h-9 rounded-md"
               />
             </div>
           </motion.div>
@@ -102,7 +102,7 @@ export default function PlayersPage() {
           initial={{ x: 20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="w-96 glass-heavy border-l border-border/50 overflow-y-auto"
+          className="w-96 bg-surface-elevated border border-border border-l border-border overflow-y-auto"
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -115,7 +115,7 @@ export default function PlayersPage() {
             {playersLoading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map(i => (
-                  <div key={i} className="h-24 bg-surface/50 rounded-xl animate-pulse" />
+                  <div key={i} className="h-24 bg-surface/50 rounded-lg animate-pulse" />
                 ))}
               </div>
             ) : filteredPlayers.length === 0 ? (
@@ -175,7 +175,7 @@ export default function PlayersPage() {
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="p-2 bg-surface-alt rounded-xl">
+                        <div className="p-2 bg-surface-alt rounded-lg">
                           <Monitor className="h-5 w-5 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">

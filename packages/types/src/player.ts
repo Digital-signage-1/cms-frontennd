@@ -83,15 +83,20 @@ export interface PlayerCommand {
   completed_at?: string
 }
 
+/**
+ * PlayerConfig as returned by GET /players/{id}/config
+ * Backend returns inline channel data (not a manifest_url)
+ */
 export interface PlayerConfig {
-  player_id: string
-  channel?: {
-    channel_id: string
-    manifest_url: string
-    version: string
+  player: {
+    id: string
+    name: string
+    device_type: string
+    settings: PlayerSettings | null
   }
-  settings: PlayerSettings
-  commands: PlayerCommand[]
+  channel: Record<string, any> | null
+  workspace_id: string
+  channel_source: 'schedule' | 'default'
 }
 
 export interface PairingRequest {

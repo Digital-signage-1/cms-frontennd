@@ -41,14 +41,14 @@ export function Sidebar() {
         if (collapsed) setIsExpanded(false)
       }}
       className={cn(
-        'fixed left-0 top-0 z-40 flex h-screen flex-col glass-heavy border-r border-border/50 transition-all duration-300 ease-in-out',
-        actualExpanded ? 'w-[240px]' : 'w-[56px]'
+        'fixed left-0 top-0 z-40 flex h-screen flex-col bg-surface border-r border-border transition-all duration-300 ease-in-out',
+        actualExpanded ? 'w-[220px]' : 'w-[52px]'
       )}
     >
-      <div className="flex h-16 items-center border-b border-border/50 px-4 transition-all backdrop-blur-xl">
+      <div className="flex h-14 items-center border-b border-border px-4 transition-all">
         <Link href="/home" className="flex items-center gap-3 overflow-hidden">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-white">
-            <span className="text-lg font-bold">S</span>
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-text-primary text-background">
+            <span className="text-sm font-bold tracking-tight">S</span>
           </div>
           <AnimatePresence>
             {actualExpanded && (
@@ -79,10 +79,10 @@ export function Sidebar() {
             >
               <div
                 className={cn(
-                  'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all relative',
+                  'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors relative',
                   isActive
-                    ? 'text-primary'
-                    : 'text-text-secondary hover:bg-surface-alt/50 hover:text-text-primary'
+                    ? 'bg-primary/8 text-primary'
+                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
                 )}
               >
                 {isActive && (
@@ -111,7 +111,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-3 border-t border-border/50 space-y-1 backdrop-blur-xl">
+      <div className="p-3 border-t border-border space-y-1">
         {BOTTOM_NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href
           const Icon = item.icon
@@ -123,10 +123,10 @@ export function Sidebar() {
             >
               <div
                 className={cn(
-                  'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+                  'group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-surface-alt text-text-primary'
-                    : 'text-text-secondary hover:bg-surface-alt/50 hover:text-text-primary'
+                    ? 'bg-surface-hover text-text-primary'
+                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0 text-text-muted group-hover:text-primary transition-colors" />
@@ -153,7 +153,7 @@ export function Sidebar() {
             variant="ghost"
             size="sm"
             onClick={toggle}
-            className="w-full justify-center mt-2 text-text-muted hover:text-primary h-10 rounded-lg"
+            className="w-full justify-center mt-2 text-text-muted hover:text-text-primary h-9 rounded-md"
           >
             <motion.div
               animate={{ rotate: collapsed ? 180 : 0 }}

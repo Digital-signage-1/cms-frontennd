@@ -1,4 +1,4 @@
-import type { ChannelManifest, PlayerHeartbeat } from '@signage/types'
+import type { ChannelManifest } from '@signage/types'
 import { DeviceManager } from './DeviceManager'
 
 const API_BASE_URL = (import.meta.env?.VITE_API_URL as string) || 'http://localhost:8080/api/v1'
@@ -22,75 +22,61 @@ export class PlayerEngine {
     return PlayerEngine.instance
   }
 
-  async loadChannel(manifestUrl: string): Promise<ChannelManifest> {
-    try {
-      const response = await fetch(manifestUrl)
-      if (!response.ok) {
-        throw new Error('Failed to load channel manifest')
-      }
-      
-      this.currentManifest = await response.json()
-      return this.currentManifest!
-    } catch (err) {
-      console.error('Failed to load channel:', err)
-      return this.getMockManifest()
-    }
-  }
+  /**
+   * Transform backend inline channel data into a ChannelManifest
+   * that the renderer understands.
+   *
+   * Backend format (from get_channel_manifest):
+   *   { channel_id, name, layout_type, background, zones: [...] }
+   *
+   * Renderer expects:
+   *   { channel: { channel_id, name, ... }, zones: [...] }
+   */
+  loadFromConfig(channelData: Record<string, any>): ChannelManifest {
+    const { zones: rawZones, ...channelFields } = channelData
 
-  private getMockManifest(): ChannelManifest {
-    return {
-      channel: {
-        channel_id: 'demo-channel',
-        workspace_id: 'demo',
-        name: 'Demo Channel',
-        layout_type: 'custom',
-        layout: { width: 1920, height: 1080, orientation: 'landscape' },
-        background: { type: 'color', value: '#1a1a2e' },
-        transition_type: 'fade',
-        transition_duration: 500,
-        status: 'published',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-      zones: [
-        {
-          zone_id: 'zone-1',
-          channel_id: 'demo-channel',
-          name: 'Main',
-          x_percent: 0,
-          y_percent: 0,
-          width_percent: 70,
-          height_percent: 100,
-          z_index: 1,
-          app_count: 1,
-          apps: [],
-        },
-        {
-          zone_id: 'zone-2',
-          channel_id: 'demo-channel',
-          name: 'Sidebar',
-          x_percent: 70,
-          y_percent: 0,
-          width_percent: 30,
-          height_percent: 50,
-          z_index: 1,
-          app_count: 1,
-          apps: [],
-        },
-        {
-          zone_id: 'zone-3',
-          channel_id: 'demo-channel',
-          name: 'Clock',
-          x_percent: 70,
-          y_percent: 50,
-          width_percent: 30,
-          height_percent: 50,
-          z_index: 1,
-          app_count: 1,
-          apps: [],
-        },
-      ],
+    // Normalize layout_type casing: backend uses UPPERCASE, renderer expects lowercase
+    const layoutType = (channelFields.layout_type || 'single').toLowerCase()
+
+    const channel = {
+      channel_id: channelFields.channel_id,
+      workspace_id: channelFields.workspace_id || '',
+      name: channelFields.name,
+      description: channelFields.description,
+      layout_type: layoutType as any,
+      layout: channelFields.layout_config || { width: 1920, height: 1080, orientation: 'landscape' as const },
+      background: channelFields.background || { type: 'color' as const, value: '#000000' },
+      transition_type: (channelFields.transition_type || 'fade') as any,
+      transition_duration: channelFields.transition_duration ?? 500,
+      status: (channelFields.status || 'published').toLowerCase() as any,
+      created_at: channelFields.created_at || '',
+      updated_at: channelFields.updated_at || '',
+      published_at: channelFields.published_at,
     }
+
+    const zones = (rawZones || []).map((z: any) => ({
+      zone_id: z.zone_id,
+      channel_id: channel.channel_id,
+      name: z.name,
+      x_percent: z.x_percent ?? z.x ?? 0,
+      y_percent: z.y_percent ?? z.y ?? 0,
+      width_percent: z.width_percent ?? z.width ?? 100,
+      height_percent: z.height_percent ?? z.height ?? 100,
+      z_index: z.z_index ?? 1,
+      background: z.background,
+      app_count: z.apps?.length || 0,
+      apps: (z.apps || []).map((a: any) => ({
+        zone_app_id: a.zone_app_id,
+        zone_id: z.zone_id,
+        app_id: a.app_id,
+        order: a.sequence ?? a.order ?? 0,
+        duration_seconds: a.duration_seconds ?? a.duration ?? 10,
+        app: a.app || null,
+      })),
+    }))
+
+    this.currentManifest = { channel, zones }
+    return this.currentManifest
   }
 
   startHeartbeat(): void {
@@ -118,15 +104,6 @@ export class PlayerEngine {
 
     if (!playerId || !deviceToken) return
 
-    const heartbeat: Partial<PlayerHeartbeat> = {
-      status: 'online',
-      cpu_percent: Math.random() * 30 + 10,
-      memory_percent: Math.random() * 40 + 20,
-      storage_free_mb: 5000 + Math.random() * 1000,
-      current_channel_version: this.currentManifest?.channel.channel_id,
-      timestamp: new Date().toISOString(),
-    }
-
     try {
       await fetch(`${API_BASE_URL}/players/${playerId}/heartbeat`, {
         method: 'POST',
@@ -134,7 +111,14 @@ export class PlayerEngine {
           'Content-Type': 'application/json',
           'X-Device-Token': deviceToken,
         },
-        body: JSON.stringify(heartbeat),
+        body: JSON.stringify({
+          status: 'online',
+          cpu_percent: Math.random() * 30 + 10,
+          memory_percent: Math.random() * 40 + 20,
+          storage_free_mb: 5000 + Math.random() * 1000,
+          current_channel_version: this.currentManifest?.channel.channel_id,
+          timestamp: new Date().toISOString(),
+        }),
       })
     } catch (err) {
       console.error('Failed to send heartbeat:', err)

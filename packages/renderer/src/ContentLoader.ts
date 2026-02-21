@@ -83,7 +83,9 @@ export class ContentLoader {
   }
 
   private async fetchContent(url: string): Promise<LoadedContent> {
-    const controller = new AbortController()
+    const controller = typeof AbortController !== 'undefined'
+      ? new AbortController()
+      : { signal: undefined as AbortSignal | undefined, abort: () => {} }
     const timeoutId = setTimeout(() => controller.abort(), this.options.timeout)
 
     try {

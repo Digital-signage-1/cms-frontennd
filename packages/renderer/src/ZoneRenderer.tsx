@@ -114,6 +114,7 @@ export function ZoneRenderer({
         <div className="absolute inset-0">
           <ContentRenderer
             appId={currentApp.app_id}
+            app={(currentApp as any).app}
             onError={onError}
           />
         </div>
@@ -121,6 +122,7 @@ export function ZoneRenderer({
           <div className="absolute inset-0">
             <ContentRenderer
               appId={nextApp.app_id}
+              app={(nextApp as any).app}
               onError={onError}
             />
           </div>

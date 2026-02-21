@@ -43,7 +43,7 @@ export function DataTable<T extends { id: string }>({
   return (
     <div className="w-full overflow-x-auto">
       <table className="w-full">
-        <thead className="sticky top-0 bg-surface border-b border-border-subtle">
+        <thead className="sticky top-0 bg-surface-alt/50 backdrop-blur-sm border-b border-border">
           <tr className="h-10">
             {selectable && (
               <th className="w-12 px-4">
@@ -66,12 +66,12 @@ export function DataTable<T extends { id: string }>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-border-subtle">
+        <tbody>
           {data.map(row => (
             <tr 
               key={row.id}
               onClick={() => onRowClick?.(row)}
-              className={`h-13 hover:bg-surface-alt transition-colors ${
+              className={`h-12 hover:bg-surface-hover transition-colors border-b border-border-subtle last:border-b-0 ${
                 onRowClick ? 'cursor-pointer' : ''
               }`}
             >
@@ -86,7 +86,7 @@ export function DataTable<T extends { id: string }>({
                 </td>
               )}
               {columns.map(column => (
-                <td key={column.key} className="px-4 py-3 text-sm text-text-primary">
+                <td key={column.key} className="px-4 py-3 text-sm text-text-primary tabular-nums">
                   {column.cell(row)}
                 </td>
               ))}

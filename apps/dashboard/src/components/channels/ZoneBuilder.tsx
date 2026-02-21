@@ -267,7 +267,7 @@ export function ZoneBuilder({
                     {zone.apps.slice(0, 3).map((zoneApp: any, appIndex: number) => (
                       <div
                         key={appIndex}
-                        className="text-xs bg-surface/80 text-text-primary rounded px-2 py-0.5 border border-border/50"
+                        className="text-xs bg-surface/80 text-text-primary rounded px-2 py-0.5 border border-border"
                       >
                         {zoneApp.app?.name || 'App'}
                       </div>

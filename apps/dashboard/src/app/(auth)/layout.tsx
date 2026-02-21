@@ -22,7 +22,7 @@ export default function AuthLayout({
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-border border-t-primary rounded-full animate-spin" />
       </div>
     )
   }
@@ -33,32 +33,33 @@ export default function AuthLayout({
 
   return (
     <div className="flex min-h-screen">
-      <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center p-12">
-        <div className="max-w-md text-white">
+      <div className="hidden lg:flex lg:w-1/2 bg-[#0A0A0B] items-center justify-center p-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-dots opacity-[0.15]" />
+        <div className="max-w-md text-white relative z-10">
           <div className="flex items-center gap-3 mb-8">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10">
-              <span className="text-xl font-bold">S</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10">
+              <span className="text-lg font-bold">S</span>
             </div>
-            <span className="text-2xl font-semibold">SignageOS</span>
+            <span className="text-xl font-semibold tracking-tight">Studio</span>
           </div>
-          <h1 className="text-4xl font-bold mb-4">
+          <h1 className="text-3xl font-bold tracking-tight mb-4">
             Digital Signage Made Simple
           </h1>
-          <p className="text-lg text-white/80">
+          <p className="text-base text-white/60">
             Manage your screens, content, and players from anywhere. Create stunning displays that captivate your audience.
           </p>
           <div className="mt-12 grid grid-cols-3 gap-6">
             <div>
-              <div className="text-3xl font-bold">10K+</div>
-              <div className="text-sm text-white/60">Active Screens</div>
+              <div className="text-3xl font-bold font-mono tabular-nums">10K+</div>
+              <div className="text-sm text-white/40">Active Screens</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">500+</div>
-              <div className="text-sm text-white/60">Companies</div>
+              <div className="text-3xl font-bold font-mono tabular-nums">500+</div>
+              <div className="text-sm text-white/40">Companies</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">99.9%</div>
-              <div className="text-sm text-white/60">Uptime</div>
+              <div className="text-3xl font-bold font-mono tabular-nums">99.9%</div>
+              <div className="text-sm text-white/40">Uptime</div>
             </div>
           </div>
         </div>

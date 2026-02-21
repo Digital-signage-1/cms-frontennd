@@ -122,7 +122,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
         data: {
           app_id: app.app_id,
           duration_seconds: 30,
-          order: 0,
+          sequence: 0,
         }
       })
 

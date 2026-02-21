@@ -73,8 +73,8 @@ export function FloatingPanel({
             animate="visible"
             exit="exit"
             className={cn(
-              'fixed z-50 rounded-2xl p-6',
-              glass ? 'glass-heavy' : 'bg-surface border border-border',
+              'fixed z-50 rounded-lg p-6',
+              glass ? 'bg-surface-elevated border border-border' : 'bg-surface border border-border',
               'shadow-2xl',
               positionClasses[position],
               className

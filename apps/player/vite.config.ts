@@ -1,10 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import legacy from '@vitejs/plugin-legacy'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   plugins: [
     react(),
+    legacy({
+      targets: ['Chrome >= 51', 'Firefox >= 54', 'Safari >= 10'],
+      additionalLegacyPolyfills: ['regenerator-runtime/runtime'],
+      modernPolyfills: true,
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
@@ -46,6 +52,9 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    cssTarget: 'chrome51',
+  },
   resolve: {
     alias: {
       '@': '/src',

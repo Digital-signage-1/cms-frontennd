@@ -13,12 +13,14 @@ import {
 import { useAuthStore } from '@/stores/auth-store'
 import {
   useChannel, useChannelManifest, useUpdateChannel, usePublishChannel,
-  useAddZoneApp, useCreateZone, useChannelZones
+  useAddZoneApp, useRemoveZoneApp, useUpdateZoneApp, useCreateZone, useUpdateZone, useDeleteZone, useChannelZones
 } from '@/hooks/queries/useChannels'
 import { useApps } from '@/hooks/queries'
 import { ZoneBuilder, ZoneToolbar } from '@/components/channels/ZoneBuilder'
 import { ZonePropertiesEditor } from '@/components/channels/ZonePropertiesEditor'
+import { ChannelRenderer } from '@signage/renderer'
 import { LAYOUT_TEMPLATES, getAllLayoutTemplates } from '@/lib/layout-templates'
+import { ZoneValidator } from '@/lib/zone-validation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -44,6 +46,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const [channelName, setChannelName] = useState('')
   const [selectedZone, setSelectedZone] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'design' | 'preview'>('design')
+  const [validationError, setValidationError] = useState<string | null>(null)
   const [showGrid, setShowGrid] = useState(true)
   const [sidebarMode, setSidebarMode] = useState<'apps' | 'properties'>('apps')
 
@@ -54,7 +57,11 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const updateChannelMutation = useUpdateChannel()
   const publishChannelMutation = usePublishChannel()
   const addZoneAppMutation = useAddZoneApp()
+  const removeZoneAppMutation = useRemoveZoneApp()
+  const updateZoneAppMutation = useUpdateZoneApp()
   const createZoneMutation = useCreateZone()
+  const updateZoneMutation = useUpdateZone()
+  const deleteZoneMutation = useDeleteZone()
 
   // Processed data
   const availableApps = Array.isArray(appsData) ? appsData : []
@@ -103,7 +110,22 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const handleZoneCreate = async (zoneConfig: any) => {
     if (!workspaceId || !channelData) return
 
+    // Validate before creating
+    const existingZones = zones.map(z => ({
+      zone_id: z.zone_id, name: z.name,
+      x: z.x_percent, y: z.y_percent,
+      width: z.width_percent, height: z.height_percent,
+      z_index: z.z_index,
+    }))
+    const validation = ZoneValidator.validateZone(zoneConfig, existingZones)
+    if (!validation.isValid) {
+      setValidationError(validation.errors[0])
+      setTimeout(() => setValidationError(null), 4000)
+      return
+    }
+
     try {
+      setValidationError(null)
       await createZoneMutation.mutateAsync({
         workspaceId,
         channelId: channelData.channel_id,
@@ -122,20 +144,82 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const handleZoneUpdate = async (zoneId: string, updates: Partial<Zone>) => {
+  const handleZoneUpdate = async (zoneId: string, updates: any) => {
     if (!workspaceId || !channelData) return
-    // TODO: Implement zone update API call
-    console.log('Zone update:', zoneId, updates)
+
+    // Map short field names (x/y/width/height from ZoneBuilder/PropertiesEditor)
+    // to _percent names for the API
+    const xVal = updates.x_percent ?? updates.x
+    const yVal = updates.y_percent ?? updates.y
+    const wVal = updates.width_percent ?? updates.width
+    const hVal = updates.height_percent ?? updates.height
+
+    // Validate update using short names (validator expects x/y/width/height)
+    const existingZones = zones.map(z => ({
+      zone_id: z.zone_id, name: z.name,
+      x: z.x_percent, y: z.y_percent,
+      width: z.width_percent, height: z.height_percent,
+      z_index: z.z_index,
+    }))
+    const mappedUpdates: any = { ...updates }
+    if (xVal !== undefined) mappedUpdates.x = xVal
+    if (yVal !== undefined) mappedUpdates.y = yVal
+    if (wVal !== undefined) mappedUpdates.width = wVal
+    if (hVal !== undefined) mappedUpdates.height = hVal
+
+    const validation = ZoneValidator.validateZoneUpdate(zoneId, mappedUpdates, existingZones)
+    if (!validation.isValid) {
+      setValidationError(validation.errors[0])
+      setTimeout(() => setValidationError(null), 4000)
+      return
+    }
+
+    try {
+      setValidationError(null)
+      await updateZoneMutation.mutateAsync({
+        workspaceId,
+        channelId: channelData.channel_id,
+        zoneId,
+        data: {
+          name: updates.name,
+          x_percent: xVal,
+          y_percent: yVal,
+          width_percent: wVal,
+          height_percent: hVal,
+          z_index: updates.z_index,
+          background: updates.background,
+        },
+      })
+    } catch (error) {
+      console.error('Failed to update zone:', error)
+    }
   }
 
   const handleZoneDelete = async (zoneId: string) => {
     if (!workspaceId || !channelData) return
-    // TODO: Implement zone delete API call
-    console.log('Zone delete:', zoneId)
+    try {
+      await deleteZoneMutation.mutateAsync({
+        workspaceId,
+        channelId: channelData.channel_id,
+        zoneId,
+      })
+      if (selectedZone === zoneId) {
+        setSelectedZone(null)
+      }
+    } catch (error) {
+      console.error('Failed to delete zone:', error)
+    }
   }
 
   const addAppToZone = async (zoneId: string, app: any) => {
     if (!workspaceId || !channelData) return
+
+    // Compute next sequence number from existing apps in the zone
+    const zone = zones.find(z => z.zone_id === zoneId)
+    const existingApps = zone?.apps || []
+    const nextSequence = existingApps.length > 0
+      ? Math.max(...existingApps.map((a: any) => a.sequence ?? a.order ?? 0)) + 1
+      : 0
 
     try {
       await addZoneAppMutation.mutateAsync({
@@ -145,11 +229,42 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
         data: {
           app_id: app.app_id,
           duration_seconds: 30,
-          order: 0,
+          sequence: nextSequence,
         }
       })
     } catch (error) {
       console.error('Failed to add app to zone:', error)
+    }
+  }
+
+  const handleRemoveApp = async (zoneId: string, zoneAppId: string) => {
+    if (!workspaceId || !channelData) return
+
+    try {
+      await removeZoneAppMutation.mutateAsync({
+        workspaceId,
+        channelId: channelData.channel_id,
+        zoneId,
+        zoneAppId,
+      })
+    } catch (error) {
+      console.error('Failed to remove app from zone:', error)
+    }
+  }
+
+  const handleUpdateApp = async (zoneId: string, zoneAppId: string, updates: { duration_seconds?: number; sequence?: number }) => {
+    if (!workspaceId || !channelData) return
+
+    try {
+      await updateZoneAppMutation.mutateAsync({
+        workspaceId,
+        channelId: channelData.channel_id,
+        zoneId,
+        zoneAppId,
+        data: updates,
+      })
+    } catch (error) {
+      console.error('Failed to update zone app:', error)
     }
   }
 
@@ -369,6 +484,8 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                     } : null}
                     onZoneUpdate={handleZoneUpdate}
                     onZoneDelete={handleZoneDelete}
+                    onRemoveApp={handleRemoveApp}
+                    onUpdateApp={handleUpdateApp}
                     onZoneDuplicate={(zoneId) => {
                       // TODO: Implement zone duplication
                       console.log('Duplicate zone:', zoneId)
@@ -392,6 +509,13 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
             showGrid={showGrid}
           />
 
+          {/* Validation Error */}
+          {validationError && (
+            <div className="mx-4 mt-2 px-4 py-2 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+              {validationError}
+            </div>
+          )}
+
           {/* Canvas Area */}
           <div className="flex-1 bg-surface-alt overflow-hidden relative">
             <AnimatePresence mode="wait">
@@ -403,52 +527,62 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="w-full h-full flex items-center justify-center p-8"
                 >
-                  {/* Professional Web Player Preview */}
+                  {/* Live Player Preview using real ChannelRenderer */}
                   <div className="relative">
                     <div className="w-[900px] h-[506px] bg-black rounded-lg shadow-2xl border-4 border-gray-800 overflow-hidden relative">
                       {/* Player Status Bar */}
-                      <div className="absolute top-0 left-0 right-0 h-6 bg-gray-900 flex items-center justify-between px-3 text-xs text-green-400 border-b border-gray-700">
-                        <span>● LIVE</span>
+                      <div className="absolute top-0 left-0 right-0 h-6 bg-gray-900 flex items-center justify-between px-3 text-xs text-green-400 border-b border-gray-700 z-50">
+                        <span>● PREVIEW</span>
                         <span>{channelName}</span>
                         <span>1920×1080</span>
                       </div>
 
-                      {/* Zone Rendering */}
+                      {/* Real Channel Renderer */}
                       <div className="relative w-full h-[calc(100%-24px)] mt-6">
-                        {zones.map((zone: any) => (
-                          <div
-                            key={zone.zone_id}
-                            className="absolute flex items-center justify-center"
-                            style={{
-                              left: `${zone.x_percent}%`,
-                              top: `${zone.y_percent}%`,
-                              width: `${zone.width_percent}%`,
-                              height: `${zone.height_percent}%`,
-                              background: zone.background?.type === 'color' ? zone.background.value :
-                                zone.background?.type === 'gradient' ? zone.background.value :
-                                  'rgba(255, 255, 255, 0.05)',
-                              zIndex: zone.z_index
+                        {manifestData ? (
+                          <ChannelRenderer
+                            manifest={{
+                              channel: {
+                                channel_id: channelData?.channel_id || '',
+                                workspace_id: workspaceId,
+                                name: channelName,
+                                layout_type: (channelData?.layout_type || 'single').toLowerCase() as any,
+                                background: channelData?.background || { type: 'color', value: '#000000' },
+                                transition_type: channelData?.transition_type || 'fade',
+                                transition_duration: channelData?.transition_duration || 500,
+                                status: channelData?.status || 'draft',
+                                layout: { width: 1920, height: 1080, orientation: 'landscape' },
+                                created_at: channelData?.created_at || '',
+                                updated_at: channelData?.updated_at || '',
+                              },
+                              zones: zones.map((z: any) => ({
+                                zone_id: z.zone_id,
+                                channel_id: channelData?.channel_id || '',
+                                name: z.name,
+                                x_percent: z.x_percent,
+                                y_percent: z.y_percent,
+                                width_percent: z.width_percent,
+                                height_percent: z.height_percent,
+                                z_index: z.z_index,
+                                background: z.background,
+                                app_count: z.apps?.length || 0,
+                                apps: (z.apps || []).map((a: any) => ({
+                                  zone_app_id: a.zone_app_id,
+                                  zone_id: z.zone_id,
+                                  app_id: a.app_id,
+                                  order: a.sequence ?? a.order ?? 0,
+                                  duration_seconds: a.duration_seconds || 30,
+                                  app: a.app,
+                                })),
+                              })),
                             }}
-                          >
-                            {zone.apps && zone.apps.length > 0 ? (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <div className="text-center text-white/90">
-                                  <p className="text-lg font-medium">{zone.apps[0].app?.name}</p>
-                                  <p className="text-sm opacity-70 capitalize">{zone.apps[0].app?.template_type}</p>
-                                  {zone.apps.length > 1 && (
-                                    <p className="text-xs opacity-60 mt-1">+{zone.apps.length - 1} more</p>
-                                  )}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="text-center text-white/50">
-                                <div className="w-8 h-8 border border-dashed border-white/30 rounded mx-auto mb-2" />
-                                <p className="text-sm">{zone.name}</p>
-                                <p className="text-xs opacity-70">No content</p>
-                              </div>
-                            )}
+                            isPreview={true}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-white/50">
+                            <span>Loading preview...</span>
                           </div>
-                        ))}
+                        )}
                       </div>
                     </div>
 

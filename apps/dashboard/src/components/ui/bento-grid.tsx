@@ -44,17 +44,17 @@ export function BentoCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.25 }}
       onClick={onClick}
       className={cn(
-        'rounded-2xl p-6 overflow-hidden relative',
+        'rounded-lg p-5 overflow-hidden relative',
         glass ? 'glass-light' : 'bg-surface',
         gradient && 'bg-gradient-to-br from-surface via-surface to-surface-alt',
-        !glass && 'border border-border shadow-md hover:shadow-lg',
-        'transition-all duration-300',
-        onClick && 'cursor-pointer hover:-translate-y-1',
+        !glass && 'border border-border',
+        'transition-colors duration-150',
+        onClick && 'cursor-pointer hover:border-primary/20',
         sizeClasses[size],
         className
       )}

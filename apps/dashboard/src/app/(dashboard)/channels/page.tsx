@@ -71,7 +71,7 @@ export default function ChannelsPage() {
       animate="visible"
       className="min-h-screen bg-background"
     >
-      <div className="glass-light sticky top-0 z-10 border-b border-border/50">
+      <div className="bg-surface/95 backdrop-blur-sm sticky top-0 z-10 border-b border-border">
         <div className="max-w-7xl mx-auto px-8 py-6">
           <motion.div variants={fadeInUpVariants} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
@@ -81,7 +81,7 @@ export default function ChannelsPage() {
               </p>
             </div>
             <Link href="/channels/new">
-              <Button className="bg-primary hover:bg-primary-hover text-white shadow-lg border-0 gap-2 rounded-xl">
+              <Button className="bg-primary hover:bg-primary-hover text-white shadow-lg border-0 gap-2 rounded-md">
                 <Plus className="h-4 w-4" /> Create Channel
               </Button>
             </Link>
@@ -93,7 +93,7 @@ export default function ChannelsPage() {
               placeholder="Search channels..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-surface/50 border-border/50 focus:border-primary/30 rounded-xl"
+              className="pl-9 bg-transparent border-border focus:border-primary/50 rounded-md"
             />
           </motion.div>
         </div>
@@ -103,7 +103,7 @@ export default function ChannelsPage() {
         {channelsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-96 bg-surface/50 rounded-2xl animate-pulse" />
+              <div key={i} className="h-96 bg-surface/50 rounded-lg animate-pulse" />
             ))}
           </div>
         ) : filteredChannels.length === 0 ? (
@@ -124,7 +124,7 @@ export default function ChannelsPage() {
                   <button
                     key={template.id}
                     onClick={() => router.push(`/channels/new?template=${template.id}`)}
-                    className="p-6 border border-border rounded-lg hover:border-primary hover:shadow-lg transition-all bg-surface group"
+                    className="p-6 border border-border rounded-lg hover:border-primary hover:border-primary/20 transition-colors bg-surface group"
                   >
                     <div className="h-32 mb-4 rounded-lg overflow-hidden border border-border">
                       <LayoutPreview layout={template.id} />
@@ -183,7 +183,7 @@ export default function ChannelsPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="bg-surface/90 hover:bg-surface border-border/50 backdrop-blur-sm rounded-lg"
+                            className="bg-surface/90 hover:bg-surface border-border backdrop-blur-sm rounded-lg"
                           >
                             Preview
                           </Button>
@@ -203,7 +203,7 @@ export default function ChannelsPage() {
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                      <div className="flex items-center justify-between pt-3 border-t border-border">
                         <div className="flex items-center gap-4 text-xs text-text-muted">
                           <div className="flex items-center gap-1.5">
                             <Layers className="h-3.5 w-3.5" />

@@ -213,7 +213,7 @@ export default function EditAppPage() {
   if (isLoadingApp || isLoadingSchema) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="glass-light sticky top-0 z-20 border-b border-border/50 backdrop-blur-xl">
+        <div className="bg-surface/95 backdrop-blur-sm sticky top-0 z-20 border-b border-border">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
             <Skeleton className="h-6 w-48 mb-4" />
             <Skeleton className="h-8 w-64" />
@@ -249,7 +249,7 @@ export default function EditAppPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="glass-light sticky top-16 z-10 border-b border-border/50 backdrop-blur-xl">
+      <div className="bg-surface/95 backdrop-blur-sm sticky top-16 z-10 border-b border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex items-center gap-4 mb-4">
             <Button

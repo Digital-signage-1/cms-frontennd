@@ -29,7 +29,7 @@ function MetricCard({ label, value, change, icon }: MetricCardProps) {
         </span>
         {icon && <div className="text-text-muted">{icon}</div>}
       </div>
-      <p className="text-2xl font-semibold text-text-primary">{value}</p>
+      <p className="text-2xl font-semibold text-text-primary tabular-nums tracking-tight">{value}</p>
       {change && (
         <div className={`flex items-center gap-1 mt-1 text-xs font-medium ${
           change.trend === 'up' ? 'text-success' : 'text-error'

@@ -111,11 +111,11 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-8 py-6 border-b border-border">
+      <div className="px-6 py-5 border-b border-border">
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.25 }}
         >
           <h1 className="text-2xl font-semibold text-text-primary tracking-tight">
             {greeting}, {userName}
@@ -126,7 +126,7 @@ export default function HomePage() {
         </motion.div>
       </div>
 
-      <div className="flex items-center justify-between px-8 py-4 bg-surface border-b border-border">
+      <div className="flex items-center justify-between px-6 py-3 bg-surface border-b border-border">
         <div className="flex items-center gap-3">
           <StatusDot status="online" pulse />
           <span className="text-sm font-medium text-text-primary">
@@ -139,19 +139,19 @@ export default function HomePage() {
       </div>
 
       <div className="flex-1 overflow-auto">
-        <div className="p-8 space-y-6">
+        <div className="p-6 space-y-6">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 }}
+            transition={{ duration: 0.25, delay: 0.05 }}
           >
             <MetricsStrip metrics={metrics} />
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.2 }}
+            transition={{ duration: 0.25, delay: 0.1 }}
             className="grid grid-cols-1 lg:grid-cols-3 gap-6"
           >
             <div className="lg:col-span-2 bg-surface border border-border rounded-lg p-6">
@@ -175,7 +175,7 @@ export default function HomePage() {
             <div className="bg-surface border border-border rounded-lg p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-text-primary">Recent Activity</h2>
-                <Button variant="ghost" size="sm" className="text-xs text-primary hover:text-primary-hover">
+                <Button variant="ghost" size="sm" className="text-xs text-text-muted hover:text-text-primary">
                   View all
                 </Button>
               </div>

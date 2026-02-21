@@ -98,7 +98,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
         data: {
           app_id: app.app_id,
           duration_seconds: 30,
-          order: 0,
+          sequence: 0,
         }
       })
     } catch (error) {
@@ -329,7 +329,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
                             'absolute border-2 transition-all group hover:border-primary/70 flex flex-col items-center justify-center p-2',
                             selectedZone === zone.zone_id
                               ? 'border-primary bg-primary/10 shadow-lg'
-                              : 'border-border/50 bg-surface/80 hover:bg-surface',
+                              : 'border-border bg-surface/80 hover:bg-surface',
                           )}
                           style={{
                             left: `${zone.x_percent}%`,

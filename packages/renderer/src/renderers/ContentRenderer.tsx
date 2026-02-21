@@ -53,23 +53,29 @@ export function ContentRenderer({
     )
   }
 
+  // Resolve the best URL for media content:
+  // content_url (presigned S3) > config.url > preview_url
+  const resolvedUrl = (appData as any).content_url
+    || (appData.config as any)?.url
+    || appData.preview_url
+
   const renderContent = () => {
     switch (appData.template_type) {
       case 'image':
         return (
           <ImageRenderer
             config={appData.config as { url?: string; fit?: string; position?: string }}
-            contentUrl={appData.preview_url}
+            contentUrl={resolvedUrl}
             onError={onError}
             onLoad={onLoad}
           />
         )
-      
+
       case 'video':
         return (
           <VideoRenderer
             config={appData.config as { url?: string; autoplay?: boolean; loop?: boolean; muted?: boolean }}
-            contentUrl={appData.preview_url}
+            contentUrl={resolvedUrl}
             onError={onError}
             onLoad={onLoad}
           />

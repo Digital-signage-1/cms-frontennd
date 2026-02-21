@@ -123,6 +123,50 @@ export function useCreateZone() {
   })
 }
 
+export function useUpdateZone() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      channelId,
+      zoneId,
+      data,
+    }: {
+      workspaceId: string
+      channelId: string
+      zoneId: string
+      data: Partial<ChannelZone>
+    }) => api.channels.updateZone(workspaceId, channelId, zoneId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'zones'] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'manifest'] })
+    },
+  })
+}
+
+export function useDeleteZone() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      channelId,
+      zoneId,
+    }: {
+      workspaceId: string
+      channelId: string
+      zoneId: string
+    }) => api.channels.deleteZone(workspaceId, channelId, zoneId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'zones'] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'manifest'] })
+    },
+  })
+}
+
 export function useAddZoneApp() {
   const queryClient = useQueryClient()
 
@@ -136,8 +180,56 @@ export function useAddZoneApp() {
       workspaceId: string
       channelId: string
       zoneId: string
-      data: { app_id: string; duration_seconds: number; order: number }
+      data: { app_id: string; duration_seconds: number; sequence: number }
     }) => api.channels.addZoneApp(workspaceId, channelId, zoneId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'zones'] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'manifest'] })
+    },
+  })
+}
+
+export function useUpdateZoneApp() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      channelId,
+      zoneId,
+      zoneAppId,
+      data,
+    }: {
+      workspaceId: string
+      channelId: string
+      zoneId: string
+      zoneAppId: string
+      data: { duration_seconds?: number; sequence?: number }
+    }) => api.channels.updateZoneApp(workspaceId, channelId, zoneId, zoneAppId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'zones'] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'manifest'] })
+    },
+  })
+}
+
+export function useReorderZoneApps() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      channelId,
+      zoneId,
+      zoneAppIds,
+    }: {
+      workspaceId: string
+      channelId: string
+      zoneId: string
+      zoneAppIds: string[]
+    }) => api.channels.reorderZoneApps(workspaceId, channelId, zoneId, zoneAppIds),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })
       queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'zones'] })

@@ -9,14 +9,9 @@ interface StoredDevice {
   pairedAt: string
 }
 
-type PairedCallback = (config: PlayerConfig) => void
-
 export class DeviceManager {
   private static instance: DeviceManager
   private storedDevice: StoredDevice | null = null
-  private pairingCode: string | null = null
-  private pollInterval: ReturnType<typeof setInterval> | null = null
-  private onPairedCallback: PairedCallback | null = null
 
   private constructor() {
     this.loadFromStorage()
@@ -64,87 +59,43 @@ export class DeviceManager {
     return this.storedDevice?.deviceToken || null
   }
 
-  async requestPairingCode(): Promise<string> {
-    try {
-      const response = await fetch(`${API_BASE_URL}/players/pairing-code`, {
-        method: 'GET',
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to get pairing code')
-      }
-
-      const data = await response.json()
-      this.pairingCode = data.data.code || this.generateMockCode()
-      
-      this.startPairingPoll()
-      
-      return this.pairingCode!
-    } catch (err) {
-      console.error('Failed to request pairing code:', err)
-      this.pairingCode = this.generateMockCode()
-      this.startPairingPoll()
-      return this.pairingCode!
-    }
-  }
-
-  private generateMockCode(): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-    let code = ''
-    for (let i = 0; i < 6; i++) {
-      code += chars[Math.floor(Math.random() * chars.length)]
-    }
-    return code
-  }
-
-  private startPairingPoll(): void {
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval)
+  async pairWithCode(pairingCode: string): Promise<void> {
+    const deviceInfo = {
+      os: navigator.platform,
+      browser: navigator.userAgent.split(' ').pop() || 'unknown',
+      screen_width: window.screen.width,
+      screen_height: window.screen.height,
+      user_agent: navigator.userAgent,
     }
 
-    this.pollInterval = setInterval(async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/players/pairing-status?code=${this.pairingCode}`)
-        
-        if (response.ok) {
-          const data = await response.json()
-          if (data.data?.paired) {
-            this.handlePaired(data.data.player_id, data.data.device_token)
-          }
-        }
-      } catch (err) {
-        console.log('Polling for pairing status...')
-      }
-    }, 3000)
+    const response = await fetch(`${API_BASE_URL}/players/pair`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Device-Info': JSON.stringify(deviceInfo),
+      },
+      body: JSON.stringify({ pairing_code: pairingCode.toUpperCase() }),
+    })
 
-    setTimeout(() => {
-      if (this.pollInterval) {
-        clearInterval(this.pollInterval)
-      }
-    }, 15 * 60 * 1000)
-  }
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}))
+      throw new Error(err.error || 'Invalid or expired pairing code')
+    }
 
-  private handlePaired(playerId: string, deviceToken: string): void {
-    if (this.pollInterval) {
-      clearInterval(this.pollInterval)
+    const data = await response.json()
+    const playerData = data.data?.player || data.data
+    const deviceToken = data.data?.device_token || playerData?.device_token
+
+    if (!playerData?.player_id || !deviceToken) {
+      throw new Error('Invalid response from server')
     }
 
     this.storedDevice = {
-      playerId,
-      deviceToken,
+      playerId: playerData.player_id,
+      deviceToken: deviceToken,
       pairedAt: new Date().toISOString(),
     }
     this.saveToStorage()
-
-    if (this.onPairedCallback) {
-      this.fetchConfig().then((config) => {
-        this.onPairedCallback!(config)
-      })
-    }
-  }
-
-  onPaired(callback: PairedCallback): void {
-    this.onPairedCallback = callback
   }
 
   async fetchConfig(): Promise<PlayerConfig> {
@@ -152,30 +103,21 @@ export class DeviceManager {
       throw new Error('Device not paired')
     }
 
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/players/${this.storedDevice.playerId}/config`,
-        {
-          headers: {
-            'X-Device-Token': this.storedDevice.deviceToken,
-          },
-        }
-      )
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch config')
+    const response = await fetch(
+      `${API_BASE_URL}/players/${this.storedDevice.playerId}/config`,
+      {
+        headers: {
+          'X-Device-Token': this.storedDevice.deviceToken,
+        },
       }
+    )
 
-      const data = await response.json()
-      return data.data
-    } catch (err) {
-      console.error('Failed to fetch config:', err)
-      return {
-        player_id: this.storedDevice.playerId,
-        settings: {},
-        commands: [],
-      }
+    if (!response.ok) {
+      throw new Error('Failed to fetch config')
     }
+
+    const data = await response.json()
+    return data.data
   }
 
   unpair(): void {

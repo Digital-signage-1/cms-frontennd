@@ -83,7 +83,7 @@ export default function CreateChannelPage() {
       animate="visible"
       className="min-h-screen bg-background"
     >
-      <div className="glass-light sticky top-0 z-10 border-b border-border/50">
+      <div className="bg-surface/95 backdrop-blur-sm sticky top-0 z-10 border-b border-border">
         <div className="max-w-7xl mx-auto px-8 py-6">
           <motion.div variants={fadeInUpVariants} className="flex items-center gap-4">
             <Link href="/channels">
@@ -152,7 +152,7 @@ export default function CreateChannelPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                     onClick={() => handleTemplateSelect(template)}
-                    className="group p-6 bg-surface border border-border rounded-xl hover:border-primary/50 hover:shadow-lg transition-all text-left"
+                    className="group p-6 bg-surface border border-border rounded-lg hover:border-primary/50 hover:border-primary/20 transition-colors text-left"
                   >
                     <div className="aspect-video mb-4 rounded-lg overflow-hidden border border-border group-hover:border-primary/30 transition-colors">
                       {template.preview}
@@ -184,7 +184,7 @@ export default function CreateChannelPage() {
               exit="hidden"
               className="max-w-2xl mx-auto"
             >
-              <div className="bg-surface border border-border rounded-xl p-8">
+              <div className="bg-surface border border-border rounded-lg p-8">
                 <div className="text-center mb-8">
                   <h2 className="text-xl font-semibold text-text-primary mb-2">
                     Channel Details

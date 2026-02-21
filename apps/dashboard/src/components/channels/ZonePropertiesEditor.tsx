@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button, Input, Label } from '@/components/ui'
-import { Trash2, Copy, Move, Palette, Clock, Layers } from 'lucide-react'
+import { Trash2, Copy, Move, Palette, Clock, Layers, X, Image, Video, Globe, Code, Cloud } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface Zone {
@@ -25,6 +25,8 @@ interface ZonePropertiesEditorProps {
   onZoneUpdate: (zoneId: string, updates: Partial<Zone>) => void
   onZoneDelete: (zoneId: string) => void
   onZoneDuplicate?: (zoneId: string) => void
+  onRemoveApp?: (zoneId: string, zoneAppId: string) => void
+  onUpdateApp?: (zoneId: string, zoneAppId: string, updates: { duration_seconds?: number }) => void
 }
 
 const backgroundPresets = [
@@ -36,11 +38,17 @@ const backgroundPresets = [
   { type: 'gradient', label: 'Purple Gradient', value: 'linear-gradient(135deg, #7c3aed, #3730a3)' }
 ]
 
+const appIconMap: Record<string, any> = {
+  image: Image, video: Video, web: Globe, html: Code, clock: Clock, weather: Cloud,
+}
+
 export function ZonePropertiesEditor({
   zone,
   onZoneUpdate,
   onZoneDelete,
-  onZoneDuplicate
+  onZoneDuplicate,
+  onRemoveApp,
+  onUpdateApp,
 }: ZonePropertiesEditorProps) {
   const [localValues, setLocalValues] = useState({
     name: zone?.name || '',
@@ -224,7 +232,7 @@ export function ZonePropertiesEditor({
               )}
             >
               <div
-                className="w-full h-6 rounded mb-2 border border-border/50"
+                className="w-full h-6 rounded mb-2 border border-border"
                 style={{
                   background: preset.type === 'transparent'
                     ? 'repeating-conic-gradient(#f1f5f9 0% 25%, transparent 0% 50%)'
@@ -262,6 +270,65 @@ export function ZonePropertiesEditor({
             />
           </div>
         </div>
+      </div>
+
+      {/* Zone Apps (Playlist) */}
+      <div className="space-y-3 pt-4 border-t border-border">
+        <Label className="text-xs font-medium text-text-primary uppercase tracking-wider">
+          Content Playlist
+        </Label>
+
+        {zone.apps && zone.apps.length > 0 ? (
+          <div className="space-y-2">
+            {zone.apps.map((zoneApp: any, index: number) => {
+              const AppIcon = appIconMap[zoneApp.app?.template_type] || Layers
+              return (
+                <div
+                  key={zoneApp.zone_app_id || index}
+                  className="flex items-center gap-2 p-2 border border-border rounded-lg bg-surface-alt/50 group"
+                >
+                  <span className="text-xs text-text-muted w-5 text-center">{index + 1}</span>
+                  <div className="w-7 h-7 bg-primary/10 rounded flex items-center justify-center shrink-0">
+                    <AppIcon className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-text-primary truncate">
+                      {zoneApp.app?.name || 'Unknown App'}
+                    </p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <input
+                        type="number"
+                        defaultValue={zoneApp.duration_seconds || 30}
+                        min={1}
+                        className="w-12 text-xs text-text-muted bg-transparent border-b border-transparent hover:border-border focus:border-primary focus:outline-none"
+                        onBlur={(e) => {
+                          const newDuration = parseInt(e.target.value) || 30
+                          if (newDuration !== (zoneApp.duration_seconds || 30) && onUpdateApp) {
+                            onUpdateApp(zone.zone_id, zoneApp.zone_app_id, { duration_seconds: newDuration })
+                          }
+                        }}
+                      />
+                      <span className="text-xs text-text-muted">s</span>
+                    </div>
+                  </div>
+                  {onRemoveApp && (
+                    <button
+                      onClick={() => onRemoveApp(zone.zone_id, zoneApp.zone_app_id)}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-error/10 rounded text-error"
+                      title="Remove from zone"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <p className="text-xs text-text-muted py-2">
+            No apps assigned. Use the Apps tab to add content.
+          </p>
+        )}
       </div>
 
       {/* Zone Stats */}
