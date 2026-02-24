@@ -28,13 +28,38 @@ export class PlayerEngine {
       if (!response.ok) {
         throw new Error('Failed to load channel manifest')
       }
-      
-      this.currentManifest = await response.json()
-      return this.currentManifest!
+
+      const raw = await response.json()
+      this.currentManifest = this.normalizeManifest(raw)
+      return this.currentManifest
     } catch (err) {
       console.error('Failed to load channel:', err)
       return this.getMockManifest()
     }
+  }
+
+  private normalizeManifest(raw: Record<string, unknown>): ChannelManifest {
+    if (raw.channel && typeof raw.channel === 'object') {
+      return raw as ChannelManifest
+    }
+    const channel = {
+      channel_id: raw.channel_id,
+      workspace_id: raw.workspace_id,
+      name: raw.name,
+      layout_type: raw.layout_type,
+      layout: raw.layout,
+      background: raw.background,
+      transition_type: raw.transition_type,
+      transition_duration: raw.transition_duration,
+      status: raw.status,
+      created_at: raw.created_at,
+      updated_at: raw.updated_at,
+    }
+    return {
+      channel,
+      zones: Array.isArray(raw.zones) ? raw.zones : [],
+      slides: Array.isArray(raw.slides) ? raw.slides : [],
+    } as ChannelManifest
   }
 
   private getMockManifest(): ChannelManifest {
@@ -123,7 +148,7 @@ export class PlayerEngine {
       cpu_percent: Math.random() * 30 + 10,
       memory_percent: Math.random() * 40 + 20,
       storage_free_mb: 5000 + Math.random() * 1000,
-      current_channel_version: this.currentManifest?.channel.channel_id,
+      current_channel_version: this.currentManifest?.channel?.channel_id ?? this.currentManifest?.channel_id,
       timestamp: new Date().toISOString(),
     }
 

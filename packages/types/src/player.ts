@@ -96,7 +96,9 @@ export interface PlayerConfig {
 
 export interface PairingRequest {
   code: string
-  name: string
+  name?: string
+  channel_id?: string
+  workspace_id?: string
   location?: string
   group_id?: string
 }

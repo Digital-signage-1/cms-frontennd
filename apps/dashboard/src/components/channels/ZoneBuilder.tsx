@@ -29,6 +29,7 @@ interface ZoneBuilderProps {
   onZoneUpdate: (zoneId: string, updates: Partial<Zone>) => void
   onZoneDelete: (zoneId: string) => void
   onZoneDuplicate?: (zoneId: string) => void
+  onZoneDrop?: (zoneId: string, app: { app_id: string; name?: string; preview_url?: string }) => void
   showGrid?: boolean
   readonly?: boolean
 }
@@ -41,6 +42,7 @@ export function ZoneBuilder({
   onZoneUpdate,
   onZoneDelete,
   onZoneDuplicate,
+  onZoneDrop,
   showGrid = true,
   readonly = false
 }: ZoneBuilderProps) {
@@ -242,7 +244,8 @@ export function ZoneBuilder({
               className={cn(
                 "absolute border-2 transition-all group cursor-pointer",
                 getZoneColor(index, selectedZone === zone.zone_id),
-                readonly && "cursor-default"
+                readonly && "cursor-default",
+                onZoneDrop && "border-dashed"
               )}
               style={{
                 left: `${zone.x}%`,
@@ -255,38 +258,51 @@ export function ZoneBuilder({
                 e.stopPropagation()
                 onZoneSelect(zone.zone_id)
               }}
+              onDragOver={onZoneDrop ? (e) => { e.preventDefault(); e.currentTarget.classList.add('ring-2', 'ring-primary', 'bg-primary/5') } : undefined}
+              onDragLeave={onZoneDrop ? (e) => { e.currentTarget.classList.remove('ring-2', 'ring-primary', 'bg-primary/5') } : undefined}
+              onDrop={onZoneDrop ? (e) => {
+                e.preventDefault()
+                e.currentTarget.classList.remove('ring-2', 'ring-primary', 'bg-primary/5')
+                try {
+                  const data = e.dataTransfer.getData('application/json')
+                  if (data) {
+                    const app = JSON.parse(data) as { app_id: string; name?: string; preview_url?: string }
+                    onZoneDrop(zone.zone_id, app)
+                  }
+                } catch (_) {}
+              } : undefined}
             >
-              {/* Zone Content */}
-              <div className="w-full h-full flex flex-col items-center justify-center p-2">
-                <p className="font-semibold text-xs text-center text-text-primary mb-1">
+              <div className="w-full h-full flex flex-col items-center justify-center p-2 overflow-hidden">
+                <p className="font-semibold text-xs text-center text-text-primary mb-1 truncate w-full">
                   {zone.name}
                 </p>
 
                 {zone.apps && zone.apps.length > 0 ? (
-                  <div className="space-y-1 text-center">
-                    {zone.apps.slice(0, 3).map((zoneApp: any, appIndex: number) => (
-                      <div
-                        key={appIndex}
-                        className="text-xs bg-surface/80 text-text-primary rounded px-2 py-0.5 border border-border/50"
-                      >
-                        {zoneApp.app?.name || 'App'}
-                      </div>
-                    ))}
-                    {zone.apps.length > 3 && (
-                      <div className="text-xs text-text-muted">
-                        +{zone.apps.length - 3} more
-                      </div>
+                  <div className="flex-1 w-full min-h-0 flex flex-col items-center justify-center gap-1">
+                    {zone.apps.slice(0, 2).map((zoneApp: any, appIndex: number) => {
+                      const previewUrl = zoneApp.app?.preview_url || zoneApp.app?.content_url
+                      return (
+                        <div key={appIndex} className="w-full flex-1 min-h-0 rounded overflow-hidden bg-surface/80 border border-border/50 flex items-center justify-center">
+                          {previewUrl ? (
+                            <img src={previewUrl} alt={zoneApp.app?.name || 'Content'} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-xs text-text-primary truncate px-1">{zoneApp.app?.name || 'App'}</span>
+                          )}
+                        </div>
+                      )
+                    })}
+                    {zone.apps.length > 2 && (
+                      <div className="text-xs text-text-muted">+{zone.apps.length - 2}</div>
                     )}
                   </div>
                 ) : (
-                  <div className="text-xs text-text-muted text-center">
-                    <div className="w-4 h-4 border border-dashed border-current rounded mx-auto mb-1 opacity-50" />
-                    Empty
+                  <div className="flex-1 flex flex-col items-center justify-center text-xs text-text-muted text-center">
+                    <div className="w-8 h-8 border-2 border-dashed border-current rounded mx-auto mb-1 opacity-50 flex items-center justify-center" />
+                    Drop content here
                   </div>
                 )}
 
-                {/* Zone Dimensions */}
-                <div className="text-xs text-text-muted mt-1 opacity-60">
+                <div className="text-xs text-text-muted mt-1 opacity-60 shrink-0">
                   {Math.round(zone.width)}% × {Math.round(zone.height)}%
                 </div>
               </div>

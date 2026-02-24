@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input, Label } from '@/components/ui'
 import { GlassCard } from '@/components/ui/glass-card'
-import { Plus, X, Copy, QrCode, RefreshCw, Monitor, Smartphone, Tv, Clock, AlertCircle } from 'lucide-react'
+import { Plus, X, Monitor, Smartphone, Tv, AlertCircle } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/services/api'
 import { useAuthStore } from '@/stores/auth-store'
+import { useChannels } from '@/hooks/queries'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { PairingRequest } from '@signage/types'
 
@@ -25,11 +26,14 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
   const workspace = useAuthStore((state) => state.workspace)
   const workspaceId = workspace?.workspace_id || ''
   const queryClient = useQueryClient()
+  const { data: channels = [] } = useChannels(workspaceId)
 
   const [registrationMethod, setRegistrationMethod] = useState<'manual' | 'pairing'>('pairing')
+  const [pairingChannelId, setPairingChannelId] = useState<string>('')
   const [manualFormData, setManualFormData] = useState({
     name: '',
-    device_type: 'desktop'
+    device_type: 'desktop',
+    channel_id: ''
   })
   const [pairingFormData, setPairingFormData] = useState({
     pairing_code: '',
@@ -37,17 +41,9 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Pairing code query
-  const { data: pairingData, isLoading: isLoadingPairingCode, refetch: refetchPairingCode } = useQuery({
-    queryKey: ['pairing-code'],
-    queryFn: () => api.players.requestPairingCode(),
-    enabled: isOpen && registrationMethod === 'pairing',
-    refetchInterval: 60000, // Refresh every minute
-  })
 
-  // Manual creation mutation
   const createPlayerMutation = useMutation({
-    mutationFn: (data: { name: string; device_type?: string }) =>
+    mutationFn: (data: { name: string; device_type?: string; channel_id: string }) =>
       api.players.create(workspaceId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['players', workspaceId] })
@@ -73,7 +69,8 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
   })
 
   const resetForm = () => {
-    setManualFormData({ name: '', device_type: 'desktop' })
+    setPairingChannelId('')
+    setManualFormData({ name: '', device_type: 'desktop', channel_id: '' })
     setPairingFormData({ pairing_code: '', name: '' })
     setErrors({})
     setRegistrationMethod('pairing')
@@ -82,59 +79,30 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors: Record<string, string> = {}
-
-    if (!manualFormData.name.trim()) {
-      newErrors.name = 'Player name is required'
-    }
-
+    if (!manualFormData.name.trim()) newErrors.name = 'Player name is required'
+    if (!manualFormData.channel_id) newErrors.channel_id = 'Please select a channel'
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
     }
-
     createPlayerMutation.mutate(manualFormData)
   }
 
   const handlePairingSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors: Record<string, string> = {}
-
-    if (!pairingFormData.pairing_code.trim()) {
-      newErrors.pairing_code = 'Pairing code is required'
-    }
-
-    if (!pairingFormData.name.trim()) {
-      newErrors.name = 'Player name is required'
-    }
-
+    if (!pairingFormData.pairing_code.trim()) newErrors.pairing_code = 'Pairing code is required'
+    if (!pairingChannelId) newErrors.channel_id = 'Please select a channel'
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
     }
-
     pairPlayerMutation.mutate({
-      code: pairingFormData.pairing_code,
-      name: pairingFormData.name,
+      code: pairingFormData.pairing_code.trim().toUpperCase(),
+      name: pairingFormData.name.trim() || undefined,
+      channel_id: pairingChannelId,
+      workspace_id: workspaceId,
     })
-  }
-
-  const copyPairingCode = () => {
-    if (pairingData?.code) {
-      navigator.clipboard.writeText(pairingData.code)
-    }
-  }
-
-  const getTimeRemaining = () => {
-    if (!pairingData?.expires_at) return ''
-    const now = new Date()
-    const expiry = new Date(pairingData.expires_at)
-    const diff = expiry.getTime() - now.getTime()
-
-    if (diff <= 0) return 'Expired'
-
-    const minutes = Math.floor(diff / 60000)
-    const seconds = Math.floor((diff % 60000) / 1000)
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
   useEffect(() => {
@@ -193,113 +161,93 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-6"
                 >
-                  {/* Pairing Code Display */}
-                  <div className="text-center">
-                    <p className="text-sm text-text-muted mb-4">
-                      Use this code in the player app to automatically register
-                    </p>
+                  <p className="text-sm text-text-muted">
+                    Enter the code displayed on your player, select the channel to assign, then click Pair. The player will then show that channel&apos;s content.
+                  </p>
 
-                    {isLoadingPairingCode ? (
-                      <div className="p-8 bg-surface rounded-lg border border-border animate-pulse">
-                        <div className="h-8 bg-surface-alt rounded mx-auto w-32"></div>
-                      </div>
-                    ) : pairingData ? (
-                      <div className="p-6 bg-surface rounded-lg border border-border">
-                        <div className="text-center">
-                          <p className="text-xs uppercase tracking-wider text-text-muted mb-2">
-                            Pairing Code
-                          </p>
-                          <div className="font-mono text-2xl font-bold text-primary tracking-wider mb-3">
-                            {pairingData.code}
-                          </div>
-                          <div className="flex items-center justify-center gap-3 mb-2">
-                            <div className="flex items-center gap-1 text-xs text-text-muted">
-                              <Clock className="h-3 w-3" />
-                              <span>Expires in {getTimeRemaining()}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-center gap-2">
-                            <Button size="sm" variant="outline" onClick={copyPairingCode} className="gap-2">
-                              <Copy className="h-3 w-3" /> Copy
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={() => refetchPairingCode()} className="gap-2">
-                              <RefreshCw className="h-3 w-3" /> Refresh
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="p-6 bg-error/10 border border-error rounded-lg">
-                        <p className="text-sm text-error">Failed to load pairing code</p>
-                        <Button size="sm" variant="outline" onClick={() => refetchPairingCode()} className="mt-2">
-                          Try Again
-                        </Button>
+                  {workspaceId && (
+                    <p className="text-sm text-text-muted">
+                      <a
+                        href={`${typeof window !== 'undefined' ? (process.env.NEXT_PUBLIC_PLAYER_URL || 'http://localhost:3001') : 'http://localhost:3001'}/?workspace=${encodeURIComponent(workspaceId)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Open player in a new tab
+                      </a>
+                      {' '}(opens with your workspace so you don&apos;t need to enter it)
+                    </p>
+                  )}
+
+                  <form onSubmit={handlePairingSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="pairing_code">Code from player</Label>
+                      <Input
+                        id="pairing_code"
+                        type="text"
+                        value={pairingFormData.pairing_code}
+                        onChange={(e) => setPairingFormData(prev => ({ ...prev, pairing_code: e.target.value.toUpperCase() }))}
+                        placeholder="e.g. T8LJK2"
+                        className={`mt-1 font-mono ${errors.pairing_code ? 'border-error' : ''}`}
+                      />
+                      {errors.pairing_code && (
+                        <p className="text-sm text-error mt-1 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.pairing_code}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label>Channel</Label>
+                      <select
+                        value={pairingChannelId}
+                        onChange={(e) => setPairingChannelId(e.target.value)}
+                        className={`w-full px-3 py-2 mt-1 bg-background border border-border rounded-lg focus:outline-none focus:border-primary ${errors.channel_id ? 'border-error' : ''}`}
+                      >
+                        <option value="">Select a channel</option>
+                        {channels.map((ch: { channel_id: string; name: string }) => (
+                          <option key={ch.channel_id} value={ch.channel_id}>{ch.name}</option>
+                        ))}
+                      </select>
+                      {errors.channel_id && (
+                        <p className="text-sm text-error mt-1 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.channel_id}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="pairing_name">Display name (optional)</Label>
+                      <Input
+                        id="pairing_name"
+                        type="text"
+                        value={pairingFormData.name}
+                        onChange={(e) => setPairingFormData(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="e.g., Lobby Screen"
+                        className="mt-1"
+                      />
+                    </div>
+
+                    {errors.submit && (
+                      <div className="p-3 bg-error/10 border border-error rounded-lg">
+                        <p className="text-sm text-error flex items-center gap-2">
+                          <AlertCircle className="h-4 w-4" />
+                          {errors.submit}
+                        </p>
                       </div>
                     )}
-                  </div>
 
-                  {/* Manual Pairing Form */}
-                  <div className="border-t border-border pt-6">
-                    <p className="text-sm text-text-muted mb-4">
-                      Or manually enter the pairing code from your device
-                    </p>
-
-                    <form onSubmit={handlePairingSubmit} className="space-y-4">
-                      <div>
-                        <Label htmlFor="pairing_code">Pairing Code</Label>
-                        <Input
-                          id="pairing_code"
-                          type="text"
-                          value={pairingFormData.pairing_code}
-                          onChange={(e) => setPairingFormData(prev => ({ ...prev, pairing_code: e.target.value.toUpperCase() }))}
-                          placeholder="XXX-XXX-XXX"
-                          className={`mt-1 font-mono ${errors.pairing_code ? 'border-error' : ''}`}
-                        />
-                        {errors.pairing_code && (
-                          <p className="text-sm text-error mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" />
-                            {errors.pairing_code}
-                          </p>
-                        )}
-                      </div>
-
-                      <div>
-                        <Label htmlFor="pairing_name">Display Name</Label>
-                        <Input
-                          id="pairing_name"
-                          type="text"
-                          value={pairingFormData.name}
-                          onChange={(e) => setPairingFormData(prev => ({ ...prev, name: e.target.value }))}
-                          placeholder="e.g., Lobby Screen"
-                          className={`mt-1 ${errors.name ? 'border-error' : ''}`}
-                        />
-                        {errors.name && (
-                          <p className="text-sm text-error mt-1 flex items-center gap-1">
-                            <AlertCircle className="h-3 w-3" />
-                            {errors.name}
-                          </p>
-                        )}
-                      </div>
-
-                      {errors.submit && (
-                        <div className="p-3 bg-error/10 border border-error rounded-lg">
-                          <p className="text-sm text-error flex items-center gap-2">
-                            <AlertCircle className="h-4 w-4" />
-                            {errors.submit}
-                          </p>
-                        </div>
-                      )}
-
-                      <Button
-                        type="submit"
-                        className="w-full gap-2"
-                        disabled={pairPlayerMutation.isPending}
-                      >
-                        <Plus className="h-4 w-4" />
-                        {pairPlayerMutation.isPending ? 'Pairing...' : 'Pair Player'}
-                      </Button>
-                    </form>
-                  </div>
+                    <Button
+                      type="submit"
+                      className="w-full gap-2"
+                      disabled={pairPlayerMutation.isPending}
+                    >
+                      <Plus className="h-4 w-4" />
+                      {pairPlayerMutation.isPending ? 'Pairing...' : 'Pair Player'}
+                    </Button>
+                  </form>
                 </motion.div>
               ) : (
                 <motion.div
@@ -313,6 +261,27 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
                   </p>
 
                   <form onSubmit={handleManualSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="channel">Channel</Label>
+                      <select
+                        id="channel"
+                        value={manualFormData.channel_id}
+                        onChange={(e) => setManualFormData(prev => ({ ...prev, channel_id: e.target.value }))}
+                        className={`w-full px-3 py-2 mt-1 bg-background border border-border rounded-lg focus:outline-none focus:border-primary ${errors.channel_id ? 'border-error' : ''}`}
+                      >
+                        <option value="">Select a channel</option>
+                        {channels.map((ch: { channel_id: string; name: string }) => (
+                          <option key={ch.channel_id} value={ch.channel_id}>{ch.name}</option>
+                        ))}
+                      </select>
+                      {errors.channel_id && (
+                        <p className="text-sm text-error mt-1 flex items-center gap-1">
+                          <AlertCircle className="h-3 w-3" />
+                          {errors.channel_id}
+                        </p>
+                      )}
+                    </div>
+
                     <div>
                       <Label htmlFor="name">Player Name</Label>
                       <Input

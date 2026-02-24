@@ -18,7 +18,7 @@ export function createPlayersEndpoints(client: ApiClient) {
     get: (workspaceId: string, playerId: string) =>
       client.get<Player>(`/api/v1/workspaces/${workspaceId}/players/${playerId}`),
     
-    create: (workspaceId: string, data: { name: string; device_type?: string }) =>
+    create: (workspaceId: string, data: { name: string; device_type?: string; channel_id: string }) =>
       client.post<Player>(`/api/v1/workspaces/${workspaceId}/players`, data),
     
     update: (workspaceId: string, playerId: string, data: Partial<Player>) =>
@@ -30,8 +30,8 @@ export function createPlayersEndpoints(client: ApiClient) {
     assignChannel: (workspaceId: string, playerId: string, channelId: string | null) =>
       client.patch<Player>(`/api/v1/workspaces/${workspaceId}/players/${playerId}`, { channel_id: channelId }),
     
-    pair: (workspaceId: string, data: PairingRequest) =>
-      client.post<PairingResponse>(`/api/v1/workspaces/${workspaceId}/players/pair`, data),
+    pair: (_workspaceId: string, data: PairingRequest) =>
+      client.post<PairingResponse>(`/api/v1/players/pair`, data),
     
     sendCommand: (workspaceId: string, playerId: string, command: {
       type: string
@@ -69,7 +69,7 @@ export function createPlayersEndpoints(client: ApiClient) {
         headers: { 'X-Device-Token': deviceToken }
       }),
     
-    requestPairingCode: () =>
-      client.get<{ code: string; expires_at: string }>('/api/v1/players/pairing-code'),
+    requestPairingCode: (workspaceId: string, channelId: string) =>
+      client.get<{ code: string; expires_at: string }>(`/api/v1/workspaces/${workspaceId}/players/pairing-code`, { params: { channel_id: channelId } }),
   }
 }

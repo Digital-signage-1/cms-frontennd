@@ -93,6 +93,54 @@ export function useDeleteChannel() {
   })
 }
 
+export function useChannelSlides(workspaceId: string, channelId: string) {
+  return useQuery({
+    queryKey: ['channels', workspaceId, channelId, 'slides'],
+    queryFn: () => api.channels.listSlides(workspaceId, channelId),
+    enabled: !!workspaceId && !!channelId,
+  })
+}
+
+export function useCreateSlide() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      channelId,
+      data,
+    }: {
+      workspaceId: string
+      channelId: string
+      data: { layout_type?: string; duration_seconds?: number; position?: number; zones?: Array<{ name: string; x: number; y: number; width: number; height: number; z_index?: number; background?: any }> }
+    }) => api.channels.createSlide(workspaceId, channelId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'manifest'] })
+    },
+  })
+}
+
+export function useUpdateSlide() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      channelId,
+      slideId,
+      data,
+    }: {
+      workspaceId: string
+      channelId: string
+      slideId: string
+      data: { position?: number; duration_seconds?: number; layout_type?: string }
+    }) => api.channels.updateSlide(workspaceId, channelId, slideId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'manifest'] })
+    },
+  })
+}
+
 // Zone management hooks
 export function useChannelZones(workspaceId: string, channelId: string) {
   return useQuery({
@@ -136,7 +184,7 @@ export function useAddZoneApp() {
       workspaceId: string
       channelId: string
       zoneId: string
-      data: { app_id: string; duration_seconds: number; order: number }
+      data: { app_id: string; duration_seconds: number; order?: number; sequence?: number }
     }) => api.channels.addZoneApp(workspaceId, channelId, zoneId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })

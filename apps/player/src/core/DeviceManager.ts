@@ -64,21 +64,20 @@ export class DeviceManager {
     return this.storedDevice?.deviceToken || null
   }
 
-  async requestPairingCode(): Promise<string> {
+  async requestPairingCode(_workspaceId?: string): Promise<string> {
     try {
-      const response = await fetch(`${API_BASE_URL}/players/pairing-code`, {
-        method: 'GET',
-      })
+      const response = await fetch(
+        `${API_BASE_URL}/players/request-code`,
+        { method: 'GET' }
+      )
 
       if (!response.ok) {
         throw new Error('Failed to get pairing code')
       }
 
       const data = await response.json()
-      this.pairingCode = data.data.code || this.generateMockCode()
-      
+      this.pairingCode = data.data?.code || this.generateMockCode()
       this.startPairingPoll()
-      
       return this.pairingCode!
     } catch (err) {
       console.error('Failed to request pairing code:', err)
@@ -141,6 +140,15 @@ export class DeviceManager {
         this.onPairedCallback!(config)
       })
     }
+  }
+
+  setPairedFromUrl(playerId: string, deviceToken: string): void {
+    this.storedDevice = {
+      playerId,
+      deviceToken,
+      pairedAt: new Date().toISOString(),
+    }
+    this.saveToStorage()
   }
 
   onPaired(callback: PairedCallback): void {

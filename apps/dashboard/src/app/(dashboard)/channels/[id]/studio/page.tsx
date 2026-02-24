@@ -6,21 +6,92 @@ import { useRouter } from 'next/navigation'
 import { Button, Input } from '@/components/ui'
 import { StatusDot } from '@/components/ui/status-dot'
 import {
-  ArrowLeft, Save, Upload, Play, Grid, Settings, Monitor,
+  ArrowLeft, Save, Upload, Play, Settings, Monitor,
   Image, Video, Clock, Cloud, Globe, Code, LayoutGrid,
-  Plus, Layers, Palette, Move
+  Plus, Layers, ChevronLeft, ChevronRight, X
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import {
   useChannel, useChannelManifest, useUpdateChannel, usePublishChannel,
-  useAddZoneApp, useCreateZone, useChannelZones
+  useAddZoneApp, useCreateZone, useChannelZones, useCreateSlide, useUpdateSlide
 } from '@/hooks/queries/useChannels'
 import { useApps } from '@/hooks/queries'
+import { useContentItem } from '@/hooks/queries/useContent'
+import { ChannelRenderer } from '@signage/renderer'
 import { ZoneBuilder, ZoneToolbar } from '@/components/channels/ZoneBuilder'
 import { ZonePropertiesEditor } from '@/components/channels/ZonePropertiesEditor'
-import { LAYOUT_TEMPLATES, getAllLayoutTemplates } from '@/lib/layout-templates'
+import { getAllLayoutTemplates, type LayoutTemplate } from '@/lib/layout-templates'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+
+const layoutTemplates = getAllLayoutTemplates()
+
+function ContentLibraryCard({
+  app,
+  workspaceId,
+  selectedZone,
+  zoneName,
+  onAddToZone,
+  isAdding,
+}: {
+  app: any
+  workspaceId: string
+  selectedZone: string | null
+  zoneName?: string
+  onAddToZone: () => void
+  isAdding: boolean
+}) {
+  const iconMap: Record<string, any> = {
+    image: Image, video: Video, web: Globe, html: Code, clock: Clock, weather: Cloud,
+  }
+  const Icon = iconMap[app.template_type] || LayoutGrid
+  const { data: contentItem } = useContentItem(workspaceId, app.content_id || '', { enabled: !!app.content_id })
+  const previewUrl = app.thumbnail_url || app.preview_url || contentItem?.url
+
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.setData('application/json', JSON.stringify({
+      app_id: app.app_id,
+      name: app.name,
+      preview_url: previewUrl || app.preview_url,
+    }))
+    e.dataTransfer.effectAllowed = 'copy'
+  }
+
+  return (
+    <div
+      draggable
+      onDragStart={handleDragStart}
+      className="w-full group border border-border rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all cursor-grab active:cursor-grabbing"
+    >
+      <button
+        type="button"
+        className="w-full text-left disabled:opacity-50"
+        onClick={onAddToZone}
+        disabled={!selectedZone || isAdding}
+      >
+        <div className="flex items-center gap-3 p-3">
+          <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-surface border border-border">
+            {previewUrl ? (
+              <img src={previewUrl} alt={app.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                <Icon className="h-6 w-6 text-primary" />
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-text-primary text-sm truncate">{app.name}</p>
+            <p className="text-xs text-text-muted capitalize">{app.template_type}</p>
+            {selectedZone && zoneName && (
+              <p className="text-xs text-primary mt-0.5">Click to add to {zoneName}</p>
+            )}
+          </div>
+        </div>
+      </button>
+    </div>
+  )
+}
 
 interface Zone {
   zone_id: string
@@ -42,12 +113,14 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
 
   // State management
   const [channelName, setChannelName] = useState('')
+  const [selectedSlideIndex, setSelectedSlideIndex] = useState(0)
   const [selectedZone, setSelectedZone] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'design' | 'preview'>('design')
   const [showGrid, setShowGrid] = useState(true)
   const [sidebarMode, setSidebarMode] = useState<'apps' | 'properties'>('apps')
+  const [showAddSlideModal, setShowAddSlideModal] = useState(false)
+  const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const [previewSlideIndex, setPreviewSlideIndex] = useState(0)
 
-  // API hooks
   const { data: channelData, isLoading: channelLoading } = useChannel(workspaceId, resolvedParams.id)
   const { data: manifestData } = useChannelManifest(workspaceId, resolvedParams.id)
   const { data: appsData, isLoading: appsLoading } = useApps(workspaceId)
@@ -55,10 +128,14 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const publishChannelMutation = usePublishChannel()
   const addZoneAppMutation = useAddZoneApp()
   const createZoneMutation = useCreateZone()
+  const createSlideMutation = useCreateSlide()
+  const updateSlideMutation = useUpdateSlide()
 
-  // Processed data
   const availableApps = Array.isArray(appsData) ? appsData : []
-  const zones: Zone[] = manifestData?.zones || []
+  const slides = manifestData?.slides || []
+  const zones: Zone[] = slides.length > 0
+    ? (slides[selectedSlideIndex]?.zones ?? [])
+    : (manifestData?.zones || [])
   const selectedZoneData = zones.find((z: any) => z.zone_id === selectedZone)
 
   // Initialize state
@@ -73,6 +150,12 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
       setSelectedZone(zones[0].zone_id)
     }
   }, [zones, selectedZone])
+
+  useEffect(() => {
+    if (slides.length > 0 && selectedSlideIndex >= slides.length) {
+      setSelectedSlideIndex(0)
+    }
+  }, [slides, selectedSlideIndex])
 
   // Action handlers
   const handleSave = async () => {
@@ -153,6 +236,38 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     }
   }
 
+  const handleZoneDrop = (zoneId: string, app: { app_id: string; name?: string; preview_url?: string }) => {
+    addAppToZone(zoneId, app)
+  }
+
+  const openAddSlideModal = () => setShowAddSlideModal(true)
+
+  const handleCreateSlideWithLayout = async (template: LayoutTemplate) => {
+    if (!workspaceId || !channelData) return
+    try {
+      await createSlideMutation.mutateAsync({
+        workspaceId,
+        channelId: channelData.channel_id,
+        data: {
+          layout_type: template.id,
+          duration_seconds: 10,
+          zones: template.zones.map(z => ({
+            name: z.name,
+            x: z.x,
+            y: z.y,
+            width: z.width,
+            height: z.height,
+            z_index: z.z_index ?? 1,
+            background: z.background ?? { type: 'transparent' as const },
+          })),
+        },
+      })
+      setShowAddSlideModal(false)
+    } catch (error) {
+      console.error('Failed to add slide:', error)
+    }
+  }
+
   if (channelLoading) {
     return (
       <div className="h-screen bg-background flex items-center justify-center">
@@ -196,7 +311,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                     {channelData?.status === 'published' ? 'Published' : 'Draft'}
                   </div>
                   <span className="text-text-secondary text-sm">
-                    {zones.length} zones • {channelData?.layout_type}
+                    {slides.length} slide(s) • {zones.length} zone(s) • {channelData?.layout_type}
                   </span>
                 </div>
               </div>
@@ -205,12 +320,13 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
               <Button
-                variant={viewMode === 'preview' ? "default" : "outline"}
-                onClick={() => setViewMode(viewMode === 'preview' ? 'design' : 'preview')}
+                variant="outline"
+                onClick={() => { setPreviewSlideIndex(0); setShowPreviewModal(true); }}
                 className="gap-2"
+                disabled={!manifestData?.slides?.length}
               >
-                {viewMode === 'preview' ? <Grid className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                {viewMode === 'preview' ? 'Design' : 'Preview'}
+                <Play className="h-4 w-4" />
+                Preview
               </Button>
               <Button
                 variant="outline"
@@ -282,14 +398,14 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                   <div className="mb-4">
                     <h3 className="text-sm font-semibold text-text-primary mb-2">Content Library</h3>
                     <p className="text-xs text-text-muted">
-                      Click apps to add to selected zone
+                      Drag content onto zones or click to add to selected zone
                     </p>
                   </div>
 
                   {appsLoading ? (
                     <div className="space-y-3">
                       {[1, 2, 3].map(i => (
-                        <div key={i} className="h-16 bg-surface-alt rounded-lg animate-pulse" />
+                        <div key={i} className="h-24 bg-surface-alt rounded-lg animate-pulse" />
                       ))}
                     </div>
                   ) : availableApps.length === 0 ? (
@@ -310,40 +426,17 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      {availableApps.map((app: any) => {
-                        const iconMap: Record<string, any> = {
-                          image: Image, video: Video, web: Globe, html: Code, clock: Clock, weather: Cloud,
-                        }
-                        const Icon = iconMap[app.template_type] || LayoutGrid
-
-                        return (
-                          <button
-                            key={app.app_id}
-                            className="w-full group p-3 border border-border rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all text-left disabled:opacity-50"
-                            onClick={() => selectedZone && addAppToZone(selectedZone, app)}
-                            disabled={!selectedZone || addZoneAppMutation.isPending}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                <Icon className="h-5 w-5 text-primary" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium text-text-primary text-sm truncate">
-                                  {app.name}
-                                </p>
-                                <p className="text-xs text-text-muted capitalize">
-                                  {app.template_type}
-                                </p>
-                              </div>
-                            </div>
-                            {selectedZone && (
-                              <div className="text-xs text-primary mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                Add to {zones.find(z => z.zone_id === selectedZone)?.name}
-                              </div>
-                            )}
-                          </button>
-                        )
-                      })}
+                      {availableApps.map((app: any) => (
+                        <ContentLibraryCard
+                          key={app.app_id}
+                          app={app}
+                          workspaceId={workspaceId}
+                          selectedZone={selectedZone}
+                          zoneName={zones.find(z => z.zone_id === selectedZone)?.name}
+                          onAddToZone={() => selectedZone && addAppToZone(selectedZone, app)}
+                          isAdding={addZoneAppMutation.isPending}
+                        />
+                      ))}
                     </div>
                   )}
                 </motion.div>
@@ -382,128 +475,231 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
 
         {/* Center - Canvas */}
         <div className="flex-1 flex flex-col">
-          {/* Canvas Toolbar */}
           <ZoneToolbar
-            onAddZone={() => {
-              // Start zone creation mode
-              console.log('Add zone clicked')
-            }}
+            onAddZone={() => {}}
             onToggleGrid={() => setShowGrid(!showGrid)}
             showGrid={showGrid}
           />
 
+          <div className="px-4 py-2 border-b border-border bg-surface flex items-center gap-2">
+            <span className="text-xs font-medium text-text-muted">Slides</span>
+            <div className="flex gap-2 flex-wrap items-center">
+              {slides.map((slide: any, idx: number) => (
+                <div key={slide.slide_id || idx} className="flex items-center gap-0.5">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 p-0 opacity-60 hover:opacity-100 disabled:opacity-30"
+                    onClick={() => {
+                      if (idx <= 0) return
+                      const prev = slides[idx - 1]
+                      updateSlideMutation.mutate(
+                        { workspaceId, channelId, slideId: slide.slide_id, data: { position: idx - 1 } },
+                        { onSuccess: () => updateSlideMutation.mutate({ workspaceId, channelId, slideId: prev.slide_id, data: { position: idx } }) }
+                      )
+                    }}
+                    disabled={idx === 0 || updateSlideMutation.isPending}
+                    title="Move slide left"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  <button
+                    onClick={() => { setSelectedSlideIndex(idx); setSelectedZone(null); }}
+                    className={cn(
+                      'w-10 h-8 rounded-lg border-2 flex items-center justify-center text-sm font-medium transition-all',
+                      selectedSlideIndex === idx
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border hover:border-primary/50 text-text-muted'
+                    )}
+                  >
+                    {idx + 1}
+                  </button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-6 w-6 p-0 opacity-60 hover:opacity-100 disabled:opacity-30"
+                    onClick={() => {
+                      if (idx >= slides.length - 1) return
+                      const next = slides[idx + 1]
+                      updateSlideMutation.mutate(
+                        { workspaceId, channelId, slideId: slide.slide_id, data: { position: idx + 1 } },
+                        { onSuccess: () => updateSlideMutation.mutate({ workspaceId, channelId, slideId: next.slide_id, data: { position: idx } }) }
+                      )
+                    }}
+                    disabled={idx === slides.length - 1 || updateSlideMutation.isPending}
+                    title="Move slide right"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 w-8 p-0"
+                onClick={openAddSlideModal}
+                disabled={createSlideMutation.isPending}
+                title="Add slide"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
           {/* Canvas Area */}
           <div className="flex-1 bg-surface-alt overflow-hidden relative">
-            <AnimatePresence mode="wait">
-              {viewMode === 'preview' ? (
-                <motion.div
-                  key="preview"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="w-full h-full flex items-center justify-center p-8"
-                >
-                  {/* Professional Web Player Preview */}
-                  <div className="relative">
-                    <div className="w-[900px] h-[506px] bg-black rounded-lg shadow-2xl border-4 border-gray-800 overflow-hidden relative">
-                      {/* Player Status Bar */}
-                      <div className="absolute top-0 left-0 right-0 h-6 bg-gray-900 flex items-center justify-between px-3 text-xs text-green-400 border-b border-gray-700">
-                        <span>● LIVE</span>
-                        <span>{channelName}</span>
-                        <span>1920×1080</span>
-                      </div>
-
-                      {/* Zone Rendering */}
-                      <div className="relative w-full h-[calc(100%-24px)] mt-6">
-                        {zones.map((zone: any) => (
-                          <div
-                            key={zone.zone_id}
-                            className="absolute flex items-center justify-center"
-                            style={{
-                              left: `${zone.x_percent}%`,
-                              top: `${zone.y_percent}%`,
-                              width: `${zone.width_percent}%`,
-                              height: `${zone.height_percent}%`,
-                              background: zone.background?.type === 'color' ? zone.background.value :
-                                zone.background?.type === 'gradient' ? zone.background.value :
-                                  'rgba(255, 255, 255, 0.05)',
-                              zIndex: zone.z_index
-                            }}
-                          >
-                            {zone.apps && zone.apps.length > 0 ? (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <div className="text-center text-white/90">
-                                  <p className="text-lg font-medium">{zone.apps[0].app?.name}</p>
-                                  <p className="text-sm opacity-70 capitalize">{zone.apps[0].app?.template_type}</p>
-                                  {zone.apps.length > 1 && (
-                                    <p className="text-xs opacity-60 mt-1">+{zone.apps.length - 1} more</p>
-                                  )}
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="text-center text-white/50">
-                                <div className="w-8 h-8 border border-dashed border-white/30 rounded mx-auto mb-2" />
-                                <p className="text-sm">{zone.name}</p>
-                                <p className="text-xs opacity-70">No content</p>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-center gap-3 mt-6 text-sm text-text-muted">
-                      <div className="flex items-center gap-1.5">
-                        <Monitor className="h-4 w-4" />
-                        Web Player Preview
-                      </div>
-                      <span>•</span>
-                      <span>Live Rendering</span>
-                      <span>•</span>
-                      <span className="text-success">Connected</span>
-                    </div>
+            {slides.length === 0 ? (
+              <div className="w-full h-full flex items-center justify-center p-8">
+                <div className="text-center max-w-md">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-full mb-6">
+                    <Layers className="h-10 w-10 text-primary" />
                   </div>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="design"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="w-full h-full flex items-center justify-center p-8"
-                >
-                  {/* Design Canvas */}
-                  <div className="w-full max-w-6xl h-full max-h-[600px]">
-                    <ZoneBuilder
-                      zones={zones.map(z => ({
-                        zone_id: z.zone_id,
-                        name: z.name,
-                        x: z.x_percent,
-                        y: z.y_percent,
-                        width: z.width_percent,
-                        height: z.height_percent,
-                        z_index: z.z_index,
-                        background: z.background,
-                        apps: z.apps
-                      }))}
-                      selectedZone={selectedZone}
-                      onZoneSelect={setSelectedZone}
-                      onZoneCreate={handleZoneCreate}
-                      onZoneUpdate={handleZoneUpdate}
-                      onZoneDelete={handleZoneDelete}
-                      onZoneDuplicate={(zoneId) => {
-                        // TODO: Implement duplication
-                        console.log('Duplicate zone:', zoneId)
-                      }}
-                      showGrid={showGrid}
-                    />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  <h3 className="text-lg font-semibold text-text-primary mb-2">Add your first slide</h3>
+                  <p className="text-sm text-text-muted mb-6">
+                    Choose a zone layout for this slide. You can add more slides later and drag content into each zone.
+                  </p>
+                  <Button onClick={openAddSlideModal} className="gap-2" size="lg" disabled={createSlideMutation.isPending}>
+                    <Plus className="h-5 w-5" />
+                    Add slide
+                  </Button>
+                </div>
+              </div>
+            ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full h-full flex items-center justify-center p-8"
+            >
+              <div className="w-full max-w-6xl h-full max-h-[600px]">
+                <ZoneBuilder
+                  zones={zones.map(z => ({
+                    zone_id: z.zone_id,
+                    name: z.name,
+                    x: z.x_percent,
+                    y: z.y_percent,
+                    width: z.width_percent,
+                    height: z.height_percent,
+                    z_index: z.z_index,
+                    background: z.background,
+                    apps: z.apps
+                  }))}
+                  selectedZone={selectedZone}
+                  onZoneSelect={setSelectedZone}
+                  onZoneCreate={handleZoneCreate}
+                  onZoneUpdate={handleZoneUpdate}
+                  onZoneDelete={handleZoneDelete}
+                  onZoneDuplicate={(zoneId) => {}}
+                  onZoneDrop={handleZoneDrop}
+                  showGrid={showGrid}
+                />
+              </div>
+            </motion.div>
+            )}
           </div>
         </div>
       </div>
+
+      <Dialog open={showAddSlideModal} onOpenChange={setShowAddSlideModal}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Choose zone layout</DialogTitle>
+            <p className="text-text-secondary text-sm">
+              Select how to divide this slide into content zones. You can drag content into each zone after.
+            </p>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4">
+            {layoutTemplates.map((template) => (
+              <button
+                key={template.id}
+                type="button"
+                onClick={() => handleCreateSlideWithLayout(template)}
+                disabled={createSlideMutation.isPending}
+                className="group p-5 bg-surface border border-border rounded-xl hover:border-primary/50 hover:shadow-lg transition-all text-left disabled:opacity-50"
+              >
+                <div className="aspect-video mb-3 rounded-lg overflow-hidden border border-border group-hover:border-primary/30 transition-colors">
+                  {template.preview}
+                </div>
+                <h3 className="font-semibold text-text-primary mb-1 group-hover:text-primary transition-colors">
+                  {template.name}
+                </h3>
+                <p className="text-xs text-text-muted mb-2">{template.description}</p>
+                <div className="flex items-center gap-1.5 text-xs text-text-muted">
+                  <Layers className="h-3.5 w-3.5" />
+                  <span>{template.zones.length} zones</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
+          <div className="flex items-center justify-between gap-4">
+            <DialogTitle className="text-lg font-semibold">Preview</DialogTitle>
+            <Button variant="ghost" size="icon" onClick={() => setShowPreviewModal(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          {manifestData?.slides?.length ? (
+            <>
+              <div className="flex items-center justify-center gap-4 py-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPreviewSlideIndex((i) => Math.max(0, i - 1))}
+                  disabled={previewSlideIndex === 0}
+                  className="gap-1"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <span className="text-sm font-medium text-text-muted">
+                  Slide {previewSlideIndex + 1} of {manifestData.slides.length}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPreviewSlideIndex((i) => Math.min((manifestData?.slides?.length ?? 1) - 1, i + 1))}
+                  disabled={previewSlideIndex >= (manifestData?.slides?.length ?? 1) - 1}
+                  className="gap-1"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="flex-1 min-h-0 flex items-center justify-center bg-muted/30 rounded-lg overflow-hidden">
+                <div className="w-full max-w-4xl aspect-video bg-black rounded-lg overflow-hidden shadow-xl">
+                  {(() => {
+                    const channel = {
+                      channel_id: manifestData.channel_id,
+                      name: manifestData.name || '',
+                      layout_type: (manifestData.layout_type || 'SINGLE').toLowerCase(),
+                      layout: manifestData.layout || { width: 1920, height: 1080, orientation: 'landscape' },
+                      background: manifestData.background || { type: 'color' as const, value: '#000000' },
+                      transition_type: (manifestData.transition_type || 'fade') as 'none' | 'fade' | 'slide' | 'zoom',
+                      transition_duration: manifestData.transition_duration ?? 500,
+                      status: (manifestData.status || 'draft') as 'draft' | 'published' | 'archived',
+                      created_at: manifestData.updated_at || '',
+                      updated_at: manifestData.updated_at || '',
+                    }
+                    const slideZones = manifestData.slides[previewSlideIndex]?.zones ?? []
+                    return (
+                      <ChannelRenderer
+                        manifest={{ channel, zones: slideZones }}
+                        isPreview
+                        className="w-full h-full"
+                      />
+                    )
+                  })()}
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-text-muted py-8 text-center">No slides to preview.</p>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Zone Info Bar */}
       {selectedZoneData && (

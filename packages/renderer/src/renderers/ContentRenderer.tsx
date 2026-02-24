@@ -53,13 +53,15 @@ export function ContentRenderer({
     )
   }
 
+  const contentUrl = appData.preview_url ?? (appData as any).content_url
+
   const renderContent = () => {
     switch (appData.template_type) {
       case 'image':
         return (
           <ImageRenderer
             config={appData.config as { url?: string; fit?: string; position?: string }}
-            contentUrl={appData.preview_url}
+            contentUrl={contentUrl}
             onError={onError}
             onLoad={onLoad}
           />
@@ -69,7 +71,7 @@ export function ContentRenderer({
         return (
           <VideoRenderer
             config={appData.config as { url?: string; autoplay?: boolean; loop?: boolean; muted?: boolean }}
-            contentUrl={appData.preview_url}
+            contentUrl={contentUrl}
             onError={onError}
             onLoad={onLoad}
           />

@@ -106,11 +106,12 @@ export function useCreatePlayer() {
   })
 }
 
-export function useRequestPairingCode() {
+export function useRequestPairingCode(workspaceId: string, channelId: string) {
   return useQuery({
-    queryKey: ['pairing-code'],
-    queryFn: () => api.players.requestPairingCode(),
-    staleTime: 0, // Always fetch fresh
-    refetchInterval: 60000, // Refresh every minute
+    queryKey: ['pairing-code', workspaceId, channelId],
+    queryFn: () => api.players.requestPairingCode(workspaceId, channelId),
+    enabled: !!workspaceId && !!channelId,
+    staleTime: 0,
+    refetchInterval: 60000,
   })
 }

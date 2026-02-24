@@ -188,6 +188,7 @@ interface SignageAppCardProps {
 
 function SignageAppCard({ app, index, workspaceId, isHovered, onHover, onEdit, onDelete }: SignageAppCardProps) {
   const Icon = getAppIcon(app.template_type)
+  const thumbnailUrl = app.thumbnail_url || app.preview_url
 
   const { data: contentItem } = useContentItem(
     workspaceId,
@@ -214,12 +215,19 @@ function SignageAppCard({ app, index, workspaceId, isHovered, onHover, onEdit, o
         className="bg-surface border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-all cursor-pointer"
       >
         <div className="aspect-video bg-background relative overflow-hidden">
-          <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'
-            }`}>
-            <Icon className="h-20 w-20 text-text-muted/20" />
-          </div>
+          {thumbnailUrl ? (
+            <img
+              src={thumbnailUrl}
+              alt={app.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${isHovered ? 'opacity-0' : 'opacity-100'}`}>
+              <Icon className="h-20 w-20 text-text-muted/20" />
+            </div>
+          )}
 
-          {isHovered && contentItem?.url && (
+          {isHovered && (contentItem?.url || app.preview_url) && (
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <ContentRenderer
                 appId={app.app_id}
@@ -238,7 +246,7 @@ function SignageAppCard({ app, index, workspaceId, isHovered, onHover, onEdit, o
             {app.name}
           </h3>
           <p className="text-xs text-text-muted">
-            {app.template_type} · {formatDate(app.updated_at)}
+            {app.template_type} · {formatDate(app.updated_at ?? app.created_at)}
           </p>
         </div>
       </div>

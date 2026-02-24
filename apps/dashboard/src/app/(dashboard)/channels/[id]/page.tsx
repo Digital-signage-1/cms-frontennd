@@ -45,6 +45,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
 
   const isNew = resolvedParams.id === 'new'
   const [channelName, setChannelName] = useState('')
+  const [selectedSlideIndex, setSelectedSlideIndex] = useState(0)
   const [selectedZone, setSelectedZone] = useState<string | null>(null)
   const [showAppPicker, setShowAppPicker] = useState(false)
   const [showTemplates, setShowTemplates] = useState(false)
@@ -57,7 +58,10 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
   const addZoneAppMutation = useAddZoneApp()
 
   const availableApps = Array.isArray(appsData) ? appsData : []
-  const zones: Zone[] = manifestData?.zones || []
+  const slides = manifestData?.slides || []
+  const zones: Zone[] = slides.length > 0
+    ? (slides[selectedSlideIndex]?.zones ?? [])
+    : (manifestData?.zones || [])
   const selectedZoneData = zones.find((z: any) => z.zone_id === selectedZone)
 
   // Debug logging
@@ -75,6 +79,12 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
       setSelectedZone(zones[0].zone_id)
     }
   }, [zones, selectedZone])
+
+  useEffect(() => {
+    if (slides.length > 0 && selectedSlideIndex >= slides.length) {
+      setSelectedSlideIndex(0)
+    }
+  }, [slides, selectedSlideIndex])
 
   const handleSave = async () => {
     if (!workspaceId || !channelData) return
@@ -176,7 +186,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
                     {channelData?.status === 'published' ? 'Published' : 'Draft'}
                   </div>
                   <span className="text-text-secondary text-sm">
-                    {zones.length} {zones.length === 1 ? 'zone' : 'zones'}
+                    {slides.length > 0 ? `${slides.length} slide(s)` : `${manifestData?.zones?.length ?? 0} zone(s)`}
                   </span>
                 </div>
               </div>
@@ -215,6 +225,27 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
       <div className="flex flex-1 overflow-hidden">
         <div className="w-60 border-r border-border bg-surface overflow-y-auto">
           <div className="p-4">
+            {slides.length > 1 && (
+              <div className="mb-4">
+                <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Slides</h3>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {slides.map((slide: any, idx: number) => (
+                    <button
+                      key={slide.slide_id || idx}
+                      onClick={() => { setSelectedSlideIndex(idx); setSelectedZone(null); }}
+                      className={cn(
+                        'flex-shrink-0 w-14 h-10 rounded-lg border-2 flex items-center justify-center text-xs font-medium transition-all',
+                        selectedSlideIndex === idx
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border hover:border-primary/50 text-text-muted'
+                      )}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wider">Zones</h3>
               <Button

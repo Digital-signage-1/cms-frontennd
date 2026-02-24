@@ -26,9 +26,19 @@ export interface BackgroundConfig {
   value: string
 }
 
+export interface Slide {
+  slide_id: string
+  channel_id: string
+  position: number
+  duration_seconds: number
+  layout_type: string
+  zones: (ChannelZone & { apps?: ZoneApp[] })[]
+}
+
 export interface ChannelZone {
   zone_id: string
-  channel_id: string
+  channel_id?: string
+  slide_id?: string
   name: string
   x_percent: number
   y_percent: number
@@ -36,7 +46,7 @@ export interface ChannelZone {
   height_percent: number
   z_index: number
   background?: BackgroundConfig
-  app_count: number
+  app_count?: number
 }
 
 export interface ZoneApp {
@@ -50,6 +60,9 @@ export interface ZoneApp {
 }
 
 export interface ChannelManifest {
-  channel: Channel
-  zones: Array<ChannelZone & { apps: ZoneApp[] }>
+  channel?: Channel
+  channel_id?: string
+  name?: string
+  slides?: Slide[]
+  zones: Array<ChannelZone & { apps?: ZoneApp[] }>
 }

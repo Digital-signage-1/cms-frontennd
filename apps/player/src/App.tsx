@@ -19,7 +19,17 @@ export function App() {
 
   async function initializePlayer() {
     const deviceManager = DeviceManager.getInstance()
-    
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const urlPlayerId = params.get('player_id')
+      const urlDeviceToken = params.get('device_token')
+      if (urlPlayerId && urlDeviceToken) {
+        deviceManager.setPairedFromUrl(urlPlayerId, urlDeviceToken)
+        window.history.replaceState({}, '', window.location.pathname)
+      }
+    }
+
     if (deviceManager.isPaired()) {
       setState('waiting')
       try {
@@ -34,24 +44,25 @@ export function App() {
         console.error('Failed to fetch config:', err)
         setState('waiting')
       }
-    } else {
-      try {
-        const code = await deviceManager.requestPairingCode()
-        setPairingCode(code)
-        setState('pairing')
-        
-        deviceManager.onPaired((playerConfig) => {
-          setConfig(playerConfig)
-          if (playerConfig.channel) {
-            setState('playing')
-          } else {
-            setState('waiting')
-          }
-        })
-      } catch (err) {
-        setError('Failed to get pairing code')
-        setState('error')
-      }
+      return
+    }
+
+    try {
+      const code = await deviceManager.requestPairingCode()
+      setPairingCode(code)
+      setState('pairing')
+
+      deviceManager.onPaired((playerConfig) => {
+        setConfig(playerConfig)
+        if (playerConfig.channel) {
+          setState('playing')
+        } else {
+          setState('waiting')
+        }
+      })
+    } catch (err) {
+      setError('Failed to get pairing code')
+      setState('error')
     }
   }
 
@@ -62,7 +73,7 @@ export function App() {
           <p className="text-2xl font-semibold mb-2">Connection Error</p>
           <p className="text-gray-400">{error}</p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => { setError(null); initializePlayer(); }}
             className="mt-4 px-6 py-2 bg-primary rounded-lg"
           >
             Retry

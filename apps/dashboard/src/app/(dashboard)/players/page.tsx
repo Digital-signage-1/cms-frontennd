@@ -88,7 +88,7 @@ export default function PlayersPage() {
           initial={{ x: -20, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="flex-1 relative"
+          className="flex-1 relative z-0"
         >
           <Suspense fallback={<div className="w-full h-full bg-surface animate-pulse" />}>
             <PlayerMap 

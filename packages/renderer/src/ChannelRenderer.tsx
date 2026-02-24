@@ -19,10 +19,15 @@ export function ChannelRenderer({
   className = '',
   isPreview = false,
 }: ChannelRendererProps) {
-  const { channel, zones } = manifest
+  const channel = manifest.channel ?? {
+    channel_id: manifest.channel_id,
+    name: manifest.name,
+    background: (manifest as Record<string, unknown>).background,
+  }
+  const zones = manifest.zones ?? []
 
   const getBackgroundStyle = useCallback(() => {
-    const bg = channel.background
+    const bg = channel?.background
     if (!bg) return {}
     
     switch (bg.type) {
@@ -40,13 +45,17 @@ export function ChannelRenderer({
       default:
         return { backgroundColor: 'transparent' }
     }
-  }, [channel.background])
+  }, [channel?.background])
+
+  if (!channel) {
+    return null
+  }
 
   return (
     <div
       className={`relative w-full h-full overflow-hidden ${className}`}
       style={getBackgroundStyle()}
-      data-channel-id={channel.channel_id}
+      data-channel-id={channel.channel_id ?? ''}
     >
       {zones.map((zone) => (
         <div

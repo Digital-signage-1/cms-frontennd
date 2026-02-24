@@ -137,7 +137,7 @@ export function PlayerMap({ players, onPlayerClick }: PlayerMapProps) {
     <div className="relative w-full h-full">
       <div ref={mapRef} className="w-full h-full rounded-lg overflow-hidden" />
       
-      <div className="absolute top-4 right-4 bg-surface border border-border rounded-lg shadow-lg p-3 z-[1000]">
+      <div className="absolute top-4 right-4 bg-surface border border-border rounded-lg shadow-lg p-3 z-10">
         <h4 className="text-xs font-semibold text-text-primary mb-2">Legend</h4>
         <div className="space-y-1.5 text-xs">
           <div className="flex items-center gap-2">
@@ -156,7 +156,7 @@ export function PlayerMap({ players, onPlayerClick }: PlayerMapProps) {
       </div>
 
       {players.filter(p => p.location?.lat && p.location?.lng).length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center bg-surface/80 backdrop-blur-sm z-[999]">
+        <div className="absolute inset-0 flex items-center justify-center bg-surface/80 backdrop-blur-sm z-10">
           <div className="text-center">
             <p className="text-text-secondary mb-2">No players with location data</p>
             <p className="text-xs text-text-muted">Add location information to players to see them on the map</p>
