@@ -1,5 +1,6 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { Button } from '@/components/ui'
 import { MetricsStrip } from '@/components/dashboard/MetricsStrip'
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed'
@@ -9,9 +10,12 @@ import { useAuthStore } from '@/stores/auth-store'
 import { usePlayers, useChannels, useContent } from '@/hooks/queries'
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Suspense, lazy } from 'react'
+import { Suspense } from 'react'
 
-const PlayerMap = lazy(() => import('@/components/players/PlayerMap').then(m => ({ default: m.PlayerMap })))
+const PlayerMap = dynamic(
+  () => import('@/components/players/PlayerMap').then(m => ({ default: m.PlayerMap })),
+  { ssr: false }
+)
 
 export default function HomePage() {
   const { user, account, workspace } = useAuthStore()

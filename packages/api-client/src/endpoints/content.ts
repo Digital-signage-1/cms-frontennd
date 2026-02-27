@@ -67,5 +67,8 @@ export function createContentEndpoints(client: ApiClient) {
         preferred_formats: string[]
         tips: string[]
       }>>('/api/v1/content/quality-guidelines', { params: { display } }),
+    
+    getDisplayResolutions: () =>
+      client.get<Array<{ resolution: string; width: number; height: number; label?: string }>>('/api/v1/content/display-resolutions'),
   }
 }

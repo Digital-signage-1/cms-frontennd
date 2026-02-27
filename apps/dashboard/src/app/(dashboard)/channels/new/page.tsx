@@ -41,7 +41,6 @@ export default function CreateChannelPage() {
           description: channelDescription.trim() || undefined,
           layout_type: 'SINGLE',
           background: { type: 'color', value: '#1a1a2e' },
-          slides: [],
         }
       })
       router.push(`/channels/${result.channel_id}/studio`)

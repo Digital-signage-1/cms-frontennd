@@ -18,7 +18,7 @@ export function createPlayersEndpoints(client: ApiClient) {
     get: (workspaceId: string, playerId: string) =>
       client.get<Player>(`/api/v1/workspaces/${workspaceId}/players/${playerId}`),
     
-    create: (workspaceId: string, data: { name: string; device_type?: string; channel_id: string }) =>
+    create: (workspaceId: string, data: { name: string; device_type?: string; channel_id?: string }) =>
       client.post<Player>(`/api/v1/workspaces/${workspaceId}/players`, data),
     
     update: (workspaceId: string, playerId: string, data: Partial<Player>) =>
@@ -28,21 +28,36 @@ export function createPlayersEndpoints(client: ApiClient) {
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/players/${playerId}`),
     
     assignChannel: (workspaceId: string, playerId: string, channelId: string | null) =>
-      client.patch<Player>(`/api/v1/workspaces/${workspaceId}/players/${playerId}`, { channel_id: channelId }),
+      channelId
+        ? client.post<Player>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/assign-channel`, { channel_id: channelId })
+        : client.patch<Player>(`/api/v1/workspaces/${workspaceId}/players/${playerId}`, { channel_id: null }),
     
     pair: (_workspaceId: string, data: PairingRequest) =>
       client.post<PairingResponse>(`/api/v1/players/pair`, data),
     
     sendCommand: (workspaceId: string, playerId: string, command: {
-      type: string
+      command_type?: string
+      type?: string
       params?: Record<string, unknown>
-    }) => client.post<PlayerCommand>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/commands`, command),
+    }) => client.post<PlayerCommand>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/commands`, {
+      command_type: command.command_type ?? command.type ?? 'refresh',
+      params: command.params ?? {},
+    }),
     
     listCommands: (workspaceId: string, playerId: string) =>
       client.get<PlayerCommand[]>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/commands`),
     
     requestScreenshot: (workspaceId: string, playerId: string) =>
       client.post<void>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/screenshots`),
+    
+    listScreenshots: (workspaceId: string, playerId: string, limit?: number) =>
+      client.get<unknown[]>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/screenshots`, { params: limit ? { limit } : undefined }),
+    
+    getMetrics: (workspaceId: string, playerId: string, days?: number) =>
+      client.get<Record<string, unknown>>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/metrics`, { params: days ? { days } : undefined }),
+    
+    requestCodeForDevice: (workspaceId: string) =>
+      client.get<{ code: string; expires_at: string }>(`/api/v1/workspaces/${workspaceId}/players/request-code`),
     
     getLocation: (workspaceId: string, playerId: string) =>
       client.get<PlayerLocation>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/location`),

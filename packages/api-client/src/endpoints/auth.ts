@@ -1,5 +1,5 @@
 import type { ApiClient } from '../client'
-import type { Account, User, Workspace, WorkspaceMember } from '@signage/types'
+import type { Account, User, Workspace, WorkspaceMember, InviteResponse } from '@signage/types'
 
 export interface SignUpRequest {
   email: string
@@ -115,7 +115,7 @@ export function createAuthEndpoints(client: ApiClient) {
       client.get<WorkspaceMember[]>(`/api/v1/workspaces/${workspaceId}/members`),
     
     inviteMember: (workspaceId: string, data: { email: string; role: string }) =>
-      client.post<void>(`/api/v1/workspaces/${workspaceId}/invitations`, data),
+      client.post<InviteResponse>(`/api/v1/workspaces/${workspaceId}/invitations`, data),
     
     updateMemberRole: (workspaceId: string, cognitoSub: string, role: string) =>
       client.patch<void>(`/api/v1/workspaces/${workspaceId}/members/${cognitoSub}`, { role }),

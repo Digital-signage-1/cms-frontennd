@@ -17,6 +17,26 @@ export function App() {
     initializePlayer()
   }, [])
 
+  useEffect(() => {
+    const handleRefresh = async () => {
+      const deviceManager = DeviceManager.getInstance()
+      if (!deviceManager.isPaired()) return
+      try {
+        const playerConfig = await deviceManager.fetchConfig()
+        setConfig(playerConfig)
+        if (playerConfig?.channel) {
+          setState('playing')
+        } else {
+          setState('waiting')
+        }
+      } catch {
+        setState('waiting')
+      }
+    }
+    window.addEventListener('player:refresh-needed', handleRefresh)
+    return () => window.removeEventListener('player:refresh-needed', handleRefresh)
+  }, [])
+
   async function initializePlayer() {
     const deviceManager = DeviceManager.getInstance()
 

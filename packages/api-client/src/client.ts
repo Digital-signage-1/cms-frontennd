@@ -15,17 +15,24 @@ interface ApiResponse<T> {
 export class ApiClient {
   private baseUrl: string
   private getToken: () => Promise<string | null>
+  private onTokenRefresh?: () => Promise<boolean>
 
-  constructor(baseUrl: string, getToken: () => Promise<string | null>) {
+  constructor(
+    baseUrl: string,
+    getToken: () => Promise<string | null>,
+    onTokenRefresh?: () => Promise<boolean>
+  ) {
     this.baseUrl = baseUrl.replace(/\/$/, '')
     this.getToken = getToken
+    this.onTokenRefresh = onTokenRefresh
   }
 
   private async request<T>(
     method: HttpMethod,
     path: string,
     body?: unknown,
-    options?: RequestOptions
+    options?: RequestOptions,
+    isRetry?: boolean
   ): Promise<T> {
     const token = await this.getToken()
     
@@ -54,6 +61,13 @@ export class ApiClient {
     })
 
     const result = await response.json()
+
+    if (response.status === 401 && !isRetry && this.onTokenRefresh && token) {
+      const refreshed = await this.onTokenRefresh()
+      if (refreshed) {
+        return this.request<T>(method, path, body, options, true)
+      }
+    }
 
     if (!response.ok) {
       const apiResult = result as ApiResponse<T>
@@ -171,7 +185,8 @@ export class ApiError extends Error {
 
 export function createApiClient(
   baseUrl: string,
-  getToken: () => Promise<string | null>
+  getToken: () => Promise<string | null>,
+  onTokenRefresh?: () => Promise<boolean>
 ): ApiClient {
-  return new ApiClient(baseUrl, getToken)
+  return new ApiClient(baseUrl, getToken, onTokenRefresh)
 }

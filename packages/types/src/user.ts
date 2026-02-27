@@ -75,3 +75,37 @@ export interface AuthState {
   isAuthenticated: boolean
   isLoading: boolean
 }
+
+export interface InviteResponse {
+  type: string
+  message: string
+  invitation_id?: string
+  member_cognito_sub?: string
+}
+
+export interface InvitationResponse {
+  invitation_id: string
+  workspace_id: string
+  email: string
+  role: string
+  status: string
+  invited_by_email: string
+  expires_at: string
+  created_at: string
+}
+
+export interface PendingInvitationResponse {
+  invitation_id: string
+  workspace_id: string
+  workspace_name: string
+  role: string
+  invited_by_email: string
+  expires_at: string
+}
+
+export interface AcceptInviteResponse {
+  workspace_id: string
+  role: string
+  message: string
+}
+

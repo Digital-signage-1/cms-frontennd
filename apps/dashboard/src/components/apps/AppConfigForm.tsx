@@ -8,6 +8,7 @@ import { ContentSelector } from './ContentSelector'
 import { ChevronLeft, Loader2, AlertCircle } from 'lucide-react'
 import { useCreateApp } from '@/hooks/queries/useApps'
 import { useContent } from '@/hooks/queries'
+import { api } from '@/services/api'
 import type { AppType, Content } from '@signage/types'
 
 interface FormField {
@@ -44,18 +45,7 @@ export function AppConfigForm({ appType, workspaceId, onBack, onSuccess, onCance
 
   const { data: schemaData, isLoading: isLoadingSchema } = useQuery({
     queryKey: ['app-type-schema', appType.type],
-    queryFn: async () => {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/app-types/${appType.type}/schema`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('signage_access_token')}`
-          }
-        }
-      )
-      if (!response.ok) throw new Error('Failed to fetch schema')
-      return response.json()
-    }
+    queryFn: () => api.apps.getAppTypeSchema(appType.type),
   })
 
   const schema = schemaData?.schema

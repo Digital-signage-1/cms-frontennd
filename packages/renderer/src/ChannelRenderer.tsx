@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback } from 'react'
-import type { ChannelManifest } from '@signage/types'
+import type { ChannelManifest, BackgroundConfig } from '@signage/types'
 import { ZoneRenderer } from './ZoneRenderer'
 
 interface ChannelRendererProps {
@@ -22,21 +22,20 @@ export function ChannelRenderer({
   const channel = manifest.channel ?? {
     channel_id: manifest.channel_id,
     name: manifest.name,
-    background: (manifest as Record<string, unknown>).background,
+    background: (manifest as unknown as { background?: BackgroundConfig }).background,
   }
   const zones = manifest.zones ?? []
 
   const getBackgroundStyle = useCallback(() => {
-    const bg = channel?.background
-    if (!bg) return {}
-    
+    const bg = channel?.background as BackgroundConfig | undefined
+    if (!bg || typeof bg !== 'object' || !('type' in bg)) return {}
     switch (bg.type) {
       case 'color':
         return { backgroundColor: bg.value }
       case 'gradient':
         return { background: bg.value }
       case 'image':
-        return { 
+        return {
           backgroundImage: `url(${bg.value})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
@@ -71,7 +70,7 @@ export function ChannelRenderer({
         >
           <ZoneRenderer
             zone={zone}
-            apps={zone.apps}
+            apps={zone.apps ?? []}
             onError={(error) => onError?.(zone.zone_id, error)}
             onAppChange={(appId) => onAppChange?.(zone.zone_id, appId)}
             isPreview={isPreview}

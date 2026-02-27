@@ -122,6 +122,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const [previewSlideIndex, setPreviewSlideIndex] = useState(0)
 
   const { data: channelData, isLoading: channelLoading } = useChannel(workspaceId, resolvedParams.id)
+  const channelId = channelData?.channel_id ?? resolvedParams.id
   const { data: manifestData } = useChannelManifest(workspaceId, resolvedParams.id)
   const { data: appsData, isLoading: appsLoading } = useApps(workspaceId)
   const updateChannelMutation = useUpdateChannel()
@@ -671,19 +672,21 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
               <div className="flex-1 min-h-0 flex items-center justify-center bg-muted/30 rounded-lg overflow-hidden">
                 <div className="w-full max-w-4xl aspect-video bg-black rounded-lg overflow-hidden shadow-xl">
                   {(() => {
+                    const ch = manifestData.channel
                     const channel = {
-                      channel_id: manifestData.channel_id,
-                      name: manifestData.name || '',
-                      layout_type: (manifestData.layout_type || 'SINGLE').toLowerCase(),
-                      layout: manifestData.layout || { width: 1920, height: 1080, orientation: 'landscape' },
-                      background: manifestData.background || { type: 'color' as const, value: '#000000' },
-                      transition_type: (manifestData.transition_type || 'fade') as 'none' | 'fade' | 'slide' | 'zoom',
-                      transition_duration: manifestData.transition_duration ?? 500,
-                      status: (manifestData.status || 'draft') as 'draft' | 'published' | 'archived',
-                      created_at: manifestData.updated_at || '',
-                      updated_at: manifestData.updated_at || '',
+                      channel_id: ch?.channel_id ?? channelId ?? '',
+                      workspace_id: ch?.workspace_id ?? workspaceId ?? '',
+                      name: ch?.name ?? manifestData.name ?? '',
+                      layout_type: (ch?.layout_type ?? 'single') as 'single' | 'split_horizontal' | 'split_vertical' | 'grid' | 'l_shape' | 'custom',
+                      layout: ch?.layout ?? { width: 1920, height: 1080, orientation: 'landscape' as const },
+                      background: ch?.background ?? { type: 'color' as const, value: '#000000' },
+                      transition_type: (ch?.transition_type ?? 'fade') as 'none' | 'fade' | 'slide' | 'zoom',
+                      transition_duration: ch?.transition_duration ?? 500,
+                      status: (ch?.status ?? 'draft') as 'draft' | 'published' | 'archived',
+                      created_at: ch?.created_at ?? '',
+                      updated_at: ch?.updated_at ?? '',
                     }
-                    const slideZones = manifestData.slides[previewSlideIndex]?.zones ?? []
+                    const slideZones = manifestData.slides?.[previewSlideIndex]?.zones ?? []
                     return (
                       <ChannelRenderer
                         manifest={{ channel, zones: slideZones }}
