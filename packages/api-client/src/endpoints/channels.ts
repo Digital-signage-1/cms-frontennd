@@ -72,5 +72,8 @@ export function createChannelsEndpoints(client: ApiClient) {
     
     removeZoneApp: (workspaceId: string, channelId: string, zoneId: string, zoneAppId: string) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/${zoneId}/apps/${zoneAppId}`),
+    
+    reorderZoneApps: (workspaceId: string, channelId: string, zoneId: string, zoneAppIds: string[]) =>
+      client.put<ZoneApp[]>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/${zoneId}/apps/reorder`, { zone_app_ids: zoneAppIds }),
   }
 }

@@ -3,8 +3,8 @@ import type { Schedule, ScheduleOverride, ScheduleCreateRequest, ScheduleUpdateR
 
 export function createSchedulesEndpoints(client: ApiClient) {
   return {
-    list: (workspaceId: string) =>
-      client.get<Schedule[]>(`/api/v1/workspaces/${workspaceId}/schedules`),
+    list: (workspaceId: string, activeOnly?: boolean) =>
+      client.get<Schedule[]>(`/api/v1/workspaces/${workspaceId}/schedules`, { params: activeOnly ? { active_only: activeOnly } : undefined }),
     
     get: (workspaceId: string, scheduleId: string) =>
       client.get<Schedule>(`/api/v1/workspaces/${workspaceId}/schedules/${scheduleId}`),
@@ -18,16 +18,22 @@ export function createSchedulesEndpoints(client: ApiClient) {
     delete: (workspaceId: string, scheduleId: string) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/schedules/${scheduleId}`),
     
-    listOverrides: (workspaceId: string) =>
-      client.get<ScheduleOverride[]>(`/api/v1/workspaces/${workspaceId}/schedule-overrides`),
+    getScheduleCalendar: (workspaceId: string, params: { start_date: string; end_date: string; timezone?: string }) =>
+      client.get<Record<string, { schedules: unknown[]; overrides: unknown[] }>>(`/api/v1/workspaces/${workspaceId}/schedules/calendar`, { params }),
     
-    createOverride: (workspaceId: string, data: Partial<ScheduleOverride>) =>
-      client.post<ScheduleOverride>(`/api/v1/workspaces/${workspaceId}/schedule-overrides`, data),
+    getActiveChannel: (workspaceId: string, params?: { default_channel_id?: string; timezone?: string }) =>
+      client.get<{ channel_id: string | null; timestamp: string; timezone: string }>(`/api/v1/workspaces/${workspaceId}/schedules/active`, { params }),
+    
+    listOverrides: (workspaceId: string, activeOnly?: boolean) =>
+      client.get<ScheduleOverride[]>(`/api/v1/workspaces/${workspaceId}/overrides`, { params: activeOnly ? { active_only: activeOnly } : undefined }),
+    
+    listUpcomingOverrides: (workspaceId: string, daysAhead?: number) =>
+      client.get<ScheduleOverride[]>(`/api/v1/workspaces/${workspaceId}/overrides/upcoming`, { params: daysAhead ? { days_ahead: daysAhead } : undefined }),
+    
+    createOverride: (workspaceId: string, data: Partial<ScheduleOverride> & { channel_id: string; name: string; type: string; start_datetime: string; end_datetime: string }) =>
+      client.post<ScheduleOverride>(`/api/v1/workspaces/${workspaceId}/overrides`, data),
     
     deleteOverride: (workspaceId: string, overrideId: string) =>
-      client.delete<void>(`/api/v1/workspaces/${workspaceId}/schedule-overrides/${overrideId}`),
-    
-    getActiveChannel: (workspaceId: string, playerId: string) =>
-      client.get<{ channel_id: string | null }>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/active-channel`),
+      client.delete<void>(`/api/v1/workspaces/${workspaceId}/overrides/${overrideId}`),
   }
 }

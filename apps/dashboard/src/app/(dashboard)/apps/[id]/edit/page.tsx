@@ -15,6 +15,7 @@ import { StatusDot } from '@/components/ui/status-dot'
 import { useAuthStore } from '@/stores/auth-store'
 import { useApp, useUpdateApp, useDeleteApp } from '@/hooks/queries/useApps'
 import { useContent, useContentItem } from '@/hooks/queries'
+import { api } from '@/services/api'
 import type { Content, App } from '@signage/types'
 import { motion } from 'framer-motion'
 import { formatDate } from '@/lib/utils'
@@ -92,20 +93,8 @@ export default function EditAppPage() {
 
   const { data: schemaData, isLoading: isLoadingSchema } = useQuery({
     queryKey: ['app-type-schema', app?.template_type],
-    queryFn: async () => {
-      if (!app) return null
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/app-types/${app.template_type}/schema`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('signage_access_token')}`
-          }
-        }
-      )
-      if (!response.ok) throw new Error('Failed to fetch schema')
-      return response.json()
-    },
-    enabled: !!app
+    queryFn: () => api.apps.getAppTypeSchema(app!.template_type),
+    enabled: !!app,
   })
 
   const schema = schemaData?.schema

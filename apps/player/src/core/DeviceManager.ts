@@ -1,6 +1,17 @@
 import type { PlayerConfig } from '@signage/types'
 
 const API_BASE_URL = (import.meta.env?.VITE_API_URL as string) || 'http://localhost:8080/api/v1'
+
+function getDeviceInfo(): Record<string, unknown> {
+  if (typeof window === 'undefined') return {}
+  return {
+    os: 'web',
+    browser: navigator.userAgent.split(' ').pop() || 'unknown',
+    screen_width: window.screen?.width,
+    screen_height: window.screen?.height,
+    user_agent: navigator.userAgent,
+  }
+}
 const STORAGE_KEY = 'signage_player_device'
 
 interface StoredDevice {
@@ -66,9 +77,14 @@ export class DeviceManager {
 
   async requestPairingCode(_workspaceId?: string): Promise<string> {
     try {
+      const headers: Record<string, string> = {}
+      const deviceInfo = getDeviceInfo()
+      if (Object.keys(deviceInfo).length > 0) {
+        headers['X-Device-Info'] = JSON.stringify(deviceInfo)
+      }
       const response = await fetch(
         `${API_BASE_URL}/players/request-code`,
-        { method: 'GET' }
+        { method: 'GET', headers }
       )
 
       if (!response.ok) {
@@ -161,13 +177,16 @@ export class DeviceManager {
     }
 
     try {
+      const headers: Record<string, string> = {
+        'X-Device-Token': this.storedDevice.deviceToken,
+      }
+      const deviceInfo = getDeviceInfo()
+      if (Object.keys(deviceInfo).length > 0) {
+        headers['X-Device-Info'] = JSON.stringify(deviceInfo)
+      }
       const response = await fetch(
         `${API_BASE_URL}/players/${this.storedDevice.playerId}/config`,
-        {
-          headers: {
-            'X-Device-Token': this.storedDevice.deviceToken,
-          },
-        }
+        { headers }
       )
 
       if (!response.ok) {
@@ -175,7 +194,19 @@ export class DeviceManager {
       }
 
       const data = await response.json()
-      return data.data
+      const raw = data.data
+      const player = raw?.player ?? {}
+      const channel = raw?.channel
+      return {
+        player_id: player.id ?? this.storedDevice.playerId,
+        channel: channel ? {
+          channel_id: channel.channel_id,
+          manifest_url: channel.manifest_url,
+          version: channel.version,
+        } : undefined,
+        settings: player.settings ?? {},
+        commands: [],
+      }
     } catch (err) {
       console.error('Failed to fetch config:', err)
       return {

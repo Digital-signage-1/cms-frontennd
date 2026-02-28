@@ -3,23 +3,21 @@ import { api } from '@/services/api'
 import type { LayoutTemplate, ScreenTemplate, TemplateCreateRequest, TemplateUsage } from '@signage/types'
 
 // Layout Templates
-export function useLayoutTemplates(workspaceId: string, params?: {
+export function useLayoutTemplates(params?: {
   category?: string
   orientation?: string
-  is_public?: boolean
 }) {
   return useQuery({
-    queryKey: ['layout-templates', workspaceId, params],
-    queryFn: () => api.templates.listLayoutTemplates(workspaceId, params),
-    enabled: !!workspaceId,
+    queryKey: ['layout-templates', params],
+    queryFn: () => api.templates.listLayoutTemplates(params),
   })
 }
 
-export function useLayoutTemplate(workspaceId: string, templateId: string) {
+export function useLayoutTemplate(templateId: string) {
   return useQuery({
-    queryKey: ['layout-templates', workspaceId, templateId],
-    queryFn: () => api.templates.getLayoutTemplate(workspaceId, templateId),
-    enabled: !!workspaceId && !!templateId,
+    queryKey: ['layout-templates', templateId],
+    queryFn: () => api.templates.getLayoutTemplate(templateId),
+    enabled: !!templateId,
   })
 }
 
@@ -34,8 +32,8 @@ export function useCreateLayoutTemplate() {
       workspaceId: string
       data: TemplateCreateRequest
     }) => api.templates.createLayoutTemplate(workspaceId, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['layout-templates', variables.workspaceId] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['layout-templates'] })
     },
   })
 }
@@ -54,8 +52,8 @@ export function useUpdateLayoutTemplate() {
       data: Partial<TemplateCreateRequest>
     }) => api.templates.updateLayoutTemplate(workspaceId, templateId, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['layout-templates', variables.workspaceId] })
-      queryClient.invalidateQueries({ queryKey: ['layout-templates', variables.workspaceId, variables.templateId] })
+      queryClient.invalidateQueries({ queryKey: ['layout-templates'] })
+      queryClient.invalidateQueries({ queryKey: ['layout-templates', variables.templateId] })
     },
   })
 }
@@ -71,30 +69,30 @@ export function useDeleteLayoutTemplate() {
       workspaceId: string
       templateId: string
     }) => api.templates.deleteLayoutTemplate(workspaceId, templateId),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['layout-templates', variables.workspaceId] })
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['layout-templates'] })
     },
   })
 }
 
 // Screen Templates
-export function useScreenTemplates(workspaceId: string, params?: {
-  layout_template_id?: string
+export function useScreenTemplates(params?: {
   industry?: string
-  is_public?: boolean
+  use_case?: string
+  orientation?: string
+  tags?: string
 }) {
   return useQuery({
-    queryKey: ['screen-templates', workspaceId, params],
-    queryFn: () => api.templates.listScreenTemplates(workspaceId, params),
-    enabled: !!workspaceId,
+    queryKey: ['screen-templates', params],
+    queryFn: () => api.templates.listScreenTemplates(params),
   })
 }
 
-export function useScreenTemplate(workspaceId: string, templateId: string) {
+export function useScreenTemplate(templateId: string) {
   return useQuery({
-    queryKey: ['screen-templates', workspaceId, templateId],
-    queryFn: () => api.templates.getScreenTemplate(workspaceId, templateId),
-    enabled: !!workspaceId && !!templateId,
+    queryKey: ['screen-templates', templateId],
+    queryFn: () => api.templates.getScreenTemplate(templateId),
+    enabled: !!templateId,
   })
 }
 

@@ -53,19 +53,21 @@ export function AppTypeSelector({ onSelect }: AppTypeSelectorProps) {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['app-types'],
-    queryFn: async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/api/v1/app-types`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('signage_access_token')}`
-        }
-      })
-      if (!response.ok) throw new Error('Failed to fetch app types')
-      return response.json()
-    }
+    queryFn: () => api.apps.listAppTypes(),
   })
 
-  const appTypes: AppType[] = data?.app_types || []
-  const categories: string[] = data?.categories || []
+  const rawData = data as { app_types?: Array<{ type_id: string; name: string; description: string; icon: string; category: string }>; categories?: string[] } | undefined
+  const appTypes: AppType[] = (rawData?.app_types || []).map(m => ({
+    type: m.type_id as AppType['type'],
+    name: m.name,
+    description: m.description,
+    icon: m.icon,
+    category: (m.category || 'custom') as AppType['category'],
+    requires_content: true,
+    requires_integration: false,
+    config_schema: { fields: [] },
+  }))
+  const categories: string[] = rawData?.categories || []
 
   const filteredAppTypes = selectedCategory === 'all' 
     ? appTypes 
