@@ -1,2 +1,9 @@
+[build]
+  base = "apps/player"
+  command = "cd ../.. && pnpm install && pnpm exec turbo build --filter=@signage/player"
+  publish = "dist"
+  plugins = []
+
 [build.environment]
-  NEXT_PUBLIC_API_URL = "https://5te33orwoc.execute-api.us-east-1.amazonaws.com/development"
+  VITE_API_URL = "https://5te33orwoc.execute-api.us-east-1.amazonaws.com/development/api/v1"
+
