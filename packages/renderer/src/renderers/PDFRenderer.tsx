@@ -1,7 +1,9 @@
 'use client'
 
 import { useRef, useEffect, useState, useCallback } from 'react'
-import * as pdfjsLib from 'pdfjs-dist'
+// Use legacy build to avoid Object.defineProperty crash with webpack eval-source-map in dev
+// See: https://github.com/mozilla/pdf.js/issues/20478
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'
 
 // Set worker source to CDN
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`
