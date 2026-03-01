@@ -19,7 +19,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const sidebarWidth = isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="dark min-h-screen bg-background">
       <CommandPalette />
       <Sidebar />
       <div
@@ -30,7 +30,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         }}
       >
         <Header breadcrumbItems={breadcrumbItems} />
-        <main className="min-h-[calc(100vh-4rem)]">
+        <main className="min-h-[calc(100vh-3.5rem)]">
           {children}
         </main>
       </div>

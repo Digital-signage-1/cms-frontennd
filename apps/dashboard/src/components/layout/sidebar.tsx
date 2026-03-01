@@ -6,16 +6,17 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '../ui/button'
 import { useSidebar } from '@/contexts/sidebar-context'
+import { useAuthStore } from '@/stores/auth-store'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 const NAV_ITEMS = [
-  { label: 'Dashboard', href: '/home', icon: LayoutGrid },
-  { label: 'Content', href: '/content', icon: Upload },
-  { label: 'Apps', href: '/apps', icon: Box },
-  { label: 'Channels', href: '/channels', icon: Layers },
-  { label: 'Players', href: '/players', icon: Monitor },
-  { label: 'Schedules', href: '/schedules', icon: Calendar },
+  { label: 'Dashboard', href: '/home', icon: LayoutGrid, badge: undefined },
+  { label: 'Content', href: '/content', icon: Upload, badge: 3 },
+  { label: 'Players', href: '/players', icon: Monitor, badge: undefined },
+  { label: 'Channels', href: '/channels', icon: Layers, badge: undefined },
+  { label: 'Schedules', href: '/schedules', icon: Calendar, badge: undefined },
+  { label: 'Apps', href: '/apps', icon: Box, badge: undefined },
 ]
 
 const BOTTOM_NAV_ITEMS = [
@@ -25,10 +26,42 @@ const BOTTOM_NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname()
-  const { collapsed, toggle, isExpanded, setIsExpanded } = useSidebar()
+  const { collapsed, toggle, setIsExpanded } = useSidebar()
+  const { user, account } = useAuthStore()
   const [isHovered, setIsHovered] = useState(false)
-  
+
   const actualExpanded = collapsed ? isHovered : true
+
+  const userDisplayName = useMemo(() => {
+    if (user?.given_name && user?.family_name) return `${user.given_name} ${user.family_name}`
+    if (user?.name) return user.name
+    if (account?.name) return account.name
+    return 'User'
+  }, [user, account])
+
+  const userInitials = useMemo(() => {
+    if (user?.given_name) {
+      return `${user.given_name[0]}${user.family_name?.[0] || ''}`.toUpperCase()
+    }
+    if (user?.name) {
+      const parts = user.name.split(' ')
+      return `${parts[0]?.[0] || ''}${parts[1]?.[0] || ''}`.toUpperCase()
+    }
+    if (account?.name) {
+      const parts = account.name.split(' ')
+      return `${parts[0]?.[0] || ''}${parts[1]?.[0] || ''}`.toUpperCase()
+    }
+    return 'U'
+  }, [user, account])
+
+  const userEmail = useMemo(() => {
+    return user?.email || ''
+  }, [user])
+
+  const planLabel = useMemo(() => {
+    if (!account?.plan) return 'Free Plan'
+    return `${account.plan.charAt(0).toUpperCase() + account.plan.slice(1)} Plan`
+  }, [account])
 
   return (
     <aside
@@ -41,32 +74,42 @@ export function Sidebar() {
         if (collapsed) setIsExpanded(false)
       }}
       className={cn(
-        'fixed left-0 top-0 z-40 flex h-screen flex-col glass-heavy border-r border-border/50 transition-all duration-300 ease-in-out',
+        'fixed left-0 top-0 z-40 flex h-screen flex-col border-r transition-all duration-300 ease-in-out',
         actualExpanded ? 'w-[240px]' : 'w-[56px]'
       )}
+      style={{ backgroundColor: '#0D0D0D', borderColor: '#1C1C1C' }}
     >
-      <div className="flex h-16 items-center border-b border-border/50 px-4 transition-all backdrop-blur-xl">
+      {/* Logo */}
+      <div
+        className="flex h-16 items-center px-4 transition-all"
+        style={{ borderBottom: '1px solid #1C1C1C' }}
+      >
         <Link href="/home" className="flex items-center gap-3 overflow-hidden">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-white">
-            <span className="text-lg font-bold">S</span>
+          <div
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+            style={{ backgroundColor: '#F5A624' }}
+          >
+            <span className="text-base font-bold" style={{ color: '#000000' }}>S</span>
           </div>
           <AnimatePresence>
             {actualExpanded && (
-              <motion.span
+              <motion.div
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: 'auto' }}
                 exit={{ opacity: 0, width: 0 }}
                 transition={{ duration: 0.2 }}
-                className="text-lg font-semibold text-text-primary tracking-tight whitespace-nowrap"
+                className="overflow-hidden"
               >
-                Studio
-              </motion.span>
+                <p className="text-base font-bold text-white leading-none whitespace-nowrap">Studio</p>
+                <p className="text-xs whitespace-nowrap mt-0.5" style={{ color: '#6B7280' }}>{planLabel}</p>
+              </motion.div>
             )}
           </AnimatePresence>
         </Link>
       </div>
 
-      <nav className="flex-1 space-y-1 py-6 px-3 overflow-y-auto">
+      {/* Main navigation */}
+      <nav className="flex-1 space-y-0.5 py-4 px-2 overflow-y-auto">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
           const Icon = item.icon
@@ -80,18 +123,31 @@ export function Sidebar() {
               <div
                 className={cn(
                   'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all relative',
-                  isActive
-                    ? 'text-primary'
-                    : 'text-text-secondary hover:bg-surface-alt/50 hover:text-text-primary'
                 )}
+                style={{
+                  backgroundColor: isActive ? 'rgba(245,166,36,0.08)' : 'transparent',
+                  color: isActive ? '#F5A624' : '#6B7280',
+                }}
+                onMouseEnter={e => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLElement).style.backgroundColor = '#1C1C1C'
+                    ;(e.currentTarget as HTMLElement).style.color = '#FFFFFF'
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
+                    ;(e.currentTarget as HTMLElement).style.color = '#6B7280'
+                  }
+                }}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary rounded-r-full" />
+                  <div
+                    className="absolute left-0 top-1 bottom-1 w-0.5 rounded-r-full"
+                    style={{ backgroundColor: '#F5A624' }}
+                  />
                 )}
-                <Icon className={cn(
-                  "h-5 w-5 shrink-0 transition-colors",
-                  isActive ? "text-primary" : "text-text-muted group-hover:text-primary"
-                )} />
+                <Icon className="h-4 w-4 shrink-0 transition-colors" />
                 <AnimatePresence>
                   {actualExpanded && (
                     <motion.span
@@ -99,69 +155,122 @@ export function Sidebar() {
                       animate={{ opacity: 1, width: 'auto' }}
                       exit={{ opacity: 0, width: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="whitespace-nowrap"
+                      className="whitespace-nowrap flex-1"
                     >
                       {item.label}
                     </motion.span>
                   )}
                 </AnimatePresence>
+                {actualExpanded && item.badge !== undefined && (
+                  <span
+                    className="ml-auto text-xs font-semibold px-1.5 py-0.5 rounded-full leading-none"
+                    style={{ backgroundColor: '#F5A624', color: '#000000', minWidth: '18px', textAlign: 'center' }}
+                  >
+                    {item.badge}
+                  </span>
+                )}
               </div>
             </Link>
           )
         })}
       </nav>
 
-      <div className="p-3 border-t border-border/50 space-y-1 backdrop-blur-xl">
-        {BOTTOM_NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href
-          const Icon = item.icon
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              title={!actualExpanded ? item.label : undefined}
-            >
-              <div
-                className={cn(
-                  'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
-                  isActive
-                    ? 'bg-surface-alt text-text-primary'
-                    : 'text-text-secondary hover:bg-surface-alt/50 hover:text-text-primary'
-                )}
+      {/* Bottom nav + user profile */}
+      <div className="px-2 pb-2" style={{ borderTop: '1px solid #1C1C1C' }}>
+        <div className="space-y-0.5 py-3">
+          {BOTTOM_NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.href
+            const Icon = item.icon
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                title={!actualExpanded ? item.label : undefined}
               >
-                <Icon className="h-5 w-5 shrink-0 text-text-muted group-hover:text-primary transition-colors" />
-                <AnimatePresence>
-                  {actualExpanded && (
-                    <motion.span
-                      initial={{ opacity: 0, width: 0 }}
-                      animate={{ opacity: 1, width: 'auto' }}
-                      exit={{ opacity: 0, width: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="whitespace-nowrap"
-                    >
-                      {item.label}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </div>
-            </Link>
-          )
-        })}
+                <div
+                  className="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all"
+                  style={{
+                    backgroundColor: isActive ? 'rgba(245,166,36,0.08)' : 'transparent',
+                    color: isActive ? '#F5A624' : '#6B7280',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLElement).style.backgroundColor = '#1C1C1C'
+                      ;(e.currentTarget as HTMLElement).style.color = '#FFFFFF'
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) {
+                      (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
+                      ;(e.currentTarget as HTMLElement).style.color = '#6B7280'
+                    }
+                  }}
+                >
+                  <Icon className="h-4 w-4 shrink-0 transition-colors" />
+                  <AnimatePresence>
+                    {actualExpanded && (
+                      <motion.span
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: 'auto' }}
+                        exit={{ opacity: 0, width: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="whitespace-nowrap"
+                      >
+                        {item.label}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
 
-        <div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggle}
-            className="w-full justify-center mt-2 text-text-muted hover:text-primary h-10 rounded-lg"
+        {/* Collapse toggle */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggle}
+          className="w-full justify-center mb-3 h-8 rounded-lg"
+          style={{ color: '#6B7280' }}
+        >
+          <motion.div
+            animate={{ rotate: collapsed ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
           >
-            <motion.div
-              animate={{ rotate: collapsed ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </motion.div>
-          </Button>
+            <ChevronLeft className="h-4 w-4" />
+          </motion.div>
+        </Button>
+
+        {/* User profile */}
+        <div
+          className="flex items-center gap-3 rounded-lg px-2 py-2.5"
+          style={{ borderTop: '1px solid #1C1C1C' }}
+        >
+          <div
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
+            style={{ backgroundColor: '#4C4C8A' }}
+          >
+            {userInitials}
+          </div>
+          <AnimatePresence>
+            {actualExpanded && (
+              <motion.div
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden min-w-0 flex-1"
+              >
+                <p className="text-sm font-medium text-white whitespace-nowrap truncate leading-none">
+                  {userDisplayName}
+                </p>
+                <p className="text-xs whitespace-nowrap truncate mt-0.5" style={{ color: '#6B7280' }}>
+                  {userEmail}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </aside>

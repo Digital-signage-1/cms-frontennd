@@ -1,14 +1,12 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Button, Input } from '@/components/ui'
-import { Search, FileImage, FileVideo, FileText, File, X, Folder, FolderOpen, ChevronRight, Home } from 'lucide-react'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Search, FileImage, FileVideo, FileText, File, X, Folder, ChevronRight, Home, Library } from 'lucide-react'
 import { useContent, useFolders, useAllFolders } from '@/hooks/queries'
 import { useAuthStore } from '@/stores/auth-store'
 import type { Content, Folder as FolderType } from '@signage/types'
 import { motion } from 'framer-motion'
-import { formatBytes, formatDate } from '@/lib/utils'
 
 interface ContentSelectorProps {
   isOpen: boolean
@@ -18,149 +16,124 @@ interface ContentSelectorProps {
   currentContentId?: string
 }
 
-const getContentIcon = (contentType: string) => {
-  if (contentType.startsWith('image/')) return FileImage
-  if (contentType.startsWith('video/')) return FileVideo
-  if (contentType.includes('pdf')) return FileText
+const getContentIcon = (mime: string) => {
+  if (mime.startsWith('image/')) return FileImage
+  if (mime.startsWith('video/')) return FileVideo
+  if (mime.includes('pdf'))      return FileText
   return File
 }
 
-const getContentTypeLabel = (contentType: string) => {
-  if (contentType.startsWith('image/')) return 'Image'
-  if (contentType.startsWith('video/')) return 'Video'
-  if (contentType.includes('pdf')) return 'PDF'
+const getTypeLabel = (mime: string) => {
+  if (mime.startsWith('image/')) return 'Image'
+  if (mime.startsWith('video/')) return 'Video'
+  if (mime.includes('pdf'))      return 'PDF'
   return 'File'
 }
 
-export function ContentSelector({
-  isOpen,
-  onClose,
-  onSelect,
-  acceptedTypes,
-  currentContentId
-}: ContentSelectorProps) {
-  const [searchQuery, setSearchQuery] = useState('')
+// icon bg per type
+const TYPE_STYLE: Record<string, { bg: string; color: string }> = {
+  Image: { bg: 'rgba(59,130,246,0.22)',  color: '#60A5FA' },
+  Video: { bg: 'rgba(5,150,105,0.22)',   color: '#34D399' },
+  PDF:   { bg: 'rgba(245,158,11,0.22)',  color: '#F59E0B' },
+  File:  { bg: 'rgba(107,114,128,0.22)', color: '#9CA3AF' },
+}
+
+export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, currentContentId }: ContentSelectorProps) {
+  const [searchQuery, setSearchQuery]   = useState('')
   const [currentFolder, setCurrentFolder] = useState<string | null>(null)
-  const workspace = useAuthStore((state) => state.workspace)
+  const workspace   = useAuthStore(s => s.workspace)
   const workspaceId = workspace?.workspace_id || ''
 
-  const { data: contentData, isLoading } = useContent(workspaceId, {
-    search: searchQuery || undefined,
-    folder_id: currentFolder || undefined,
-  })
+  const { data: contentData, isLoading }          = useContent(workspaceId, { search: searchQuery || undefined, folder_id: currentFolder || undefined })
   const { data: foldersResponse, isLoading: foldersLoading } = useFolders(workspaceId, currentFolder)
-  const { data: allFoldersResponse } = useAllFolders(workspaceId)
+  const { data: allFoldersResponse }              = useAllFolders(workspaceId)
 
-  const assets = Array.isArray(contentData) ? contentData : contentData?.items || []
+  const assets        = Array.isArray(contentData) ? contentData : contentData?.items || []
   const currentFolders = Array.isArray(foldersResponse) ? foldersResponse : []
-  const allFolders = Array.isArray(allFoldersResponse) ? allFoldersResponse : []
+  const allFolders    = Array.isArray(allFoldersResponse) ? allFoldersResponse : []
 
-  const filteredFolders = useMemo(() => {
-    return currentFolders.filter((folder: FolderType) =>
-      folder.name.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }, [currentFolders, searchQuery])
+  const filteredFolders = useMemo(() =>
+    currentFolders.filter((f: FolderType) => f.name.toLowerCase().includes(searchQuery.toLowerCase())),
+    [currentFolders, searchQuery]
+  )
 
   const filteredContent = useMemo(() => {
-    const contentList = assets
-
-    return contentList.filter((item: Content) => {
+    return assets.filter((item: Content) => {
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase())
-
-      if (acceptedTypes && acceptedTypes.length > 0) {
-        const matchesType = acceptedTypes.some(type =>
-          item.mime_type.startsWith(type.replace('/*', ''))
-        )
+      if (acceptedTypes?.length) {
+        const matchesType = acceptedTypes.some(t => item.mime_type.startsWith(t.replace('/*', '')))
         return matchesSearch && matchesType
       }
-
       return matchesSearch
     })
   }, [assets, searchQuery, acceptedTypes])
 
-  const getBreadcrumbPath = () => {
+  // Breadcrumb path
+  const breadcrumbPath = useMemo(() => {
     if (!currentFolder) return []
-
     const path: FolderType[] = []
-    let folderId: string | undefined = currentFolder || undefined
-
+    let folderId: string | undefined = currentFolder
     while (folderId) {
-      const currentId: string = folderId
-      const folder = allFolders.find((f: FolderType) => f.folder_id === currentId)
+      const id: string = folderId
+      const folder = allFolders.find((f: FolderType) => f.folder_id === id)
       if (!folder) break
       path.unshift(folder)
       folderId = folder.parent_id
     }
-
     return path
-  }
+  }, [currentFolder, allFolders])
 
-  const breadcrumbPath = getBreadcrumbPath()
-
-  const handleFolderClick = (folderId: string) => {
-    setCurrentFolder(folderId)
-  }
-
-  const handleBreadcrumbClick = (folderId: string | null) => {
-    setCurrentFolder(folderId)
-  }
-
-  const handleSelect = (content: Content) => {
-    onSelect(content)
-    onClose()
-  }
+  const handleSelect = (content: Content) => { onSelect(content); onClose() }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle>Select Content</DialogTitle>
-              <p className="text-sm text-text-secondary mt-1">
-                {acceptedTypes && acceptedTypes.length > 0
-                  ? `Choose from ${acceptedTypes.join(', ')} files`
-                  : 'Choose content from your library'}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              className="h-8 w-8"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogHeader>
+      <DialogContent hideClose className="!p-0 max-w-4xl flex flex-col overflow-hidden" style={{ maxHeight: '82vh' }}>
 
-        <div className="py-4 space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-            <Input
+        {/* ── Header ── */}
+        <div style={{ padding: '16px 20px 14px', borderBottom: '1px solid #1E1E38', display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
+          <div style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: 'rgba(245,166,36,0.18)', border: '1px solid rgba(245,166,36,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Library className="h-5 w-5" style={{ color: '#F5A624' }} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 16, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Select Content</p>
+            <p style={{ fontSize: 12, color: '#6B7280', margin: '2px 0 0' }}>
+              {acceptedTypes?.length ? `Choose from ${acceptedTypes.join(', ')} files` : 'Choose content from your library'}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid #2A2A45', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+          >
+            <X className="h-4 w-4" style={{ color: '#9CA3AF' }} />
+          </button>
+        </div>
+
+        {/* ── Search + breadcrumb ── */}
+        <div style={{ padding: '12px 20px', borderBottom: '1px solid #1E1E38', flexShrink: 0 }}>
+          <div style={{ position: 'relative' }}>
+            <Search className="h-4 w-4" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#4B5563' }} />
+            <input
               placeholder="Search content..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ width: '100%', height: 38, backgroundColor: '#0D0D1E', border: '1px solid #2A2A40', borderRadius: 8, paddingLeft: 36, paddingRight: 12, fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#F5A624' }}
+              onBlur={e => { e.currentTarget.style.borderColor = '#2A2A40' }}
             />
           </div>
 
+          {/* Breadcrumb */}
           {breadcrumbPath.length > 0 && (
-            <div className="flex items-center gap-1 text-sm text-text-muted">
-              <button
-                onClick={() => handleBreadcrumbClick(null)}
-                className="flex items-center gap-1 hover:text-primary transition-colors"
-              >
-                <Home className="h-3.5 w-3.5" />
-                <span>Home</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 8 }}>
+              <button onClick={() => setCurrentFolder(null)} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                <Home className="h-3 w-3" />Home
               </button>
-              {breadcrumbPath.map((folder, index) => (
-                <div key={folder.folder_id} className="flex items-center gap-1">
-                  <ChevronRight className="h-3.5 w-3.5" />
+              {breadcrumbPath.map((folder, i) => (
+                <div key={folder.folder_id} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <ChevronRight className="h-3 w-3" style={{ color: '#4B5563' }} />
                   <button
-                    onClick={() => handleBreadcrumbClick(folder.folder_id)}
-                    className={`hover:text-primary transition-colors ${index === breadcrumbPath.length - 1 ? 'text-text-primary font-medium' : ''
-                      }`}
+                    onClick={() => setCurrentFolder(folder.folder_id)}
+                    style={{ fontSize: 12, color: i === breadcrumbPath.length - 1 ? '#FFFFFF' : '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: i === breadcrumbPath.length - 1 ? 600 : 400 }}
                   >
                     {folder.name}
                   </button>
@@ -170,78 +143,74 @@ export function ContentSelector({
           )}
         </div>
 
-        <div className="flex-1 overflow-y-auto border border-border rounded-lg p-4">
+        {/* ── Content grid ── */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
           {isLoading || foldersLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-text-muted">Loading...</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: 8 }}>
+              {Array(12).fill(0).map((_, i) => (
+                <div key={i} style={{ aspectRatio: '1', backgroundColor: '#0D0D1E', borderRadius: 10, opacity: 0.5 }} />
+              ))}
             </div>
           ) : filteredFolders.length === 0 && filteredContent.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <File className="h-12 w-12 text-text-muted mb-3" />
-              <p className="text-text-muted">
-                {searchQuery ? 'No folders or content found' : 'No folders or content available'}
-              </p>
-              {searchQuery && (
-                <p className="text-sm text-text-muted mt-1">Try a different search term</p>
-              )}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 48, gap: 8 }}>
+              <File className="h-10 w-10" style={{ color: '#2A2A40' }} />
+              <p style={{ fontSize: 13, color: '#4B5563' }}>{searchQuery ? 'No content found' : 'No content available'}</p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {/* Folders */}
               {filteredFolders.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-medium text-text-secondary mb-3">Folders</h3>
-                  <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2">
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4B5563', margin: '0 0 10px' }}>Folders</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: 8 }}>
                     {filteredFolders.map((folder: FolderType) => (
                       <motion.button
                         key={folder.folder_id}
-                        initial={{ opacity: 0, scale: 0.95 }}
+                        initial={{ opacity: 0, scale: 0.94 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        onClick={() => handleFolderClick(folder.folder_id)}
-                        className="flex flex-col items-center p-2 rounded-lg hover:bg-surface-alt transition-colors group"
+                        onClick={() => setCurrentFolder(folder.folder_id)}
+                        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 6px', borderRadius: 10, cursor: 'pointer', border: '1px solid #1E1E38', backgroundColor: '#0D0D1E', gap: 6 }}
+                        whileHover={{ backgroundColor: '#13132B', borderColor: '#2A2A45' } as any}
                       >
-                        <div className="w-full aspect-square rounded-lg bg-primary/10 flex items-center justify-center mb-1.5 group-hover:bg-primary/20 transition-colors">
-                          <Folder className="h-4 w-4 text-primary" />
+                        <div style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: 'rgba(245,166,36,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Folder className="h-5 w-5" style={{ color: '#F5A624' }} />
                         </div>
-                        <span className="text-xs text-text-primary font-medium truncate w-full text-center">
+                        <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
                           {folder.name}
                         </span>
-                        <span className="text-[10px] text-text-muted">
-                          {folder.content_count || 0} items
-                        </span>
+                        <span style={{ fontSize: 10, color: '#4B5563' }}>{folder.content_count || 0} items</span>
                       </motion.button>
                     ))}
                   </div>
                 </div>
               )}
 
+              {/* Content */}
               {filteredContent.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-medium text-text-secondary mb-3">Content</h3>
-                  <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2">
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4B5563', margin: '0 0 10px' }}>Content</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: 8 }}>
                     {filteredContent.map((content: Content) => {
-                      const Icon = getContentIcon(content.mime_type)
+                      const Icon      = getContentIcon(content.mime_type)
+                      const typeLabel = getTypeLabel(content.mime_type)
+                      const typeStyle = TYPE_STYLE[typeLabel] || TYPE_STYLE.File
                       const isSelected = content.content_id === currentContentId
-
                       return (
                         <motion.button
                           key={content.content_id}
-                          initial={{ opacity: 0, scale: 0.95 }}
+                          initial={{ opacity: 0, scale: 0.94 }}
                           animate={{ opacity: 1, scale: 1 }}
                           onClick={() => handleSelect(content)}
-                          className={`flex flex-col items-center p-2 rounded-lg transition-colors group ${isSelected ? 'bg-primary/10 ring-1 ring-primary' : 'hover:bg-surface-alt'
-                            }`}
+                          style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 6px', borderRadius: 10, cursor: 'pointer', border: isSelected ? '1px solid rgba(245,166,36,0.50)' : '1px solid #1E1E38', backgroundColor: isSelected ? 'rgba(245,166,36,0.08)' : '#0D0D1E', gap: 6, transition: 'all 0.15s' }}
+                          whileHover={!isSelected ? { backgroundColor: '#13132B', borderColor: '#2A2A45' } as any : undefined}
                         >
-                          <div className={`w-full aspect-square rounded-lg flex items-center justify-center mb-1.5 transition-colors ${isSelected ? 'bg-primary/20' : 'bg-surface-alt group-hover:bg-surface'
-                            }`}>
-                            <Icon className={`h-4 w-4 ${isSelected ? 'text-primary' : 'text-text-muted'}`} />
+                          <div style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: isSelected ? 'rgba(245,166,36,0.20)' : typeStyle.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Icon className="h-5 w-5" style={{ color: isSelected ? '#F5A624' : typeStyle.color }} />
                           </div>
-                          <span className={`text-xs font-medium truncate w-full text-center ${isSelected ? 'text-primary' : 'text-text-primary'
-                            }`}>
+                          <span style={{ fontSize: 11, color: isSelected ? '#F5A624' : '#9CA3AF', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
                             {content.name}
                           </span>
-                          <span className="text-[10px] text-text-muted">
-                            {getContentTypeLabel(content.mime_type)}
-                          </span>
+                          <span style={{ fontSize: 10, color: '#4B5563' }}>{typeLabel}</span>
                         </motion.button>
                       )
                     })}
@@ -252,15 +221,19 @@ export function ContentSelector({
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-border">
-          <p className="text-sm text-text-muted">
-            {filteredFolders.length > 0 && `${filteredFolders.length} ${filteredFolders.length === 1 ? 'folder' : 'folders'}`}
+        {/* ── Footer ── */}
+        <div style={{ borderTop: '1px solid #1E1E38', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <span style={{ fontSize: 12, color: '#6B7280' }}>
+            {filteredFolders.length > 0 && `${filteredFolders.length} folder${filteredFolders.length !== 1 ? 's' : ''}`}
             {filteredFolders.length > 0 && filteredContent.length > 0 && ' · '}
-            {filteredContent.length > 0 && `${filteredContent.length} ${filteredContent.length === 1 ? 'item' : 'items'}`}
-          </p>
-          <Button variant="outline" onClick={onClose}>
+            {filteredContent.length > 0 && `${filteredContent.length} item${filteredContent.length !== 1 ? 's' : ''}`}
+          </span>
+          <button
+            onClick={onClose}
+            style={{ height: 38, padding: '0 18px', borderRadius: 8, backgroundColor: '#1A1A30', border: '1px solid #2A2A45', color: '#9CA3AF', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+          >
             Cancel
-          </Button>
+          </button>
         </div>
       </DialogContent>
     </Dialog>

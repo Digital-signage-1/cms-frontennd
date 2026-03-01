@@ -23,68 +23,23 @@ const widthClasses = {
 }
 
 const slideVariants = {
-  hidden: {
-    x: '100%',
-    transition: {
-      duration: 0.3,
-      ease: [0.4, 0, 0.2, 1] as any,
-    },
-  },
-  visible: {
-    x: 0,
-    transition: {
-      duration: 0.3,
-      ease: [0.4, 0, 0.2, 1] as any,
-    },
-  },
-  exit: {
-    x: '100%',
-    transition: {
-      duration: 0.3,
-      ease: [0.4, 0, 0.2, 1] as any,
-    },
-  },
+  hidden: { x: '100%', transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] as any } },
+  visible: { x: 0,     transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] as any } },
+  exit:    { x: '100%', transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] as any } },
 }
 
 const backdropVariants = {
-  hidden: {
-    opacity: 0,
-  },
-  visible: {
-    opacity: 1,
-    transition: {
-      duration: 0.2,
-    },
-  },
-  exit: {
-    opacity: 0,
-    transition: {
-      duration: 0.2,
-    },
-  },
+  hidden:  { opacity: 0, transition: { duration: 0.2 } },
+  visible: { opacity: 1, transition: { duration: 0.2 } },
+  exit:    { opacity: 0, transition: { duration: 0.2 } },
 }
 
-export function Drawer({
-  isOpen,
-  onClose,
-  children,
-  title,
-  description,
-  width = 'md',
-  className,
-}: DrawerProps) {
+export function Drawer({ isOpen, onClose, children, title, description, width = 'md', className }: DrawerProps) {
   useEffect(() => {
     if (!isOpen) return
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose()
-      }
-    }
-
+    const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', handleEscape)
     document.body.style.overflow = 'hidden'
-
     return () => {
       document.removeEventListener('keydown', handleEscape)
       document.body.style.overflow = ''
@@ -95,44 +50,49 @@ export function Drawer({
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Backdrop */}
           <motion.div
             variants={backdropVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/65 backdrop-blur-[2px] z-40"
           />
+
+          {/* Panel */}
           <motion.div
             variants={slideVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
             className={cn(
-              'fixed top-0 right-0 h-full z-50 bg-surface border-l border-border shadow-2xl flex flex-col',
+              'fixed top-0 right-0 h-full z-50 flex flex-col shadow-2xl',
+              'bg-[#13132B] border-l border-[#2A2A45]',
               widthClasses[width],
               className
             )}
           >
             {(title || description) && (
-              <div className="flex-shrink-0 px-6 py-4 border-b border-border">
+              <div className="flex-shrink-0 px-6 py-4 border-b border-[#1E1E38]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     {title && (
-                      <h2 className="text-xl font-semibold text-text-primary mb-1">
-                        {title}
-                      </h2>
+                      <h2 className="text-lg font-semibold text-white mb-0.5">{title}</h2>
                     )}
                     {description && (
-                      <p className="text-sm text-text-secondary">{description}</p>
+                      <p className="text-sm" style={{ color: '#6B7280' }}>{description}</p>
                     )}
                   </div>
                   <button
                     onClick={onClose}
-                    className="flex-shrink-0 p-2 rounded-lg hover:bg-surface-alt transition-colors text-text-muted hover:text-text-primary"
                     aria-label="Close drawer"
+                    className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-all"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid #2A2A45', color: '#9CA3AF' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(255,255,255,0.12)'; (e.currentTarget as HTMLButtonElement).style.color = '#FFFFFF' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(255,255,255,0.07)'; (e.currentTarget as HTMLButtonElement).style.color = '#9CA3AF' }}
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -147,27 +107,15 @@ export function Drawer({
   )
 }
 
-export function DrawerHeader({
-  children,
-  className,
-}: {
-  children: ReactNode
-  className?: string
-}) {
+export function DrawerHeader({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('flex-shrink-0 px-6 py-4 border-b border-border', className)}>
+    <div className={cn('flex-shrink-0 px-6 py-4 border-b border-[#1E1E38]', className)}>
       {children}
     </div>
   )
 }
 
-export function DrawerContent({
-  children,
-  className,
-}: {
-  children: ReactNode
-  className?: string
-}) {
+export function DrawerContent({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div className={cn('flex-1 min-h-0 overflow-y-auto px-6 py-6', className)}>
       {children}
@@ -175,15 +123,9 @@ export function DrawerContent({
   )
 }
 
-export function DrawerFooter({
-  children,
-  className,
-}: {
-  children: ReactNode
-  className?: string
-}) {
+export function DrawerFooter({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('flex-shrink-0 px-6 py-4 border-t border-border', className)}>
+    <div className={cn('flex-shrink-0 px-6 py-4 border-t border-[#1E1E38]', className)}>
       {children}
     </div>
   )

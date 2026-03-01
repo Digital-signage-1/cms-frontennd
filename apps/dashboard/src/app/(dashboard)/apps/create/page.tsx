@@ -2,28 +2,28 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button, Input, Label, Skeleton } from '@/components/ui'
-import { Drawer, DrawerContent, DrawerFooter } from '@/components/ui/drawer'
+import {
+  ChevronRight, Search, ArrowLeft, Code, Globe, FileText, FileImage,
+  FileVideo, Clock, Cloud, Sparkles, Play, Music, Map, ExternalLink,
+  Rss, Timer, BarChart2, AlertCircle,
+} from 'lucide-react'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { FormFieldRenderer } from '@/components/apps/FormFieldRenderer'
 import { ContentSelector } from '@/components/apps/ContentSelector'
-import { FileImage, FileVideo, Globe, Code, Clock, Cloud, Layout, FileText, Sparkles, AlertCircle, Play } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCreateApp, useAppTypes, useAppTypeSchema } from '@/hooks/queries/useApps'
 import { useContent } from '@/hooks/queries'
 import type { Content } from '@signage/types'
-import { motion, AnimatePresence } from 'framer-motion'
 
+// ── Types ─────────────────────────────────────────────────────────────────────
 interface AppType {
   type_id: string
   name: string
   description: string
   icon: string
   category: string
-  processing_method: string
-  requires_integration?: string
-  is_beta?: boolean
-  requires_pro_plan?: boolean
+  popular?: boolean
+  tags?: string[]
 }
 
 interface FormField {
@@ -37,31 +37,79 @@ interface FormField {
   validation?: any
 }
 
-const getAppIcon = (icon: string) => {
-  const iconMap: Record<string, any> = {
-    'photo': FileImage,
-    'image': FileImage,
-    'video': FileVideo,
-    'pdf': FileText,
-    'web': Globe,
-    'html': Code,
-    'clock': Clock,
-    'weather': Cloud,
-    'slideshow': Layout,
-    'youtube': Play,
-  }
-  return iconMap[icon] || Sparkles
+// ── Static fallback templates ─────────────────────────────────────────────────
+const FALLBACK_TEMPLATES: AppType[] = [
+  // Custom
+  { type_id: 'html', name: 'Custom HTML', description: 'Build anything with raw HTML, CSS and JavaScript', category: 'custom', icon: 'html', popular: true, tags: ['code', 'html', 'custom'] },
+  { type_id: 'react', name: 'React Component', description: 'Deploy a React-based component as a signage app', category: 'custom', icon: 'react', popular: false, tags: ['react', 'js', 'component'] },
+  // Document
+  { type_id: 'pdf', name: 'PDF Document', description: 'Display PDF files with auto-scroll and page control', category: 'document', icon: 'pdf', popular: false, tags: ['pdf', 'document'] },
+  { type_id: 'spreadsheet', name: 'Spreadsheet', description: 'Show live data from spreadsheets and tables', category: 'document', icon: 'spreadsheet', popular: false, tags: ['excel', 'data', 'table'] },
+  { type_id: 'slides', name: 'Slide Deck', description: 'Present slideshows from Google Slides or PowerPoint', category: 'document', icon: 'slides', popular: false, tags: ['slides', 'presentation'] },
+  // Embeds
+  { type_id: 'web', name: 'Web Page', description: 'Embed any website or web application via URL', category: 'embeds', icon: 'web', popular: true, tags: ['url', 'iframe', 'web'] },
+  { type_id: 'youtube', name: 'YouTube Video', description: 'Stream YouTube videos directly on your display', category: 'embeds', icon: 'youtube', popular: false, tags: ['youtube', 'video', 'stream'] },
+  { type_id: 'maps', name: 'Google Maps', description: 'Show interactive or static map views', category: 'embeds', icon: 'maps', popular: false, tags: ['maps', 'location', 'geo'] },
+  { type_id: 'iframe', name: 'iFrame Embed', description: 'Embed any compatible external content via iFrame', category: 'embeds', icon: 'iframe', popular: false, tags: ['iframe', 'embed'] },
+  // Media
+  { type_id: 'image', name: 'Image Viewer', description: 'Display high-resolution images from your media library', category: 'media', icon: 'image', popular: false, tags: ['image', 'photo', 'png', 'jpg'] },
+  { type_id: 'video', name: 'Video Player', description: 'Play MP4 and other video formats from the library', category: 'media', icon: 'video', popular: false, tags: ['mp4', 'video', 'player'] },
+  { type_id: 'slideshow', name: 'Gallery Carousel', description: 'Cycle through multiple images with transitions', category: 'media', icon: 'slideshow', popular: false, tags: ['gallery', 'slideshow', 'carousel'] },
+  { type_id: 'audio', name: 'Audio Player', description: 'Play background audio with an ambient visual display', category: 'media', icon: 'audio', popular: false, tags: ['audio', 'mp3', 'music'] },
+  // Widgets
+  { type_id: 'clock', name: 'Digital Clock', description: 'Live digital or analog clock with timezone support', category: 'widgets', icon: 'clock', popular: false, tags: ['clock', 'time', 'timezone'] },
+  { type_id: 'weather', name: 'Weather Widget', description: 'Real-time weather for any location worldwide', category: 'widgets', icon: 'weather', popular: false, tags: ['weather', 'forecast', 'temperature'] },
+  { type_id: 'stock', name: 'Stock Ticker', description: 'Live stock prices and market indices ticker tape', category: 'widgets', icon: 'stock', popular: false, tags: ['stocks', 'finance', 'market'] },
+  { type_id: 'rss', name: 'RSS Feed', description: 'Auto-cycling news and content from any RSS feed', category: 'widgets', icon: 'rss', popular: false, tags: ['rss', 'news', 'feed'] },
+  { type_id: 'social', name: 'Social Feed', description: 'Display a live social media feed on screen', category: 'widgets', icon: 'social', popular: false, tags: ['social', 'twitter', 'feed'] },
+  { type_id: 'qr', name: 'QR Code', description: 'Generate and display QR codes for any URL', category: 'widgets', icon: 'qr', popular: false, tags: ['qr', 'code', 'url'] },
+  { type_id: 'countdown', name: 'Countdown Timer', description: 'Count down to events, launches, or deadlines', category: 'widgets', icon: 'countdown', popular: false, tags: ['timer', 'countdown', 'event'] },
+]
+
+// ── Category sidebar config ───────────────────────────────────────────────────
+const CATEGORIES = [
+  { id: 'all',      label: 'All Types' },
+  { id: 'custom',   label: 'Custom' },
+  { id: 'document', label: 'Document' },
+  { id: 'embeds',   label: 'Embeds' },
+  { id: 'media',    label: 'Media' },
+  { id: 'widgets',  label: 'Widgets' },
+] as const
+
+const CATEGORY_ORDER = ['custom', 'document', 'embeds', 'media', 'widgets']
+
+// ── Icon map ──────────────────────────────────────────────────────────────────
+const ICON_MAP: Record<string, any> = {
+  html: Code, react: Code, qr: Code,
+  pdf: FileText, spreadsheet: FileText, slides: FileText,
+  web: Globe,
+  youtube: Play,
+  maps: Map,
+  iframe: ExternalLink,
+  image: FileImage, slideshow: FileImage,
+  video: FileVideo,
+  audio: Music,
+  clock: Clock,
+  weather: Cloud,
+  stock: BarChart2,
+  rss: Rss, social: Rss,
+  countdown: Timer,
 }
 
-const getCategoryInfo = (category: string) => {
-  const categories: Record<string, { label: string; color: string }> = {
-    media: { label: 'Media', color: 'bg-blue-500/10 text-blue-500 border-blue-500/20' },
-    widgets: { label: 'Widgets', color: 'bg-purple-500/10 text-purple-500 border-purple-500/20' },
-    embed: { label: 'Embeds', color: 'bg-green-500/10 text-green-500 border-green-500/20' },
-  }
-  return categories[category] || { label: category, color: 'bg-surface-alt text-text-muted border-border' }
+// ── Icon bg/color per category ────────────────────────────────────────────────
+const CAT_STYLE: Record<string, { bg: string; color: string }> = {
+  custom:   { bg: 'rgba(251,146,60,0.22)',  color: '#FB923C' },
+  document: { bg: 'rgba(245,158,11,0.22)',  color: '#F59E0B' },
+  embeds:   { bg: 'rgba(14,165,233,0.22)',  color: '#38BDF8' },
+  media:    { bg: 'rgba(59,130,246,0.22)',  color: '#60A5FA' },
+  widgets:  { bg: 'rgba(99,102,241,0.22)',  color: '#818CF8' },
+  other:    { bg: 'rgba(167,139,250,0.22)', color: '#C4B5FD' },
 }
 
+// ── Stepper labels ────────────────────────────────────────────────────────────
+const STEPS = ['Select Type', 'Configure', 'Deploy'] as const
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function CreateAppPage() {
   const router = useRouter()
   const { setBreadcrumbItems, clearBreadcrumbs } = useBreadcrumb()
@@ -69,56 +117,63 @@ export default function CreateAppPage() {
   const workspaceId = workspace?.workspace_id || ''
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [search, setSearch]           = useState('')
   const [selectedType, setSelectedType] = useState<AppType | null>(null)
-  const [formData, setFormData] = useState<Record<string, any>>({
-    name: '',
-    description: '',
-  })
-  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [step, setStep]               = useState(0) // 0=select, 1=configure
+  const [formData, setFormData]       = useState<Record<string, any>>({ name: '', description: '' })
+  const [errors, setErrors]           = useState<Record<string, string>>({})
   const [contentSelectorOpen, setContentSelectorOpen] = useState(false)
-  const [contentSelectorField, setContentSelectorField] = useState<string>('')
+  const [contentSelectorField, setContentSelectorField] = useState('')
 
   const createAppMutation = useCreateApp()
   const { data: contentData } = useContent(workspaceId, {})
-  const { data: appTypesData, isLoading: isLoadingTypes } = useAppTypes()
+  const { data: appTypesData } = useAppTypes()
   const { data: schemaData, isLoading: isLoadingSchema } = useAppTypeSchema(selectedType?.type_id || '')
 
   useEffect(() => {
-    setBreadcrumbItems([
-      { label: 'Apps', href: '/apps' },
-      { label: 'Create New App' }
-    ])
-    
-    return () => {
-      clearBreadcrumbs()
-    }
+    setBreadcrumbItems([{ label: 'Apps', href: '/apps' }, { label: 'Create New App' }])
+    return () => clearBreadcrumbs()
   }, [setBreadcrumbItems, clearBreadcrumbs])
 
-  const appTypes: AppType[] = appTypesData?.app_types || []
-  const categories: string[] = appTypesData?.categories || []
-  const schema = schemaData?.schema
+  // Merge API templates with static fallback
+  const apiTypes: any[] = appTypesData?.app_types || []
+  const templates: AppType[] = apiTypes.length > 0
+    ? apiTypes.map((t) => ({ ...t, popular: false, tags: [] }))
+    : FALLBACK_TEMPLATES
+
+  const schema       = schemaData?.schema
   const defaultConfig = schemaData?.default_config || {}
 
-  const filteredAppTypes = selectedCategory === 'all'
-    ? appTypes
-    : appTypes.filter(t => t.category === selectedCategory)
-
-  const groupedByCategory = filteredAppTypes.reduce((acc, appType) => {
-    const cat = appType.category || 'other'
-    if (!acc[cat]) acc[cat] = []
-    acc[cat].push(appType)
+  // Count per category
+  const categoryCounts = CATEGORIES.reduce((acc, cat) => {
+    acc[cat.id] = cat.id === 'all'
+      ? templates.length
+      : templates.filter((t) => t.category === cat.id).length
     return acc
-  }, {} as Record<string, AppType[]>)
+  }, {} as Record<string, number>)
 
+  // Filter by category + search
+  const filtered = templates.filter((t) => {
+    const matchesCat = selectedCategory === 'all' || t.category === selectedCategory
+    const q = search.toLowerCase()
+    const matchesSearch = !q
+      || t.name.toLowerCase().includes(q)
+      || t.description?.toLowerCase().includes(q)
+      || t.tags?.some((tag) => tag.includes(q))
+    return matchesCat && matchesSearch
+  })
+
+  // Group by category for display
+  const grouped: Record<string, AppType[]> = {}
+  for (const cat of CATEGORY_ORDER) {
+    const items = filtered.filter((t) => t.category === cat)
+    if (items.length) grouped[cat] = items
+  }
+
+  // ── Form handlers ────────────────────────────────────────────────────────────
   const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    if (errors[field]) {
-      setErrors(prev => {
-        const newErrors = { ...prev }
-        delete newErrors[field]
-        return newErrors
-      })
-    }
+    setFormData((prev) => ({ ...prev, [field]: value }))
+    if (errors[field]) setErrors((prev) => { const e = { ...prev }; delete e[field]; return e })
   }
 
   const handleContentSelect = (content: Content) => {
@@ -130,41 +185,23 @@ export default function CreateAppPage() {
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
-
-    if (!formData.name?.trim()) {
-      newErrors.name = 'App name is required'
-    }
-
-    if (schema?.fields) {
-      schema.fields.forEach((field: FormField) => {
-        if (field.required && !formData[field.name]) {
-          newErrors[field.name] = `${field.label} is required`
-        }
-      })
-    }
-
+    if (!formData.name?.trim()) newErrors.name = 'App name is required'
+    schema?.fields?.forEach((field: FormField) => {
+      if (field.required && !formData[field.name]) newErrors[field.name] = `${field.label} is required`
+    })
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!selectedType || !validateForm()) return
-
     try {
       const config: Record<string, any> = { ...defaultConfig }
-
-      if (schema?.fields) {
-        schema.fields.forEach((field: FormField) => {
-          if (formData[field.name] !== undefined) {
-            config[field.name] = formData[field.name]
-          }
-        })
-      }
-
+      schema?.fields?.forEach((field: FormField) => {
+        if (formData[field.name] !== undefined) config[field.name] = formData[field.name]
+      })
       const contentId = formData.content_id || config.content_id
-
       await createAppMutation.mutateAsync({
         workspaceId,
         data: {
@@ -173,25 +210,24 @@ export default function CreateAppPage() {
           description: formData.description || undefined,
           content_id: contentId,
           config,
-        }
+        },
       })
-
-      handleCloseDrawer()
       router.push('/apps')
-    } catch (error) {
-      console.error('Failed to create app:', error)
+    } catch {
       setErrors({ submit: 'Failed to create app. Please try again.' })
     }
   }
 
-  const handleCancel = () => {
-    setSelectedType(null)
+  const handleSelectTemplate = (tpl: AppType) => {
+    setSelectedType(tpl)
+    setStep(1)
     setFormData({ name: '', description: '' })
     setErrors({})
   }
 
-  const handleCloseDrawer = () => {
+  const handleCancel = () => {
     setSelectedType(null)
+    setStep(0)
     setFormData({ name: '', description: '' })
     setErrors({})
   }
@@ -199,269 +235,336 @@ export default function CreateAppPage() {
   const requiresContent = selectedType && schema?.fields?.some((f: FormField) => f.name === 'content_id')
 
   return (
-    <div className="h-[calc(100vh-4rem)] bg-background flex flex-col overflow-hidden">
-      <div className="px-4 sm:px-6 lg:px-8 pt-4 pb-3 flex-shrink-0 z-20 bg-background">
-        <div className="bg-surface border border-border rounded-xl p-4 sm:p-6">
-          <h2 className="text-sm font-semibold text-text-primary mb-3 uppercase tracking-wider">App Types</h2>
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                selectedCategory === 'all'
-                  ? 'bg-primary text-white shadow-sm'
-                  : 'bg-surface-alt border border-border text-text-secondary hover:bg-surface-hover hover:border-primary/30'
-              }`}
-            >
-              All
-            </button>
-            {categories.map(cat => {
-              const info = getCategoryInfo(cat)
+    <div style={{ backgroundColor: '#0D0D0D', height: 'calc(100vh - 3.5rem)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+
+      {/* ── Sub-header ── */}
+      <div style={{ backgroundColor: '#141414', borderBottom: '1px solid #2A2A2A', padding: '0 20px', height: 52, display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
+        {/* Back */}
+        <button
+          onClick={() => router.push('/apps')}
+          style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#9CA3AF', fontSize: 13, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid #2A2A2A', borderRadius: 8, padding: '5px 12px', cursor: 'pointer', flexShrink: 0 }}
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Apps
+        </button>
+
+        {/* Title */}
+        <h1 style={{ color: '#FFFFFF', fontWeight: 600, fontSize: 15, flex: 1, margin: 0 }}>Create New App</h1>
+
+        {/* Stepper */}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {STEPS.map((label, i) => {
+            const isActive = step === i
+            const isDone   = step > i
+            return (
+              <div key={label} style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 12px', borderRadius: 8, backgroundColor: isActive ? 'rgba(245,166,36,0.12)' : 'transparent' }}>
+                  <div style={{ width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, backgroundColor: isActive || isDone ? '#F5A624' : 'rgba(255,255,255,0.08)', color: isActive || isDone ? '#000' : '#6B7280', flexShrink: 0 }}>
+                    {i + 1}
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? '#F5A624' : isDone ? '#9CA3AF' : '#6B7280' }}>
+                    {label}
+                  </span>
+                </div>
+                {i < STEPS.length - 1 && (
+                  <ChevronRight className="h-4 w-4" style={{ color: '#2A2A2A', margin: '0 2px' }} />
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── 3-Column Body ── */}
+      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+
+        {/* ── Left Sidebar ── */}
+        <div style={{ width: 200, flexShrink: 0, borderRight: '1px solid #2A2A2A', display: 'flex', flexDirection: 'column' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#F5A624', padding: '16px 16px 8px' }}>
+            App Types
+          </p>
+
+          <div style={{ flex: 1 }}>
+            {CATEGORIES.map((cat) => {
+              const isActive = selectedCategory === cat.id
+              const count    = categoryCounts[cat.id] || 0
               return (
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    selectedCategory === cat
-                      ? 'bg-primary text-white shadow-sm'
-                      : 'bg-surface-alt border border-border text-text-secondary hover:bg-surface-hover hover:border-primary/30'
-                  }`}
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', paddingLeft: 14, cursor: 'pointer', border: 'none', textAlign: 'left', backgroundColor: isActive ? 'rgba(245,166,36,0.08)' : 'transparent', borderLeft: isActive ? '2px solid #F5A624' : '2px solid transparent' }}
                 >
-                  {info.label}
+                  <span style={{ fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? '#F5A624' : '#9CA3AF' }}>
+                    {cat.label}
+                  </span>
+                  {count > 0 && (
+                    <span style={{ fontSize: 11, color: isActive ? '#F5A624' : '#4B5563', backgroundColor: isActive ? 'rgba(245,166,36,0.15)' : 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '1px 7px' }}>
+                      {count}
+                    </span>
+                  )}
                 </button>
               )
             })}
           </div>
-        </div>
-      </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 sm:px-6 lg:px-8">
-            {isLoadingTypes ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 sm:gap-4 pb-4">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(i => (
-                  <Skeleton key={i} className="aspect-square rounded-xl" />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-5 pb-4">
-                {selectedCategory === 'all' ? (
-                  Object.entries(groupedByCategory).map(([category, types]) => {
-                    const info = getCategoryInfo(category)
-                    return (
-                      <div key={category} className="space-y-2">
-                        <h3 className="text-xs font-semibold text-text-muted uppercase tracking-wider px-1 mb-2">
-                          {info.label}
-                        </h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 sm:gap-4">
-                          {types.map((appType: AppType) => (
-                            <AppTypeCard
-                              key={appType.type_id}
-                              appType={appType}
-                              isSelected={selectedType?.type_id === appType.type_id}
-                              onClick={() => setSelectedType(appType)}
-                            />
-                          ))}
-                        </div>
+          {/* Templates count */}
+          <div style={{ borderTop: '1px solid #2A2A2A', padding: '12px 16px' }}>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6B7280', margin: '0 0 4px' }}>Templates</p>
+            <p style={{ fontSize: 22, fontWeight: 700, color: '#F5A624', lineHeight: 1, margin: '0 0 2px' }}>{templates.length}</p>
+            <p style={{ fontSize: 11, color: '#4B5563', margin: 0 }}>available</p>
+          </div>
+        </div>
+
+        {/* ── Middle Panel ── */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* Search bar */}
+          <div style={{ padding: '12px 16px', borderBottom: '1px solid #2A2A2A', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ position: 'relative', flex: 1 }}>
+              <Search className="h-3.5 w-3.5" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#4B5563' }} />
+              <input
+                type="text"
+                placeholder="Search templates..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ width: '100%', height: 36, backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', borderRadius: 8, paddingLeft: 32, paddingRight: 12, fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
+              />
+            </div>
+            <span style={{ fontSize: 12, color: '#6B7280', whiteSpace: 'nowrap' }}>{filtered.length} results</span>
+          </div>
+
+          {/* Template list */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
+            {Object.entries(grouped).map(([category, items]) => (
+              <div key={category}>
+                {/* Group header */}
+                <div style={{ padding: '8px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4B5563', whiteSpace: 'nowrap' }}>
+                    {category}
+                  </span>
+                  <div style={{ flex: 1, height: 1, backgroundColor: '#1C1C1C' }} />
+                </div>
+
+                {/* Template rows */}
+                {items.map((tpl) => {
+                  const isSelected = selectedType?.type_id === tpl.type_id
+                  const Icon       = ICON_MAP[tpl.icon] || ICON_MAP[tpl.type_id] || Sparkles
+                  const catStyle   = CAT_STYLE[tpl.category] || CAT_STYLE.other
+                  return (
+                    <button
+                      key={tpl.type_id}
+                      onClick={() => handleSelectTemplate(tpl)}
+                      style={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 16px', paddingLeft: 14, cursor: 'pointer', border: 'none', textAlign: 'left', backgroundColor: isSelected ? 'rgba(245,166,36,0.06)' : 'transparent', borderLeft: isSelected ? '2px solid #F5A624' : '2px solid transparent' }}
+                    >
+                      {/* Icon */}
+                      <div style={{ width: 40, height: 40, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: catStyle.bg }}>
+                        <Icon className="h-5 w-5" style={{ color: catStyle.color }} />
                       </div>
-                    )
-                  })
-                ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3 sm:gap-4">
-                    {filteredAppTypes.map((appType: AppType) => (
-                      <AppTypeCard
-                        key={appType.type_id}
-                        appType={appType}
-                        isSelected={selectedType?.type_id === appType.type_id}
-                        onClick={() => setSelectedType(appType)}
-                      />
-                    ))}
-                  </div>
-                )}
+
+                      {/* Text */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                          <span style={{ fontSize: 13, fontWeight: 600, color: isSelected ? '#F5A624' : '#FFFFFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {tpl.name}
+                          </span>
+                          {tpl.popular && (
+                            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', backgroundColor: 'rgba(245,166,36,0.18)', color: '#F5A624', borderRadius: 4, padding: '1px 5px', flexShrink: 0 }}>
+                              Popular
+                            </span>
+                          )}
+                        </div>
+                        <p style={{ fontSize: 11, color: '#6B7280', margin: 0, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' } as any}>
+                          {tpl.description}
+                        </p>
+                        {tpl.tags && tpl.tags.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 5 }}>
+                            {tpl.tags.slice(0, 3).map((tag) => (
+                              <span key={tag} style={{ fontSize: 10, color: '#4B5563', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 4, padding: '1px 6px' }}>
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Selected indicator */}
+                      {isSelected && (
+                        <ChevronRight className="h-4 w-4" style={{ color: '#F5A624', flexShrink: 0, marginTop: 10 }} />
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            ))}
+
+            {filtered.length === 0 && (
+              <div style={{ padding: 40, textAlign: 'center' }}>
+                <p style={{ fontSize: 13, color: '#4B5563' }}>No templates match your search</p>
               </div>
             )}
-      </div>
+          </div>
+        </div>
 
-      <Drawer
-        isOpen={!!selectedType}
-        onClose={handleCloseDrawer}
-        title={selectedType?.name}
-        description={selectedType?.description}
-        width="md"
-      >
-          {isLoadingSchema ? (
-            <DrawerContent>
-              <div className="space-y-6">
-                <Skeleton className="h-12 rounded-lg" />
-                <Skeleton className="h-32 rounded-lg" />
-                <Skeleton className="h-12 rounded-lg" />
-                <Skeleton className="h-12 rounded-lg" />
+        {/* ── Right Panel ── */}
+        <div style={{ width: 320, flexShrink: 0, borderLeft: '1px solid #2A2A2A', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {!selectedType ? (
+            /* Empty state */
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 }}>
+              <div style={{ width: 48, height: 48, borderRadius: '50%', border: '2px solid #2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ChevronRight className="h-5 w-5" style={{ color: '#4B5563' }} />
               </div>
-            </DrawerContent>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#6B7280', textAlign: 'center', margin: 0 }}>Select a template</p>
+              <p style={{ fontSize: 12, color: '#4B5563', textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
+                Choose a template from the list to configure and deploy your app
+              </p>
+            </div>
           ) : (
-            <form onSubmit={handleSubmit} className="flex flex-col h-full">
-              <DrawerContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium text-text-primary">
-                    App Name <span className="text-error">*</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => handleChange('name', e.target.value)}
-                    placeholder="e.g., Lobby Welcome Screen"
-                    className={`h-11 ${errors.name ? 'border-error focus:border-error' : ''}`}
-                  />
-                  {errors.name && (
-                    <p className="text-xs text-error mt-1.5 flex items-center gap-1.5">
-                      <AlertCircle className="h-3.5 w-3.5" />
-                      {errors.name}
-                    </p>
-                  )}
-                </div>
+            /* Configure form */
+            <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              {/* Panel header */}
+              <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid #2A2A2A', flexShrink: 0 }}>
+                {(() => {
+                  const Icon     = ICON_MAP[selectedType.icon] || ICON_MAP[selectedType.type_id] || Sparkles
+                  const catStyle = CAT_STYLE[selectedType.category] || CAT_STYLE.other
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: catStyle.bg, flexShrink: 0 }}>
+                        <Icon className="h-4 w-4" style={{ color: catStyle.color }} />
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedType.name}</p>
+                        <p style={{ fontSize: 11, color: '#6B7280', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedType.description}</p>
+                      </div>
+                    </div>
+                  )
+                })()}
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="description" className="text-sm font-medium text-text-primary">
-                    Description
-                  </Label>
-                  <textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => handleChange('description', e.target.value)}
-                    placeholder="Optional description for this app"
-                    className="w-full px-3 py-2.5 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none h-24 text-sm"
-                  />
+              {/* Scrollable form area */}
+              {isLoadingSchema ? (
+                <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} style={{ height: 44, backgroundColor: '#1C1C1C', borderRadius: 8, opacity: 0.6 }} />
+                  ))}
                 </div>
-
-                {requiresContent && (
-                  <div className="space-y-2">
-                    <Label htmlFor="content_id" className="text-sm font-medium text-text-primary">
-                      Select Content <span className="text-error">*</span>
-                    </Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setContentSelectorField('content_id')
-                        setContentSelectorOpen(true)
-                      }}
-                      className={`w-full justify-start h-11 ${errors.content_id ? 'border-error' : ''}`}
-                    >
-                      {formData.content_id ? (
-                        <span className="truncate">
-                          Selected: {contentData?.items?.find((c: Content) => c.content_id === formData.content_id)?.name || formData.content_id}
-                        </span>
-                      ) : (
-                        'Choose from library...'
-                      )}
-                    </Button>
-                    {errors.content_id && (
-                      <p className="text-xs text-error mt-1.5 flex items-center gap-1.5">
-                        <AlertCircle className="h-3.5 w-3.5" />
-                        {errors.content_id}
+              ) : (
+                <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {/* App Name */}
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', display: 'block', marginBottom: 6 }}>
+                      App Name <span style={{ color: '#DC2626' }}>*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => handleChange('name', e.target.value)}
+                      placeholder="e.g. Lobby Welcome Screen"
+                      style={{ width: '100%', height: 40, backgroundColor: '#111827', border: `1px solid ${errors.name ? '#DC2626' : '#1F2937'}`, borderRadius: 8, padding: '0 12px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = errors.name ? '#DC2626' : '#F5A624' }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = errors.name ? '#DC2626' : '#1F2937' }}
+                    />
+                    {errors.name && (
+                      <p style={{ fontSize: 11, color: '#DC2626', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <AlertCircle className="h-3 w-3" style={{ flexShrink: 0 }} />{errors.name}
                       </p>
                     )}
                   </div>
-                )}
 
-                {schema?.fields?.map((field: FormField) => {
-                  if (field.name === 'content_id') return null
-                  
-                  return (
-                    <FormFieldRenderer
-                      key={field.name}
-                      field={field}
-                      value={formData[field.name]}
-                      onChange={(value) => handleChange(field.name, value)}
-                      error={errors[field.name]}
-                      onContentSelect={(fieldName) => {
-                        setContentSelectorField(fieldName)
-                        setContentSelectorOpen(true)
-                      }}
+                  {/* Description */}
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', display: 'block', marginBottom: 6 }}>Description</label>
+                    <textarea
+                      value={formData.description}
+                      onChange={(e) => handleChange('description', e.target.value)}
+                      placeholder="Optional description..."
+                      rows={3}
+                      style={{ width: '100%', backgroundColor: '#111827', border: '1px solid #1F2937', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#FFFFFF', outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = '#F5A624' }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = '#1F2937' }}
                     />
-                  )
-                })}
-
-                {errors.submit && (
-                  <div className="p-4 bg-error/10 border border-error/20 rounded-lg">
-                    <p className="text-sm text-error flex items-center gap-2">
-                      <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                      {errors.submit}
-                    </p>
                   </div>
-                )}
-              </DrawerContent>
 
-              <DrawerFooter>
-                <div className="flex items-center gap-3">
-                  <Button
-                    type="submit"
-                    className="bg-primary text-white hover:bg-primary-hover flex-1 h-11 font-medium"
-                    disabled={createAppMutation.isPending}
-                  >
-                    {createAppMutation.isPending ? (
-                      <span className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        Creating...
-                      </span>
-                    ) : (
-                      'Create App'
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleCancel}
-                    disabled={createAppMutation.isPending}
-                    className="h-11"
-                  >
-                    Cancel
-                  </Button>
+                  {/* Content selector */}
+                  {requiresContent && (
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', display: 'block', marginBottom: 6 }}>
+                        Select Content <span style={{ color: '#DC2626' }}>*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => { setContentSelectorField('content_id'); setContentSelectorOpen(true) }}
+                        style={{ width: '100%', height: 40, backgroundColor: '#111827', border: `1px solid ${errors.content_id ? '#DC2626' : '#1F2937'}`, borderRadius: 8, padding: '0 12px', fontSize: 13, color: formData.content_id ? '#FFFFFF' : '#4B5563', cursor: 'pointer', textAlign: 'left', boxSizing: 'border-box' }}
+                      >
+                        {formData.content_id
+                          ? contentData?.items?.find((c: Content) => c.content_id === formData.content_id)?.name || formData.content_id
+                          : 'Choose from library...'}
+                      </button>
+                      {errors.content_id && (
+                        <p style={{ fontSize: 11, color: '#DC2626', marginTop: 4 }}>{errors.content_id}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Dynamic schema fields */}
+                  {schema?.fields?.map((field: FormField) => {
+                    if (field.name === 'content_id') return null
+                    return (
+                      <FormFieldRenderer
+                        key={field.name}
+                        field={field}
+                        value={formData[field.name]}
+                        onChange={(value) => handleChange(field.name, value)}
+                        error={errors[field.name]}
+                        onContentSelect={(fieldName) => { setContentSelectorField(fieldName); setContentSelectorOpen(true) }}
+                      />
+                    )
+                  })}
+
+                  {/* Submit error */}
+                  {errors.submit && (
+                    <div style={{ padding: 12, backgroundColor: 'rgba(220,38,38,0.10)', border: '1px solid rgba(220,38,38,0.20)', borderRadius: 8 }}>
+                      <p style={{ fontSize: 12, color: '#DC2626', display: 'flex', alignItems: 'center', gap: 6, margin: 0 }}>
+                        <AlertCircle className="h-4 w-4" style={{ flexShrink: 0 }} />
+                        {errors.submit}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </DrawerFooter>
+              )}
+
+              {/* Footer buttons */}
+              <div style={{ borderTop: '1px solid #2A2A2A', padding: '12px 16px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <button
+                  type="submit"
+                  disabled={createAppMutation.isPending}
+                  style={{ width: '100%', height: 40, backgroundColor: '#F5A624', color: '#000000', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: createAppMutation.isPending ? 'not-allowed' : 'pointer', opacity: createAppMutation.isPending ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                >
+                  {createAppMutation.isPending ? (
+                    <>
+                      <div style={{ width: 14, height: 14, border: '2px solid rgba(0,0,0,0.3)', borderTopColor: '#000', borderRadius: '50%', animation: 'spin 0.7s linear infinite' }} />
+                      Creating...
+                    </>
+                  ) : 'Create App'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  disabled={createAppMutation.isPending}
+                  style={{ width: '100%', height: 36, backgroundColor: 'transparent', color: '#9CA3AF', border: '1px solid #2A2A2A', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+              </div>
             </form>
           )}
-        </Drawer>
+        </div>
+      </div>
 
       <ContentSelector
         isOpen={contentSelectorOpen}
-        onClose={() => {
-          setContentSelectorOpen(false)
-          setContentSelectorField('')
-        }}
+        onClose={() => { setContentSelectorOpen(false); setContentSelectorField('') }}
         onSelect={handleContentSelect}
         currentContentId={formData.content_id}
       />
     </div>
-  )
-}
-
-function AppTypeCard({ appType, isSelected, onClick }: { appType: AppType; isSelected: boolean; onClick: () => void }) {
-  const Icon = getAppIcon(appType.icon)
-
-  return (
-    <motion.button
-      onClick={onClick}
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      className={`aspect-square p-4 rounded-xl border transition-all flex flex-col items-center justify-center gap-3 relative overflow-hidden group ${
-        isSelected
-          ? 'bg-primary/10 border-primary shadow-lg shadow-primary/5'
-          : 'bg-surface border-border hover:border-primary/50 hover:bg-surface-alt'
-      }`}
-    >
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-        isSelected ? 'bg-primary/20 shadow-sm' : 'bg-surface-alt group-hover:bg-primary/10'
-      }`}>
-        <Icon className={`h-6 w-6 ${isSelected ? 'text-primary' : 'text-text-muted group-hover:text-primary transition-colors'}`} />
-      </div>
-      <div className="flex flex-col items-center text-center w-full">
-        <h4 className={`font-semibold text-xs leading-tight ${isSelected ? 'text-primary' : 'text-text-primary'}`}>
-          {appType.name}
-        </h4>
-      </div>
-      {isSelected && (
-        <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary" />
-      )}
-    </motion.button>
   )
 }

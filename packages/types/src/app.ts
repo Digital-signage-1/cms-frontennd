@@ -21,7 +21,7 @@ export interface App {
   template_type: AppTemplateType
   name: string
   description?: string
-  status: 'draft' | 'active' | 'paused' | 'error'
+  status: 'draft' | 'active' | 'paused' | 'error' | 'archived'
   content_id?: string
   integration_id?: string
   config: AppConfig

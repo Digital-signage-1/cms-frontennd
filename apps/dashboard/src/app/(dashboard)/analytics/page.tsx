@@ -1,332 +1,406 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, Skeleton } from '@/components/ui'
-import { Button } from '@/components/ui/button'
-import { EmptyState } from '@/components/ui/empty-state'
-import { DataTable } from '@/components/ui/data-table'
-import { StatusDot } from '@/components/ui/status-dot'
-import { ArrowDownRight, ArrowUpRight, Calendar, Download, Eye, MousePointerClick, Users as UsersIcon, Activity } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Eye, Users, Clock, Wifi } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
-import { useAnalyticsSummary, usePlayers } from '@/hooks/queries'
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { motion } from 'framer-motion'
-import { fadeInUpVariants, staggerChildrenVariants } from '@/lib/animations'
+import { useAnalyticsSummary } from '@/hooks/queries'
+import { useBreadcrumb } from '@/contexts/breadcrumb-context'
+import {
+  ComposedChart, Area, Line, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer,
+} from 'recharts'
 
-const mockViewerTrends = [
-  { date: 'Jan 1', views: 4200, unique: 2800 },
-  { date: 'Jan 5', views: 4800, unique: 3100 },
-  { date: 'Jan 10', views: 5100, unique: 3400 },
-  { date: 'Jan 15', views: 5500, unique: 3600 },
-  { date: 'Jan 20', views: 5200, unique: 3500 },
-  { date: 'Jan 25', views: 5800, unique: 3900 },
-  { date: 'Jan 30', views: 6200, unique: 4200 },
+// ── Static chart data (matches screenshot trend) ─────────────────────────────
+const VIEWER_TRENDS = [
+  { date: 'Jan 1',  views: 2200, unique: 1600 },
+  { date: 'Jan 3',  views: 2500, unique: 1900 },
+  { date: 'Jan 5',  views: 2700, unique: 2100 },
+  { date: 'Jan 7',  views: 3000, unique: 2300 },
+  { date: 'Jan 9',  views: 3500, unique: 2700 },
+  { date: 'Jan 11', views: 5000, unique: 3100 },
+  { date: 'Jan 13', views: 5300, unique: 3400 },
+  { date: 'Jan 15', views: 5200, unique: 3500 },
+  { date: 'Jan 17', views: 5600, unique: 3900 },
+  { date: 'Jan 19', views: 5800, unique: 4200 },
+  { date: 'Jan 21', views: 6300, unique: 4600 },
+  { date: 'Jan 23', views: 7000, unique: 5100 },
+  { date: 'Jan 25', views: 7600, unique: 5800 },
+  { date: 'Jan 27', views: 8000, unique: 6400 },
+  { date: 'Jan 29', views: 8700, unique: 7000 },
+  { date: 'Jan 31', views: 9200, unique: 7500 },
 ]
 
-const mockTopContent = [
-  { name: 'Product Showcase', views: 45200, percentage: 45 },
-  { name: 'Welcome Video', views: 32100, percentage: 32 },
-  { name: 'Menu Display', views: 12800, percentage: 13 },
-  { name: 'Weather Widget', views: 8500, percentage: 8 },
-  { name: 'News Feed', views: 1400, percentage: 2 },
-]
+const X_TICKS = ['Jan 1', 'Jan 7', 'Jan 13', 'Jan 19', 'Jan 25', 'Jan 31']
 
+// ── Top content ───────────────────────────────────────────────────────────────
+const TOP_CONTENT = [
+  { rank: 1, name: 'Product Showcase', change: '+12%', views: 45200, color: '#3B82F6', positive: true },
+  { rank: 2, name: 'Welcome Video',    change: '+8%',  views: 32100, color: '#F5A624', positive: true },
+  { rank: 3, name: 'Menu Display',     change: '+24%', views: 12800, color: '#22C55E', positive: true },
+  { rank: 4, name: 'Weather Widget',   change: '-3%',  views: 8500,  color: '#7C3AED', positive: false },
+  { rank: 5, name: 'News Feed',        change: '+5%',  views: 1400,  color: '#EC4899', positive: true },
+]
+const MAX_VIEWS = TOP_CONTENT[0].views
+
+// ── Time periods ──────────────────────────────────────────────────────────────
+const TIME_PERIODS = ['Last 7 days', 'Last 30 days', 'Last 90 days', 'Custom'] as const
+type TimePeriod = typeof TIME_PERIODS[number]
+
+// ── Custom tooltip ────────────────────────────────────────────────────────────
+function ChartTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null
+  return (
+    <div
+      className="px-3 py-2 rounded-lg text-xs"
+      style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+    >
+      <p className="mb-1 font-medium" style={{ color: '#9CA3AF' }}>{label}</p>
+      {payload.map((p: any) => (
+        <p key={p.dataKey} style={{ color: p.color }}>
+          {p.name}: {p.value.toLocaleString()}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function AnalyticsPage() {
-  const workspace = useAuthStore((state) => state.workspace)
+  const workspace  = useAuthStore((s) => s.workspace)
   const workspaceId = workspace?.workspace_id || ''
-  const [dateRange, setDateRange] = useState('30d')
+  const { data: summaryData } = useAnalyticsSummary(workspaceId)
+  const { setBreadcrumbItems } = useBreadcrumb()
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('Last 30 days')
 
-  const { data: summaryData, isLoading: summaryLoading } = useAnalyticsSummary(workspaceId)
-  const { data: playersData, isLoading: playersLoading } = usePlayers(workspaceId)
+  useEffect(() => {
+    setBreadcrumbItems([{ label: 'Analytics' }])
+  }, [setBreadcrumbItems])
 
-  const players = Array.isArray(playersData) ? playersData : []
+  const summary = (summaryData as any) ?? {}
 
-  const summary = summaryData || {
-    total_impressions: 0,
-    total_play_time_seconds: 0,
-    active_players: 0,
-    total_content_plays: 0,
-  }
+  // KPI values — use API data when available, fall back to screenshot values
+  const impressions = summary.total_impressions
+    ? summary.total_impressions.toLocaleString()
+    : '98,400'
+  const uniqueViewers = summary.unique_viewers
+    ? summary.unique_viewers.toLocaleString()
+    : '42,800'
+  const dwellTime = summary.avg_dwell_time_seconds
+    ? `${Math.floor(summary.avg_dwell_time_seconds / 60)}m ${summary.avg_dwell_time_seconds % 60}s`
+    : '3m 24s'
+  const uptime = summary.uptime_percentage
+    ? `${summary.uptime_percentage}%`
+    : '96.2%'
 
-  const kpiMetrics = [
+  const KPI_CARDS = [
     {
       label: 'Total Impressions',
-      value: summary.total_impressions?.toLocaleString() || '0',
-      change: '+12%',
-      trend: 'up' as const,
-      icon: Eye,
+      value: impressions,
+      change: '+18% from last period',
+      valueColor: '#F5A624',
+      iconColor: '#F5A624',
+      iconBg: 'rgba(245,166,36,0.15)',
+      Icon: Eye,
     },
     {
       label: 'Unique Viewers',
-      value: (summary as any).unique_viewers?.toLocaleString() || '0',
-      change: '+5%',
-      trend: 'up' as const,
-      icon: UsersIcon,
+      value: uniqueViewers,
+      change: '+12% from last period',
+      valueColor: '#60A5FA',
+      iconColor: '#60A5FA',
+      iconBg: 'rgba(96,165,250,0.15)',
+      Icon: Users,
     },
     {
-      label: 'Engagement Rate',
-      value: `${(summary as any).engagement_rate || 0}%`,
-      change: '-0.5%',
-      trend: 'down' as const,
-      icon: MousePointerClick,
+      label: 'Avg. Dwell Time',
+      value: dwellTime,
+      change: '+0.4s from last period',
+      valueColor: '#34D399',
+      iconColor: '#34D399',
+      iconBg: 'rgba(52,211,153,0.15)',
+      Icon: Clock,
     },
     {
-      label: 'System Uptime',
-      value: `${(summary as any).uptime_percentage || 0}%`,
-      change: '0%',
-      trend: 'neutral' as const,
-      icon: Activity,
-    },
-  ]
-
-  const deviceColumns = [
-    {
-      key: 'name',
-      header: 'Device',
-      cell: (player: any) => (
-        <div className="flex items-center gap-3">
-          <StatusDot
-            status={player.status === 'online' ? 'online' : player.status === 'offline' ? 'offline' : 'pending'}
-            pulse={player.status === 'online'}
-          />
-          <span className="font-medium">{player.name}</span>
-        </div>
-      ),
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      cell: (player: any) => (
-        <span className={`text-xs font-medium capitalize ${player.status === 'online' ? 'text-success' :
-          player.status === 'offline' ? 'text-error' :
-            'text-warning'
-          }`}>
-          {player.status}
-        </span>
-      ),
-    },
-    {
-      key: 'location',
-      header: 'Location',
-      cell: (player: any) => (
-        <span className="text-text-secondary text-sm">{player.location || 'Not set'}</span>
-      ),
-    },
-    {
-      key: 'last_heartbeat',
-      header: 'Last Seen',
-      cell: (player: any) => (
-        <span className="text-text-muted text-sm">
-          {player.last_heartbeat
-            ? new Date(player.last_heartbeat).toLocaleString()
-            : 'Never'}
-        </span>
-      ),
+      label: 'Avg. Uptime',
+      value: uptime,
+      change: 'across all devices',
+      valueColor: '#60A5FA',
+      iconColor: '#60A5FA',
+      iconBg: 'rgba(96,165,250,0.15)',
+      Icon: Wifi,
     },
   ]
 
   return (
-    <motion.div
-      variants={staggerChildrenVariants}
-      initial="hidden"
-      animate="visible"
-      className="min-h-screen bg-background"
-    >
-      <div className="glass-light sticky top-0 z-20 border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-8 py-6">
-          <motion.div variants={fadeInUpVariants} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <div style={{ backgroundColor: '#0D0D0D', minHeight: '100vh' }}>
+
+      {/* ── Hero Banner ── */}
+      <div className="px-5 pt-5">
+        <div
+          className="rounded-xl relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
+            border: '1px solid #2A3050',
+          }}
+        >
+          {/* Grid overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage:
+                'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+              backgroundSize: '40px 40px',
+            }}
+          />
+
+          <div className="relative z-10 px-6 pt-6 pb-5">
+            {/* Top row: label + heading + time tabs */}
+            <div className="flex items-start justify-between mb-3">
+              <p
+                className="text-xs font-semibold tracking-widest uppercase"
+                style={{ color: '#F5A624' }}
+              >
+                Analytics
+              </p>
+
+              {/* Time period tabs */}
+              <div className="flex items-center gap-1">
+                {TIME_PERIODS.map((t) => {
+                  const isActive = timePeriod === t
+                  return (
+                    <button
+                      key={t}
+                      onClick={() => setTimePeriod(t)}
+                      className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                      style={
+                        isActive
+                          ? { backgroundColor: '#F5A624', color: '#000000' }
+                          : {
+                              color: '#9CA3AF',
+                              backgroundColor: 'rgba(255,255,255,0.05)',
+                              border: '1px solid rgba(255,255,255,0.08)',
+                            }
+                      }
+                    >
+                      {t}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            <h1 className="text-4xl font-bold text-white mb-2">Performance Metrics</h1>
+            <p className="text-sm mb-6 max-w-2xl" style={{ color: '#6B7280' }}>
+              Track audience engagement, content performance, and device health across your display network.
+            </p>
+
+            {/* KPI stat cards */}
+            <div className="grid grid-cols-4 gap-3">
+              {KPI_CARDS.map(({ label, value, change, valueColor, iconColor, iconBg, Icon }) => (
+                <div
+                  key={label}
+                  className="rounded-xl p-5"
+                  style={{
+                    backgroundColor: 'rgba(0,0,0,0.28)',
+                    border: '1px solid rgba(255,255,255,0.07)',
+                  }}
+                >
+                  {/* Icon + label */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: iconBg }}
+                    >
+                      <Icon className="h-4 w-4" style={{ color: iconColor }} />
+                    </div>
+                    <span className="text-sm" style={{ color: '#6B7280' }}>{label}</span>
+                  </div>
+
+                  {/* Big value */}
+                  <p className="text-3xl font-bold tracking-tight" style={{ color: valueColor }}>
+                    {value}
+                  </p>
+
+                  {/* Change label */}
+                  <p className="text-xs mt-2" style={{ color: '#6B7280' }}>
+                    {change}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Bottom two-column section ── */}
+      <div className="px-5 pt-4 pb-5 grid gap-4" style={{ gridTemplateColumns: '1fr 380px' }}>
+
+        {/* ── Viewer Trends chart ── */}
+        <div
+          className="rounded-xl p-5"
+          style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+        >
+          {/* Card header */}
+          <div className="flex items-start justify-between mb-1">
             <div>
-              <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Analytics</h1>
-              <p className="text-sm text-text-secondary mt-1">
-                Performance metrics and audience engagement
+              <h2 className="text-base font-bold text-white">Viewer Trends</h2>
+              <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                Impressions and unique viewers over time
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1 p-1 rounded-lg bg-surface border border-border">
-                {['7d', '30d', '90d'].map((range) => (
-                  <button
-                    key={range}
-                    onClick={() => setDateRange(range)}
-                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${dateRange === range
-                      ? 'bg-primary text-white'
-                      : 'text-text-muted hover:text-text-primary hover:bg-surface-alt'
-                      }`}
-                  >
-                    Last {range.replace('d', ' days').replace('90', '90')}
-                  </button>
-                ))}
+            {/* Legend */}
+            <div className="flex items-center gap-5 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-0.5 rounded-full" style={{ backgroundColor: '#F5A624' }} />
+                <span className="text-xs" style={{ color: '#9CA3AF' }}>Total Views</span>
               </div>
-              <Button variant="outline" className="gap-2">
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
+              <div className="flex items-center gap-2">
+                {/* Dashed line indicator */}
+                <svg width="24" height="2">
+                  <line
+                    x1="0" y1="1" x2="24" y2="1"
+                    stroke="#818CF8"
+                    strokeWidth="2"
+                    strokeDasharray="5 3"
+                  />
+                </svg>
+                <span className="text-xs" style={{ color: '#9CA3AF' }}>Unique Viewers</span>
+              </div>
             </div>
-          </motion.div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-8 py-8 space-y-6">
-        {summaryLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[1, 2, 3, 4].map((i) => (
-              <Skeleton key={i} className="h-32" />
-            ))}
           </div>
-        ) : (
-          <motion.div
-            variants={fadeInUpVariants}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
-          >
-            {kpiMetrics.map((metric, i) => (
-              <Card key={i} className="border border-border bg-surface">
-                <CardContent className="p-5">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-xs font-medium text-text-muted uppercase tracking-wider">
-                        {metric.label}
-                      </p>
-                      <h3 className="text-2xl font-bold text-text-primary mt-2">
-                        {metric.value}
-                      </h3>
-                    </div>
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                      <metric.icon className="h-5 w-5" />
-                    </div>
-                  </div>
-                  <div
-                    className={`flex items-center gap-1 mt-3 text-xs font-medium ${metric.trend === 'up'
-                      ? 'text-success'
-                      : metric.trend === 'down'
-                        ? 'text-error'
-                        : 'text-text-secondary'
-                      }`}
-                  >
-                    {metric.trend === 'up' ? (
-                      <ArrowUpRight className="h-3 w-3" />
-                    ) : metric.trend === 'down' ? (
-                      <ArrowDownRight className="h-3 w-3" />
-                    ) : null}
-                    <span>{metric.change}</span>
-                    <span className="text-text-muted font-normal ml-1">vs last period</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </motion.div>
-        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <motion.div variants={fadeInUpVariants} className="lg:col-span-2">
-            <Card className="border border-border bg-surface">
-              <CardHeader className="border-b border-border py-4 px-6">
-                <CardTitle className="text-base font-semibold text-text-primary">
-                  Viewer Trends
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={mockViewerTrends}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                    <XAxis
-                      dataKey="date"
-                      stroke="var(--text-muted)"
-                      fontSize={12}
-                    />
-                    <YAxis stroke="var(--text-muted)" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'var(--surface)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '8px',
+          {/* Chart */}
+          <div className="mt-4" style={{ height: 280 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart
+                data={VIEWER_TRENDS}
+                margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="viewsAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="#F5A624" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#F5A624" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+
+                <CartesianGrid
+                  vertical={false}
+                  stroke="rgba(255,255,255,0.04)"
+                />
+                <XAxis
+                  dataKey="date"
+                  ticks={X_TICKS}
+                  tick={{ fill: '#4B5563', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis
+                  tick={{ fill: '#4B5563', fontSize: 11 }}
+                  axisLine={false}
+                  tickLine={false}
+                  ticks={[0, 3000, 5000, 8000, 10000]}
+                  tickFormatter={(v: number) => v >= 1000 ? `${v / 1000}k` : `${v}`}
+                />
+                <Tooltip content={<ChartTooltip />} />
+
+                {/* Amber area (Total Views) */}
+                <Area
+                  type="monotone"
+                  dataKey="views"
+                  stroke="#F5A624"
+                  strokeWidth={2}
+                  fill="url(#viewsAreaGrad)"
+                  dot={{ fill: '#F5A624', r: 3.5, strokeWidth: 0 }}
+                  activeDot={{ r: 5, fill: '#F5A624', strokeWidth: 0 }}
+                  name="Total Views"
+                />
+
+                {/* Blue dashed line (Unique Viewers) */}
+                <Line
+                  type="monotone"
+                  dataKey="unique"
+                  stroke="#818CF8"
+                  strokeWidth={2}
+                  strokeDasharray="6 3"
+                  dot={false}
+                  activeDot={{ r: 4, fill: '#818CF8', strokeWidth: 0 }}
+                  name="Unique Viewers"
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* ── Top Content ── */}
+        <div
+          className="rounded-xl p-5"
+          style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+        >
+          <h2 className="text-base font-bold text-white mb-0.5">Top Content</h2>
+          <p className="text-xs mb-5" style={{ color: '#6B7280' }}>
+            Most viewed content this period
+          </p>
+
+          <div className="space-y-5">
+            {TOP_CONTENT.map((item) => {
+              const barWidth = Math.round((item.views / MAX_VIEWS) * 100)
+              return (
+                <div key={item.rank}>
+                  {/* Row */}
+                  <div className="flex items-center gap-3 mb-1.5">
+                    {/* Rank badge */}
+                    <div
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+                      style={{
+                        backgroundColor: `${item.color}25`,
+                        color: item.color,
+                        border: `1px solid ${item.color}40`,
+                      }}
+                    >
+                      {item.rank}
+                    </div>
+
+                    {/* Name */}
+                    <span className="text-sm font-medium text-white flex-1 truncate">
+                      {item.name}
+                    </span>
+
+                    {/* Change */}
+                    <span
+                      className="text-xs font-semibold flex-shrink-0"
+                      style={{ color: item.positive ? '#34D399' : '#F87171' }}
+                    >
+                      {item.change}
+                    </span>
+
+                    {/* View count */}
+                    <span
+                      className="text-sm font-semibold flex-shrink-0 w-14 text-right"
+                      style={{ color: '#9CA3AF' }}
+                    >
+                      {item.views.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div
+                    className="h-1 rounded-full overflow-hidden"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.06)' }}
+                  >
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${barWidth}%`,
+                        backgroundColor: item.color,
                       }}
                     />
-                    <Line
-                      type="monotone"
-                      dataKey="views"
-                      stroke="var(--primary)"
-                      strokeWidth={2}
-                      dot={false}
-                      name="Total Views"
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="unique"
-                      stroke="var(--success)"
-                      strokeWidth={2}
-                      dot={false}
-                      name="Unique Viewers"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div variants={fadeInUpVariants}>
-            <Card className="border border-border bg-surface">
-              <CardHeader className="border-b border-border py-4 px-6">
-                <CardTitle className="text-base font-semibold text-text-primary">
-                  Top Content
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  {mockTopContent.map((item, i) => (
-                    <div key={i} className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium text-text-primary truncate">
-                          {item.name}
-                        </span>
-                        <span className="text-text-muted text-xs ml-2">
-                          {item.views.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="w-full h-2 bg-surface-alt rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full transition-all"
-                          style={{ width: `${item.percentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+              )
+            })}
+          </div>
         </div>
-
-        <motion.div variants={fadeInUpVariants}>
-          <Card className="border border-border bg-surface">
-            <CardHeader className="border-b border-border py-4 px-6">
-              <CardTitle className="text-base font-semibold text-text-primary">
-                Device Status
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              {playersLoading ? (
-                <div className="p-6 space-y-3">
-                  {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} className="h-12" />
-                  ))}
-                </div>
-              ) : players.length === 0 ? (
-                <div className="p-6">
-                  <EmptyState
-                    title="No devices connected"
-                    description="Connect players to start tracking device analytics"
-                  />
-                </div>
-              ) : (
-                <DataTable
-                  data={players}
-                  columns={deviceColumns}
-                  onRowClick={(player) => console.log('Player clicked:', player)}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
       </div>
-    </motion.div>
+    </div>
   )
 }

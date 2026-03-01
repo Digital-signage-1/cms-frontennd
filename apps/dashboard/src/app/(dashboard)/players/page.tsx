@@ -1,231 +1,472 @@
 'use client'
 
-import { Button, Input } from '@/components/ui'
-import { GlassCard } from '@/components/ui/glass-card'
-import { EmptyState } from '@/components/ui/empty-state'
-import { usePlayers } from '@/hooks/queries'
-import { useChannels } from '@/hooks/queries'
+import { useState, Suspense, lazy, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import {
+  Monitor, Plus, Search, Copy, MoreHorizontal, LayoutGrid, List,
+} from 'lucide-react'
+import { usePlayers, useChannels } from '@/hooks/queries'
 import { PlayerRegistrationModal } from '@/components/players/PlayerRegistrationModal'
 import { PlayerDetailDrawer } from '@/components/players/PlayerDetailDrawer'
-import { Monitor, Plus, RefreshCw, Search, Copy } from 'lucide-react'
-import { useState, Suspense, lazy } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
+import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import type { Player } from '@signage/types'
-import { motion } from 'framer-motion'
-import { fadeInUpVariants, staggerChildrenVariants } from '@/lib/animations'
 
-const PlayerMap = lazy(() => import('@/components/players/PlayerMap').then(m => ({ default: m.PlayerMap })))
+const PlayerMap = lazy(() =>
+  import('@/components/players/PlayerMap').then((m) => ({ default: m.PlayerMap }))
+)
 
-export default function PlayersPage() {
-  const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.workspace_id || ''
-  const { data: playersData = [], isLoading: playersLoading } = usePlayers(workspaceId)
-  const { data: channels = [] } = useChannels(workspaceId)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
-  const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
+// ── Status token map ────────────────────────────────────────────────────────
+type StatusKey = 'online' | 'offline' | 'pending'
+const STATUS: Record<StatusKey, { dot: string; text: string; bg: string; label: string }> = {
+  online:  { dot: '#059669', text: '#34D399', bg: 'rgba(5,150,105,0.15)',   label: 'Online'  },
+  offline: { dot: '#DC2626', text: '#F87171', bg: 'rgba(220,38,38,0.15)',   label: 'Offline' },
+  pending: { dot: '#F5A624', text: '#F5A624', bg: 'rgba(245,166,36,0.15)', label: 'Pending' },
+}
 
-  const players = Array.isArray(playersData) ? playersData : []
-  const filteredPlayers = players.filter((player: Player) =>
-    player.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+type StatusFilter = 'all' | StatusKey
 
-  const channelMap = Object.fromEntries(
-    (channels as { channel_id: string; name: string }[]).map(c => [c.channel_id, c.name])
-  )
-
-  const onlinePlayers = players.filter((p: Player) => p.status === 'online').length
-  const offlinePlayers = players.filter((p: Player) => p.status === 'offline').length
+// ── Player list card ────────────────────────────────────────────────────────
+function PlayerCard({
+  player,
+  isSelected,
+  onClick,
+}: {
+  player: Player
+  isSelected: boolean
+  onClick: () => void
+}) {
+  const statusKey = (player.status as StatusKey) in STATUS ? (player.status as StatusKey) : 'offline'
+  const s = STATUS[statusKey]
+  const code: string = (player as any).pairing_code || ''
+  const platform: string = (player as any).device_type || (player as any).platform || ''
 
   return (
-    <motion.div
-      variants={staggerChildrenVariants}
-      initial="hidden"
-      animate="visible"
-      className="h-screen bg-background flex flex-col overflow-hidden"
+    <div
+      onClick={onClick}
+      className="flex items-start gap-3 px-4 py-3.5 cursor-pointer transition-colors"
+      style={{
+        backgroundColor: isSelected ? 'rgba(245,166,36,0.07)' : 'transparent',
+        borderBottom: '1px solid #1E1E1E',
+      }}
+      onMouseEnter={(e) => {
+        if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = '#1E1E1E'
+      }}
+      onMouseLeave={(e) => {
+        if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
+      }}
     >
-      <div className="glass-light border-b border-border/50 shrink-0">
-        <div className="px-8 py-6">
-          <motion.div variants={fadeInUpVariants} className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Control Center</h1>
-              <p className="text-sm text-text-secondary mt-1">Monitor and manage your player network</p>
-            </div>
-            <Button
-              onClick={() => setIsRegistrationModalOpen(true)}
-              className="bg-primary hover:bg-primary-hover text-white shadow-lg border-0 gap-2 rounded-xl"
-            >
-              <Plus className="h-4 w-4" /> Register Player
-            </Button>
-          </motion.div>
-
-          <motion.div variants={fadeInUpVariants} className="flex items-center gap-6">
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-success pulse-ring" />
-                <span className="text-sm text-text-secondary">
-                  <span className="font-semibold text-success">{onlinePlayers}</span> Online
-                </span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-error" />
-                <span className="text-sm text-text-secondary">
-                  <span className="font-semibold text-error">{offlinePlayers}</span> Offline
-                </span>
-              </div>
-            </div>
-
-            <div className="h-6 w-px bg-border/50" />
-
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-              <Input
-                placeholder="Search players..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-surface/50 border-border/50 focus:border-primary/30 h-10 rounded-xl"
-              />
-            </div>
-          </motion.div>
-        </div>
+      {/* Monitor icon */}
+      <div
+        className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
+        style={{ backgroundColor: `${s.dot}18` }}
+      >
+        <Monitor className="h-5 w-5" style={{ color: s.dot }} />
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
-        <motion.div
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex-1 relative z-0"
-        >
-          <Suspense fallback={<div className="w-full h-full bg-surface animate-pulse" />}>
-            <PlayerMap
-              players={filteredPlayers}
-              onPlayerClick={(player) => setSelectedPlayer(player.player_id)}
-            />
-          </Suspense>
-        </motion.div>
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-2 mb-0.5">
+          <p className="text-sm font-semibold truncate leading-tight" style={{ color: '#FFFFFF' }}>
+            {player.name}
+          </p>
+          {/* Status badge */}
+          <span
+            className="flex-shrink-0 flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
+            style={{ backgroundColor: s.bg, color: s.text }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: s.dot }} />
+            {s.label}
+          </span>
+        </div>
 
+        {/* Platform */}
+        {platform && (
+          <p className="text-xs capitalize mb-1" style={{ color: '#6B7280' }}>
+            {platform}
+          </p>
+        )}
+
+        {/* Pairing code */}
+        {code && (
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs" style={{ color: '#6B7280' }}>Code:</span>
+            <code className="text-xs font-mono font-bold tracking-widest" style={{ color: '#F5A624' }}>
+              {code}
+            </code>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                navigator.clipboard.writeText(code)
+              }}
+              className="opacity-50 hover:opacity-100 transition-opacity"
+            >
+              <Copy className="h-3 w-3" style={{ color: '#9CA3AF' }} />
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ── Page ────────────────────────────────────────────────────────────────────
+export default function PlayersPage() {
+  const workspace   = useAuthStore((s) => s.workspace)
+  const workspaceId = workspace?.workspace_id || ''
+
+  const { data: playersData = [], isLoading } = usePlayers(workspaceId)
+  const { data: channels = [] }               = useChannels(workspaceId)
+
+  const [searchQuery, setSearchQuery]         = useState('')
+  const [statusFilter, setStatusFilter]       = useState<StatusFilter>('all')
+  const [selectedPlayer, setSelectedPlayer]   = useState<string | null>(null)
+  const [isRegistrationOpen, setIsRegistrationOpen] = useState(false)
+
+  const { setBreadcrumbItems } = useBreadcrumb()
+  useEffect(() => {
+    setBreadcrumbItems([{ label: 'Players' }])
+  }, [setBreadcrumbItems])
+
+  const players       = Array.isArray(playersData) ? playersData : []
+  const totalPlayers  = players.length
+  const onlineCount   = players.filter((p: Player) => p.status === 'online').length
+  const offlineCount  = players.filter((p: Player) => p.status === 'offline').length
+  const pendingCount  = players.filter((p: Player) => p.status === 'pending').length
+
+  const filteredPlayers = players.filter((p: Player) => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesStatus = statusFilter === 'all' || p.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
+
+  const STAT_CARDS = [
+    {
+      label: 'Total Players',
+      value: totalPlayers,
+      color: '#F5A624',
+      iconType: 'monitor' as const,
+    },
+    { label: 'Online',  value: onlineCount,  color: '#059669', iconType: 'dot' as const },
+    { label: 'Offline', value: offlineCount, color: '#DC2626', iconType: 'dot' as const },
+    { label: 'Pending', value: pendingCount, color: '#F5A624', iconType: 'dot' as const },
+  ]
+
+  const FILTER_TABS: { label: string; value: StatusFilter }[] = [
+    { label: 'All Players', value: 'all'     },
+    { label: 'Online',      value: 'online'  },
+    { label: 'Offline',     value: 'offline' },
+    { label: 'Pending',     value: 'pending' },
+  ]
+
+  return (
+    <div
+      className="flex flex-col overflow-hidden"
+      style={{
+        backgroundColor: '#0D0D0D',
+        height: 'calc(100vh - 3.5rem)',
+      }}
+    >
+      {/* ── Hero banner ─────────────────────────────────────────── */}
+      <div className="px-5 pt-5 pb-0 flex-shrink-0">
         <motion.div
-          initial={{ x: 20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="w-96 glass-heavy border-l border-border/50 overflow-y-auto"
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="relative overflow-hidden rounded-xl"
+          style={{
+            background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
+            border: '1px solid #2A3050',
+          }}
         >
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-text-primary">Active Players</h2>
-              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
+          {/* Grid overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage:
+                'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),' +
+                'linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
+              backgroundSize: '40px 40px',
+            }}
+          />
+
+          {/* Title row */}
+          <div className="relative flex items-start justify-between px-7 pt-5 pb-4">
+            <div>
+              <p
+                className="text-xs uppercase font-semibold mb-1.5"
+                style={{ color: '#F5A624', letterSpacing: '0.15em' }}
+              >
+                Control Center
+              </p>
+              <h1 className="text-3xl font-bold leading-tight mb-1" style={{ color: '#FFFFFF' }}>
+                Player Network
+              </h1>
+              <p className="text-sm" style={{ color: '#6B7280' }}>
+                Monitor and manage your display network. Track status, deploy content, and configure devices.
+              </p>
             </div>
 
-            {playersLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="h-24 bg-surface/50 rounded-xl animate-pulse" />
-                ))}
+            <button
+              onClick={() => setIsRegistrationOpen(true)}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 mt-1 transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+            >
+              <Plus className="h-4 w-4" />
+              Register Player
+            </button>
+          </div>
+
+          {/* Stat cards */}
+          <div className="relative flex items-stretch gap-3 px-7 pb-5">
+            {STAT_CARDS.map(({ label, value, color, iconType }) => (
+              <div
+                key={label}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl flex-1"
+                style={{
+                  backgroundColor: 'rgba(0,0,0,0.28)',
+                  border: '1px solid rgba(255,255,255,0.07)',
+                }}
+              >
+                {/* Icon */}
+                <div
+                  className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: `${color}18` }}
+                >
+                  {iconType === 'monitor' ? (
+                    <Monitor className="h-4 w-4" style={{ color }} />
+                  ) : (
+                    <span
+                      className="w-3.5 h-3.5 rounded-full block"
+                      style={{ backgroundColor: color, boxShadow: `0 0 6px ${color}80` }}
+                    />
+                  )}
+                </div>
+                {/* Label + value */}
+                <div>
+                  <p className="text-xs font-medium" style={{ color: '#6B7280' }}>{label}</p>
+                  <p className="text-2xl font-bold leading-tight" style={{ color }}>{value}</p>
+                </div>
               </div>
-            ) : filteredPlayers.length === 0 ? (
-              players.length === 0 ? (
-                <EmptyState
-                  title="No players yet"
-                  description="Open the player app on your display device to get a pairing code, then click Register Player to connect it."
-                  visual={
-                    <div className="p-8 bg-surface rounded-lg border border-border shadow-lg">
-                      <div className="text-center">
-                        <Monitor className="h-12 w-12 text-primary/40 mx-auto mb-3" />
-                        <p className="text-sm text-text-muted">
-                          Your paired players will appear here
-                        </p>
-                      </div>
-                    </div>
+            ))}
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── Main two-column area ─────────────────────────────────── */}
+      <div className="flex flex-1 overflow-hidden gap-4 p-5 pt-4">
+
+        {/* Left: Map + filter toolbar + legend */}
+        <motion.div
+          initial={{ opacity: 0, x: -16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35, delay: 0.08 }}
+          className="flex-1 flex flex-col overflow-hidden rounded-xl"
+          style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+        >
+          {/* Filter toolbar */}
+          <div
+            className="flex items-center justify-between px-4 py-3 flex-shrink-0"
+            style={{ borderBottom: '1px solid #242424' }}
+          >
+            {/* Status filter tabs */}
+            <div className="flex items-center gap-1">
+              {FILTER_TABS.map((tab) => (
+                <button
+                  key={tab.value}
+                  onClick={() => setStatusFilter(tab.value)}
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+                  style={
+                    statusFilter === tab.value
+                      ? { backgroundColor: '#F5A624', color: '#000000' }
+                      : { color: '#9CA3AF' }
                   }
-                  action={{
-                    label: "Register Player",
-                    onClick: () => setIsRegistrationModalOpen(true)
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Search + view toggle */}
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search
+                  className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
+                  style={{ color: '#4B5563' }}
+                />
+                <input
+                  placeholder="Search players..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-44"
+                  style={{
+                    backgroundColor: '#141414',
+                    border: '1px solid #2A2A2A',
+                    color: '#FFFFFF',
                   }}
                 />
-              ) : (
-                <div className="text-center py-12">
-                  <Monitor className="h-12 w-12 text-text-muted/30 mx-auto mb-4" />
-                  <p className="text-text-secondary text-sm">No players found matching "{searchQuery}"</p>
+              </div>
+
+              {/* View toggle */}
+              <div
+                className="flex items-center rounded-lg overflow-hidden"
+                style={{ border: '1px solid #2A2A2A' }}
+              >
+                <button
+                  className="p-2 transition-colors"
+                  style={{ backgroundColor: '#F5A624', color: '#000000' }}
+                  title="Map view"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </button>
+                <button
+                  className="p-2 transition-colors"
+                  style={{ backgroundColor: '#141414', color: '#6B7280' }}
+                  title="List view"
+                >
+                  <List className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Map area */}
+          <div className="flex-1 relative overflow-hidden" style={{ backgroundColor: '#141414' }}>
+            {/* Live indicator */}
+            <div
+              className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
+              style={{ backgroundColor: 'rgba(20,20,20,0.8)' }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#4B5563' }} />
+              <span style={{ color: '#6B7280' }}>Live</span>
+            </div>
+
+            <Suspense
+              fallback={
+                <div className="w-full h-full flex items-center justify-center">
+                  <div
+                    className="w-8 h-8 border-2 rounded-full animate-spin"
+                    style={{ borderColor: '#2A2A2A', borderTopColor: '#F5A624' }}
+                  />
                 </div>
-              )
+              }
+            >
+              <PlayerMap
+                players={filteredPlayers}
+                onPlayerClick={(player) => setSelectedPlayer((player as any).player_id)}
+              />
+            </Suspense>
+          </div>
+
+          {/* Legend */}
+          <div
+            className="flex items-center gap-5 px-5 py-3 flex-shrink-0"
+            style={{ borderTop: '1px solid #242424' }}
+          >
+            {[
+              { label: 'Online',  color: '#059669' },
+              { label: 'Offline', color: '#DC2626' },
+              { label: 'Pending', color: '#F5A624' },
+            ].map(({ label, color }) => (
+              <div key={label} className="flex items-center gap-2">
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: color }}
+                />
+                <span className="text-xs" style={{ color: '#6B7280' }}>{label}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Right: Active Players panel */}
+        <motion.div
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35, delay: 0.12 }}
+          className="w-80 flex flex-col rounded-xl overflow-hidden flex-shrink-0"
+          style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+        >
+          {/* Panel header */}
+          <div
+            className="flex items-center justify-between px-5 py-4 flex-shrink-0"
+            style={{ borderBottom: '1px solid #242424' }}
+          >
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-sm font-semibold" style={{ color: '#FFFFFF' }}>
+                Active Players
+              </h2>
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: 'rgba(245,166,36,0.15)', color: '#F5A624' }}
+              >
+                {totalPlayers}
+              </span>
+            </div>
+            <button
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              style={{ color: '#6B7280' }}
+              onMouseEnter={(e) => {
+                ;(e.currentTarget as HTMLElement).style.backgroundColor = '#2A2A2A'
+                ;(e.currentTarget as HTMLElement).style.color = '#FFFFFF'
+              }}
+              onMouseLeave={(e) => {
+                ;(e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
+                ;(e.currentTarget as HTMLElement).style.color = '#6B7280'
+              }}
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Player list */}
+          <div className="flex-1 overflow-y-auto">
+            {isLoading ? (
+              <div className="space-y-3 p-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="h-20 rounded-xl animate-pulse"
+                    style={{ backgroundColor: '#242424' }}
+                  />
+                ))}
+              </div>
+            ) : players.length === 0 ? (
+              <div className="py-12 px-4 text-center">
+                <Monitor
+                  className="h-10 w-10 mx-auto mb-3 opacity-25"
+                  style={{ color: '#6B7280' }}
+                />
+                <p className="text-sm font-medium mb-1" style={{ color: '#9CA3AF' }}>
+                  No players yet
+                </p>
+                <p className="text-xs mb-4" style={{ color: '#4B5563' }}>
+                  Open the player app on your display to get a pairing code
+                </p>
+                <button
+                  onClick={() => setIsRegistrationOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold"
+                  style={{ backgroundColor: '#F5A624', color: '#000000' }}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Register Player
+                </button>
+              </div>
+            ) : filteredPlayers.length === 0 ? (
+              <div className="py-12 px-4 text-center">
+                <p className="text-sm" style={{ color: '#6B7280' }}>
+                  No players match "{searchQuery}"
+                </p>
+              </div>
             ) : (
-              <div className="space-y-3">
-                {filteredPlayers.map((player: Player, index: number) => (
-                  <motion.div
+              <div>
+                {players.map((player: Player) => (
+                  <PlayerCard
                     key={player.player_id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ scale: 1.02 }}
+                    player={player}
+                    isSelected={selectedPlayer === player.player_id}
                     onClick={() => setSelectedPlayer(player.player_id)}
-                  >
-                    <GlassCard
-                      variant="light"
-                      className={`cursor-pointer transition-all ${
-                        selectedPlayer === player.player_id
-                          ? 'ring-2 ring-primary'
-                          : ''
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="p-2 bg-surface-alt rounded-xl">
-                          <Monitor className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-2">
-                            <h3 className="font-semibold text-text-primary truncate">
-                              {player.name}
-                            </h3>
-                            <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${
-                              player.status === 'online'
-                                ? 'bg-success/10 text-success'
-                                : player.status === 'pending'
-                                ? 'bg-warning/10 text-warning'
-                                : 'bg-error/10 text-error'
-                            }`}>
-                              <div className={`w-1.5 h-1.5 rounded-full ${
-                                player.status === 'online' ? 'bg-success' : player.status === 'pending' ? 'bg-warning' : 'bg-error'
-                              }`} />
-                              <span className="text-xs font-medium">{player.status}</span>
-                            </div>
-                          </div>
-                          <p className="text-xs text-text-muted mb-1 capitalize">
-                            {player.device_type}
-                          </p>
-                          {player.status === 'pending' && (player as any).pairing_code && (
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs text-text-muted">Code:</span>
-                              <code className="text-xs font-mono bg-surface-alt px-1.5 py-0.5 rounded text-primary font-semibold">
-                                {(player as any).pairing_code}
-                              </code>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  navigator.clipboard.writeText((player as any).pairing_code)
-                                }}
-                                className="text-text-muted hover:text-text-primary"
-                              >
-                                <Copy className="h-3 w-3" />
-                              </button>
-                            </div>
-                          )}
-                          {(player as any).channel_id ? (
-                            <p className="text-xs text-text-secondary mb-1">
-                              Channel: {channelMap[(player as any).channel_id] || 'Unknown'}
-                            </p>
-                          ) : player.status !== 'pending' ? (
-                            <p className="text-xs text-text-muted mb-1">No channel assigned</p>
-                          ) : null}
-                          <div className="flex items-center gap-1.5 text-xs text-text-secondary">
-                            <span>Last seen: {player.last_seen_at ? new Date(player.last_seen_at).toLocaleString() : 'Never'}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </GlassCard>
-                  </motion.div>
+                  />
                 ))}
               </div>
             )}
@@ -233,15 +474,15 @@ export default function PlayersPage() {
         </motion.div>
       </div>
 
+      {/* Modals */}
       <PlayerRegistrationModal
-        isOpen={isRegistrationModalOpen}
-        onClose={() => setIsRegistrationModalOpen(false)}
+        isOpen={isRegistrationOpen}
+        onClose={() => setIsRegistrationOpen(false)}
       />
-
       <PlayerDetailDrawer
         playerId={selectedPlayer}
         onClose={() => setSelectedPlayer(null)}
       />
-    </motion.div>
+    </div>
   )
 }
