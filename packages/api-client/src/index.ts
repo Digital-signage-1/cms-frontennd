@@ -1,4 +1,5 @@
 export { ApiClient, createApiClient, ApiError } from './client'
+export * from './endpoints/accounts'
 export * from './endpoints/auth'
 export * from './endpoints/workspaces'
 export * from './endpoints/content'

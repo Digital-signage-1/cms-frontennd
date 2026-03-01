@@ -75,7 +75,7 @@ export function Header({ breadcrumbItems }: HeaderProps) {
         >
           <Search
             className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-            style={{ color: '#4B5563' }}
+            style={{ color: '#6B7280' }}
           />
           <input
             placeholder="Search..."
@@ -90,7 +90,7 @@ export function Header({ breadcrumbItems }: HeaderProps) {
           />
           <kbd
             className="absolute right-3 top-1/2 -translate-y-1/2 text-xs px-1.5 py-0.5 rounded"
-            style={{ color: '#4B5563', backgroundColor: '#2A2A2A', fontFamily: 'inherit' }}
+            style={{ color: '#6B7280', backgroundColor: '#2A2A2A', fontFamily: 'inherit' }}
           >
             ⌘K
           </kbd>

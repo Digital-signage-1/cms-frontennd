@@ -17,6 +17,14 @@ export function useWorkspace(id: string) {
   })
 }
 
+export function useWorkspaceMembers(workspaceId: string) {
+  return useQuery({
+    queryKey: ['workspaces', workspaceId, 'members'],
+    queryFn: () => api.workspaces.getMembers(workspaceId),
+    enabled: !!workspaceId,
+  })
+}
+
 export function useCreateWorkspace() {
   const queryClient = useQueryClient()
 
@@ -49,6 +57,37 @@ export function useDeleteWorkspace() {
     mutationFn: (id: string) => api.workspaces.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+    },
+  })
+}
+
+export function useUpdateMemberRole() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      userSub,
+      role,
+    }: {
+      workspaceId: string
+      userSub: string
+      role: string
+    }) => api.workspaces.updateMemberRole(workspaceId, userSub, role),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces', variables.workspaceId, 'members'] })
+    },
+  })
+}
+
+export function useRemoveMember() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ workspaceId, userSub }: { workspaceId: string; userSub: string }) =>
+      api.workspaces.removeMember(workspaceId, userSub),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces', variables.workspaceId, 'members'] })
     },
   })
 }

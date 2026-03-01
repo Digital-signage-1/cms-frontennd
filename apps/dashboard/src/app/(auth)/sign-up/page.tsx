@@ -67,7 +67,7 @@ function DsInput({
         required={required}
         autoComplete={autoComplete}
         maxLength={maxLength}
-        className={`w-full h-12 rounded-lg text-sm text-white placeholder:text-[#4B5563] outline-none transition-colors focus:border-[#F5A624] ${extraClass}`}
+        className={`w-full h-12 rounded-lg text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624] ${extraClass}`}
         style={DS.inputBase}
       />
       {rightSlot}
@@ -234,7 +234,7 @@ export default function SignUpPage() {
               required
               autoComplete="one-time-code"
               maxLength={6}
-              className="w-full h-14 rounded-lg text-2xl font-semibold text-white text-center tracking-[0.5em] placeholder:text-[#4B5563] placeholder:tracking-widest outline-none transition-colors focus:border-[#F5A624]"
+              className="w-full h-14 rounded-lg text-2xl font-semibold text-white text-center tracking-[0.5em] placeholder:text-[#6B7280] placeholder:tracking-widest outline-none transition-colors focus:border-[#F5A624]"
               style={DS.inputBase}
             />
             <p className="text-xs text-center" style={{ color: '#6B7280' }}>
@@ -309,7 +309,7 @@ export default function SignUpPage() {
         <div className="space-y-1.5">
           <label htmlFor="name" className="block text-sm font-medium text-white">Full name</label>
           <div className="relative">
-            <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#4B5563' }} />
+            <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
             <input
               id="name"
               name="name"
@@ -317,7 +317,7 @@ export default function SignUpPage() {
               placeholder="John Doe"
               required
               autoComplete="name"
-              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-white placeholder:text-[#4B5563] outline-none transition-colors focus:border-[#F5A624]"
+              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624]"
               style={DS.inputBase}
             />
           </div>
@@ -327,7 +327,7 @@ export default function SignUpPage() {
         <div className="space-y-1.5">
           <label htmlFor="email" className="block text-sm font-medium text-white">Email</label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#4B5563' }} />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
             <input
               id="email"
               name="email"
@@ -335,7 +335,7 @@ export default function SignUpPage() {
               placeholder="you@company.com"
               required
               autoComplete="email"
-              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-white placeholder:text-[#4B5563] outline-none transition-colors focus:border-[#F5A624]"
+              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624]"
               style={DS.inputBase}
             />
           </div>
@@ -345,7 +345,7 @@ export default function SignUpPage() {
         <div className="space-y-1.5">
           <label htmlFor="password" className="block text-sm font-medium text-white">Password</label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#4B5563' }} />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
             <input
               id="password"
               name="password"
@@ -353,14 +353,14 @@ export default function SignUpPage() {
               placeholder="••••••••"
               required
               autoComplete="new-password"
-              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm text-white placeholder:text-[#4B5563] outline-none transition-colors focus:border-[#F5A624]"
+              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624]"
               style={DS.inputBase}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity hover:opacity-80"
-              style={{ color: '#4B5563' }}
+              style={{ color: '#6B7280' }}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -374,7 +374,7 @@ export default function SignUpPage() {
             Confirm password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#4B5563' }} />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
             <input
               id="confirmPassword"
               name="confirmPassword"
@@ -382,14 +382,14 @@ export default function SignUpPage() {
               placeholder="••••••••"
               required
               autoComplete="new-password"
-              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm text-white placeholder:text-[#4B5563] outline-none transition-colors focus:border-[#F5A624]"
+              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624]"
               style={DS.inputBase}
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity hover:opacity-80"
-              style={{ color: '#4B5563' }}
+              style={{ color: '#6B7280' }}
             >
               {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -434,7 +434,7 @@ export default function SignUpPage() {
         <div className="relative flex justify-center">
           <span
             className="px-4 text-xs uppercase tracking-widest font-medium"
-            style={{ backgroundColor: '#0D0D0D', color: '#4B5563' }}
+            style={{ backgroundColor: '#0D0D0D', color: '#6B7280' }}
           >
             or
           </span>

@@ -23,10 +23,7 @@ export function createAppsEndpoints(client: ApiClient) {
     
     delete: (workspaceId: string, appId: string) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/apps/${appId}`),
-    
-    getPreviewUrl: (workspaceId: string, appId: string) =>
-      client.get<{ url: string }>(`/api/v1/workspaces/${workspaceId}/apps/${appId}/preview`),
-    
+
     listAppTypes: (category?: string) =>
       client.get<AppTypesResponse>('/api/v1/app-types', { params: category ? { category } : undefined }),
 

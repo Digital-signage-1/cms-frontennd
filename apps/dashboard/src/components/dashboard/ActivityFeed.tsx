@@ -32,7 +32,7 @@ export function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
   if (activities.length === 0) {
     return (
       <div className="py-8 text-center">
-        <p className="text-sm" style={{ color: '#4B5563' }}>No recent activity</p>
+        <p className="text-sm" style={{ color: '#6B7280' }}>No recent activity</p>
       </div>
     )
   }
@@ -62,7 +62,7 @@ export function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
               </p>
               <span
                 className="text-xs flex-shrink-0 mt-0.5"
-                style={{ color: '#4B5563' }}
+                style={{ color: '#6B7280' }}
               >
                 {formatTimeAgo(activity.timestamp)}
               </span>

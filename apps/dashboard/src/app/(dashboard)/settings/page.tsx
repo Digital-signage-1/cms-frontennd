@@ -7,6 +7,8 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
+import { useUpdateAccount, useDeleteAccount } from '@/hooks/queries'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const INPUT_STYLE = {
@@ -22,7 +24,7 @@ const INPUT_STYLE = {
 }
 const INPUT_READONLY_STYLE = {
   ...INPUT_STYLE,
-  color: '#4B5563',
+  color: '#6B7280',
   cursor: 'default',
 }
 const LABEL_STYLE = { color: '#6B7280', fontSize: 12, marginBottom: 4, display: 'block' as const }
@@ -114,10 +116,14 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function SettingsPage() {
-  const { user, workspace } = useAuthStore()
+  const { user, account, workspace } = useAuthStore()
   const { setBreadcrumbItems } = useBreadcrumb()
   const [activeTab, setActiveTab] = useState<NavKey>('profile')
   const [saving, setSaving] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+
+  const updateAccountMutation = useUpdateAccount()
+  const deleteAccountMutation = useDeleteAccount()
 
   useEffect(() => {
     setBreadcrumbItems([{ label: 'Settings' }])
@@ -158,6 +164,22 @@ export default function SettingsPage() {
     marketingEmails: false,
   })
 
+  const handleProfileSave = () => {
+    if (!account?.account_id) return
+    updateAccountMutation.mutate({
+      accountId: account.account_id,
+      data: { name: `${profile.firstName} ${profile.lastName}`.trim() },
+    })
+  }
+
+  const handleDeleteAccount = () => {
+    if (!account?.account_id) return
+    deleteAccountMutation.mutate(account.account_id, {
+      onSuccess: () => useAuthStore.getState().signOut(),
+    })
+  }
+
+  // Kept for non-wired tabs (security, notifications, org) — no-op stub
   const handleSave = async () => {
     setSaving(true)
     await new Promise((r) => setTimeout(r, 800))
@@ -316,14 +338,14 @@ export default function SettingsPage() {
                         onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
                         onBlur={(e)  => (e.currentTarget.style.borderColor = '#1F2937')}
                       />
-                      <p className="text-xs mt-1.5" style={{ color: '#4B5563' }}>
+                      <p className="text-xs mt-1.5" style={{ color: '#6B7280' }}>
                         This is how your name appears to team members.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <SaveBtn onClick={handleSave} saving={saving} />
+                <SaveBtn onClick={handleProfileSave} saving={updateAccountMutation.isPending} />
               </div>
 
               {/* Organization */}
@@ -363,7 +385,7 @@ export default function SettingsPage() {
                       value={orgId}
                       readOnly
                     />
-                    <p className="text-xs mt-1.5" style={{ color: '#4B5563' }}>
+                    <p className="text-xs mt-1.5" style={{ color: '#6B7280' }}>
                       Used for API integrations
                     </p>
                   </div>
@@ -386,6 +408,7 @@ export default function SettingsPage() {
                     </p>
                   </div>
                   <button
+                    onClick={() => setShowDeleteDialog(true)}
                     className="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold ml-6"
                     style={{
                       backgroundColor: 'rgba(220,38,38,0.12)',
@@ -431,7 +454,7 @@ export default function SettingsPage() {
                       onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
                       onBlur={(e)  => (e.currentTarget.style.borderColor = '#1F2937')}
                     />
-                    <p className="text-xs mt-1.5" style={{ color: '#4B5563' }}>Must be at least 8 characters</p>
+                    <p className="text-xs mt-1.5" style={{ color: '#6B7280' }}>Must be at least 8 characters</p>
                   </div>
                   <div>
                     <label style={LABEL_STYLE}>Confirm New Password</label>
@@ -569,7 +592,7 @@ export default function SettingsPage() {
               >
                 <Users className="h-10 w-10 mb-3" style={{ color: '#2A2A2A' }} />
                 <p className="text-sm font-medium text-white mb-1">No team members yet</p>
-                <p className="text-xs mb-4" style={{ color: '#4B5563' }}>Invite colleagues to collaborate on your workspace</p>
+                <p className="text-xs mb-4" style={{ color: '#6B7280' }}>Invite colleagues to collaborate on your workspace</p>
                 <button
                   className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
                   style={{ backgroundColor: '#F5A624', color: '#000000' }}
@@ -582,6 +605,38 @@ export default function SettingsPage() {
 
         </div>
       </div>
+
+      {/* ── Delete Account Confirmation Dialog ── */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent hideClose className="!p-0 max-w-sm">
+          <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid #1E1E38', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <AlertTriangle className="h-5 w-5" style={{ color: '#F87171' }} />
+            </div>
+            <div>
+              <h2 style={{ fontSize: 17, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Delete Account</h2>
+              <p style={{ fontSize: 13, color: '#6B7280', margin: '4px 0 0', lineHeight: 1.4 }}>
+                This will permanently delete your account and all associated data. This action cannot be undone.
+              </p>
+            </div>
+          </div>
+          <div style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+            <button
+              onClick={() => setShowDeleteDialog(false)}
+              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#1A1A30', border: '1px solid #2A2A45', color: '#9CA3AF', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deleteAccountMutation.isPending}
+              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#DC2626', color: '#FFFFFF', fontSize: 13, fontWeight: 700, border: 'none', cursor: deleteAccountMutation.isPending ? 'not-allowed' : 'pointer', opacity: deleteAccountMutation.isPending ? 0.7 : 1 }}
+            >
+              {deleteAccountMutation.isPending ? 'Deleting...' : 'Delete Account'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

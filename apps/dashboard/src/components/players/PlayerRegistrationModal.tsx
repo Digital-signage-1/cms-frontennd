@@ -132,7 +132,23 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
                 <select
                   value={pairingChannelId}
                   onChange={(e) => setPairingChannelId(e.target.value)}
-                  className={`w-full px-3 py-2 mt-1 bg-background border border-border rounded-lg focus:outline-none focus:border-primary ${errors.channel_id ? 'border-error' : ''}`}
+                  style={{
+                    width: '100%',
+                    height: 40,
+                    marginTop: 4,
+                    backgroundColor: '#1C1C1C',
+                    border: `1px solid ${errors.channel_id ? '#DC2626' : '#2A2A2A'}`,
+                    borderRadius: 8,
+                    padding: '0 12px',
+                    fontSize: 14,
+                    color: '#FFFFFF',
+                    outline: 'none',
+                    colorScheme: 'dark' as any,
+                    cursor: 'pointer',
+                    boxSizing: 'border-box' as any,
+                  }}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#F5A624' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = errors.channel_id ? '#DC2626' : '#2A2A2A' }}
                 >
                   <option value="">Select a channel</option>
                   {channels.map((ch: { channel_id: string; name: string }) => (

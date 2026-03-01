@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, Suspense, lazy, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Monitor, Plus, Search, Copy, MoreHorizontal, LayoutGrid, List,
+  Monitor, Plus, Search, Copy,
 } from 'lucide-react'
 import { usePlayers, useChannels } from '@/hooks/queries'
 import { PlayerRegistrationModal } from '@/components/players/PlayerRegistrationModal'
@@ -11,10 +11,6 @@ import { PlayerDetailDrawer } from '@/components/players/PlayerDetailDrawer'
 import { useAuthStore } from '@/stores/auth-store'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import type { Player } from '@signage/types'
-
-const PlayerMap = lazy(() =>
-  import('@/components/players/PlayerMap').then((m) => ({ default: m.PlayerMap }))
-)
 
 // ── Status token map ────────────────────────────────────────────────────────
 type StatusKey = 'online' | 'offline' | 'pending'
@@ -292,7 +288,7 @@ export default function PlayersPage() {
               <div className="relative">
                 <Search
                   className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-                  style={{ color: '#4B5563' }}
+                  style={{ color: '#6B7280' }}
                 />
                 <input
                   placeholder="Search players..."
@@ -307,55 +303,20 @@ export default function PlayersPage() {
                 />
               </div>
 
-              {/* View toggle */}
-              <div
-                className="flex items-center rounded-lg overflow-hidden"
-                style={{ border: '1px solid #2A2A2A' }}
-              >
-                <button
-                  className="p-2 transition-colors"
-                  style={{ backgroundColor: '#F5A624', color: '#000000' }}
-                  title="Map view"
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </button>
-                <button
-                  className="p-2 transition-colors"
-                  style={{ backgroundColor: '#141414', color: '#6B7280' }}
-                  title="List view"
-                >
-                  <List className="h-4 w-4" />
-                </button>
-              </div>
             </div>
           </div>
 
-          {/* Map area */}
-          <div className="flex-1 relative overflow-hidden" style={{ backgroundColor: '#141414' }}>
-            {/* Live indicator */}
-            <div
-              className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-              style={{ backgroundColor: 'rgba(20,20,20,0.8)' }}
-            >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#4B5563' }} />
-              <span style={{ color: '#6B7280' }}>Live</span>
+          {/* Player overview area */}
+          <div className="flex-1 relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#141414' }}>
+            <div className="text-center px-6">
+              <Monitor className="h-12 w-12 mx-auto mb-3 opacity-20" style={{ color: '#6B7280' }} />
+              <p className="text-sm font-medium mb-1" style={{ color: '#6B7280' }}>
+                {filteredPlayers.length} player{filteredPlayers.length !== 1 ? 's' : ''} {statusFilter !== 'all' ? statusFilter : ''}
+              </p>
+              <p className="text-xs" style={{ color: '#6B7280' }}>
+                Select a player from the list to view details
+              </p>
             </div>
-
-            <Suspense
-              fallback={
-                <div className="w-full h-full flex items-center justify-center">
-                  <div
-                    className="w-8 h-8 border-2 rounded-full animate-spin"
-                    style={{ borderColor: '#2A2A2A', borderTopColor: '#F5A624' }}
-                  />
-                </div>
-              }
-            >
-              <PlayerMap
-                players={filteredPlayers}
-                onPlayerClick={(player) => setSelectedPlayer((player as any).player_id)}
-              />
-            </Suspense>
           </div>
 
           {/* Legend */}
@@ -403,20 +364,6 @@ export default function PlayersPage() {
                 {totalPlayers}
               </span>
             </div>
-            <button
-              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
-              style={{ color: '#6B7280' }}
-              onMouseEnter={(e) => {
-                ;(e.currentTarget as HTMLElement).style.backgroundColor = '#2A2A2A'
-                ;(e.currentTarget as HTMLElement).style.color = '#FFFFFF'
-              }}
-              onMouseLeave={(e) => {
-                ;(e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
-                ;(e.currentTarget as HTMLElement).style.color = '#6B7280'
-              }}
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
           </div>
 
           {/* Player list */}
@@ -440,7 +387,7 @@ export default function PlayersPage() {
                 <p className="text-sm font-medium mb-1" style={{ color: '#9CA3AF' }}>
                   No players yet
                 </p>
-                <p className="text-xs mb-4" style={{ color: '#4B5563' }}>
+                <p className="text-xs mb-4" style={{ color: '#6B7280' }}>
                   Open the player app on your display to get a pairing code
                 </p>
                 <button

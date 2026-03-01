@@ -20,5 +20,11 @@ export function createWorkspaceEndpoints(client: ApiClient) {
     
     inviteMember: (id: string, email: string, role: string) =>
       client.post<void>(`/api/v1/workspaces/${id}/invitations`, { email, role }),
+
+    updateMemberRole: (id: string, userSub: string, role: string) =>
+      client.patch<WorkspaceMember>(`/api/v1/workspaces/${id}/members/${userSub}`, { role }),
+
+    removeMember: (id: string, userSub: string) =>
+      client.delete<void>(`/api/v1/workspaces/${id}/members/${userSub}`),
   }
 }

@@ -48,18 +48,6 @@ export interface PlayerGroup {
   created_at: string
 }
 
-export interface PlayerLocation {
-  player_id: string
-  latitude?: number
-  longitude?: number
-  address?: string
-  city?: string
-  country?: string
-  timezone?: string
-  location_type: 'gps' | 'manual' | 'ip'
-  updated_at: string
-}
-
 export interface PlayerHeartbeat {
   heartbeat_id: string
   player_id: string

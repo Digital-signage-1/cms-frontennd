@@ -200,7 +200,7 @@ function ChannelCard({ channel }: { channel: any }) {
             className="w-7 h-7 rounded-lg flex items-center justify-center"
             style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
           >
-            <Tv className="h-3.5 w-3.5" style={{ color: '#4B5563' }} />
+            <Tv className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
           </div>
         </div>
 
@@ -277,15 +277,15 @@ function ChannelCard({ channel }: { channel: any }) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
-              <LayoutGrid className="h-3.5 w-3.5" style={{ color: '#4B5563' }} />
+              <LayoutGrid className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
               <span className="text-xs" style={{ color: '#6B7280' }}>{zoneCount} zones</span>
             </div>
             <div className="flex items-center gap-1">
-              <Monitor className="h-3.5 w-3.5" style={{ color: '#4B5563' }} />
+              <Monitor className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
               <span className="text-xs" style={{ color: '#6B7280' }}>{playerCount}</span>
             </div>
           </div>
-          <span className="text-xs" style={{ color: '#4B5563' }}>
+          <span className="text-xs" style={{ color: '#6B7280' }}>
             {formatDate(channel.updated_at)}
           </span>
         </div>
@@ -474,7 +474,7 @@ export default function ChannelsPage() {
           <div className="relative">
             <Search
               className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-              style={{ color: '#4B5563' }}
+              style={{ color: '#6B7280' }}
             />
             <input
               placeholder="Search channels..."
@@ -541,7 +541,7 @@ export default function ChannelsPage() {
           <p className="text-sm font-medium mb-1" style={{ color: '#9CA3AF' }}>
             No channels yet
           </p>
-          <p className="text-xs mb-4" style={{ color: '#4B5563' }}>
+          <p className="text-xs mb-4" style={{ color: '#6B7280' }}>
             Create your first channel to start designing screen layouts
           </p>
           <Link href="/channels/new">

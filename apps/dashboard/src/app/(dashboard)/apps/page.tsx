@@ -185,24 +185,6 @@ function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => voi
           >
             Configure
           </button>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            style={{ backgroundColor: '#1C1C1C', color: '#FFFFFF', border: '1px solid #3A3A3A' }}
-            onMouseOver={e => (e.currentTarget.style.backgroundColor = '#2A2A2A')}
-            onMouseOut={e => (e.currentTarget.style.backgroundColor = '#1C1C1C')}
-          >
-            Preview
-          </button>
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-            style={{ backgroundColor: '#F5A624', color: '#000000' }}
-            onMouseOver={e => (e.currentTarget.style.backgroundColor = '#E09410')}
-            onMouseOut={e => (e.currentTarget.style.backgroundColor = '#F5A624')}
-          >
-            Deploy
-          </button>
         </div>
       </div>
 
@@ -243,10 +225,10 @@ function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => voi
         {/* Footer row */}
         <div className="flex items-center justify-between mt-auto pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
           <div className="flex items-center gap-1.5">
-            <MessageSquare className="h-3.5 w-3.5" style={{ color: '#4B5563' }} />
+            <MessageSquare className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
             <span className="text-xs" style={{ color: '#6B7280' }}>{playerCount} players</span>
           </div>
-          <span className="text-xs" style={{ color: '#4B5563' }}>{dateStr}</span>
+          <span className="text-xs" style={{ color: '#6B7280' }}>{dateStr}</span>
         </div>
       </div>
     </div>
@@ -579,7 +561,7 @@ export default function AppsPage() {
             <p className="text-sm font-medium text-white mb-1">
               {searchQuery ? 'No apps found' : 'No apps yet'}
             </p>
-            <p className="text-xs mb-4" style={{ color: '#4B5563' }}>
+            <p className="text-xs mb-4" style={{ color: '#6B7280' }}>
               {searchQuery
                 ? 'Try adjusting your search or filters'
                 : 'Create your first app to get started'}

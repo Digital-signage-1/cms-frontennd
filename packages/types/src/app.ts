@@ -8,12 +8,8 @@ export type AppTemplateType =
   | 'clock'
   | 'weather'
   | 'slideshow'
-  | 'rss'
   | 'social'
-  | 'powerbi'
-  | 'salesforce'
-  | 'google-sheets'
-  | 'airtable'
+  | 'sheets'
 
 export interface App {
   app_id: string

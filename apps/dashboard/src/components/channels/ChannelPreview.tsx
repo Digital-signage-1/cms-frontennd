@@ -58,11 +58,11 @@ export function ChannelPreview({ children, channelManifest, isOpen = false, onOp
                 </div>
               ))}
               {zone.apps.length > 2 && (
-                <p style={{ fontSize: 9, color: '#4B5563', margin: 0 }}>+{zone.apps.length - 2} more</p>
+                <p style={{ fontSize: 9, color: '#6B7280', margin: 0 }}>+{zone.apps.length - 2} more</p>
               )}
             </div>
           ) : (
-            <p style={{ fontSize: 9, color: '#4B5563', margin: 0 }}>Empty</p>
+            <p style={{ fontSize: 9, color: '#6B7280', margin: 0 }}>Empty</p>
           )}
         </div>
       </div>
@@ -124,11 +124,11 @@ export function ChannelPreview({ children, channelManifest, isOpen = false, onOp
                 {renderZones()}
                 {!channelManifest?.zones && (
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <p style={{ fontSize: 13, color: '#4B5563' }}>No zones configured</p>
+                    <p style={{ fontSize: 13, color: '#6B7280' }}>No zones configured</p>
                   </div>
                 )}
               </div>
-              <p style={{ textAlign: 'center', fontSize: 11, color: '#4B5563', marginTop: 10 }}>{selectedDevice.name}</p>
+              <p style={{ textAlign: 'center', fontSize: 11, color: '#6B7280', marginTop: 10 }}>{selectedDevice.name}</p>
             </motion.div>
           </div>
         </DialogContent>

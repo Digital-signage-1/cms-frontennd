@@ -63,7 +63,7 @@ export default function SignInPage() {
             Email
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#4B5563' }} />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
             <input
               id="email"
               name="email"
@@ -71,7 +71,7 @@ export default function SignInPage() {
               placeholder="you@company.com"
               required
               autoComplete="email"
-              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-white placeholder:text-[#4B5563] outline-none transition-colors focus:border-[#F5A624]"
+              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624]"
               style={{
                 backgroundColor: '#1C1C1C',
                 border: '1px solid #2A2A2A',
@@ -95,7 +95,7 @@ export default function SignInPage() {
             </Link>
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#4B5563' }} />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
             <input
               id="password"
               name="password"
@@ -103,7 +103,7 @@ export default function SignInPage() {
               placeholder="••••••••••"
               required
               autoComplete="current-password"
-              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm text-white placeholder:text-[#4B5563] outline-none transition-colors focus:ring-1"
+              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:ring-1"
               style={{
                 backgroundColor: '#1C1C1C',
                 border: '1px solid #2A2A2A',
@@ -113,7 +113,7 @@ export default function SignInPage() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors hover:opacity-80"
-              style={{ color: '#4B5563' }}
+              style={{ color: '#6B7280' }}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -146,7 +146,7 @@ export default function SignInPage() {
         <div className="relative flex justify-center">
           <span
             className="px-4 text-xs uppercase tracking-widest font-medium"
-            style={{ backgroundColor: '#0D0D0D', color: '#4B5563' }}
+            style={{ backgroundColor: '#0D0D0D', color: '#6B7280' }}
           >
             or
           </span>

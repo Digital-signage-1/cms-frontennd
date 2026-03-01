@@ -181,7 +181,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                 <div key={label}>
                   <label style={labelStyle}>{label}</label>
                   <div style={{ position: 'relative' }}>
-                    <Clock className="h-4 w-4" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#4B5563', pointerEvents: 'none', zIndex: 1 }} />
+                    <Clock className="h-4 w-4" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6B7280', pointerEvents: 'none', zIndex: 1 }} />
                     <input
                       type="time"
                       value={value}
@@ -198,7 +198,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
 
             {/* ── Duration row ── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: -10 }}>
-              <Clock className="h-3.5 w-3.5" style={{ color: '#4B5563', flexShrink: 0 }} />
+              <Clock className="h-3.5 w-3.5" style={{ color: '#6B7280', flexShrink: 0 }} />
               <span style={{ fontSize: 12, color: '#6B7280' }}>
                 Duration: <span style={{ color: '#F5A624', fontWeight: 700 }}>{duration.perDay}</span> per day · {duration.perWeek} / week
               </span>
@@ -271,7 +271,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                   type="date"
                   value={startDate}
                   onChange={e => setStartDate(e.target.value)}
-                  style={{ ...inputStyle, color: startDate ? '#FFFFFF' : '#4B5563' }}
+                  style={{ ...inputStyle, color: startDate ? '#FFFFFF' : '#6B7280' }}
                   onFocus={focusAmber}
                   onBlur={blurDefault}
                 />
@@ -284,7 +284,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                   type="date"
                   value={endDate}
                   onChange={e => setEndDate(e.target.value)}
-                  style={{ ...inputStyle, color: endDate ? '#FFFFFF' : '#4B5563' }}
+                  style={{ ...inputStyle, color: endDate ? '#FFFFFF' : '#6B7280' }}
                   onFocus={focusAmber}
                   onBlur={blurDefault}
                 />
@@ -305,12 +305,12 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                       style={{ padding: '12px 14px', borderRadius: 10, textAlign: 'left', cursor: 'pointer', border: isSelected ? '1px solid rgba(245,166,36,0.50)' : '1px solid #2A2A40', backgroundColor: isSelected ? 'rgba(245,166,36,0.10)' : '#0D0D1E', transition: 'all 0.15s' }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                        <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: isSelected ? '#F5A624' : '#4B5563', flexShrink: 0 }} />
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: isSelected ? '#F5A624' : '#6B7280', flexShrink: 0 }} />
                         <span style={{ fontSize: 13, fontWeight: isSelected ? 700 : 500, color: isSelected ? '#F5A624' : '#9CA3AF' }}>
                           {opt.label}
                         </span>
                       </div>
-                      <p style={{ fontSize: 11, color: '#4B5563', margin: 0, lineHeight: 1.35 }}>{opt.desc}</p>
+                      <p style={{ fontSize: 11, color: '#6B7280', margin: 0, lineHeight: 1.35 }}>{opt.desc}</p>
                     </button>
                   )
                 })}
@@ -328,7 +328,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
               <div style={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {channels.length === 0 ? (
                   <div style={{ padding: '16px', textAlign: 'center' }}>
-                    <p style={{ fontSize: 13, color: '#4B5563', margin: 0 }}>No channels available. Create channels first.</p>
+                    <p style={{ fontSize: 13, color: '#6B7280', margin: 0 }}>No channels available. Create channels first.</p>
                   </div>
                 ) : (
                   channels.map((ch: any) => {
@@ -343,7 +343,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                       >
                         {/* Channel TV icon */}
                         <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#1A1A30', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <div style={{ width: 14, height: 10, borderRadius: 2, border: '1.5px solid #4B5563' }} />
+                          <div style={{ width: 14, height: 10, borderRadius: 2, border: '1.5px solid #6B7280' }} />
                         </div>
                         <span style={{ fontSize: 13, fontWeight: 500, color: '#FFFFFF', flex: 1 }}>{ch.name}</span>
                         <span style={{ fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, color: isPublished ? '#34D399' : '#9CA3AF' }}>

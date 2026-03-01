@@ -298,7 +298,7 @@ export default function CreateAppPage() {
                     {cat.label}
                   </span>
                   {count > 0 && (
-                    <span style={{ fontSize: 11, color: isActive ? '#F5A624' : '#4B5563', backgroundColor: isActive ? 'rgba(245,166,36,0.15)' : 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '1px 7px' }}>
+                    <span style={{ fontSize: 11, color: isActive ? '#F5A624' : '#6B7280', backgroundColor: isActive ? 'rgba(245,166,36,0.15)' : 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '1px 7px' }}>
                       {count}
                     </span>
                   )}
@@ -311,7 +311,7 @@ export default function CreateAppPage() {
           <div style={{ borderTop: '1px solid #2A2A2A', padding: '12px 16px' }}>
             <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6B7280', margin: '0 0 4px' }}>Templates</p>
             <p style={{ fontSize: 22, fontWeight: 700, color: '#F5A624', lineHeight: 1, margin: '0 0 2px' }}>{templates.length}</p>
-            <p style={{ fontSize: 11, color: '#4B5563', margin: 0 }}>available</p>
+            <p style={{ fontSize: 11, color: '#6B7280', margin: 0 }}>available</p>
           </div>
         </div>
 
@@ -320,7 +320,7 @@ export default function CreateAppPage() {
           {/* Search bar */}
           <div style={{ padding: '12px 16px', borderBottom: '1px solid #2A2A2A', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ position: 'relative', flex: 1 }}>
-              <Search className="h-3.5 w-3.5" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#4B5563' }} />
+              <Search className="h-3.5 w-3.5" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }} />
               <input
                 type="text"
                 placeholder="Search templates..."
@@ -338,7 +338,7 @@ export default function CreateAppPage() {
               <div key={category}>
                 {/* Group header */}
                 <div style={{ padding: '8px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4B5563', whiteSpace: 'nowrap' }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6B7280', whiteSpace: 'nowrap' }}>
                     {category}
                   </span>
                   <div style={{ flex: 1, height: 1, backgroundColor: '#1C1C1C' }} />
@@ -378,7 +378,7 @@ export default function CreateAppPage() {
                         {tpl.tags && tpl.tags.length > 0 && (
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 5 }}>
                             {tpl.tags.slice(0, 3).map((tag) => (
-                              <span key={tag} style={{ fontSize: 10, color: '#4B5563', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 4, padding: '1px 6px' }}>
+                              <span key={tag} style={{ fontSize: 10, color: '#6B7280', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 4, padding: '1px 6px' }}>
                                 {tag}
                               </span>
                             ))}
@@ -398,7 +398,7 @@ export default function CreateAppPage() {
 
             {filtered.length === 0 && (
               <div style={{ padding: 40, textAlign: 'center' }}>
-                <p style={{ fontSize: 13, color: '#4B5563' }}>No templates match your search</p>
+                <p style={{ fontSize: 13, color: '#6B7280' }}>No templates match your search</p>
               </div>
             )}
           </div>
@@ -410,10 +410,10 @@ export default function CreateAppPage() {
             /* Empty state */
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 }}>
               <div style={{ width: 48, height: 48, borderRadius: '50%', border: '2px solid #2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ChevronRight className="h-5 w-5" style={{ color: '#4B5563' }} />
+                <ChevronRight className="h-5 w-5" style={{ color: '#6B7280' }} />
               </div>
               <p style={{ fontSize: 14, fontWeight: 600, color: '#6B7280', textAlign: 'center', margin: 0 }}>Select a template</p>
-              <p style={{ fontSize: 12, color: '#4B5563', textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
+              <p style={{ fontSize: 12, color: '#6B7280', textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
                 Choose a template from the list to configure and deploy your app
               </p>
             </div>
@@ -492,7 +492,7 @@ export default function CreateAppPage() {
                       <button
                         type="button"
                         onClick={() => { setContentSelectorField('content_id'); setContentSelectorOpen(true) }}
-                        style={{ width: '100%', height: 40, backgroundColor: '#111827', border: `1px solid ${errors.content_id ? '#DC2626' : '#1F2937'}`, borderRadius: 8, padding: '0 12px', fontSize: 13, color: formData.content_id ? '#FFFFFF' : '#4B5563', cursor: 'pointer', textAlign: 'left', boxSizing: 'border-box' }}
+                        style={{ width: '100%', height: 40, backgroundColor: '#111827', border: `1px solid ${errors.content_id ? '#DC2626' : '#1F2937'}`, borderRadius: 8, padding: '0 12px', fontSize: 13, color: formData.content_id ? '#FFFFFF' : '#6B7280', cursor: 'pointer', textAlign: 'left', boxSizing: 'border-box' }}
                       >
                         {formData.content_id
                           ? contentData?.items?.find((c: Content) => c.content_id === formData.content_id)?.name || formData.content_id

@@ -1,8 +1,11 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { Search, Plus, Calendar, Grid3X3 } from 'lucide-react'
-import { useSchedules, useDeleteSchedule } from '@/hooks/queries'
+import { Search, Plus, Calendar, Grid3X3, Trash2, X } from 'lucide-react'
+import {
+  useSchedules, useDeleteSchedule,
+  useUpcomingOverrides, useCreateOverride, useDeleteOverride, useChannels,
+} from '@/hooks/queries'
 import { useAuthStore } from '@/stores/auth-store'
 import { ScheduleModal } from '@/components/schedules/ScheduleModal'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
@@ -62,7 +65,7 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
             {/* DAY label */}
             <div
               className="flex-shrink-0 flex items-center justify-center text-xs font-semibold tracking-widest uppercase"
-              style={{ width: 60, height: 40, color: '#374151', borderRight: '1px solid #1F2937' }}
+              style={{ width: 60, height: 40, color: '#6B7280', borderRight: '1px solid #1F2937' }}
             >
               DAY
             </div>
@@ -76,7 +79,7 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
                   style={{
                     width: HOUR_W,
                     height: 40,
-                    color: isCurrent ? '#F5A624' : '#374151',
+                    color: isCurrent ? '#F5A624' : '#6B7280',
                     borderRight: '1px solid rgba(31,41,55,0.6)',
                   }}
                 >
@@ -211,6 +214,27 @@ export default function SchedulesPage() {
   const [isModalOpen,setIsModalOpen] = useState(false)
   const [editingSchedule, setEditingSchedule] = useState<any>(null)
   const [now, setNow] = useState(new Date())
+
+  // Overrides
+  const [showOverrideForm, setShowOverrideForm] = useState(false)
+  const [overrideData, setOverrideData] = useState<{
+    name: string; channel_id: string; type: 'emergency' | 'special' | 'maintenance'
+    start_datetime: string; end_datetime: string; reason: string
+  }>({
+    name: '', channel_id: '', type: 'emergency', start_datetime: '', end_datetime: '', reason: '',
+  })
+  const { data: upcomingOverrides = [], isLoading: overridesLoading } = useUpcomingOverrides(workspaceId)
+  const { data: channelsData = [] } = useChannels(workspaceId)
+  const createOverrideMutation = useCreateOverride()
+  const deleteOverrideMutation = useDeleteOverride()
+
+  const handleCreateOverride = () => {
+    if (!overrideData.name || !overrideData.channel_id || !overrideData.start_datetime || !overrideData.end_datetime) return
+    createOverrideMutation.mutate(
+      { workspaceId, data: overrideData },
+      { onSuccess: () => { setShowOverrideForm(false); setOverrideData({ name: '', channel_id: '', type: 'emergency', start_datetime: '', end_datetime: '', reason: '' }) } }
+    )
+  }
 
   useEffect(() => {
     setBreadcrumbItems([{ label: 'Schedules' }])
@@ -529,7 +553,7 @@ export default function SchedulesPage() {
               className="rounded-xl flex flex-col items-center justify-center py-16"
               style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
             >
-              <p className="text-sm" style={{ color: '#4B5563' }}>No schedules found</p>
+              <p className="text-sm" style={{ color: '#6B7280' }}>No schedules found</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -571,6 +595,153 @@ export default function SchedulesPage() {
             </div>
           )
         )}
+      </div>
+
+      {/* ── Overrides Panel ── */}
+      <div className="px-5 pb-5">
+        <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #2A2A2A' }}>
+            <div>
+              <h2 className="text-base font-bold text-white">Schedule Overrides</h2>
+              <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                Temporary overrides that take priority over regular schedules
+              </p>
+            </div>
+            <button
+              onClick={() => setShowOverrideForm(!showOverrideForm)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
+              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+            >
+              {showOverrideForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              {showOverrideForm ? 'Cancel' : 'Add Override'}
+            </button>
+          </div>
+
+          {/* Inline form */}
+          {showOverrideForm && (
+            <div className="px-5 py-4" style={{ borderBottom: '1px solid #2A2A2A', backgroundColor: 'rgba(245,166,36,0.03)' }}>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>Override Name *</label>
+                  <input
+                    value={overrideData.name}
+                    onChange={(e) => setOverrideData({ ...overrideData, name: e.target.value })}
+                    placeholder="e.g. Holiday Special"
+                    style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = '#2A2A2A')}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>Channel *</label>
+                  <select
+                    value={overrideData.channel_id}
+                    onChange={(e) => setOverrideData({ ...overrideData, channel_id: e.target.value })}
+                    style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box', colorScheme: 'dark' as any }}
+                  >
+                    <option value="">Select channel…</option>
+                    {(channelsData as { channel_id: string; name: string }[]).map((ch) => (
+                      <option key={ch.channel_id} value={ch.channel_id}>{ch.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>Type *</label>
+                  <select
+                    value={overrideData.type}
+                    onChange={(e) => setOverrideData({ ...overrideData, type: e.target.value as 'emergency' | 'special' | 'maintenance' })}
+                    style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box', colorScheme: 'dark' as any }}
+                  >
+                    <option value="emergency">Emergency</option>
+                    <option value="special">Special</option>
+                    <option value="maintenance">Maintenance</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>Start Date & Time *</label>
+                  <input
+                    type="datetime-local"
+                    value={overrideData.start_datetime}
+                    onChange={(e) => setOverrideData({ ...overrideData, start_datetime: e.target.value })}
+                    style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box', colorScheme: 'dark' as any }}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>End Date & Time *</label>
+                  <input
+                    type="datetime-local"
+                    value={overrideData.end_datetime}
+                    onChange={(e) => setOverrideData({ ...overrideData, end_datetime: e.target.value })}
+                    style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box', colorScheme: 'dark' as any }}
+                  />
+                </div>
+              </div>
+              <div className="mb-4">
+                <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>Reason (optional)</label>
+                <input
+                  value={overrideData.reason}
+                  onChange={(e) => setOverrideData({ ...overrideData, reason: e.target.value })}
+                  placeholder="e.g. Public holiday, special event..."
+                  style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = '#2A2A2A')}
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowOverrideForm(false)}
+                  style={{ height: 36, padding: '0 16px', borderRadius: 8, backgroundColor: '#2A2A2A', border: 'none', color: '#9CA3AF', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCreateOverride}
+                  disabled={!overrideData.name || !overrideData.channel_id || !overrideData.start_datetime || !overrideData.end_datetime || createOverrideMutation.isPending}
+                  style={{ height: 36, padding: '0 20px', borderRadius: 8, backgroundColor: '#F5A624', color: '#000000', fontSize: 13, fontWeight: 700, border: 'none', cursor: createOverrideMutation.isPending ? 'not-allowed' : 'pointer', opacity: (!overrideData.name || !overrideData.channel_id || !overrideData.start_datetime || !overrideData.end_datetime || createOverrideMutation.isPending) ? 0.6 : 1 }}
+                >
+                  {createOverrideMutation.isPending ? 'Creating...' : 'Create Override'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Override list */}
+          {overridesLoading ? (
+            <div className="py-8 text-center text-sm" style={{ color: '#6B7280' }}>Loading overrides…</div>
+          ) : (upcomingOverrides as any[]).length === 0 ? (
+            <div className="py-8 text-center text-sm" style={{ color: '#6B7280' }}>
+              No upcoming overrides scheduled
+            </div>
+          ) : (
+            <div className="divide-y" style={{ borderColor: '#2A2A2A' }}>
+              {(upcomingOverrides as any[]).map((override: any) => (
+                <div key={override.override_id} className="flex items-center justify-between px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <div style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#F5A624', flexShrink: 0 }} />
+                    <div>
+                      <p className="text-sm font-semibold text-white">{override.name}</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                        {override.start_datetime ? new Date(override.start_datetime).toLocaleString() : '—'}
+                        {' → '}
+                        {override.end_datetime ? new Date(override.end_datetime).toLocaleString() : '—'}
+                        {override.reason && ` · ${override.reason}`}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => deleteOverrideMutation.mutate({ workspaceId, overrideId: override.override_id })}
+                    disabled={deleteOverrideMutation.isPending}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, height: 32, padding: '0 12px', borderRadius: 8, backgroundColor: 'rgba(220,38,38,0.10)', border: '1px solid rgba(220,38,38,0.20)', color: '#F87171', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    <Trash2 style={{ width: 13, height: 13 }} />
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Modal ── */}

@@ -14,10 +14,7 @@ export function createContentEndpoints(client: ApiClient) {
     
     confirmUpload: (workspaceId: string, contentId: string) =>
       client.post<Content>(`/api/v1/workspaces/${workspaceId}/content/${contentId}/confirm`),
-    
-    update: (workspaceId: string, contentId: string, data: Partial<Content>) =>
-      client.patch<Content>(`/api/v1/workspaces/${workspaceId}/content/${contentId}`, data),
-    
+
     delete: (workspaceId: string, contentId: string) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/content/${contentId}`),
     

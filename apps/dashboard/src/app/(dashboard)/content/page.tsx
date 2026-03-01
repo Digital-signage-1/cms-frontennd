@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, UploadCloud, ChevronRight, AlertCircle, FolderOpen,
   Loader2, CheckCircle2, XCircle, FileText, HardDrive,
-  Image as ImageIcon, Film, LayoutGrid, List, ChevronDown, Plus,
+  Image as ImageIcon, Film, Plus,
 } from 'lucide-react'
 import {
   useContent, useFolders, useAllFolders, useUploadContent,
@@ -85,7 +85,6 @@ export default function ContentPage() {
   const [uploadStatus, setUploadStatus]         = useState<Record<string, 'uploading' | 'success' | 'error'>>({})
   const [uploadProgress, setUploadProgress]     = useState<Record<string, number>>({})
   const [typeFilter, setTypeFilter]             = useState<'all' | 'image' | 'video'>('all')
-  const [viewMode, setViewMode]                 = useState<'grid' | 'list'>('grid')
 
   const workspace          = useAuthStore((s) => s.workspace)
   const user               = useAuthStore((s) => s.user)
@@ -358,7 +357,7 @@ export default function ContentPage() {
                     {status === 'error'     && <XCircle      className="h-4 w-4 flex-shrink-0" style={{ color: '#DC2626' }} />}
                     <span className="text-sm font-medium truncate" style={{ color: '#FFFFFF' }}>{fileName}</span>
                   </div>
-                  <span className="text-xs ml-2 flex-shrink-0" style={{ color: '#4B5563' }}>
+                  <span className="text-xs ml-2 flex-shrink-0" style={{ color: '#6B7280' }}>
                     {status === 'uploading' ? `${Math.round(progress)}%` : status === 'success' ? 'Complete' : 'Failed'}
                   </span>
                 </div>
@@ -483,7 +482,7 @@ export default function ContentPage() {
             <div className="relative">
               <Search
                 className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-                style={{ color: '#4B5563' }}
+                style={{ color: '#6B7280' }}
               />
               <input
                 placeholder="Search media..."
@@ -493,39 +492,6 @@ export default function ContentPage() {
                 style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#FFFFFF' }}
               />
             </div>
-
-            {/* View toggle */}
-            <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid #2A2A2A' }}>
-              <button
-                onClick={() => setViewMode('grid')}
-                className="p-2 transition-colors"
-                style={{
-                  backgroundColor: viewMode === 'grid' ? '#F5A624' : '#1C1C1C',
-                  color: viewMode === 'grid' ? '#000000' : '#6B7280',
-                }}
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className="p-2 transition-colors"
-                style={{
-                  backgroundColor: viewMode === 'list' ? '#F5A624' : '#1C1C1C',
-                  color: viewMode === 'list' ? '#000000' : '#6B7280',
-                }}
-              >
-                <List className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Sort */}
-            <button
-              className="flex items-center gap-2 h-9 px-3 text-sm rounded-lg"
-              style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#9CA3AF' }}
-            >
-              Newest First
-              <ChevronDown className="h-3.5 w-3.5" />
-            </button>
 
             {/* Delete selected */}
             {selectedAssets.length > 0 && (
@@ -561,7 +527,7 @@ export default function ContentPage() {
             <p className="text-sm font-medium mb-1" style={{ color: '#9CA3AF' }}>
               {searchQuery ? 'No items match your search' : 'Your media library is empty'}
             </p>
-            <p className="text-xs mb-4" style={{ color: '#4B5563' }}>
+            <p className="text-xs mb-4" style={{ color: '#6B7280' }}>
               {searchQuery ? 'Try a different search term' : 'Upload images, videos, PDFs and more to get started'}
             </p>
             {!searchQuery && (

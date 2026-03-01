@@ -152,3 +152,19 @@ export function useRequestPairingCode(workspaceId: string, channelId: string) {
     refetchInterval: 60000,
   })
 }
+
+export function usePlayerScreenshots(workspaceId: string, playerId: string) {
+  return useQuery({
+    queryKey: ['players', workspaceId, playerId, 'screenshots'],
+    queryFn: () => api.players.listScreenshots(workspaceId, playerId),
+    enabled: !!workspaceId && !!playerId,
+  })
+}
+
+export function usePlayerMetrics(workspaceId: string, playerId: string, days?: number) {
+  return useQuery({
+    queryKey: ['players', workspaceId, playerId, 'metrics', days],
+    queryFn: () => api.players.getMetrics(workspaceId, playerId, days),
+    enabled: !!workspaceId && !!playerId,
+  })
+}

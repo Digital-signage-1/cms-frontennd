@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/services/api'
-import type { LayoutTemplate, ScreenTemplate, TemplateCreateRequest, TemplateUsage } from '@signage/types'
+import type { LayoutTemplate, ScreenTemplate, TemplateCreateRequest } from '@signage/types'
 
 // Layout Templates
 export function useLayoutTemplates(params?: {
@@ -93,14 +93,5 @@ export function useScreenTemplate(templateId: string) {
     queryKey: ['screen-templates', templateId],
     queryFn: () => api.templates.getScreenTemplate(templateId),
     enabled: !!templateId,
-  })
-}
-
-// Template Usage
-export function useTemplateUsage(workspaceId: string, templateId: string) {
-  return useQuery({
-    queryKey: ['template-usage', workspaceId, templateId],
-    queryFn: () => api.templates.getTemplateUsage(workspaceId, templateId),
-    enabled: !!workspaceId && !!templateId,
   })
 }

@@ -77,7 +77,7 @@ function MetricCard({ label, value, change, dotColor = '#F5A624', progress }: Me
         <div className="flex items-center justify-between">
           <span
             className="text-xs uppercase font-semibold tracking-widest"
-            style={{ color: '#4B5563', letterSpacing: '0.1em' }}
+            style={{ color: '#6B7280', letterSpacing: '0.1em' }}
           >
             {label}
           </span>

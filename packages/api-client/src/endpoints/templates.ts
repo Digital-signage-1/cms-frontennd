@@ -1,5 +1,5 @@
 import type { ApiClient } from '../client'
-import type { LayoutTemplate, ScreenTemplate, TemplateCreateRequest, TemplateUsage, Channel } from '@signage/types'
+import type { LayoutTemplate, ScreenTemplate, TemplateCreateRequest, Channel } from '@signage/types'
 
 export function createTemplatesEndpoints(client: ApiClient) {
   return {
@@ -71,8 +71,5 @@ export function createTemplatesEndpoints(client: ApiClient) {
       tags?: string[]
       is_public?: boolean
     }) => client.post<ScreenTemplate>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/save-as-template`, data),
-
-    getTemplateUsage: (workspaceId: string, templateId: string) =>
-      client.get<TemplateUsage>(`/api/v1/workspaces/${workspaceId}/templates/${templateId}/usage`),
   }
 }

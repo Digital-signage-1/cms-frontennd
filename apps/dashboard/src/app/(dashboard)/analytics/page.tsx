@@ -1,14 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Eye, Users, Clock, Wifi } from 'lucide-react'
+import { Eye, Users, Clock, Wifi, FileText, Play, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
-import { useAnalyticsSummary } from '@/hooks/queries'
+import { useAnalyticsSummary, useAuditLogs, usePlaybackLogs } from '@/hooks/queries'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import {
   ComposedChart, Area, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
+
+type AuditLogItem = {
+  log_id: string
+  actor_email?: string
+  action?: string
+  resource_type?: string
+  resource_name?: string
+  timestamp?: string
+  created_at?: string
+}
 
 // ── Static chart data (matches screenshot trend) ─────────────────────────────
 const VIEWER_TRENDS = [
@@ -65,16 +75,36 @@ function ChartTooltip({ active, payload, label }: any) {
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
+type AnalyticsTab = 'overview' | 'audit' | 'playback'
+const PAGE_SIZE = 20
+
 export default function AnalyticsPage() {
   const workspace  = useAuthStore((s) => s.workspace)
   const workspaceId = workspace?.workspace_id || ''
   const { data: summaryData } = useAnalyticsSummary(workspaceId)
   const { setBreadcrumbItems } = useBreadcrumb()
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('Last 30 days')
+  const [analyticsTab, setAnalyticsTab] = useState<AnalyticsTab>('overview')
+  const [auditPage, setAuditPage]       = useState(0)
+  const [playbackPage, setPlaybackPage] = useState(0)
+
+  const { data: auditData, isLoading: auditLoading } = useAuditLogs(workspaceId, {
+    limit: PAGE_SIZE,
+    offset: auditPage * PAGE_SIZE,
+  })
+  const { data: playbackData, isLoading: playbackLoading } = usePlaybackLogs(workspaceId, {
+    limit: PAGE_SIZE,
+    offset: playbackPage * PAGE_SIZE,
+  })
 
   useEffect(() => {
     setBreadcrumbItems([{ label: 'Analytics' }])
   }, [setBreadcrumbItems])
+
+  const auditItems    = ((auditData as any)?.items ?? []) as AuditLogItem[]
+  const auditTotal    = (auditData as any)?.total ?? 0
+  const playbackItems = ((playbackData as any)?.items ?? []) as any[]
+  const playbackTotal = (playbackData as any)?.total ?? 0
 
   const summary = (summaryData as any) ?? {}
 
@@ -232,7 +262,34 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* ── Bottom two-column section ── */}
+      {/* ── Analytics Tab Bar ── */}
+      <div className="px-5 pt-4 flex items-center gap-1">
+        {([
+          { key: 'overview', label: 'Overview',   Icon: Eye },
+          { key: 'audit',    label: 'Audit Log',  Icon: FileText },
+          { key: 'playback', label: 'Playback Log', Icon: Play },
+        ] as { key: AnalyticsTab; label: string; Icon: any }[]).map(({ key, label, Icon }) => {
+          const active = analyticsTab === key
+          return (
+            <button
+              key={key}
+              onClick={() => setAnalyticsTab(key)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              style={
+                active
+                  ? { backgroundColor: '#F5A624', color: '#000000' }
+                  : { color: '#9CA3AF', backgroundColor: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }
+              }
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* ── Overview: two-column section ── */}
+      {analyticsTab === 'overview' && (
       <div className="px-5 pt-4 pb-5 grid gap-4" style={{ gridTemplateColumns: '1fr 380px' }}>
 
         {/* ── Viewer Trends chart ── */}
@@ -290,12 +347,12 @@ export default function AnalyticsPage() {
                 <XAxis
                   dataKey="date"
                   ticks={X_TICKS}
-                  tick={{ fill: '#4B5563', fontSize: 11 }}
+                  tick={{ fill: '#6B7280', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fill: '#4B5563', fontSize: 11 }}
+                  tick={{ fill: '#6B7280', fontSize: 11 }}
                   axisLine={false}
                   tickLine={false}
                   ticks={[0, 3000, 5000, 8000, 10000]}
@@ -401,6 +458,144 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </div>
+      )} {/* end overview */}
+
+      {/* ── Audit Log Tab ── */}
+      {analyticsTab === 'audit' && (
+        <div className="px-5 pt-4 pb-5">
+          <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}>
+            <div className="px-5 py-4 border-b" style={{ borderColor: '#2A2A2A' }}>
+              <h2 className="text-base font-bold text-white">Audit Log</h2>
+              <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                All actions performed in your workspace ({auditTotal.toLocaleString()} total)
+              </p>
+            </div>
+            {auditLoading ? (
+              <div className="py-12 text-center text-sm" style={{ color: '#6B7280' }}>Loading…</div>
+            ) : auditItems.length === 0 ? (
+              <div className="py-12 text-center text-sm" style={{ color: '#6B7280' }}>No audit events found</div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #2A2A2A' }}>
+                    {['Actor', 'Action', 'Resource', 'Timestamp'].map((h) => (
+                      <th key={h} style={{ textAlign: 'left', padding: '10px 20px', color: '#6B7280', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {auditItems.map((row, i) => (
+                    <tr key={row.log_id ?? i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                      <td style={{ padding: '12px 20px', color: '#E5E7EB' }}>{row.actor_email || '—'}</td>
+                      <td style={{ padding: '12px 20px' }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, backgroundColor: 'rgba(245,166,36,0.12)', color: '#F5A624', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                          {row.action || '—'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 20px', color: '#9CA3AF' }}>
+                        {row.resource_type && <span style={{ color: '#6B7280', marginRight: 4 }}>{row.resource_type} ·</span>}
+                        {row.resource_name || '—'}
+                      </td>
+                      <td style={{ padding: '12px 20px', color: '#6B7280', fontSize: 12 }}>
+                        {row.timestamp || row.created_at
+                          ? new Date(row.timestamp || row.created_at!).toLocaleString()
+                          : '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {/* Pagination */}
+            {auditTotal > PAGE_SIZE && (
+              <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #2A2A2A' }}>
+                <span style={{ fontSize: 12, color: '#6B7280' }}>
+                  {auditPage * PAGE_SIZE + 1}–{Math.min((auditPage + 1) * PAGE_SIZE, auditTotal)} of {auditTotal.toLocaleString()}
+                </span>
+                <div className="flex gap-2">
+                  <button onClick={() => setAuditPage(p => Math.max(0, p - 1))} disabled={auditPage === 0} style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: '#2A2A2A', border: 'none', color: auditPage === 0 ? '#4B5563' : '#9CA3AF', cursor: auditPage === 0 ? 'default' : 'pointer' }}>
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button onClick={() => setAuditPage(p => p + 1)} disabled={(auditPage + 1) * PAGE_SIZE >= auditTotal} style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: '#2A2A2A', border: 'none', color: (auditPage + 1) * PAGE_SIZE >= auditTotal ? '#4B5563' : '#9CA3AF', cursor: (auditPage + 1) * PAGE_SIZE >= auditTotal ? 'default' : 'pointer' }}>
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Playback Log Tab ── */}
+      {analyticsTab === 'playback' && (
+        <div className="px-5 pt-4 pb-5">
+          <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}>
+            <div className="px-5 py-4 border-b" style={{ borderColor: '#2A2A2A' }}>
+              <h2 className="text-base font-bold text-white">Playback Log</h2>
+              <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                Content playback history across all players ({playbackTotal.toLocaleString()} total)
+              </p>
+            </div>
+            {playbackLoading ? (
+              <div className="py-12 text-center text-sm" style={{ color: '#6B7280' }}>Loading…</div>
+            ) : playbackItems.length === 0 ? (
+              <div className="py-12 text-center text-sm" style={{ color: '#6B7280' }}>No playback records found</div>
+            ) : (
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #2A2A2A' }}>
+                    {['Player', 'Channel', 'Duration', 'Started At', 'Ended At'].map((h) => (
+                      <th key={h} style={{ textAlign: 'left', padding: '10px 20px', color: '#6B7280', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {playbackItems.map((row: any, i: number) => {
+                    const durMin = Math.floor((row.duration_seconds ?? 0) / 60)
+                    const durSec = (row.duration_seconds ?? 0) % 60
+                    return (
+                      <tr key={row.log_id ?? i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                        <td style={{ padding: '12px 20px', color: '#E5E7EB', fontFamily: 'monospace', fontSize: 12 }}>{row.player_id?.slice(0, 8) || '—'}</td>
+                        <td style={{ padding: '12px 20px', color: '#9CA3AF', fontFamily: 'monospace', fontSize: 12 }}>{row.channel_id?.slice(0, 8) || '—'}</td>
+                        <td style={{ padding: '12px 20px', color: '#F5A624', fontWeight: 600 }}>
+                          {durMin}m {durSec}s
+                        </td>
+                        <td style={{ padding: '12px 20px', color: '#6B7280', fontSize: 12 }}>
+                          {row.started_at ? new Date(row.started_at).toLocaleString() : '—'}
+                        </td>
+                        <td style={{ padding: '12px 20px', color: '#6B7280', fontSize: 12 }}>
+                          {row.ended_at ? new Date(row.ended_at).toLocaleString() : '—'}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
+            {/* Pagination */}
+            {playbackTotal > PAGE_SIZE && (
+              <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #2A2A2A' }}>
+                <span style={{ fontSize: 12, color: '#6B7280' }}>
+                  {playbackPage * PAGE_SIZE + 1}–{Math.min((playbackPage + 1) * PAGE_SIZE, playbackTotal)} of {playbackTotal.toLocaleString()}
+                </span>
+                <div className="flex gap-2">
+                  <button onClick={() => setPlaybackPage(p => Math.max(0, p - 1))} disabled={playbackPage === 0} style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: '#2A2A2A', border: 'none', color: playbackPage === 0 ? '#4B5563' : '#9CA3AF', cursor: playbackPage === 0 ? 'default' : 'pointer' }}>
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+                  <button onClick={() => setPlaybackPage(p => p + 1)} disabled={(playbackPage + 1) * PAGE_SIZE >= playbackTotal} style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: '#2A2A2A', border: 'none', color: (playbackPage + 1) * PAGE_SIZE >= playbackTotal ? '#4B5563' : '#9CA3AF', cursor: (playbackPage + 1) * PAGE_SIZE >= playbackTotal ? 'default' : 'pointer' }}>
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

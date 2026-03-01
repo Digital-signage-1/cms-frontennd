@@ -125,7 +125,7 @@ export default function ForgotPasswordPage() {
             Email
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#4B5563' }} />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
             <input
               id="email"
               name="email"
@@ -133,7 +133,7 @@ export default function ForgotPasswordPage() {
               placeholder="you@company.com"
               required
               autoComplete="email"
-              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-white placeholder:text-[#4B5563] outline-none transition-colors focus:border-[#F5A624]"
+              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624]"
               style={DS.inputBase}
             />
           </div>

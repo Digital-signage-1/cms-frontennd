@@ -1,5 +1,6 @@
 import {
   createApiClient,
+  createAccountsEndpoints,
   createAuthEndpoints,
   createWorkspaceEndpoints,
   createContentEndpoints,
@@ -24,6 +25,7 @@ const getToken = async (): Promise<string | null> => {
 export const apiClient = createApiClient(API_BASE_URL, getToken, refreshAccessToken)
 
 export const api = {
+  accounts: createAccountsEndpoints(apiClient),
   auth: createAuthEndpoints(apiClient),
   workspaces: createWorkspaceEndpoints(apiClient),
   content: createContentEndpoints(apiClient),

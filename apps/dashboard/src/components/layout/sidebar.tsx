@@ -8,11 +8,11 @@ import { Button } from '../ui/button'
 import { useSidebar } from '@/contexts/sidebar-context'
 import { useAuthStore } from '@/stores/auth-store'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/home', icon: LayoutGrid, badge: undefined },
-  { label: 'Content', href: '/content', icon: Upload, badge: 3 },
+  { label: 'Content', href: '/content', icon: Upload, badge: undefined },
   { label: 'Players', href: '/players', icon: Monitor, badge: undefined },
   { label: 'Channels', href: '/channels', icon: Layers, badge: undefined },
   { label: 'Schedules', href: '/schedules', icon: Calendar, badge: undefined },
@@ -29,8 +29,22 @@ export function Sidebar() {
   const { collapsed, toggle, setIsExpanded } = useSidebar()
   const { user, account } = useAuthStore()
   const [isHovered, setIsHovered] = useState(false)
+  const hoverTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const actualExpanded = collapsed ? isHovered : true
+
+  const handleMouseEnter = () => {
+    if (hoverTimeout.current) clearTimeout(hoverTimeout.current)
+    setIsHovered(true)
+    if (collapsed) setIsExpanded(true)
+  }
+
+  const handleMouseLeave = () => {
+    hoverTimeout.current = setTimeout(() => {
+      setIsHovered(false)
+      if (collapsed) setIsExpanded(false)
+    }, 150)
+  }
 
   const userDisplayName = useMemo(() => {
     if (user?.given_name && user?.family_name) return `${user.given_name} ${user.family_name}`
@@ -65,14 +79,8 @@ export function Sidebar() {
 
   return (
     <aside
-      onMouseEnter={() => {
-        setIsHovered(true)
-        if (collapsed) setIsExpanded(true)
-      }}
-      onMouseLeave={() => {
-        setIsHovered(false)
-        if (collapsed) setIsExpanded(false)
-      }}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       className={cn(
         'fixed left-0 top-0 z-40 flex h-screen flex-col border-r transition-all duration-300 ease-in-out',
         actualExpanded ? 'w-[240px]' : 'w-[56px]'

@@ -111,7 +111,7 @@ export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, curr
         {/* ── Search + breadcrumb ── */}
         <div style={{ padding: '12px 20px', borderBottom: '1px solid #1E1E38', flexShrink: 0 }}>
           <div style={{ position: 'relative' }}>
-            <Search className="h-4 w-4" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#4B5563' }} />
+            <Search className="h-4 w-4" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }} />
             <input
               placeholder="Search content..."
               value={searchQuery}
@@ -130,7 +130,7 @@ export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, curr
               </button>
               {breadcrumbPath.map((folder, i) => (
                 <div key={folder.folder_id} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <ChevronRight className="h-3 w-3" style={{ color: '#4B5563' }} />
+                  <ChevronRight className="h-3 w-3" style={{ color: '#6B7280' }} />
                   <button
                     onClick={() => setCurrentFolder(folder.folder_id)}
                     style={{ fontSize: 12, color: i === breadcrumbPath.length - 1 ? '#FFFFFF' : '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: i === breadcrumbPath.length - 1 ? 600 : 400 }}
@@ -154,14 +154,14 @@ export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, curr
           ) : filteredFolders.length === 0 && filteredContent.length === 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 48, gap: 8 }}>
               <File className="h-10 w-10" style={{ color: '#2A2A40' }} />
-              <p style={{ fontSize: 13, color: '#4B5563' }}>{searchQuery ? 'No content found' : 'No content available'}</p>
+              <p style={{ fontSize: 13, color: '#6B7280' }}>{searchQuery ? 'No content found' : 'No content available'}</p>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {/* Folders */}
               {filteredFolders.length > 0 && (
                 <div>
-                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4B5563', margin: '0 0 10px' }}>Folders</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7280', margin: '0 0 10px' }}>Folders</p>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: 8 }}>
                     {filteredFolders.map((folder: FolderType) => (
                       <motion.button
@@ -178,7 +178,7 @@ export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, curr
                         <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
                           {folder.name}
                         </span>
-                        <span style={{ fontSize: 10, color: '#4B5563' }}>{folder.content_count || 0} items</span>
+                        <span style={{ fontSize: 10, color: '#6B7280' }}>{folder.content_count || 0} items</span>
                       </motion.button>
                     ))}
                   </div>
@@ -188,7 +188,7 @@ export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, curr
               {/* Content */}
               {filteredContent.length > 0 && (
                 <div>
-                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4B5563', margin: '0 0 10px' }}>Content</p>
+                  <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7280', margin: '0 0 10px' }}>Content</p>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))', gap: 8 }}>
                     {filteredContent.map((content: Content) => {
                       const Icon      = getContentIcon(content.mime_type)
@@ -210,7 +210,7 @@ export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, curr
                           <span style={{ fontSize: 11, color: isSelected ? '#F5A624' : '#9CA3AF', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
                             {content.name}
                           </span>
-                          <span style={{ fontSize: 10, color: '#4B5563' }}>{typeLabel}</span>
+                          <span style={{ fontSize: 10, color: '#6B7280' }}>{typeLabel}</span>
                         </motion.button>
                       )
                     })}

@@ -63,3 +63,55 @@ export function useDeleteSchedule() {
     },
   })
 }
+
+export function useScheduleOverrides(workspaceId: string | undefined) {
+  return useQuery({
+    queryKey: ['overrides', workspaceId],
+    queryFn: () => api.schedules.listOverrides(workspaceId!),
+    enabled: !!workspaceId,
+  })
+}
+
+export function useUpcomingOverrides(workspaceId: string | undefined) {
+  return useQuery({
+    queryKey: ['overrides', workspaceId, 'upcoming'],
+    queryFn: () => api.schedules.listUpcomingOverrides(workspaceId!),
+    enabled: !!workspaceId,
+  })
+}
+
+export function useCreateOverride() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      data,
+    }: {
+      workspaceId: string
+      data: {
+        name: string
+        channel_id: string
+        type: 'emergency' | 'special' | 'maintenance'
+        start_datetime: string
+        end_datetime: string
+        reason?: string
+      }
+    }) => api.schedules.createOverride(workspaceId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['overrides', variables.workspaceId] })
+    },
+  })
+}
+
+export function useDeleteOverride() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ workspaceId, overrideId }: { workspaceId: string; overrideId: string }) =>
+      api.schedules.deleteOverride(workspaceId, overrideId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['overrides', variables.workspaceId] })
+    },
+  })
+}

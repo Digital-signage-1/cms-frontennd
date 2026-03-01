@@ -1,9 +1,8 @@
 import type { ApiClient } from '../client'
-import type { 
-  Player, 
-  PlayerGroup, 
-  PlayerLocation, 
-  PlayerCommand, 
+import type {
+  Player,
+  PlayerGroup,
+  PlayerCommand,
   PlayerConfig,
   PairingRequest,
   PairingResponse,
@@ -55,15 +54,6 @@ export function createPlayersEndpoints(client: ApiClient) {
     
     getMetrics: (workspaceId: string, playerId: string, days?: number) =>
       client.get<Record<string, unknown>>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/metrics`, { params: days ? { days } : undefined }),
-    
-    requestCodeForDevice: (workspaceId: string) =>
-      client.get<{ code: string; expires_at: string }>(`/api/v1/workspaces/${workspaceId}/players/request-code`),
-    
-    getLocation: (workspaceId: string, playerId: string) =>
-      client.get<PlayerLocation>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/location`),
-    
-    updateLocation: (workspaceId: string, playerId: string, data: Partial<PlayerLocation>) =>
-      client.patch<PlayerLocation>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/location`, data),
     
     listGroups: (workspaceId: string) =>
       client.get<PlayerGroup[]>(`/api/v1/workspaces/${workspaceId}/player-groups`),

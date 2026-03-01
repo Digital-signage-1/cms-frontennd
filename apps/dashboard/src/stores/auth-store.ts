@@ -20,14 +20,14 @@ export const useAuthStore = create<AuthStore>()(
         workspace: null,
         workspaces: [],
         isAuthenticated: false,
-        isLoading: false,
+        isLoading: true, // true until persist rehydration completes
       }
 
       return {
         ...initialState,
 
         setUser: (user) =>
-          set({ user, isAuthenticated: !!user, isLoading: false }),
+          set({ user, isAuthenticated: !!user }),
 
         setAccount: (account) =>
           set({ account }),

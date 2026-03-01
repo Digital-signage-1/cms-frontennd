@@ -1,6 +1,5 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import { MetricsStrip } from '@/components/dashboard/MetricsStrip'
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed'
 import { Monitor, Layers, Upload, HardDrive } from 'lucide-react'
@@ -8,12 +7,6 @@ import { useAuthStore } from '@/stores/auth-store'
 import { usePlayers, useChannels, useContent } from '@/hooks/queries'
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Suspense } from 'react'
-
-const PlayerMap = dynamic(
-  () => import('@/components/players/PlayerMap').then(m => ({ default: m.PlayerMap })),
-  { ssr: false }
-)
 
 export default function HomePage() {
   const { user, account, workspace } = useAuthStore()
@@ -175,7 +168,7 @@ export default function HomePage() {
             />
             <span className="text-xs font-medium" style={{ color: '#34D399' }}>All systems operational</span>
           </div>
-          <p className="text-xs mt-2" style={{ color: '#4B5563' }}>Synced 2m ago</p>
+          <p className="text-xs mt-2" style={{ color: '#6B7280' }}>Synced 2m ago</p>
         </div>
       </motion.div>
 
@@ -213,18 +206,24 @@ export default function HomePage() {
                 {onlinePlayers}/{players.length} online
               </span>
             </div>
-            <span className="text-xs font-medium" style={{ color: '#4B5563' }}>Live</span>
+            <span className="text-xs font-medium" style={{ color: '#6B7280' }}>Live</span>
           </div>
 
-          {/* Map */}
-          <div className="h-72" style={{ backgroundColor: '#141414' }}>
-            <Suspense fallback={
-              <div className="w-full h-full flex items-center justify-center">
-                <span className="text-sm" style={{ color: '#4B5563' }}>Loading map...</span>
-              </div>
-            }>
-              <PlayerMap players={players} onPlayerClick={() => {}} />
-            </Suspense>
+          {/* Player status summary */}
+          <div className="h-72 flex items-center justify-center" style={{ backgroundColor: '#141414' }}>
+            <div className="grid grid-cols-2 gap-4 px-6 w-full max-w-xs">
+              {[
+                { label: 'Online', count: players.filter((p: any) => p.status === 'online').length, color: '#059669' },
+                { label: 'Offline', count: players.filter((p: any) => p.status === 'offline').length, color: '#DC2626' },
+                { label: 'Pending', count: players.filter((p: any) => p.status === 'pending').length, color: '#F5A624' },
+                { label: 'Total', count: players.length, color: '#6B7280' },
+              ].map(({ label, count, color }) => (
+                <div key={label} className="flex flex-col items-center justify-center rounded-xl p-4" style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}>
+                  <span className="text-2xl font-bold" style={{ color }}>{count}</span>
+                  <span className="text-xs mt-1" style={{ color: '#6B7280' }}>{label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Legend */}
@@ -234,7 +233,7 @@ export default function HomePage() {
               <span className="text-xs" style={{ color: '#6B7280' }}>Online</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#374151' }} />
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#6B7280' }} />
               <span className="text-xs" style={{ color: '#6B7280' }}>Offline</span>
             </div>
           </div>

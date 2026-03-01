@@ -51,7 +51,7 @@ export function CommandPalette() {
       <DialogContent hideClose className="!p-0 max-w-2xl overflow-hidden">
         {/* ── Search row ── */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px', height: 52, borderBottom: '1px solid #1E1E38' }}>
-          <Search className="h-4 w-4" style={{ color: '#4B5563', flexShrink: 0 }} />
+          <Search className="h-4 w-4" style={{ color: '#6B7280', flexShrink: 0 }} />
           <input
             placeholder="Search or type a command..."
             value={search}
@@ -59,7 +59,7 @@ export function CommandPalette() {
             autoFocus
             style={{ flex: 1, height: '100%', backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: 15, color: '#FFFFFF' }}
           />
-          <kbd style={{ fontSize: 11, color: '#4B5563', backgroundColor: '#0D0D1E', border: '1px solid #2A2A40', borderRadius: 6, padding: '2px 6px', fontFamily: 'monospace', flexShrink: 0 }}>
+          <kbd style={{ fontSize: 11, color: '#6B7280', backgroundColor: '#0D0D1E', border: '1px solid #2A2A40', borderRadius: 6, padding: '2px 6px', fontFamily: 'monospace', flexShrink: 0 }}>
             ESC
           </kbd>
         </div>
@@ -71,7 +71,7 @@ export function CommandPalette() {
             if (!items.length) return null
             return (
               <div key={category} style={{ marginBottom: 4 }}>
-                <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#4B5563', padding: '6px 16px 4px' }}>
+                <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7280', padding: '6px 16px 4px' }}>
                   {CATEGORY_LABEL[category]}
                 </p>
                 {items.map(cmd => (
@@ -86,7 +86,7 @@ export function CommandPalette() {
                       {cmd.label}
                     </span>
                     {cmd.shortcut && (
-                      <kbd style={{ fontSize: 11, color: '#4B5563', backgroundColor: '#0D0D1E', border: '1px solid #2A2A40', borderRadius: 6, padding: '2px 7px', fontFamily: 'monospace', flexShrink: 0 }}>
+                      <kbd style={{ fontSize: 11, color: '#6B7280', backgroundColor: '#0D0D1E', border: '1px solid #2A2A40', borderRadius: 6, padding: '2px 7px', fontFamily: 'monospace', flexShrink: 0 }}>
                         {cmd.shortcut}
                       </kbd>
                     )}
@@ -98,7 +98,7 @@ export function CommandPalette() {
 
           {filtered.length === 0 && (
             <div style={{ padding: '32px 16px', textAlign: 'center' }}>
-              <p style={{ fontSize: 13, color: '#4B5563' }}>No commands found for &ldquo;{search}&rdquo;</p>
+              <p style={{ fontSize: 13, color: '#6B7280' }}>No commands found for &ldquo;{search}&rdquo;</p>
             </div>
           )}
         </div>
@@ -108,7 +108,7 @@ export function CommandPalette() {
           {[['↑↓', 'navigate'], ['↵', 'select'], ['esc', 'close']].map(([key, label]) => (
             <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <kbd style={{ fontSize: 10, color: '#6B7280', backgroundColor: '#0D0D1E', border: '1px solid #2A2A40', borderRadius: 5, padding: '1px 6px', fontFamily: 'monospace' }}>{key}</kbd>
-              <span style={{ fontSize: 11, color: '#4B5563' }}>{label}</span>
+              <span style={{ fontSize: 11, color: '#6B7280' }}>{label}</span>
             </div>
           ))}
         </div>

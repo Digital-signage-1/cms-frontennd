@@ -51,12 +51,3 @@ export interface TemplateCreateRequest {
   is_public?: boolean
 }
 
-export interface TemplateUsage {
-  template_id: string
-  name: string
-  usage_count: number
-  channels: Array<{
-    channel_id: string
-    name: string
-  }>
-}
