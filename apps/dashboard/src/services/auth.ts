@@ -1,6 +1,14 @@
-import { useAuthStore } from '@/stores/auth-store'
 import { api } from './api'
 import type { User } from '@signage/types'
+
+let _useAuthStore: any = null
+async function getAuthStore() {
+  if (!_useAuthStore) {
+    const mod = await import('@/stores/auth-store')
+    _useAuthStore = mod.useAuthStore
+  }
+  return _useAuthStore
+}
 
 const TOKEN_KEY = 'signage_access_token'
 const REFRESH_TOKEN_KEY = 'signage_refresh_token'
@@ -56,7 +64,7 @@ export async function signUp(name: string, email: string, password: string): Pro
 }
 
 export async function confirmSignUp(email: string, code: string, password: string): Promise<void> {
-  const store = useAuthStore.getState()
+  const store = (await getAuthStore()).getState()
   store.setLoading(true)
 
   try {
@@ -81,7 +89,7 @@ export async function confirmSignUp(email: string, code: string, password: strin
 }
 
 export async function signIn(email: string, password: string): Promise<void> {
-  const store = useAuthStore.getState()
+  const store = (await getAuthStore()).getState()
   store.setLoading(true)
 
   try {
@@ -116,18 +124,18 @@ export async function refreshAccessToken(): Promise<boolean> {
   } catch (error) {
     console.error('Failed to refresh token:', error)
     clearTokens()
-    useAuthStore.getState().signOut()
+    ;(await getAuthStore()).getState().signOut()
     return false
   }
 }
 
 export async function signOut(): Promise<void> {
   clearTokens()
-  useAuthStore.getState().signOut()
+  ;(await getAuthStore()).getState().signOut()
 }
 
 export async function loadUserData(): Promise<void> {
-  const store = useAuthStore.getState()
+  const store = (await getAuthStore()).getState()
   const token = getAccessToken()
 
   if (!token) {

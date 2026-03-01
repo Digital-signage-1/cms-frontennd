@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { usePlayers } from '@/hooks/queries'
 import { useChannels } from '@/hooks/queries'
 import { PlayerRegistrationModal } from '@/components/players/PlayerRegistrationModal'
+import { PlayerDetailDrawer } from '@/components/players/PlayerDetailDrawer'
 import { Monitor, Plus, RefreshCw, Search, Copy } from 'lucide-react'
 import { useState, Suspense, lazy } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
@@ -235,6 +236,11 @@ export default function PlayersPage() {
       <PlayerRegistrationModal
         isOpen={isRegistrationModalOpen}
         onClose={() => setIsRegistrationModalOpen(false)}
+      />
+
+      <PlayerDetailDrawer
+        playerId={selectedPlayer}
+        onClose={() => setSelectedPlayer(null)}
       />
     </motion.div>
   )

@@ -1,14 +1,17 @@
 'use client'
 
-import type { ComponentType } from 'react'
+import { lazy, type ComponentType } from 'react'
 import { ImageRenderer } from './ImageRenderer'
 import { VideoRenderer } from './VideoRenderer'
 import { WebRenderer } from './WebRenderer'
 import { HtmlRenderer } from './HtmlRenderer'
 import { ClockRenderer } from './ClockRenderer'
 import { WeatherRenderer } from './WeatherRenderer'
-import { PDFRenderer } from './PDFRenderer'
 import { YouTubeRenderer } from './YouTubeRenderer'
+
+const PDFRenderer = lazy(() =>
+  import('./PDFRenderer').then(mod => ({ default: mod.PDFRenderer }))
+)
 
 export interface RendererProps {
   config: Record<string, any>
