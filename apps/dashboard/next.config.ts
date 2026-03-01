@@ -1,7 +1,6 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  output: 'export',
   transpilePackages: ['@signage/renderer', '@signage/api-client', '@signage/types', 'leaflet'],
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
@@ -10,7 +9,6 @@ const nextConfig: NextConfig = {
     return config
   },
   images: {
-    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
