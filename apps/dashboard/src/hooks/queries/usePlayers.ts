@@ -106,6 +106,43 @@ export function useCreatePlayer() {
   })
 }
 
+export function useUpdatePlayer() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      playerId,
+      data,
+    }: {
+      workspaceId: string
+      playerId: string
+      data: Partial<Player>
+    }) => api.players.update(workspaceId, playerId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['players', variables.workspaceId] })
+      queryClient.invalidateQueries({ queryKey: ['players', variables.workspaceId, variables.playerId] })
+    },
+  })
+}
+
+export function useDeletePlayer() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      playerId,
+    }: {
+      workspaceId: string
+      playerId: string
+    }) => api.players.delete(workspaceId, playerId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['players', variables.workspaceId] })
+    },
+  })
+}
+
 export function useRequestPairingCode(workspaceId: string, channelId: string) {
   return useQuery({
     queryKey: ['pairing-code', workspaceId, channelId],
