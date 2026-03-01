@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import type { App } from '@signage/types'
 import { getRenderer } from './registry'
 
@@ -61,12 +61,18 @@ export function ContentRenderer({
 
   return (
     <div className="w-full h-full" data-app-id={appId}>
-      <Renderer
-        config={appData.config as Record<string, any>}
-        contentUrl={contentUrl}
-        onError={onError}
-        onLoad={onLoad}
-      />
+      <Suspense fallback={
+        <div className="w-full h-full flex items-center justify-center bg-black">
+          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+        </div>
+      }>
+        <Renderer
+          config={appData.config as Record<string, any>}
+          contentUrl={contentUrl}
+          onError={onError}
+          onLoad={onLoad}
+        />
+      </Suspense>
     </div>
   )
 }
