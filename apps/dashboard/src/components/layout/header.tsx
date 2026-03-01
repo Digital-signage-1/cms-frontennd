@@ -165,10 +165,12 @@ export function Header({ breadcrumbItems }: HeaderProps) {
               </DropdownMenuItem>
             </Link>
             <DropdownMenuSeparator style={{ backgroundColor: '#2A2A2A' }} className="my-2" />
-            <DropdownMenuItem className="gap-3 cursor-pointer rounded-lg px-3 py-2 focus:bg-surface-hover">
-              <HelpCircle className="h-4 w-4" style={{ color: '#6B7280' }} />
-              <span className="text-sm text-white">Help & Support</span>
-            </DropdownMenuItem>
+            <Link href="/help">
+              <DropdownMenuItem className="gap-3 cursor-pointer rounded-lg px-3 py-2 focus:bg-surface-hover">
+                <HelpCircle className="h-4 w-4" style={{ color: '#6B7280' }} />
+                <span className="text-sm text-white">Help & Support</span>
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuSeparator style={{ backgroundColor: '#2A2A2A' }} className="my-2" />
             <DropdownMenuItem
               className="gap-3 cursor-pointer rounded-lg px-3 py-2 focus:bg-surface-hover"

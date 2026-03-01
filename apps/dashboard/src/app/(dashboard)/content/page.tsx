@@ -597,14 +597,7 @@ export default function ContentPage() {
                       </div>
 
                       {/* Preview content */}
-                      {asset.url && asset.content_type === 'image' ? (
-                        <img
-                          src={asset.url}
-                          alt={asset.name}
-                          className="absolute inset-0 w-full h-full object-cover"
-                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                        />
-                      ) : isVideo ? (
+                      {isVideo ? (
                         /* Video play button */
                         <div
                           className="w-11 h-11 rounded-full flex items-center justify-center"
@@ -626,7 +619,17 @@ export default function ContentPage() {
                       ) : isPdf ? (
                         <FileText className="h-10 w-10 opacity-40" style={{ color: '#F59E0B' }} />
                       ) : (
-                        <ImageIcon className="h-10 w-10 opacity-25" style={{ color: '#9CA3AF' }} />
+                        <>
+                          <ImageIcon className="h-10 w-10 opacity-25" style={{ color: '#9CA3AF' }} />
+                          {(asset.url || asset.thumbnail_url) && asset.content_type === 'image' && (
+                            <img
+                              src={asset.thumbnail_url || asset.url}
+                              alt={asset.name}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                            />
+                          )}
+                        </>
                       )}
                     </div>
 

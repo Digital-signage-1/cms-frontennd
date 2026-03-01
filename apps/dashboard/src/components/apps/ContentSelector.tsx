@@ -204,8 +204,16 @@ export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, curr
                           style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 6px', borderRadius: 10, cursor: 'pointer', border: isSelected ? '1px solid rgba(245,166,36,0.50)' : '1px solid #1E1E38', backgroundColor: isSelected ? 'rgba(245,166,36,0.08)' : '#0D0D1E', gap: 6, transition: 'all 0.15s' }}
                           whileHover={!isSelected ? { backgroundColor: '#13132B', borderColor: '#2A2A45' } as any : undefined}
                         >
-                          <div style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: isSelected ? 'rgba(245,166,36,0.20)' : typeStyle.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <div style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: isSelected ? 'rgba(245,166,36,0.20)' : typeStyle.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
                             <Icon className="h-5 w-5" style={{ color: isSelected ? '#F5A624' : typeStyle.color }} />
+                            {(content.thumbnail_url || content.url) && typeLabel === 'Image' && (
+                              <img
+                                src={content.thumbnail_url || content.url}
+                                alt={content.name}
+                                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                              />
+                            )}
                           </div>
                           <span style={{ fontSize: 11, color: isSelected ? '#F5A624' : '#9CA3AF', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%', textAlign: 'center' }}>
                             {content.name}

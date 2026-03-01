@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { Button, Input, Label } from '@/components/ui'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui'
 import { DataTable } from '@/components/ui/data-table'
 import { StatusDot } from '@/components/ui/status-dot'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useAuthStore } from '@/stores/auth-store'
 import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 import {
   Users, Settings, Trash2, UserPlus, Mail, Shield,
-  Building2, AlertTriangle, RefreshCw, X,
+  AlertTriangle, RefreshCw, X, Monitor, Calendar, LayoutGrid, Edit3,
 } from 'lucide-react'
 import {
   useUpdateWorkspace,
@@ -27,6 +27,7 @@ import type { WorkspaceMember, InvitationResponse } from '@signage/types'
 export default function WorkspaceSettingsPage() {
   const { workspace } = useAuthStore()
   const workspaceId = workspace?.workspace_id || ''
+  const [activeTab, setActiveTab] = useState<'general' | 'team'>('general')
 
   const [isEditing, setIsEditing] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
@@ -36,13 +37,12 @@ export default function WorkspaceSettingsPage() {
   const [workspaceData, setWorkspaceData] = useState({
     name: workspace?.name || '',
     slug: workspace?.slug || '',
+    description: (workspace as any)?.description || '',
   })
 
-  // Queries
   const { data: members = [], isLoading: membersLoading } = useWorkspaceMembers(workspaceId)
   const { data: invitations = [], isLoading: invLoading } = useWorkspaceInvitations(workspaceId)
 
-  // Mutations
   const updateWorkspaceMutation = useUpdateWorkspace()
   const updateRoleMutation      = useUpdateMemberRole()
   const removeMemberMutation    = useRemoveMember()
@@ -52,7 +52,11 @@ export default function WorkspaceSettingsPage() {
 
   useEffect(() => {
     if (workspace) {
-      setWorkspaceData({ name: workspace.name, slug: workspace.slug })
+      setWorkspaceData({
+        name: workspace.name,
+        slug: workspace.slug,
+        description: (workspace as any)?.description || '',
+      })
     }
   }, [workspace])
 
@@ -85,6 +89,10 @@ export default function WorkspaceSettingsPage() {
   }
 
   const saving = updateWorkspaceMutation.isPending
+  const workspaceInitials = (workspaceData.name[0] || 'W').toUpperCase()
+  const memberList = (members as WorkspaceMember[]).map(m => ({ ...m, id: m.cognito_sub }))
+  const inviteList = invitations as InvitationResponse[]
+  const createdAt = workspace?.created_at ? new Date(workspace.created_at) : null
 
   const teamColumns = [
     {
@@ -155,7 +163,7 @@ export default function WorkspaceSettingsPage() {
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-text-muted hover:text-red-400 hover:bg-red-400/10"
+          className="h-8 w-8 text-text-muted hover:text-error hover:bg-error/10"
           onClick={() => setRemoveMemberTarget(member)}
         >
           <Trash2 className="h-4 w-4" />
@@ -164,134 +172,277 @@ export default function WorkspaceSettingsPage() {
     },
   ]
 
-  const memberList  = (members as WorkspaceMember[]).map(m => ({ ...m, id: m.cognito_sub }))
-  const inviteList  = invitations as InvitationResponse[]
-
   return (
     <>
       <div className="min-h-screen bg-background">
-        <div className="glass-light sticky top-0 z-20 border-b border-border/50">
-          <div className="max-w-5xl mx-auto px-8 py-6">
-            <h1 className="text-2xl font-semibold text-text-primary tracking-tight">Workspace Settings</h1>
-            <p className="text-sm text-text-secondary mt-1">Manage your workspace and team</p>
+
+        {/* Page Header */}
+        <div className="px-6 lg:px-8 pt-8 pb-6">
+          <div className="max-w-7xl mx-auto flex items-start justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-xl bg-surface border border-border flex items-center justify-center shrink-0">
+                <Monitor className="h-7 w-7 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-text-primary tracking-tight">Workspace Settings</h1>
+                <p className="text-sm text-text-secondary mt-1">Manage your workspace and team</p>
+              </div>
+            </div>
+
+            {/* Tab switcher */}
+            <div className="flex items-center gap-1 bg-surface border border-border rounded-xl p-1 shrink-0">
+              <button
+                onClick={() => setActiveTab('general')}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                  activeTab === 'general'
+                    ? 'bg-surface-elevated border border-border text-primary'
+                    : 'text-text-muted hover:text-text-primary'
+                )}
+              >
+                <Settings className="h-4 w-4" />
+                General
+              </button>
+              <button
+                onClick={() => setActiveTab('team')}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                  activeTab === 'team'
+                    ? 'bg-surface-elevated border border-border text-primary'
+                    : 'text-text-muted hover:text-text-primary'
+                )}
+              >
+                <Users className="h-4 w-4" />
+                Team
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-8 py-8">
-          <Tabs defaultValue="general" className="space-y-6">
-            <TabsList className="inline-flex h-12 items-center justify-start gap-1 rounded-lg bg-surface p-1 border border-border">
-              <TabsTrigger value="general" className="gap-2">
-                <Settings className="h-4 w-4" />
-                General
-              </TabsTrigger>
-              <TabsTrigger value="team" className="gap-2">
-                <Users className="h-4 w-4" />
-                Team
-              </TabsTrigger>
-            </TabsList>
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 pb-10">
 
-            {/* ── General Tab ── */}
-            <TabsContent value="general" className="space-y-6">
+          {/* ── General Tab ── */}
+          {activeTab === 'general' && (
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6">
+
+              {/* Left: Workspace Details */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="border border-border rounded-lg bg-surface p-8"
+                className="bg-surface border border-border rounded-2xl overflow-hidden"
               >
-                <div className="flex items-center justify-between mb-6">
+                {/* Card header */}
+                <div className="flex items-center justify-between px-6 py-5 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Building2 className="h-6 w-6 text-primary" />
+                    <div className="h-10 w-10 rounded-xl bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
+                      <Settings className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold text-text-primary">Workspace Details</h2>
-                      <p className="text-sm text-text-secondary">Update your workspace information</p>
+                      <h2 className="text-base font-semibold text-text-primary">Workspace Details</h2>
+                      <p className="text-xs text-text-muted">Update your workspace information</p>
                     </div>
                   </div>
                   {isEditing ? (
                     <div className="flex gap-2">
-                      <Button variant="outline" onClick={() => setIsEditing(false)} disabled={saving}>
+                      <Button variant="outline" size="sm" onClick={() => setIsEditing(false)} disabled={saving}>
                         Cancel
                       </Button>
-                      <Button onClick={handleSave} disabled={saving} className="bg-primary hover:bg-primary-hover text-white">
+                      <Button size="sm" onClick={handleSave} disabled={saving}>
                         {saving ? 'Saving...' : 'Save Changes'}
                       </Button>
                     </div>
                   ) : (
-                    <Button onClick={() => setIsEditing(true)}>Edit</Button>
+                    <Button size="sm" variant="outline" onClick={() => setIsEditing(true)} className="gap-1.5">
+                      <Edit3 className="h-3.5 w-3.5" />
+                      Edit
+                    </Button>
                   )}
                 </div>
 
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="workspaceName">Workspace name</Label>
+                <div className="p-6 space-y-5">
+                  {/* Workspace Preview */}
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-surface-alt border border-border">
+                    <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center text-2xl font-bold text-white select-none shrink-0">
+                      {workspaceInitials}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-text-primary">{workspaceData.name || 'My Workspace'}</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <div className="h-2 w-2 rounded-full bg-success" />
+                        <span className="text-xs text-text-muted">Online · 12 screens active</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Workspace name */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm text-text-secondary font-medium">Workspace name</Label>
                     <Input
-                      id="workspaceName"
                       value={workspaceData.name}
                       onChange={(e) => setWorkspaceData({ ...workspaceData, name: e.target.value })}
                       disabled={!isEditing}
                       placeholder="My Workspace"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="workspaceSlug">Workspace URL</Label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-text-muted text-sm">app.signage.com/</span>
-                      <Input
-                        id="workspaceSlug"
+
+                  {/* Workspace URL */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm text-text-secondary font-medium">Workspace URL</Label>
+                    <div className="flex rounded-lg border border-border overflow-hidden bg-background focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                      <span className="flex items-center px-4 text-sm text-text-muted bg-surface-alt border-r border-border whitespace-nowrap shrink-0">
+                        app.signage.com/
+                      </span>
+                      <input
                         value={workspaceData.slug}
                         onChange={(e) => setWorkspaceData({ ...workspaceData, slug: e.target.value })}
                         disabled={!isEditing}
                         placeholder="my-workspace"
-                        className="flex-1"
+                        className="flex-1 px-4 py-2.5 text-sm font-mono text-text-primary bg-transparent focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
+
+                  {/* Description */}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm text-text-secondary font-medium">Description</Label>
+                    <textarea
+                      value={workspaceData.description}
+                      onChange={(e) => setWorkspaceData({ ...workspaceData, description: e.target.value })}
+                      disabled={!isEditing}
+                      placeholder="Digital signage workspace for managing displays and content across the organization."
+                      rows={3}
+                      className="w-full px-4 py-3 rounded-lg border border-border bg-background text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary disabled:opacity-50 disabled:cursor-not-allowed resize-none transition-colors"
+                    />
+                  </div>
                 </div>
               </motion.div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="border border-border rounded-lg bg-surface p-8"
-              >
-                <h2 className="text-xl font-semibold text-text-primary mb-4">Workspace Information</h2>
-                <div className="grid grid-cols-2 gap-6">
-                  <div>
-                    <p className="text-sm text-text-muted mb-1">Workspace ID</p>
-                    <p className="text-sm font-mono text-text-primary">{workspace?.workspace_id || 'N/A'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-muted mb-1">Created</p>
-                    <p className="text-sm text-text-primary">
-                      {workspace?.created_at ? new Date(workspace.created_at).toLocaleDateString() : 'N/A'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-muted mb-1">Team Members</p>
-                    <p className="text-sm text-text-primary">
-                      {membersLoading ? '…' : `${memberList.length} members`}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            </TabsContent>
+              {/* Right: Information + Usage stacked */}
+              <div className="flex flex-col gap-6">
 
-            {/* ── Team Tab ── */}
-            <TabsContent value="team" className="space-y-6">
+                {/* Information */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 }}
+                  className="bg-surface border border-border rounded-2xl p-6"
+                >
+                  <div className="flex items-center gap-2 mb-5">
+                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    <span className="text-xs font-semibold text-text-muted tracking-widest uppercase">Information</span>
+                  </div>
+                  <div className="space-y-5">
+                    <div className="flex items-start gap-3">
+                      <LayoutGrid className="h-4 w-4 text-text-muted mt-0.5 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-xs text-text-muted mb-0.5">Workspace ID</p>
+                        <p className="text-xs font-mono text-text-secondary break-all leading-relaxed">
+                          {workspace?.workspace_id || 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Calendar className="h-4 w-4 text-text-muted mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-text-muted mb-0.5">Created</p>
+                        <p className="text-sm font-semibold text-text-primary">
+                          {createdAt
+                            ? createdAt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                            : 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Users className="h-4 w-4 text-text-muted mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs text-text-muted mb-0.5">Team Members</p>
+                        <p className="text-sm font-semibold text-primary">
+                          {membersLoading ? '…' : `${memberList.length} members`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Usage */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="bg-surface border border-border rounded-2xl p-6"
+                >
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-success" />
+                      <span className="text-xs font-semibold text-text-muted tracking-widest uppercase">Usage</span>
+                    </div>
+                    <span className="text-xs font-bold border border-border rounded-md px-2 py-0.5 bg-surface-alt text-text-secondary tracking-widest">
+                      FREE
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Players */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-sm text-text-secondary">Players</span>
+                        <span className="text-xs text-text-muted">1 / 3</span>
+                      </div>
+                      <div className="h-1.5 bg-surface-alt rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full transition-all" style={{ width: '33%' }} />
+                      </div>
+                    </div>
+                    {/* Storage */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-sm text-text-secondary">Storage</span>
+                        <span className="text-xs text-text-muted">45.2 MB / 5 GB</span>
+                      </div>
+                      <div className="h-1.5 bg-surface-alt rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full transition-all" style={{ width: '1%' }} />
+                      </div>
+                    </div>
+                    {/* Schedules */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-sm text-text-secondary">Schedules</span>
+                        <span className="text-xs text-text-muted">6 / 10</span>
+                      </div>
+                      <div className="h-1.5 bg-surface-alt rounded-full overflow-hidden">
+                        <div className="h-full bg-success rounded-full transition-all" style={{ width: '60%' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full mt-5 text-xs tracking-widest uppercase font-semibold"
+                  >
+                    Upgrade Plan
+                  </Button>
+                </motion.div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Team Tab ── */}
+          {activeTab === 'team' && (
+            <div className="space-y-6">
+
               {/* Invite section */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="border border-border rounded-lg bg-surface p-8"
+                className="bg-surface border border-border rounded-2xl p-6"
               >
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold text-text-primary">Invite Team Members</h2>
-                  <p className="text-sm text-text-secondary mt-1">Add new members to your workspace</p>
+                <div className="mb-5">
+                  <h2 className="text-base font-semibold text-text-primary">Invite Team Members</h2>
+                  <p className="text-sm text-text-muted mt-0.5">Add new members to your workspace</p>
                 </div>
                 <div className="flex gap-3">
                   <div className="flex-1 relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-muted" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted pointer-events-none" />
                     <Input
                       type="email"
                       placeholder="colleague@company.com"
@@ -304,7 +455,7 @@ export default function WorkspaceSettingsPage() {
                   <select
                     value={inviteRole}
                     onChange={(e) => setInviteRole(e.target.value)}
-                    className="px-4 py-2 rounded-lg border border-border bg-background text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    className="px-4 py-2 rounded-lg border border-border bg-background text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   >
                     <option value="member">Member</option>
                     <option value="editor">Editor</option>
@@ -314,16 +465,14 @@ export default function WorkspaceSettingsPage() {
                   <Button
                     onClick={handleInvite}
                     disabled={!inviteEmail || sendInviteMutation.isPending}
-                    className="bg-primary hover:bg-primary-hover text-white gap-2"
+                    className="gap-2 shrink-0"
                   >
                     <UserPlus className="h-4 w-4" />
                     {sendInviteMutation.isPending ? 'Sending...' : 'Invite'}
                   </Button>
                 </div>
                 {sendInviteMutation.isError && (
-                  <p className="text-sm text-red-400 mt-3">
-                    Failed to send invitation. Please try again.
-                  </p>
+                  <p className="text-sm text-error mt-3">Failed to send invitation. Please try again.</p>
                 )}
               </motion.div>
 
@@ -332,16 +481,16 @@ export default function WorkspaceSettingsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="border border-border rounded-lg bg-surface overflow-hidden"
+                className="bg-surface border border-border rounded-2xl overflow-hidden"
               >
-                <div className="p-6 border-b border-border">
-                  <h2 className="text-xl font-semibold text-text-primary">Team Members</h2>
-                  <p className="text-sm text-text-secondary mt-1">Manage your team members and their roles</p>
+                <div className="px-6 py-5 border-b border-border">
+                  <h2 className="text-base font-semibold text-text-primary">Team Members</h2>
+                  <p className="text-sm text-text-muted mt-0.5">Manage your team members and their roles</p>
                 </div>
                 {membersLoading ? (
-                  <div className="p-8 text-center text-text-muted text-sm">Loading members…</div>
+                  <div className="p-10 text-center text-text-muted text-sm">Loading members…</div>
                 ) : memberList.length === 0 ? (
-                  <div className="p-8 text-center text-text-muted text-sm">No members found</div>
+                  <div className="p-10 text-center text-text-muted text-sm">No members found</div>
                 ) : (
                   <DataTable data={memberList} columns={teamColumns} />
                 )}
@@ -353,11 +502,11 @@ export default function WorkspaceSettingsPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
-                  className="border border-border rounded-lg bg-surface overflow-hidden"
+                  className="bg-surface border border-border rounded-2xl overflow-hidden"
                 >
-                  <div className="p-6 border-b border-border">
-                    <h2 className="text-xl font-semibold text-text-primary">Pending Invitations</h2>
-                    <p className="text-sm text-text-secondary mt-1">Invitations awaiting acceptance</p>
+                  <div className="px-6 py-5 border-b border-border">
+                    <h2 className="text-base font-semibold text-text-primary">Pending Invitations</h2>
+                    <p className="text-sm text-text-muted mt-0.5">Invitations awaiting acceptance</p>
                   </div>
                   <div className="divide-y divide-border">
                     {inviteList.map((inv) => (
@@ -374,7 +523,7 @@ export default function WorkspaceSettingsPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 capitalize">
+                          <span className="text-xs px-2 py-0.5 rounded bg-warning/10 text-warning border border-warning/20 capitalize">
                             {inv.status}
                           </span>
                           <Button
@@ -392,7 +541,7 @@ export default function WorkspaceSettingsPage() {
                             size="sm"
                             onClick={() => revokeInviteMutation.mutate({ workspaceId, invitationId: inv.invitation_id })}
                             disabled={revokeInviteMutation.isPending}
-                            className="h-8 gap-1.5 text-red-400 hover:bg-red-400/10"
+                            className="h-8 gap-1.5 text-error hover:bg-error/10"
                           >
                             <X className="h-3.5 w-3.5" />
                             Revoke
@@ -403,12 +552,12 @@ export default function WorkspaceSettingsPage() {
                   </div>
                 </motion.div>
               )}
-            </TabsContent>
-          </Tabs>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Remove Member Confirmation Dialog ── */}
+      {/* Remove Member Confirmation Dialog */}
       <Dialog open={!!removeMemberTarget} onOpenChange={(open) => { if (!open) setRemoveMemberTarget(null) }}>
         <DialogContent hideClose className="!p-0 max-w-sm">
           <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid #1E1E38', display: 'flex', alignItems: 'flex-start', gap: 14 }}>

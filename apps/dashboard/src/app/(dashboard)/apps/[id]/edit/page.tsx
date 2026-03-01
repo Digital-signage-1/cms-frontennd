@@ -321,12 +321,12 @@ export default function EditAppPage() {
                 <h3 className="font-semibold text-text-primary mb-4">Content Preview</h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    {currentContent.content_type.startsWith('image/') ? <FileImage className="h-5 w-5 text-text-muted" /> :
-                     currentContent.content_type.startsWith('video/') ? <FileVideo className="h-5 w-5 text-text-muted" /> :
+                    {currentContent.mime_type.startsWith('image/') ? <FileImage className="h-5 w-5 text-text-muted" /> :
+                     currentContent.mime_type.startsWith('video/') ? <FileVideo className="h-5 w-5 text-text-muted" /> :
                      <FileText className="h-5 w-5 text-text-muted" />}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-text-primary truncate">{currentContent.name}</p>
-                      <p className="text-xs text-text-muted">{currentContent.content_type}</p>
+                      <p className="text-xs text-text-muted">{currentContent.mime_type}</p>
                     </div>
                   </div>
                 </div>
@@ -414,12 +414,12 @@ export default function EditAppPage() {
                       <div className="flex items-center gap-3 p-4 bg-background border border-border rounded-lg mb-4">
                         {currentContent ? (
                           <>
-                            {currentContent.content_type.startsWith('image/') ? <FileImage className="h-6 w-6 text-text-muted" /> :
-                             currentContent.content_type.startsWith('video/') ? <FileVideo className="h-6 w-6 text-text-muted" /> :
+                            {currentContent.mime_type.startsWith('image/') ? <FileImage className="h-6 w-6 text-text-muted" /> :
+                             currentContent.mime_type.startsWith('video/') ? <FileVideo className="h-6 w-6 text-text-muted" /> :
                              <FileText className="h-6 w-6 text-text-muted" />}
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-text-primary">{currentContent.name}</p>
-                              <p className="text-sm text-text-muted">{currentContent.content_type}</p>
+                              <p className="text-sm text-text-muted">{currentContent.mime_type}</p>
                             </div>
                           </>
                         ) : (
