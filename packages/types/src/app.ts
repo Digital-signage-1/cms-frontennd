@@ -46,6 +46,29 @@ export interface ImageAppConfig extends AppConfig {
   fit?: 'contain' | 'cover' | 'fill' | 'none'
   object_position?: string
   position?: 'center' | 'top' | 'bottom' | 'left' | 'right'
+  auto_scroll?: boolean
+  scroll_speed?: 'slow' | 'medium' | 'fast'
+}
+
+export interface PDFAppConfig extends AppConfig {
+  url?: string
+  display_mode?: 'single' | 'cycle' | 'fit_all'
+  page_duration?: number
+  start_page?: number
+  end_page?: number
+  fit_mode?: 'width' | 'height' | 'page'
+  zoom_level?: number
+  show_page_numbers?: boolean
+  background_color?: string
+}
+
+export interface YouTubeAppConfig extends AppConfig {
+  video_url?: string
+  start_time?: number
+  end_time?: number
+  muted?: boolean
+  loop?: boolean
+  autoplay?: boolean
 }
 
 export interface VideoAppConfig extends AppConfig {

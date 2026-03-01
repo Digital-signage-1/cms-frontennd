@@ -9,7 +9,8 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@signage/types": "workspace:*"
+    "@signage/types": "workspace:*",
+    "pdfjs-dist": "^5.4.624"
   },
   "peerDependencies": {
     "react": "^19.0.0",
