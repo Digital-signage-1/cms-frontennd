@@ -1,12 +1,38 @@
 'use client'
 
 import { useRef, useEffect, useState, useCallback } from 'react'
-// Use legacy build to avoid Object.defineProperty crash with webpack eval-source-map in dev
-// See: https://github.com/mozilla/pdf.js/issues/20478
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'
 
-// Set worker source to CDN
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`
+// pdfjs-dist crashes in Next.js dev mode due to webpack eval-source-map
+// shadowing __webpack_exports__. We bypass webpack entirely by loading from CDN.
+// See: https://github.com/mozilla/pdf.js/issues/20478
+const PDFJS_VERSION = '5.4.624'
+const PDFJS_CDN = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}`
+
+type PDFLib = typeof import('pdfjs-dist')
+
+let _pdfjsLib: PDFLib | null = null
+let _pdfjsPromise: Promise<PDFLib> | null = null
+
+function loadPdfjs(): Promise<PDFLib> {
+  if (_pdfjsLib) return Promise.resolve(_pdfjsLib)
+  if (_pdfjsPromise) return _pdfjsPromise
+
+  _pdfjsPromise = import(
+    /* webpackIgnore: true */
+    `${PDFJS_CDN}/pdf.min.mjs`
+  ).then((mod: PDFLib) => {
+    mod.GlobalWorkerOptions.workerSrc = `${PDFJS_CDN}/pdf.worker.min.mjs`
+    _pdfjsLib = mod
+    return mod
+  })
+
+  return _pdfjsPromise
+}
+
+interface PDFDocumentProxy {
+  numPages: number
+  getPage(pageNumber: number): Promise<any>
+}
 
 interface PDFRendererProps {
   config: {
@@ -36,7 +62,7 @@ export function PDFRenderer({
 }: PDFRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map())
-  const [pdfDoc, setPdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
+  const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -61,8 +87,9 @@ export function PDFRenderer({
     setLoading(true)
     setError(false)
 
-    const loadPdf = async () => {
+    const load = async () => {
       try {
+        const pdfjsLib = await loadPdfjs()
         const doc = await pdfjsLib.getDocument(pdfUrl).promise
         if (cancelled) return
         setPdfDoc(doc)
@@ -79,7 +106,7 @@ export function PDFRenderer({
       }
     }
 
-    loadPdf()
+    load()
     return () => { cancelled = true }
   }, [pdfUrl, startPage])
 
