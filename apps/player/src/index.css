@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --primary: #4F46E5;
+  --primary: #F5A624;
 }
 
 * {
@@ -18,6 +18,15 @@ html, body, #root {
   overflow: hidden;
   background: #000;
   color: #fff;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
 .animate-pulse-slow {

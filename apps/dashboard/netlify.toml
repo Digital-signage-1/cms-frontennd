@@ -1,7 +1,13 @@
 [build]
   base = "apps/dashboard"
   command = "cd ../.. && pnpm install && pnpm exec turbo build --filter=@signage/dashboard"
-  publish = ".next"
+  publish = "out"
 
 [build.environment]
+  NODE_VERSION        = "20"
   NEXT_PUBLIC_API_URL = "https://5te33orwoc.execute-api.us-east-1.amazonaws.com/development"
+
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
