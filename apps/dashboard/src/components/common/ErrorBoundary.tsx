@@ -1,7 +1,8 @@
 'use client'
 
 import { Component, ReactNode } from 'react'
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@/components/ui'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { AlertTriangle } from 'lucide-react'
 
 interface Props {
