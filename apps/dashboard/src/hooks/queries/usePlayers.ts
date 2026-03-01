@@ -98,7 +98,7 @@ export function useCreatePlayer() {
       data
     }: {
       workspaceId: string
-      data: { name: string; device_type?: string }
+      data: { name: string; device_type?: string; channel_id?: string }
     }) => api.players.create(workspaceId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['players', variables.workspaceId] })

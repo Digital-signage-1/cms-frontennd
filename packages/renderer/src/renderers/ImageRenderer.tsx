@@ -6,7 +6,9 @@ interface ImageRendererProps {
   config: {
     url?: string
     fit?: string
+    fit_mode?: string
     position?: string
+    object_position?: string
   }
   contentUrl?: string
   onError?: (error: Error) => void
@@ -23,8 +25,8 @@ export function ImageRenderer({
   const [error, setError] = useState(false)
 
   const imageUrl = config.url || contentUrl
-  const fit = config.fit || 'contain'
-  const position = config.position || 'center'
+  const fit = config.fit_mode || config.fit || 'contain'
+  const position = config.object_position || config.position || 'center'
 
   const handleLoad = () => {
     setLoaded(true)

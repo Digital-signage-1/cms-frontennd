@@ -42,8 +42,10 @@ export interface AppConfig {
 }
 
 export interface ImageAppConfig extends AppConfig {
-  fit: 'contain' | 'cover' | 'fill' | 'none'
-  position: 'center' | 'top' | 'bottom' | 'left' | 'right'
+  fit_mode?: 'contain' | 'cover' | 'fill' | 'none'
+  fit?: 'contain' | 'cover' | 'fill' | 'none'
+  object_position?: string
+  position?: 'center' | 'top' | 'bottom' | 'left' | 'right'
 }
 
 export interface VideoAppConfig extends AppConfig {

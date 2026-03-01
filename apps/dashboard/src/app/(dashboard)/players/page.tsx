@@ -4,8 +4,9 @@ import { Button, Input } from '@/components/ui'
 import { GlassCard } from '@/components/ui/glass-card'
 import { EmptyState } from '@/components/ui/empty-state'
 import { usePlayers } from '@/hooks/queries'
+import { useChannels } from '@/hooks/queries'
 import { PlayerRegistrationModal } from '@/components/players/PlayerRegistrationModal'
-import { Monitor, Plus, RefreshCw, Search, Copy, QrCode } from 'lucide-react'
+import { Monitor, Plus, RefreshCw, Search, Copy } from 'lucide-react'
 import { useState, Suspense, lazy } from 'react'
 import { useAuthStore } from '@/stores/auth-store'
 import type { Player } from '@signage/types'
@@ -18,6 +19,7 @@ export default function PlayersPage() {
   const workspace = useAuthStore((state) => state.workspace)
   const workspaceId = workspace?.workspace_id || ''
   const { data: playersData = [], isLoading: playersLoading } = usePlayers(workspaceId)
+  const { data: channels = [] } = useChannels(workspaceId)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false)
@@ -25,6 +27,10 @@ export default function PlayersPage() {
   const players = Array.isArray(playersData) ? playersData : []
   const filteredPlayers = players.filter((player: Player) =>
     player.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const channelMap = Object.fromEntries(
+    (channels as { channel_id: string; name: string }[]).map(c => [c.channel_id, c.name])
   )
 
   const onlinePlayers = players.filter((p: Player) => p.status === 'online').length
@@ -91,8 +97,8 @@ export default function PlayersPage() {
           className="flex-1 relative z-0"
         >
           <Suspense fallback={<div className="w-full h-full bg-surface animate-pulse" />}>
-            <PlayerMap 
-              players={filteredPlayers} 
+            <PlayerMap
+              players={filteredPlayers}
               onPlayerClick={(player) => setSelectedPlayer(player.player_id)}
             />
           </Suspense>
@@ -121,32 +127,21 @@ export default function PlayersPage() {
             ) : filteredPlayers.length === 0 ? (
               players.length === 0 ? (
                 <EmptyState
-                  title="Add your first player"
-                  description="Download the player app and use this pairing code"
+                  title="No players yet"
+                  description="Open the player app on your display device to get a pairing code, then click Register Player to connect it."
                   visual={
                     <div className="p-8 bg-surface rounded-lg border border-border shadow-lg">
                       <div className="text-center">
-                        <p className="text-xs uppercase tracking-wider text-text-muted mb-3 font-medium">
-                          Pairing Code
+                        <Monitor className="h-12 w-12 text-primary/40 mx-auto mb-3" />
+                        <p className="text-sm text-text-muted">
+                          Your paired players will appear here
                         </p>
-                        <div className="font-mono text-3xl font-bold text-primary tracking-wider mb-4">
-                          ABC-123-XYZ
-                        </div>
-                        <div className="flex items-center justify-center gap-3">
-                          <span className="text-xs text-text-muted">Expires in 14:59</span>
-                          <Button size="sm" variant="outline" className="gap-2 h-8">
-                            <Copy className="h-3 w-3" /> Copy
-                          </Button>
-                          <Button size="sm" variant="outline" className="gap-2 h-8">
-                            <QrCode className="h-3 w-3" /> QR Code
-                          </Button>
-                        </div>
                       </div>
                     </div>
                   }
                   action={{
-                    label: "Download Player App",
-                    onClick: () => window.open('/downloads', '_blank')
+                    label: "Register Player",
+                    onClick: () => setIsRegistrationModalOpen(true)
                   }}
                 />
               ) : (
@@ -169,8 +164,8 @@ export default function PlayersPage() {
                     <GlassCard
                       variant="light"
                       className={`cursor-pointer transition-all ${
-                        selectedPlayer === player.player_id 
-                          ? 'ring-2 ring-primary' 
+                        selectedPlayer === player.player_id
+                          ? 'ring-2 ring-primary'
                           : ''
                       }`}
                     >
@@ -184,19 +179,45 @@ export default function PlayersPage() {
                               {player.name}
                             </h3>
                             <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${
-                              player.status === 'online' 
-                                ? 'bg-success/10 text-success' 
+                              player.status === 'online'
+                                ? 'bg-success/10 text-success'
+                                : player.status === 'pending'
+                                ? 'bg-warning/10 text-warning'
                                 : 'bg-error/10 text-error'
                             }`}>
                               <div className={`w-1.5 h-1.5 rounded-full ${
-                                player.status === 'online' ? 'bg-success' : 'bg-error'
+                                player.status === 'online' ? 'bg-success' : player.status === 'pending' ? 'bg-warning' : 'bg-error'
                               }`} />
                               <span className="text-xs font-medium">{player.status}</span>
                             </div>
                           </div>
-                          <p className="text-xs text-text-muted mb-2 capitalize">
+                          <p className="text-xs text-text-muted mb-1 capitalize">
                             {player.device_type}
                           </p>
+                          {player.status === 'pending' && (player as any).pairing_code && (
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs text-text-muted">Code:</span>
+                              <code className="text-xs font-mono bg-surface-alt px-1.5 py-0.5 rounded text-primary font-semibold">
+                                {(player as any).pairing_code}
+                              </code>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  navigator.clipboard.writeText((player as any).pairing_code)
+                                }}
+                                className="text-text-muted hover:text-text-primary"
+                              >
+                                <Copy className="h-3 w-3" />
+                              </button>
+                            </div>
+                          )}
+                          {(player as any).channel_id ? (
+                            <p className="text-xs text-text-secondary mb-1">
+                              Channel: {channelMap[(player as any).channel_id] || 'Unknown'}
+                            </p>
+                          ) : player.status !== 'pending' ? (
+                            <p className="text-xs text-text-muted mb-1">No channel assigned</p>
+                          ) : null}
                           <div className="flex items-center gap-1.5 text-xs text-text-secondary">
                             <span>Last seen: {player.last_seen_at ? new Date(player.last_seen_at).toLocaleString() : 'Never'}</span>
                           </div>
@@ -211,7 +232,6 @@ export default function PlayersPage() {
         </motion.div>
       </div>
 
-      {/* Player Registration Modal */}
       <PlayerRegistrationModal
         isOpen={isRegistrationModalOpen}
         onClose={() => setIsRegistrationModalOpen(false)}

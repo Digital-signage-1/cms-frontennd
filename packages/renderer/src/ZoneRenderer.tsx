@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import type { ChannelZone, ZoneApp } from '@signage/types'
 import { TransitionEngine, type TransitionType } from './TransitionEngine'
 import { ContentRenderer } from './renderers'
@@ -30,17 +30,27 @@ export function ZoneRenderer({
   const [nextApp, setNextApp] = useState<ZoneApp | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Stable identity for the apps list — only changes when actual app IDs change
+  const appsKey = useMemo(
+    () => apps.map((a) => a.app_id).join(','),
+    [apps]
+  )
+
+  // Keep a ref to apps so effects can read latest data without depending on the array reference
+  const appsRef = useRef(apps)
+  appsRef.current = apps
+
   const getBackgroundStyle = useCallback(() => {
     const bg = zone.background
     if (!bg) return {}
-    
+
     switch (bg.type) {
       case 'color':
         return { backgroundColor: bg.value }
       case 'gradient':
         return { background: bg.value }
       case 'image':
-        return { 
+        return {
           backgroundImage: `url(${bg.value})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
@@ -50,48 +60,58 @@ export function ZoneRenderer({
     }
   }, [zone.background])
 
+  // Stable ref for onAppChange to avoid re-firing effects when callback identity changes
+  const onAppChangeRef = useRef(onAppChange)
+  useEffect(() => {
+    onAppChangeRef.current = onAppChange
+  })
+
   const goToNext = useCallback(() => {
-    if (apps.length <= 1) return
-    
-    const nextIndex = (currentIndex + 1) % apps.length
-    setNextApp(apps[nextIndex])
+    const currentApps = appsRef.current
+    if (currentApps.length <= 1) return
+
+    const nextIndex = (currentIndex + 1) % currentApps.length
+    setNextApp(currentApps[nextIndex])
     setIsTransitioning(true)
-    
+
     setTimeout(() => {
       setCurrentIndex(nextIndex)
-      setCurrentApp(apps[nextIndex])
+      setCurrentApp(currentApps[nextIndex])
       setNextApp(null)
       setIsTransitioning(false)
-      onAppChange?.(apps[nextIndex].app_id)
+      onAppChangeRef.current?.(currentApps[nextIndex].app_id)
     }, transitionDuration)
-  }, [apps, currentIndex, transitionDuration, onAppChange])
+  }, [currentIndex, transitionDuration])
 
+  // Reset when the actual apps change (not just reference)
   useEffect(() => {
-    if (apps.length === 0) return
-    
-    setCurrentApp(apps[0])
+    const currentApps = appsRef.current
+    if (currentApps.length === 0) return
+
+    setCurrentApp(currentApps[0])
     setCurrentIndex(0)
-    onAppChange?.(apps[0].app_id)
-  }, [apps, onAppChange])
+    onAppChangeRef.current?.(currentApps[0].app_id)
+  }, [appsKey])
 
+  // App cycling timer
   useEffect(() => {
-    if (!currentApp || apps.length <= 1 || isPreview) return
-    
+    if (!currentApp || appsRef.current.length <= 1 || isPreview) return
+
     const duration = currentApp.duration_seconds * 1000
     if (duration <= 0) return
-    
+
     timerRef.current = setTimeout(goToNext, duration)
-    
+
     return () => {
       if (timerRef.current) {
         clearTimeout(timerRef.current)
       }
     }
-  }, [currentApp, apps.length, isPreview, goToNext])
+  }, [currentApp, appsKey, isPreview, goToNext])
 
   if (!currentApp) {
     return (
-      <div 
+      <div
         className="w-full h-full flex items-center justify-center bg-gray-900 text-gray-500"
         style={getBackgroundStyle()}
       >
@@ -101,7 +121,7 @@ export function ZoneRenderer({
   }
 
   return (
-    <div 
+    <div
       className="relative w-full h-full overflow-hidden"
       style={getBackgroundStyle()}
       data-zone-id={zone.zone_id}

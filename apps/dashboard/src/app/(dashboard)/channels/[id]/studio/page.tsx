@@ -1,19 +1,19 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, useRef, useCallback, use } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button, Input } from '@/components/ui'
 import { StatusDot } from '@/components/ui/status-dot'
 import {
-  ArrowLeft, Save, Upload, Play, Settings, Monitor,
+  ArrowLeft, Save, Upload, Play, Pause, Settings, Monitor,
   Image, Video, Clock, Cloud, Globe, Code, LayoutGrid,
-  Plus, Layers, ChevronLeft, ChevronRight, X
+  Plus, Layers, ChevronLeft, ChevronRight, X, Trash2
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import {
   useChannel, useChannelManifest, useUpdateChannel, usePublishChannel,
-  useAddZoneApp, useCreateZone, useChannelZones, useCreateSlide, useUpdateSlide
+  useAddZoneApp, useCreateZone, useChannelZones, useCreateSlide, useUpdateSlide, useDeleteSlide
 } from '@/hooks/queries/useChannels'
 import { useApps } from '@/hooks/queries'
 import { useContentItem } from '@/hooks/queries/useContent'
@@ -120,6 +120,13 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const [showAddSlideModal, setShowAddSlideModal] = useState(false)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [previewSlideIndex, setPreviewSlideIndex] = useState(0)
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false)
+  const [autoPlayElapsed, setAutoPlayElapsed] = useState(0)
+  const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const autoPlayIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [editingDuration, setEditingDuration] = useState<string>('')
+  const [editingSlideIndex, setEditingSlideIndex] = useState<number | null>(null)
+  const [newSlideDuration, setNewSlideDuration] = useState(10)
 
   const { data: channelData, isLoading: channelLoading } = useChannel(workspaceId, resolvedParams.id)
   const channelId = channelData?.channel_id ?? resolvedParams.id
@@ -131,6 +138,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const createZoneMutation = useCreateZone()
   const createSlideMutation = useCreateSlide()
   const updateSlideMutation = useUpdateSlide()
+  const deleteSlideMutation = useDeleteSlide()
 
   const availableApps = Array.isArray(appsData) ? appsData : []
   const slides = manifestData?.slides || []
@@ -157,6 +165,50 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
       setSelectedSlideIndex(0)
     }
   }, [slides, selectedSlideIndex])
+
+  // Auto-play timer for preview
+  useEffect(() => {
+    if (!isAutoPlaying || !showPreviewModal || !manifestData?.slides?.length) {
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current)
+      if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current)
+      return
+    }
+    const currentSlide = manifestData.slides[previewSlideIndex]
+    const durationMs = (currentSlide?.duration_seconds ?? 10) * 1000
+
+    setAutoPlayElapsed(0)
+    autoPlayIntervalRef.current = setInterval(() => {
+      setAutoPlayElapsed(prev => Math.min(prev + 100, durationMs))
+    }, 100)
+
+    autoPlayTimerRef.current = setTimeout(() => {
+      setPreviewSlideIndex(i => {
+        const total = manifestData?.slides?.length ?? 1
+        return i >= total - 1 ? 0 : i + 1
+      })
+    }, durationMs)
+
+    return () => {
+      if (autoPlayTimerRef.current) clearTimeout(autoPlayTimerRef.current)
+      if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current)
+    }
+  }, [isAutoPlaying, showPreviewModal, previewSlideIndex, manifestData?.slides])
+
+  // Reset auto-play when modal closes
+  useEffect(() => {
+    if (!showPreviewModal) {
+      setIsAutoPlaying(false)
+      setAutoPlayElapsed(0)
+    }
+  }, [showPreviewModal])
+
+  const handleSlideDurationSave = useCallback((slideId: string, value: string) => {
+    const num = parseInt(value, 10)
+    if (!isNaN(num) && num >= 1 && num <= 300) {
+      updateSlideMutation.mutate({ workspaceId, channelId, slideId, data: { duration_seconds: num } })
+    }
+    setEditingSlideIndex(null)
+  }, [workspaceId, channelId, updateSlideMutation])
 
   // Action handlers
   const handleSave = async () => {
@@ -251,7 +303,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
         channelId: channelData.channel_id,
         data: {
           layout_type: template.id,
-          duration_seconds: 10,
+          duration_seconds: newSlideDuration,
           zones: template.zones.map(z => ({
             name: z.name,
             x: z.x,
@@ -264,6 +316,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
         },
       })
       setShowAddSlideModal(false)
+      setNewSlideDuration(10)
     } catch (error) {
       console.error('Failed to add slide:', error)
     }
@@ -322,7 +375,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
-                onClick={() => { setPreviewSlideIndex(0); setShowPreviewModal(true); }}
+                onClick={() => { setPreviewSlideIndex(0); setIsAutoPlaying(true); setShowPreviewModal(true); }}
                 className="gap-2"
                 disabled={!manifestData?.slides?.length}
               >
@@ -504,17 +557,67 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                   >
                     <ChevronLeft className="h-3.5 w-3.5" />
                   </Button>
-                  <button
-                    onClick={() => { setSelectedSlideIndex(idx); setSelectedZone(null); }}
-                    className={cn(
-                      'w-10 h-8 rounded-lg border-2 flex items-center justify-center text-sm font-medium transition-all',
-                      selectedSlideIndex === idx
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border hover:border-primary/50 text-text-muted'
+                  <div className="flex flex-col items-center gap-0.5">
+                    <div className="relative">
+                      <button
+                        onClick={() => { setSelectedSlideIndex(idx); setSelectedZone(null); }}
+                        className={cn(
+                          'w-10 h-8 rounded-lg border-2 flex items-center justify-center text-sm font-medium transition-all',
+                          selectedSlideIndex === idx
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border hover:border-primary/50 text-text-muted'
+                        )}
+                      >
+                        {idx + 1}
+                      </button>
+                      {selectedSlideIndex === idx && slides.length > 1 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (!confirm(`Delete slide ${idx + 1}?`)) return
+                            deleteSlideMutation.mutate(
+                              { workspaceId, channelId, slideId: slide.slide_id },
+                              { onSuccess: () => setSelectedSlideIndex(Math.max(0, idx - 1)) }
+                            )
+                          }}
+                          disabled={deleteSlideMutation.isPending}
+                          className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-error text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+                          title="Delete slide"
+                        >
+                          <X className="h-2.5 w-2.5" />
+                        </button>
+                      )}
+                    </div>
+                    {selectedSlideIndex === idx && editingSlideIndex === idx ? (
+                      <input
+                        type="number"
+                        min={1}
+                        max={300}
+                        value={editingDuration}
+                        onChange={e => setEditingDuration(e.target.value)}
+                        onBlur={() => handleSlideDurationSave(slide.slide_id, editingDuration)}
+                        onKeyDown={e => { if (e.key === 'Enter') handleSlideDurationSave(slide.slide_id, editingDuration) }}
+                        autoFocus
+                        className="w-10 h-4 text-[10px] text-center border border-primary rounded bg-surface px-0.5 focus:outline-none"
+                      />
+                    ) : (
+                      <button
+                        onClick={() => {
+                          if (selectedSlideIndex === idx) {
+                            setEditingSlideIndex(idx)
+                            setEditingDuration(String(slide.duration_seconds ?? 10))
+                          } else {
+                            setSelectedSlideIndex(idx)
+                            setSelectedZone(null)
+                          }
+                        }}
+                        className="text-[10px] text-text-muted hover:text-primary transition-colors"
+                        title="Click to edit duration"
+                      >
+                        {slide.duration_seconds ?? 10}s
+                      </button>
                     )}
-                  >
-                    {idx + 1}
-                  </button>
+                  </div>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -608,6 +711,18 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
               Select how to divide this slide into content zones. You can drag content into each zone after.
             </p>
           </DialogHeader>
+          <div className="flex items-center gap-3 py-2 px-1">
+            <label className="text-sm font-medium text-text-primary whitespace-nowrap">Slide duration:</label>
+            <Input
+              type="number"
+              min={1}
+              max={300}
+              value={newSlideDuration}
+              onChange={e => setNewSlideDuration(Math.max(1, Math.min(300, parseInt(e.target.value) || 1)))}
+              className="w-24 h-8 text-sm"
+            />
+            <span className="text-xs text-text-muted">seconds (1–300)</span>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4">
             {layoutTemplates.map((template) => (
               <button
@@ -644,30 +759,60 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
           </div>
           {manifestData?.slides?.length ? (
             <>
-              <div className="flex items-center justify-center gap-4 py-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPreviewSlideIndex((i) => Math.max(0, i - 1))}
-                  disabled={previewSlideIndex === 0}
-                  className="gap-1"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-                <span className="text-sm font-medium text-text-muted">
-                  Slide {previewSlideIndex + 1} of {manifestData.slides.length}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPreviewSlideIndex((i) => Math.min((manifestData?.slides?.length ?? 1) - 1, i + 1))}
-                  disabled={previewSlideIndex >= (manifestData?.slides?.length ?? 1) - 1}
-                  className="gap-1"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center justify-center gap-4 py-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setPreviewSlideIndex((i) => Math.max(0, i - 1)); setAutoPlayElapsed(0); }}
+                    disabled={previewSlideIndex === 0 && !isAutoPlaying}
+                    className="gap-1"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </Button>
+                  <Button
+                    variant={isAutoPlaying ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setIsAutoPlaying(prev => !prev)}
+                    className="gap-1"
+                  >
+                    {isAutoPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                    {isAutoPlaying ? 'Pause' : 'Play'}
+                  </Button>
+                  <span className="text-sm font-medium text-text-muted">
+                    Slide {previewSlideIndex + 1} of {manifestData.slides.length}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { setPreviewSlideIndex((i) => Math.min((manifestData?.slides?.length ?? 1) - 1, i + 1)); setAutoPlayElapsed(0); }}
+                    disabled={previewSlideIndex >= (manifestData?.slides?.length ?? 1) - 1 && !isAutoPlaying}
+                    className="gap-1"
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+                {/* Progress bar */}
+                {(() => {
+                  const currentSlide = manifestData.slides[previewSlideIndex]
+                  const durationMs = (currentSlide?.duration_seconds ?? 10) * 1000
+                  const progress = isAutoPlaying ? Math.min((autoPlayElapsed / durationMs) * 100, 100) : 0
+                  return (
+                    <div className="flex items-center gap-2 px-4">
+                      <div className="flex-1 h-1 bg-border rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full transition-all duration-100"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-text-muted whitespace-nowrap">
+                        {currentSlide?.duration_seconds ?? 10}s
+                      </span>
+                    </div>
+                  )
+                })()}
               </div>
               <div className="flex-1 min-h-0 flex items-center justify-center bg-muted/30 rounded-lg overflow-hidden">
                 <div className="w-full max-w-4xl aspect-video bg-black rounded-lg overflow-hidden shadow-xl">

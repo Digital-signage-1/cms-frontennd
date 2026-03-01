@@ -141,6 +141,25 @@ export function useUpdateSlide() {
   })
 }
 
+export function useDeleteSlide() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      channelId,
+      slideId,
+    }: {
+      workspaceId: string
+      channelId: string
+      slideId: string
+    }) => api.channels.deleteSlide(workspaceId, channelId, slideId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'manifest'] })
+    },
+  })
+}
+
 // Zone management hooks
 export function useChannelZones(workspaceId: string, channelId: string) {
   return useQuery({
