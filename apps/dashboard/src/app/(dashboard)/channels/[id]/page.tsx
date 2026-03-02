@@ -26,6 +26,7 @@ const layoutTemplates = [
 ]
 
 interface Zone {
+  id?: number
   zone_id: string
   name: string
   x_percent: number
@@ -41,17 +42,18 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
   const resolvedParams = use(params)
   const router = useRouter()
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
 
   const isNew = resolvedParams.id === 'new'
+  const channelIdNum = isNew ? 0 : parseInt(resolvedParams.id, 10)
   const [channelName, setChannelName] = useState('')
   const [selectedSlideIndex, setSelectedSlideIndex] = useState(0)
   const [selectedZone, setSelectedZone] = useState<string | null>(null)
   const [showAppPicker, setShowAppPicker] = useState(false)
   const [showTemplates, setShowTemplates] = useState(false)
 
-  const { data: channelData, isLoading: channelLoading } = useChannel(workspaceId, resolvedParams.id)
-  const { data: manifestData } = useChannelManifest(workspaceId, resolvedParams.id)
+  const { data: channelData, isLoading: channelLoading } = useChannel(workspaceId, channelIdNum)
+  const { data: manifestData } = useChannelManifest(workspaceId, channelIdNum)
   const { data: appsData, isLoading: appsLoading, error: appsError } = useApps(workspaceId)
   const updateChannelMutation = useUpdateChannel()
   const publishChannelMutation = usePublishChannel()
@@ -91,7 +93,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
     try {
       await updateChannelMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.channel_id,
+        channelId: channelData.id,
         data: { name: channelName },
       })
     } catch (error) {
@@ -104,7 +106,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
     try {
       await publishChannelMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.channel_id,
+        channelId: channelData.id,
       })
     } catch (error) {
       console.error('Failed to publish channel:', error)
@@ -112,25 +114,17 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
   }
 
   const addAppToZone = async (zoneId: string, app: any) => {
-    if (!workspaceId || !channelData) {
-      console.error('Missing workspace ID or channel data')
-      return
-    }
-
-    console.log('Adding app to zone:', {
-      workspaceId,
-      channelId: channelData.channel_id,
-      zoneId,
-      app: app.app_id
-    })
-
+    if (!workspaceId || !channelData) return
+    const zone = zones.find((z: any) => z.zone_id === zoneId || (z as any).id === parseInt(zoneId, 10))
+    const zoneIdNum = (zone as any)?.id ?? (typeof zoneId === 'string' ? parseInt(zoneId, 10) : zoneId)
+    if (!zoneIdNum || isNaN(zoneIdNum)) return
     try {
       await addZoneAppMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.channel_id,
-        zoneId,
+        channelId: channelData.id,
+        zoneId: zoneIdNum,
         data: {
-          app_id: app.app_id,
+          app_id: app.id,
           duration_seconds: 30,
           order: 0,
         }

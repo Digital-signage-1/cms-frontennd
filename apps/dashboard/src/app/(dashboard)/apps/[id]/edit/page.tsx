@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { Button, Input, Label, Skeleton } from '@/components/ui'
@@ -54,7 +54,7 @@ export default function EditAppPage() {
   const { setBreadcrumbItems, clearBreadcrumbs } = useBreadcrumb()
   
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
 
   const [activeTab, setActiveTab] = useState('configuration')
   const [formData, setFormData] = useState<Record<string, any>>({})
@@ -101,6 +101,22 @@ export default function EditAppPage() {
   const metadata = schemaData?.metadata
 
   const Icon = metadata ? getAppIcon(metadata.icon) : Sparkles
+
+  const contentAcceptedTypes = useMemo(() => {
+    const contentField = schema?.fields?.find((f: FormField) => f.name === 'content_id' && f.type === 'file_upload')
+    const accept = contentField?.validation?.accept as string[] | undefined
+    return accept?.length ? accept : undefined
+  }, [schema])
+  const contentFilterType = useMemo(() => {
+    if (!app?.template_type) return undefined
+    const map: Record<string, 'image' | 'video' | 'pdf' | 'audio' | 'document'> = {
+      image: 'image',
+      video: 'video',
+      pdf: 'pdf',
+      slideshow: 'image',
+    }
+    return map[app.template_type]
+  }, [app?.template_type])
 
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -574,6 +590,8 @@ export default function EditAppPage() {
         }}
         onSelect={handleContentSelect}
         currentContentId={formData.content_id}
+        acceptedTypes={contentAcceptedTypes}
+        contentType={contentFilterType}
       />
 
       <AppPreviewModal

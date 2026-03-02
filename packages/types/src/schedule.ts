@@ -1,4 +1,5 @@
 export interface Schedule {
+  id: number
   schedule_id: string
   workspace_id: string
   channel_id: string
@@ -16,6 +17,7 @@ export interface Schedule {
 }
 
 export interface ScheduleOverride {
+  id: number
   override_id: string
   workspace_id: string
   channel_id: string

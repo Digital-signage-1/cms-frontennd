@@ -203,7 +203,7 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function SchedulesPage() {
   const workspace  = useAuthStore((s) => s.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
   const { data: rawSchedules = [], isLoading } = useSchedules(workspaceId)
   const deleteScheduleMutation = useDeleteSchedule()
   const { setBreadcrumbItems } = useBreadcrumb()

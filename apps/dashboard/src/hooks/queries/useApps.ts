@@ -2,19 +2,22 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/services/api'
 import type { App, AppType, AppConfig, AppTypesResponse, AppTypeSchemaResponse } from '@signage/types'
 
-export function useApps(workspaceId: string) {
+export function useApps(workspaceId: string | number) {
+  const wid = Number(workspaceId)
   return useQuery({
-    queryKey: ['apps', workspaceId],
-    queryFn: () => api.apps.list(workspaceId),
-    enabled: !!workspaceId,
+    queryKey: ['apps', wid],
+    queryFn: () => api.apps.list(wid),
+    enabled: !!wid,
   })
 }
 
-export function useApp(workspaceId: string, appId: string) {
+export function useApp(workspaceId: string | number, appId: string | number) {
+  const wid = Number(workspaceId)
+  const aid = Number(appId)
   return useQuery({
-    queryKey: ['apps', workspaceId, appId],
-    queryFn: () => api.apps.get(workspaceId, appId),
-    enabled: !!workspaceId && !!appId,
+    queryKey: ['apps', wid, aid],
+    queryFn: () => api.apps.get(wid, aid),
+    enabled: !!wid && !Number.isNaN(aid),
   })
 }
 
@@ -58,7 +61,7 @@ export function useCreateApp() {
         integration_id?: string
         config: AppConfig
       }
-    }) => api.apps.create(workspaceId, data),
+    }) => api.apps.create(Number(workspaceId), data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['apps', variables.workspaceId] })
     },
@@ -74,10 +77,10 @@ export function useUpdateApp() {
       appId,
       data,
     }: {
-      workspaceId: string
-      appId: string
+      workspaceId: string | number
+      appId: string | number
       data: Partial<App>
-    }) => api.apps.update(workspaceId, appId, data),
+    }) => api.apps.update(Number(workspaceId), Number(appId), data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['apps', variables.workspaceId] })
       queryClient.invalidateQueries({ queryKey: ['apps', variables.workspaceId, variables.appId] })
@@ -89,8 +92,8 @@ export function useDeleteApp() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, appId }: { workspaceId: string; appId: string }) =>
-      api.apps.delete(workspaceId, appId),
+    mutationFn: ({ workspaceId, appId }: { workspaceId: string | number; appId: string | number }) =>
+      api.apps.delete(Number(workspaceId), Number(appId)),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['apps', variables.workspaceId] })
     },

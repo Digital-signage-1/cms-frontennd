@@ -3,6 +3,7 @@ export type Orientation = 'landscape' | 'portrait' | 'square'
 export type LayoutCategory = 'basic' | 'business' | 'retail' | 'restaurant' | 'education' | 'healthcare' | 'custom'
 
 export interface LayoutTemplate {
+  id: number
   template_id: string
   workspace_id?: string
   name: string
@@ -15,6 +16,7 @@ export interface LayoutTemplate {
 }
 
 export interface ScreenTemplate {
+  id: number
   template_id: string
   workspace_id?: string
   layout_template_id: string

@@ -80,7 +80,7 @@ const PAGE_SIZE = 20
 
 export default function AnalyticsPage() {
   const workspace  = useAuthStore((s) => s.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
   const { data: summaryData } = useAnalyticsSummary(workspaceId)
   const { setBreadcrumbItems } = useBreadcrumb()
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('Last 30 days')

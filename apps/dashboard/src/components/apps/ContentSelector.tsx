@@ -5,7 +5,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Search, FileImage, FileVideo, FileText, File, X, Folder, ChevronRight, Home, Library } from 'lucide-react'
 import { useContent, useFolders, useAllFolders } from '@/hooks/queries'
 import { useAuthStore } from '@/stores/auth-store'
-import type { Content, Folder as FolderType } from '@signage/types'
+import type { Content, Folder as FolderType, ContentType } from '@signage/types'
 import { motion } from 'framer-motion'
 
 interface ContentSelectorProps {
@@ -13,6 +13,7 @@ interface ContentSelectorProps {
   onClose: () => void
   onSelect: (content: Content) => void
   acceptedTypes?: string[]
+  contentType?: ContentType
   currentContentId?: string
 }
 
@@ -38,13 +39,13 @@ const TYPE_STYLE: Record<string, { bg: string; color: string }> = {
   File:  { bg: 'rgba(107,114,128,0.22)', color: '#9CA3AF' },
 }
 
-export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, currentContentId }: ContentSelectorProps) {
+export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, contentType, currentContentId }: ContentSelectorProps) {
   const [searchQuery, setSearchQuery]   = useState('')
   const [currentFolder, setCurrentFolder] = useState<string | null>(null)
   const workspace   = useAuthStore(s => s.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
 
-  const { data: contentData, isLoading }          = useContent(workspaceId, { search: searchQuery || undefined, folder_id: currentFolder || undefined })
+  const { data: contentData, isLoading }          = useContent(workspaceId, { search: searchQuery || undefined, folder_id: currentFolder || undefined, type: contentType })
   const { data: foldersResponse, isLoading: foldersLoading } = useFolders(workspaceId, currentFolder)
   const { data: allFoldersResponse }              = useAllFolders(workspaceId)
 
@@ -60,8 +61,8 @@ export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, curr
   const filteredContent = useMemo(() => {
     return assets.filter((item: Content) => {
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      if (acceptedTypes?.length) {
-        const matchesType = acceptedTypes.some(t => item.mime_type.startsWith(t.replace('/*', '')))
+      if (acceptedTypes?.length && item.mime_type) {
+        const matchesType = acceptedTypes.some(t => item.mime_type!.startsWith(t.replace('/*', '')))
         return matchesSearch && matchesType
       }
       return matchesSearch

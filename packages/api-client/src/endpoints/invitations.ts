@@ -5,11 +5,11 @@ export function createInvitationsEndpoints(client: ApiClient) {
   return {
     listPending: () => client.get<PendingInvitationResponse[]>('/api/v1/invitations/pending'),
     accept: (token: string) => client.post<AcceptInviteResponse>('/api/v1/invitations/accept', { token }),
-    listByWorkspace: (workspaceId: string) =>
+    listByWorkspace: (workspaceId: number) =>
       client.get<InvitationResponse[]>(`/api/v1/workspaces/${workspaceId}/invitations`),
-    revoke: (workspaceId: string, invitationId: string) =>
+    revoke: (workspaceId: number, invitationId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/invitations/${invitationId}`),
-    resend: (workspaceId: string, invitationId: string) =>
+    resend: (workspaceId: number, invitationId: number) =>
       client.post<InvitationResponse>(`/api/v1/workspaces/${workspaceId}/invitations/${invitationId}/resend`, {}),
   }
 }

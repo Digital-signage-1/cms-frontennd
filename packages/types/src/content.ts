@@ -3,6 +3,7 @@ export type ContentType = 'image' | 'video' | 'pdf' | 'audio' | 'document'
 export type ContentStatus = 'uploading' | 'processing' | 'ready' | 'error'
 
 export interface Content {
+  id: number
   content_id: string
   workspace_id: string
   folder_id?: string
@@ -34,6 +35,7 @@ export interface ContentMetadata {
 }
 
 export interface Folder {
+  id: number
   folder_id: string
   workspace_id: string
   parent_id?: string
@@ -45,6 +47,7 @@ export interface Folder {
 }
 
 export interface Tag {
+  id: number
   tag_id: string
   workspace_id: string
   name: string
@@ -60,6 +63,7 @@ export interface ContentUploadRequest {
 }
 
 export interface ContentUploadResponse {
+  id: number
   content_id: string
   upload_url: string
   s3_key: string

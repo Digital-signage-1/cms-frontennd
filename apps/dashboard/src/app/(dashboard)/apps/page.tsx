@@ -132,7 +132,20 @@ function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => voi
       style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
     >
       {/* ── Preview area ── */}
-      <div className="relative flex-shrink-0" style={{ height: 196, backgroundColor: '#111827' }}>
+      <div className="relative flex-shrink-0 overflow-hidden" style={{ height: 196, backgroundColor: '#111827' }}>
+        {(app.preview_url || app.thumbnail_url) ? (
+          <>
+            <img
+              src={app.preview_url || app.thumbnail_url || ''}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 50%, transparent 100%)' }}
+            />
+          </>
+        ) : null}
         {/* Category badge — top left */}
         <div
           className="absolute top-3 left-3 z-10 text-xs px-2.5 py-1 rounded-md font-medium"
@@ -161,8 +174,10 @@ function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => voi
           {isActive ? 'Active' : isDraft ? 'Draft' : 'Archived'}
         </div>
 
-        {/* Centered icon (hidden on hover) */}
-        <div className="absolute inset-0 flex items-center justify-center transition-opacity duration-200 group-hover:opacity-0">
+        {/* Centered icon (hidden on hover; show only when no preview image) */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 group-hover:opacity-0 ${(app.preview_url || app.thumbnail_url) ? 'opacity-0' : ''}`}
+        >
           <div
             className="w-20 h-20 rounded-2xl flex items-center justify-center"
             style={{ backgroundColor: iconBgColor }}
@@ -239,7 +254,7 @@ function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => voi
 export default function AppsPage() {
   const router = useRouter()
   const workspace = useAuthStore((s) => s.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
   const { data: apps = [], isLoading, error, refetch } = useApps(workspaceId)
   const deleteAppMutation = useDeleteApp()
   const { setBreadcrumbItems } = useBreadcrumb()
@@ -281,7 +296,7 @@ export default function AppsPage() {
   const handleDelete = async (app: SignageApp) => {
     if (!confirm(`Delete "${app.name}"?`)) return
     try {
-      await deleteAppMutation.mutateAsync({ workspaceId, appId: app.app_id })
+      await deleteAppMutation.mutateAsync({ workspaceId, appId: app.id })
     } catch (err) {
       console.error('Failed to delete app:', err)
     }
@@ -582,7 +597,7 @@ export default function AppsPage() {
               <AppCard
                 key={app.app_id}
                 app={app}
-                onEdit={() => router.push(`/apps/${app.app_id}/edit`)}
+                onEdit={() => router.push(`/apps/${app.id}/edit`)}
                 onDelete={() => handleDelete(app)}
               />
             ))}
@@ -603,10 +618,18 @@ export default function AppsPage() {
                   style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
                 >
                   <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden"
                     style={{ backgroundColor: iconBgColor }}
                   >
-                    <Icon className="h-5 w-5" style={{ color: iconColor }} />
+                    {(app.preview_url || app.thumbnail_url) ? (
+                      <img
+                        src={app.preview_url || app.thumbnail_url || ''}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Icon className="h-5 w-5" style={{ color: iconColor }} />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-white truncate">{app.name}</p>
@@ -628,7 +651,7 @@ export default function AppsPage() {
                     {playerCount} players
                   </span>
                   <button
-                    onClick={() => router.push(`/apps/${app.app_id}/edit`)}
+                    onClick={() => router.push(`/apps/${app.id}/edit`)}
                     className="text-xs px-3 py-1.5 rounded-lg font-medium flex-shrink-0"
                     style={{ backgroundColor: '#2A2A2A', color: '#9CA3AF', border: '1px solid #3A3A3A' }}
                   >

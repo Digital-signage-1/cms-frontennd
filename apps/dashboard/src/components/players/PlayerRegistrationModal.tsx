@@ -19,7 +19,7 @@ interface PlayerRegistrationModalProps {
 
 export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationModalProps) {
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
   const queryClient = useQueryClient()
   const { data: channels = [] } = useChannels(workspaceId)
 

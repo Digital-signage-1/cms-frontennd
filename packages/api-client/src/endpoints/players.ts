@@ -11,30 +11,30 @@ import type {
 
 export function createPlayersEndpoints(client: ApiClient) {
   return {
-    list: (workspaceId: string) =>
+    list: (workspaceId: number) =>
       client.get<Player[]>(`/api/v1/workspaces/${workspaceId}/players`),
     
-    get: (workspaceId: string, playerId: string) =>
+    get: (workspaceId: number, playerId: number) =>
       client.get<Player>(`/api/v1/workspaces/${workspaceId}/players/${playerId}`),
     
-    create: (workspaceId: string, data: { name: string; device_type?: string; channel_id?: string }) =>
+    create: (workspaceId: number, data: { name: string; device_type?: string; channel_id?: string }) =>
       client.post<Player>(`/api/v1/workspaces/${workspaceId}/players`, data),
     
-    update: (workspaceId: string, playerId: string, data: Partial<Player>) =>
+    update: (workspaceId: number, playerId: number, data: Partial<Player>) =>
       client.patch<Player>(`/api/v1/workspaces/${workspaceId}/players/${playerId}`, data),
     
-    delete: (workspaceId: string, playerId: string) =>
+    delete: (workspaceId: number, playerId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/players/${playerId}`),
     
-    assignChannel: (workspaceId: string, playerId: string, channelId: string | null) =>
+    assignChannel: (workspaceId: number, playerId: number, channelId: number | null) =>
       channelId
         ? client.post<Player>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/assign-channel`, { channel_id: channelId })
         : client.patch<Player>(`/api/v1/workspaces/${workspaceId}/players/${playerId}`, { channel_id: null }),
     
-    pair: (_workspaceId: string, data: PairingRequest) =>
+    pair: (_workspaceId: number, data: PairingRequest) =>
       client.post<PairingResponse>(`/api/v1/players/pair`, data),
     
-    sendCommand: (workspaceId: string, playerId: string, command: {
+    sendCommand: (workspaceId: number, playerId: number, command: {
       command_type?: string
       type?: string
       params?: Record<string, unknown>
@@ -43,38 +43,38 @@ export function createPlayersEndpoints(client: ApiClient) {
       params: command.params ?? {},
     }),
     
-    listCommands: (workspaceId: string, playerId: string) =>
+    listCommands: (workspaceId: number, playerId: number) =>
       client.get<PlayerCommand[]>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/commands`),
     
-    requestScreenshot: (workspaceId: string, playerId: string) =>
+    requestScreenshot: (workspaceId: number, playerId: number) =>
       client.post<void>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/screenshots`),
     
-    listScreenshots: (workspaceId: string, playerId: string, limit?: number) =>
+    listScreenshots: (workspaceId: number, playerId: number, limit?: number) =>
       client.get<unknown[]>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/screenshots`, { params: limit ? { limit } : undefined }),
     
-    getMetrics: (workspaceId: string, playerId: string, days?: number) =>
+    getMetrics: (workspaceId: number, playerId: number, days?: number) =>
       client.get<Record<string, unknown>>(`/api/v1/workspaces/${workspaceId}/players/${playerId}/metrics`, { params: days ? { days } : undefined }),
     
-    listGroups: (workspaceId: string) =>
+    listGroups: (workspaceId: number) =>
       client.get<PlayerGroup[]>(`/api/v1/workspaces/${workspaceId}/player-groups`),
     
-    createGroup: (workspaceId: string, data: { name: string; color: string }) =>
+    createGroup: (workspaceId: number, data: { name: string; color: string }) =>
       client.post<PlayerGroup>(`/api/v1/workspaces/${workspaceId}/player-groups`, data),
     
-    deleteGroup: (workspaceId: string, groupId: string) =>
+    deleteGroup: (workspaceId: number, groupId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/player-groups/${groupId}`),
     
-    getConfig: (playerId: string, deviceToken: string) =>
+    getConfig: (playerId: number, deviceToken: string) =>
       client.get<PlayerConfig>(`/api/v1/players/${playerId}/config`, {
         headers: { 'X-Device-Token': deviceToken }
       }),
     
-    sendHeartbeat: (playerId: string, deviceToken: string, data: Partial<PlayerHeartbeat>) =>
+    sendHeartbeat: (playerId: number, deviceToken: string, data: Partial<PlayerHeartbeat>) =>
       client.post<void>(`/api/v1/players/${playerId}/heartbeat`, data, {
         headers: { 'X-Device-Token': deviceToken }
       }),
     
-    requestPairingCode: (workspaceId: string, channelId: string) =>
+    requestPairingCode: (workspaceId: number, channelId: number) =>
       client.get<{ code: string; expires_at: string }>(`/api/v1/workspaces/${workspaceId}/players/pairing-code`, { params: { channel_id: channelId } }),
   }
 }

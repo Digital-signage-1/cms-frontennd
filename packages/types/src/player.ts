@@ -3,6 +3,7 @@ export type PlayerStatus = 'online' | 'offline' | 'pending' | 'error'
 export type DeviceType = 'web' | 'android' | 'ios' | 'windows' | 'linux' | 'raspberry_pi' | 'chrome_os' | 'smart_tv'
 
 export interface Player {
+  id: number
   player_id: string
   workspace_id: string
   name: string
@@ -38,6 +39,7 @@ export interface PlayerSettings {
 }
 
 export interface PlayerGroup {
+  id: number
   group_id: string
   workspace_id: string
   name: string

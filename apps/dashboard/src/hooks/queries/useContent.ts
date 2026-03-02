@@ -59,7 +59,7 @@ export function useConfirmUpload() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, contentId }: { workspaceId: string; contentId: string }) => {
+    mutationFn: ({ workspaceId, contentId }: { workspaceId: number; contentId: number }) => {
       if (!workspaceId) {
         throw new Error('Workspace ID is required')
       }
@@ -75,7 +75,7 @@ export function useDeleteContent() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, contentId }: { workspaceId: string; contentId: string }) => {
+    mutationFn: ({ workspaceId, contentId }: { workspaceId: string; contentId: number }) => {
       if (!workspaceId) {
         throw new Error('Workspace ID is required')
       }

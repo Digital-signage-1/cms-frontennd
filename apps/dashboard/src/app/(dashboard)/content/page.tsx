@@ -89,7 +89,7 @@ export default function ContentPage() {
   const workspace          = useAuthStore((s) => s.workspace)
   const user               = useAuthStore((s) => s.user)
   const isLoadingWorkspace = useAuthStore((s) => s.isLoading)
-  const workspaceId        = workspace?.workspace_id || ''
+  const workspaceId        = workspace?.id ?? 0
 
   const { setBreadcrumbItems } = useBreadcrumb()
 
@@ -140,7 +140,7 @@ export default function ContentPage() {
   }
 
   const uploadFileWithRetry = async (file: File, fileId: string, maxRetries = 3): Promise<void> => {
-    let uploadResponse: { content_id: string; upload_url: string; s3_key: string; expires_in: number } | null = null
+    let uploadResponse: { id: number; content_id: string; upload_url: string; s3_key: string; expires_in: number } | null = null
     let lastError: Error | null = null
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -155,7 +155,7 @@ export default function ContentPage() {
         await uploadFileToS3(file, uploadResponse!.upload_url, {
           onProgress: (p) => setUploadProgress((prev) => ({ ...prev, [fileId]: p.percentage })),
         })
-        await confirmUploadMutation.mutateAsync({ workspaceId, contentId: uploadResponse!.content_id })
+        await confirmUploadMutation.mutateAsync({ workspaceId, contentId: uploadResponse!.id })
         return
       } catch (err) {
         lastError = err instanceof Error ? err : new Error('Unknown error')
@@ -195,8 +195,8 @@ export default function ContentPage() {
 
   const handleDelete = async (ids: string[]) => {
     if (!workspaceId) return alert('Please select a workspace before deleting.')
-    const folderIds = ids.filter((id) => (allFolders as any[]).some((f) => f.folder_id === id))
-    const contentIds = ids.filter((id) => !(allFolders as any[]).some((f) => f.folder_id === id))
+    const folderIds = ids.filter((id) => id.startsWith('folder:')).map((id) => id.replace('folder:', ''))
+    const contentIds = ids.filter((id) => id.startsWith('content:')).map((id) => id.replace('content:', ''))
     for (const folderId of folderIds) {
       try {
         await deleteFolderMutation.mutateAsync({ workspaceId, folderId })
@@ -205,7 +205,7 @@ export default function ContentPage() {
     }
     for (const contentId of contentIds) {
       try {
-        await deleteMutation.mutateAsync({ workspaceId, contentId })
+        await deleteMutation.mutateAsync({ workspaceId, contentId: Number(contentId) })
       } catch (err) { alert(`Delete content failed: ${err instanceof Error ? err.message : 'Try again'}`) }
     }
     setSelectedAssets([])
@@ -545,7 +545,8 @@ export default function ContentPage() {
           <AnimatePresence>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredAssets.map((asset: any, idx: number) => {
-                const isSelected = selectedAssets.includes(asset.content_id)
+                const contentSelectId = `content:${asset.id}`
+                const isSelected = selectedAssets.includes(contentSelectId)
                 const label      = getMimeLabel(asset)
                 const badge      = BADGE[label]  ?? BADGE.FILE
                 const previewBg  = PREVIEW_BG[label] ?? PREVIEW_BG.FILE
@@ -559,7 +560,7 @@ export default function ContentPage() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: idx * 0.03, duration: 0.2 }}
-                    onClick={() => toggleAssetSelection(asset.content_id)}
+                    onClick={() => toggleAssetSelection(contentSelectId)}
                     className="rounded-xl overflow-hidden cursor-pointer group"
                     style={{
                       backgroundColor: '#1C1C1C',

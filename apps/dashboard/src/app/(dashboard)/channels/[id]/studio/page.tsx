@@ -36,7 +36,7 @@ function ContentLibraryCard({
   isAdding,
 }: {
   app: any
-  workspaceId: string
+  workspaceId: number | string
   selectedZone: string | null
   zoneName?: string
   onAddToZone: () => void
@@ -46,7 +46,7 @@ function ContentLibraryCard({
     image: Image, video: Video, web: Globe, html: Code, clock: Clock, weather: Cloud,
   }
   const Icon = iconMap[app.template_type] || LayoutGrid
-  const { data: contentItem } = useContentItem(workspaceId, app.content_id || '', { enabled: !!app.content_id })
+  const { data: contentItem } = useContentItem(String(workspaceId), app.content_id || '', { enabled: !!app.content_id })
   const previewUrl = app.thumbnail_url || app.preview_url || contentItem?.url
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -109,7 +109,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const resolvedParams = use(params)
   const router = useRouter()
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = Number(workspace?.id ?? 0)
 
   // State management
   const [channelName, setChannelName] = useState('')
@@ -128,9 +128,10 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const [editingSlideIndex, setEditingSlideIndex] = useState<number | null>(null)
   const [newSlideDuration, setNewSlideDuration] = useState(10)
 
-  const { data: channelData, isLoading: channelLoading } = useChannel(workspaceId, resolvedParams.id)
-  const channelId = channelData?.channel_id ?? resolvedParams.id
-  const { data: manifestData } = useChannelManifest(workspaceId, resolvedParams.id)
+  const channelIdNum = parseInt(resolvedParams.id, 10)
+  const { data: channelData, isLoading: channelLoading } = useChannel(workspaceId, channelIdNum)
+  const channelId = (channelData?.id ?? channelIdNum) as number
+  const { data: manifestData } = useChannelManifest(workspaceId, channelIdNum)
   const { data: appsData, isLoading: appsLoading } = useApps(workspaceId)
   const updateChannelMutation = useUpdateChannel()
   const publishChannelMutation = usePublishChannel()
@@ -202,7 +203,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     }
   }, [showPreviewModal])
 
-  const handleSlideDurationSave = useCallback((slideId: string, value: string) => {
+  const handleSlideDurationSave = useCallback((slideId: number, value: string) => {
     const num = parseInt(value, 10)
     if (!isNaN(num) && num >= 1 && num <= 300) {
       updateSlideMutation.mutate({ workspaceId, channelId, slideId, data: { duration_seconds: num } })
@@ -216,7 +217,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await updateChannelMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.channel_id,
+        channelId: channelData.id,
         data: { name: channelName },
       })
     } catch (error) {
@@ -229,7 +230,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await publishChannelMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.channel_id,
+        channelId: channelData.id,
       })
     } catch (error) {
       console.error('Failed to publish channel:', error)
@@ -242,7 +243,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await createZoneMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.channel_id,
+        channelId: channelData.id,
         data: {
           name: zoneConfig.name,
           x_percent: zoneConfig.x,
@@ -272,14 +273,16 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
 
   const addAppToZone = async (zoneId: string, app: any) => {
     if (!workspaceId || !channelData) return
-
+    const zone = zones.find((z: any) => z.zone_id === zoneId || (z as any).id === parseInt(zoneId, 10))
+    const zoneIdNum = (zone as any)?.id ?? (typeof zoneId === 'string' ? parseInt(zoneId, 10) : zoneId)
+    if (!zoneIdNum || isNaN(zoneIdNum)) return
     try {
       await addZoneAppMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.channel_id,
-        zoneId,
+        channelId: channelData.id,
+        zoneId: zoneIdNum,
         data: {
-          app_id: app.app_id,
+          app_id: app.id,
           duration_seconds: 30,
           order: 0,
         }
@@ -300,7 +303,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await createSlideMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.channel_id,
+        channelId: channelData.id,
         data: {
           layout_type: template.id,
           duration_seconds: newSlideDuration,
@@ -548,8 +551,8 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                       if (idx <= 0) return
                       const prev = slides[idx - 1]
                       updateSlideMutation.mutate(
-                        { workspaceId, channelId, slideId: slide.slide_id, data: { position: idx - 1 } },
-                        { onSuccess: () => updateSlideMutation.mutate({ workspaceId, channelId, slideId: prev.slide_id, data: { position: idx } }) }
+                        { workspaceId, channelId, slideId: slide.id, data: { position: idx - 1 } },
+                        { onSuccess: () => updateSlideMutation.mutate({ workspaceId, channelId, slideId: prev.id, data: { position: idx } }) }
                       )
                     }}
                     disabled={idx === 0 || updateSlideMutation.isPending}
@@ -576,7 +579,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                             e.stopPropagation()
                             if (!confirm(`Delete slide ${idx + 1}?`)) return
                             deleteSlideMutation.mutate(
-                              { workspaceId, channelId, slideId: slide.slide_id },
+                              { workspaceId, channelId, slideId: slide.id },
                               { onSuccess: () => setSelectedSlideIndex(Math.max(0, idx - 1)) }
                             )
                           }}
@@ -595,8 +598,8 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                         max={300}
                         value={editingDuration}
                         onChange={e => setEditingDuration(e.target.value)}
-                        onBlur={() => handleSlideDurationSave(slide.slide_id, editingDuration)}
-                        onKeyDown={e => { if (e.key === 'Enter') handleSlideDurationSave(slide.slide_id, editingDuration) }}
+                        onBlur={() => handleSlideDurationSave(slide.id, editingDuration)}
+                        onKeyDown={e => { if (e.key === 'Enter') handleSlideDurationSave(slide.id, editingDuration) }}
                         autoFocus
                         className="w-10 h-4 text-[10px] text-center border border-primary rounded bg-surface px-0.5 focus:outline-none"
                       />
@@ -626,8 +629,8 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                       if (idx >= slides.length - 1) return
                       const next = slides[idx + 1]
                       updateSlideMutation.mutate(
-                        { workspaceId, channelId, slideId: slide.slide_id, data: { position: idx + 1 } },
-                        { onSuccess: () => updateSlideMutation.mutate({ workspaceId, channelId, slideId: next.slide_id, data: { position: idx } }) }
+                        { workspaceId, channelId, slideId: slide.id, data: { position: idx + 1 } },
+                        { onSuccess: () => updateSlideMutation.mutate({ workspaceId, channelId, slideId: next.id, data: { position: idx } }) }
                       )
                     }}
                     disabled={idx === slides.length - 1 || updateSlideMutation.isPending}
@@ -819,8 +822,9 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                   {(() => {
                     const ch = manifestData.channel
                     const channel = {
-                      channel_id: ch?.channel_id ?? channelId ?? '',
-                      workspace_id: ch?.workspace_id ?? workspaceId ?? '',
+                      id: ch?.id ?? channelId,
+                      channel_id: ch?.channel_id ?? String(channelId),
+                      workspace_id: ch?.workspace_id ?? String(workspaceId),
                       name: ch?.name ?? manifestData.name ?? '',
                       layout_type: (ch?.layout_type ?? 'single') as 'single' | 'split_horizontal' | 'split_vertical' | 'grid' | 'l_shape' | 'custom',
                       layout: ch?.layout ?? { width: 1920, height: 1080, orientation: 'landscape' as const },

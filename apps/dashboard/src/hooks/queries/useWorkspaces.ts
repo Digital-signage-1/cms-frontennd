@@ -9,19 +9,19 @@ export function useWorkspaces() {
   })
 }
 
-export function useWorkspace(id: string) {
+export function useWorkspace(id: number) {
   return useQuery({
     queryKey: ['workspaces', id],
     queryFn: () => api.workspaces.get(id),
-    enabled: !!id,
+    enabled: id > 0,
   })
 }
 
-export function useWorkspaceMembers(workspaceId: string) {
+export function useWorkspaceMembers(workspaceId: number) {
   return useQuery({
     queryKey: ['workspaces', workspaceId, 'members'],
     queryFn: () => api.workspaces.getMembers(workspaceId),
-    enabled: !!workspaceId,
+    enabled: workspaceId > 0,
   })
 }
 
@@ -41,7 +41,7 @@ export function useUpdateWorkspace() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Workspace> }) =>
+    mutationFn: ({ id, data }: { id: number; data: Partial<Workspace> }) =>
       api.workspaces.update(id, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] })
@@ -54,7 +54,7 @@ export function useDeleteWorkspace() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => api.workspaces.delete(id),
+    mutationFn: (id: number) => api.workspaces.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspaces'] })
     },
@@ -70,7 +70,7 @@ export function useUpdateMemberRole() {
       userSub,
       role,
     }: {
-      workspaceId: string
+      workspaceId: number
       userSub: string
       role: string
     }) => api.workspaces.updateMemberRole(workspaceId, userSub, role),
@@ -84,7 +84,7 @@ export function useRemoveMember() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, userSub }: { workspaceId: string; userSub: string }) =>
+    mutationFn: ({ workspaceId, userSub }: { workspaceId: number; userSub: string }) =>
       api.workspaces.removeMember(workspaceId, userSub),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['workspaces', variables.workspaceId, 'members'] })

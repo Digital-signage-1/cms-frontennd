@@ -25,7 +25,7 @@ interface AppSelectorModalProps {
 
 function AppSelectorModal({ isOpen, onClose, onSelectApp, excludeAppIds }: AppSelectorModalProps) {
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
   const { data: apps = [] } = useApps(workspaceId)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -94,7 +94,7 @@ export function ZoneAppAssignment({
 }: ZoneAppAssignmentProps) {
   const [isAppSelectorOpen, setIsAppSelectorOpen] = useState(false)
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
   const { data: apps = [] } = useApps(workspaceId)
 
   // Generate a new zone app ID

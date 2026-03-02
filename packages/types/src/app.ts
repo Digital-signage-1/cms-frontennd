@@ -12,6 +12,7 @@ export type AppTemplateType =
   | 'sheets'
 
 export interface App {
+  id: number
   app_id: string
   workspace_id: string
   template_type: AppTemplateType

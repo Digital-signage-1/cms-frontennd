@@ -13,10 +13,10 @@ import { useState, useMemo, useRef } from 'react'
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/home', icon: LayoutGrid, badge: undefined },
   { label: 'Content', href: '/content', icon: Upload, badge: undefined },
-  { label: 'Players', href: '/players', icon: Monitor, badge: undefined },
-  { label: 'Channels', href: '/channels', icon: Layers, badge: undefined },
-  { label: 'Schedules', href: '/schedules', icon: Calendar, badge: undefined },
   { label: 'Apps', href: '/apps', icon: Box, badge: undefined },
+  { label: 'Channels', href: '/channels', icon: Layers, badge: undefined },
+  { label: 'Players', href: '/players', icon: Monitor, badge: undefined },
+  { label: 'Schedules', href: '/schedules', icon: Calendar, badge: undefined },
 ]
 
 const BOTTOM_NAV_ITEMS = [

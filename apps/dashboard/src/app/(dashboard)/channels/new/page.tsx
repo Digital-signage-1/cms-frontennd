@@ -1,33 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Button, Input, Label, Textarea } from '@/components/ui'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCreateChannel } from '@/hooks/queries/useChannels'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Check } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { fadeInUpVariants, staggerChildrenVariants } from '@/lib/animations'
-import { LAYOUT_TEMPLATES } from '@/lib/layout-templates'
-import { cn } from '@/lib/utils'
-
-const layoutOptions = Object.values(LAYOUT_TEMPLATES)
 
 export default function CreateChannelPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { setBreadcrumbItems, clearBreadcrumbs } = useBreadcrumb()
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.workspace_id || ''
-
-  const templateParam = searchParams.get('template')
-  const initialLayout = templateParam && LAYOUT_TEMPLATES[templateParam] ? templateParam : 'SINGLE'
+  const workspaceId = workspace?.id ?? 0
 
   const [channelName, setChannelName] = useState('')
   const [channelDescription, setChannelDescription] = useState('')
-  const [selectedLayout, setSelectedLayout] = useState(initialLayout)
 
   const createChannelMutation = useCreateChannel()
 
@@ -48,11 +39,11 @@ export default function CreateChannelPage() {
         data: {
           name: channelName.trim(),
           description: channelDescription.trim() || undefined,
-          layout_type: selectedLayout,
+          layout_type: 'SINGLE',
           background: { type: 'color', value: '#1a1a2e' },
         }
       })
-      router.push(`/channels/${result.channel_id}/studio`)
+      router.push(`/channels/${result.id}/studio`)
     } catch (error) {
       console.error('Failed to create channel:', error)
     }
@@ -79,7 +70,7 @@ export default function CreateChannelPage() {
                 Create New Channel
               </h1>
               <p className="text-sm text-text-secondary mt-1">
-                Choose a layout and name your channel
+                Name your channel. You can add zones and layout in the studio after creation.
               </p>
             </div>
           </motion.div>
@@ -87,40 +78,6 @@ export default function CreateChannelPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-8 py-8 space-y-6">
-        {/* Layout Selection */}
-        <motion.div variants={fadeInUpVariants} className="bg-surface border border-border rounded-xl p-6">
-          <Label className="text-sm font-medium text-text-primary mb-4 block">
-            Choose Layout
-          </Label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {layoutOptions.map((template) => (
-              <button
-                key={template.id}
-                onClick={() => setSelectedLayout(template.id)}
-                className={cn(
-                  'relative flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all text-left',
-                  selectedLayout === template.id
-                    ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
-                    : 'border-border hover:border-primary/40 bg-surface'
-                )}
-              >
-                {selectedLayout === template.id && (
-                  <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                    <Check className="h-3 w-3 text-white" />
-                  </div>
-                )}
-                <div className="w-full aspect-video rounded-lg overflow-hidden bg-surface-alt p-1.5">
-                  {template.preview}
-                </div>
-                <div className="w-full">
-                  <p className="text-sm font-medium text-text-primary">{template.name}</p>
-                  <p className="text-xs text-text-muted">{template.description}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-        </motion.div>
-
         {/* Channel Details */}
         <motion.div variants={fadeInUpVariants} className="bg-surface border border-border rounded-xl p-6">
           <div className="space-y-4">

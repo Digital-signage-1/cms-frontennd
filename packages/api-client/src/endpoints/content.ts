@@ -3,39 +3,39 @@ import type { Content, Folder, Tag, ContentUploadRequest, ContentUploadResponse,
 
 export function createContentEndpoints(client: ApiClient) {
   return {
-    list: (workspaceId: string, params?: ContentListParams) =>
+    list: (workspaceId: number, params?: ContentListParams) =>
       client.get<{ items: Content[]; total: number }>(`/api/v1/workspaces/${workspaceId}/content`, { params: params as Record<string, string | number | boolean | undefined> }),
     
-    get: (workspaceId: string, contentId: string) =>
+    get: (workspaceId: number, contentId: number) =>
       client.get<Content>(`/api/v1/workspaces/${workspaceId}/content/${contentId}`),
     
-    initiateUpload: (workspaceId: string, data: ContentUploadRequest) =>
+    initiateUpload: (workspaceId: number, data: ContentUploadRequest) =>
       client.post<ContentUploadResponse>(`/api/v1/workspaces/${workspaceId}/content/upload`, data),
     
-    confirmUpload: (workspaceId: string, contentId: string) =>
+    confirmUpload: (workspaceId: number, contentId: number) =>
       client.post<Content>(`/api/v1/workspaces/${workspaceId}/content/${contentId}/confirm`),
 
-    delete: (workspaceId: string, contentId: string) =>
+    delete: (workspaceId: number, contentId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/content/${contentId}`),
     
-    listFolders: (workspaceId: string, parentId?: string | null) =>
+    listFolders: (workspaceId: number, parentId?: string | null) =>
       client.get<Folder[]>(`/api/v1/workspaces/${workspaceId}/folders`, { 
         params: parentId !== undefined ? { parent_id: parentId || undefined } : undefined 
       }),
     
-    createFolder: (workspaceId: string, data: { name: string; parent_id?: string }) =>
+    createFolder: (workspaceId: number, data: { name: string; parent_id?: string }) =>
       client.post<Folder>(`/api/v1/workspaces/${workspaceId}/folders`, data),
     
-    deleteFolder: (workspaceId: string, folderId: string) =>
+    deleteFolder: (workspaceId: number, folderId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/folders/${folderId}`),
     
-    listTags: (workspaceId: string) =>
+    listTags: (workspaceId: number) =>
       client.get<Tag[]>(`/api/v1/workspaces/${workspaceId}/tags`),
     
-    createTag: (workspaceId: string, data: { name: string; color: string }) =>
+    createTag: (workspaceId: number, data: { name: string; color: string }) =>
       client.post<Tag>(`/api/v1/workspaces/${workspaceId}/tags`, data),
     
-    deleteTag: (workspaceId: string, tagId: string) =>
+    deleteTag: (workspaceId: number, tagId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/tags/${tagId}`),
     
     checkQuality: (data: {

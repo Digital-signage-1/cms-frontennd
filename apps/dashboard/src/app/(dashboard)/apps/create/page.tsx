@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ChevronRight, Search, ArrowLeft, Code, Globe, FileText, FileImage,
@@ -12,7 +12,7 @@ import { FormFieldRenderer } from '@/components/apps/FormFieldRenderer'
 import { ContentSelector } from '@/components/apps/ContentSelector'
 import { useAuthStore } from '@/stores/auth-store'
 import { useCreateApp, useAppTypes, useAppTypeSchema } from '@/hooks/queries/useApps'
-import { useContent } from '@/hooks/queries'
+import { useContent, useContentItem } from '@/hooks/queries'
 import type { Content } from '@signage/types'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -66,31 +66,41 @@ const FALLBACK_TEMPLATES: AppType[] = [
   { type_id: 'countdown', name: 'Countdown Timer', description: 'Count down to events, launches, or deadlines', category: 'widgets', icon: 'countdown', popular: false, tags: ['timer', 'countdown', 'event'] },
 ]
 
-// ── Category sidebar config ───────────────────────────────────────────────────
-const CATEGORIES = [
-  { id: 'all',      label: 'All Types' },
-  { id: 'custom',   label: 'Custom' },
-  { id: 'document', label: 'Document' },
-  { id: 'embeds',   label: 'Embeds' },
-  { id: 'media',    label: 'Media' },
-  { id: 'widgets',  label: 'Widgets' },
-] as const
+const CATEGORY_ORDER = ['custom', 'embed', 'embeds', 'media', 'document', 'widgets']
 
-const CATEGORY_ORDER = ['custom', 'document', 'embeds', 'media', 'widgets']
+function getCategoriesFromTemplates(templates: AppType[]): { id: string; label: string }[] {
+  const cats = [...new Set(templates.map((t) => t.category).filter(Boolean))]
+  const order = CATEGORY_ORDER.filter((id) => cats.includes(id))
+  const rest = cats.filter((c) => !CATEGORY_ORDER.includes(c)).sort()
+  const categoryIds = [...order, ...rest]
+  const labels: Record<string, string> = {
+    all: 'All Types',
+    custom: 'Custom',
+    document: 'Document',
+    embed: 'Embed',
+    embeds: 'Embeds',
+    media: 'Media',
+    widgets: 'Widgets',
+  }
+  return [
+    { id: 'all', label: 'All Types' },
+    ...categoryIds.map((id) => ({ id, label: labels[id] || id.charAt(0).toUpperCase() + id.slice(1) })),
+  ]
+}
 
 // ── Icon map ──────────────────────────────────────────────────────────────────
 const ICON_MAP: Record<string, any> = {
   html: Code, react: Code, qr: Code,
-  pdf: FileText, spreadsheet: FileText, slides: FileText,
+  pdf: FileText, spreadsheet: FileText, slides: FileText, picture_as_pdf: FileText,
   web: Globe,
   youtube: Play,
   maps: Map,
   iframe: ExternalLink,
-  image: FileImage, slideshow: FileImage,
-  video: FileVideo,
+  image: FileImage, photo: FileImage, slideshow: FileImage, view_carousel: FileImage,
+  video: FileVideo, play_circle: FileVideo,
   audio: Music,
   clock: Clock,
-  weather: Cloud,
+  weather: Cloud, 'cloud-sun': Cloud,
   stock: BarChart2,
   rss: Rss, social: Rss,
   countdown: Timer,
@@ -100,6 +110,7 @@ const ICON_MAP: Record<string, any> = {
 const CAT_STYLE: Record<string, { bg: string; color: string }> = {
   custom:   { bg: 'rgba(251,146,60,0.22)',  color: '#FB923C' },
   document: { bg: 'rgba(245,158,11,0.22)',  color: '#F59E0B' },
+  embed:    { bg: 'rgba(14,165,233,0.22)',  color: '#38BDF8' },
   embeds:   { bg: 'rgba(14,165,233,0.22)',  color: '#38BDF8' },
   media:    { bg: 'rgba(59,130,246,0.22)',  color: '#60A5FA' },
   widgets:  { bg: 'rgba(99,102,241,0.22)',  color: '#818CF8' },
@@ -114,7 +125,7 @@ export default function CreateAppPage() {
   const router = useRouter()
   const { setBreadcrumbItems, clearBreadcrumbs } = useBreadcrumb()
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [search, setSearch]           = useState('')
@@ -127,6 +138,7 @@ export default function CreateAppPage() {
 
   const createAppMutation = useCreateApp()
   const { data: contentData } = useContent(workspaceId, {})
+  const { data: selectedContentItem } = useContentItem(String(workspaceId), formData.content_id || '', { enabled: !!formData.content_id })
   const { data: appTypesData } = useAppTypes()
   const { data: schemaData, isLoading: isLoadingSchema } = useAppTypeSchema(selectedType?.type_id || '')
 
@@ -144,8 +156,8 @@ export default function CreateAppPage() {
   const schema       = schemaData?.schema
   const defaultConfig = schemaData?.default_config || {}
 
-  // Count per category
-  const categoryCounts = CATEGORIES.reduce((acc, cat) => {
+  const categories = getCategoriesFromTemplates(templates)
+  const categoryCounts = categories.reduce((acc, cat) => {
     acc[cat.id] = cat.id === 'all'
       ? templates.length
       : templates.filter((t) => t.category === cat.id).length
@@ -166,6 +178,11 @@ export default function CreateAppPage() {
   // Group by category for display
   const grouped: Record<string, AppType[]> = {}
   for (const cat of CATEGORY_ORDER) {
+    const items = filtered.filter((t) => t.category === cat)
+    if (items.length) grouped[cat] = items
+  }
+  const otherCats = [...new Set(filtered.map((t) => t.category))].filter((c) => !CATEGORY_ORDER.includes(c))
+  for (const cat of otherCats) {
     const items = filtered.filter((t) => t.category === cat)
     if (items.length) grouped[cat] = items
   }
@@ -233,6 +250,21 @@ export default function CreateAppPage() {
   }
 
   const requiresContent = selectedType && schema?.fields?.some((f: FormField) => f.name === 'content_id')
+  const contentAcceptedTypes = useMemo(() => {
+    const contentField = schema?.fields?.find((f: FormField) => f.name === 'content_id' && f.type === 'file_upload')
+    const accept = contentField?.validation?.accept as string[] | undefined
+    return accept?.length ? accept : undefined
+  }, [schema])
+  const contentFilterType = useMemo(() => {
+    if (!selectedType?.type_id) return undefined
+    const map: Record<string, 'image' | 'video' | 'pdf' | 'audio' | 'document'> = {
+      image: 'image',
+      video: 'video',
+      pdf: 'pdf',
+      slideshow: 'image',
+    }
+    return map[selectedType.type_id]
+  }, [selectedType?.type_id])
 
   return (
     <div style={{ backgroundColor: '#0D0D0D', height: 'calc(100vh - 3.5rem)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -285,7 +317,7 @@ export default function CreateAppPage() {
           </p>
 
           <div style={{ flex: 1 }}>
-            {CATEGORIES.map((cat) => {
+            {categories.map((cat) => {
               const isActive = selectedCategory === cat.id
               const count    = categoryCounts[cat.id] || 0
               return (
@@ -334,12 +366,15 @@ export default function CreateAppPage() {
 
           {/* Template list */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
-            {Object.entries(grouped).map(([category, items]) => (
+            {(categories.filter((c) => c.id !== 'all').map((c) => c.id) as string[]).map((category) => {
+              const items = grouped[category]
+              if (!items?.length) return null
+              return (
               <div key={category}>
                 {/* Group header */}
                 <div style={{ padding: '8px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6B7280', whiteSpace: 'nowrap' }}>
-                    {category}
+                    {categories.find((c) => c.id === category)?.label ?? category}
                   </span>
                   <div style={{ flex: 1, height: 1, backgroundColor: '#1C1C1C' }} />
                 </div>
@@ -394,7 +429,7 @@ export default function CreateAppPage() {
                   )
                 })}
               </div>
-            ))}
+            ); })}
 
             {filtered.length === 0 && (
               <div style={{ padding: 40, textAlign: 'center' }}>
@@ -495,7 +530,7 @@ export default function CreateAppPage() {
                         style={{ width: '100%', height: 40, backgroundColor: '#111827', border: `1px solid ${errors.content_id ? '#DC2626' : '#1F2937'}`, borderRadius: 8, padding: '0 12px', fontSize: 13, color: formData.content_id ? '#FFFFFF' : '#6B7280', cursor: 'pointer', textAlign: 'left', boxSizing: 'border-box' }}
                       >
                         {formData.content_id
-                          ? contentData?.items?.find((c: Content) => c.content_id === formData.content_id)?.name || formData.content_id
+                          ? (selectedContentItem?.name ?? contentData?.items?.find((c: Content) => c.content_id === formData.content_id)?.name ?? formData.content_id)
                           : 'Choose from library...'}
                       </button>
                       {errors.content_id && (
@@ -564,6 +599,8 @@ export default function CreateAppPage() {
         onClose={() => { setContentSelectorOpen(false); setContentSelectorField('') }}
         onSelect={handleContentSelect}
         currentContentId={formData.content_id}
+        acceptedTypes={contentAcceptedTypes}
+        contentType={contentFilterType}
       />
     </div>
   )

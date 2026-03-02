@@ -60,7 +60,8 @@ export class ApiClient {
       body: body ? JSON.stringify(body) : undefined,
     })
 
-    const result = await response.json()
+    const text = await response.text()
+    const result = text ? JSON.parse(text) : null
 
     if (response.status === 401 && !isRetry && this.onTokenRefresh && token) {
       const refreshed = await this.onTokenRefresh()
@@ -70,19 +71,19 @@ export class ApiClient {
     }
 
     if (!response.ok) {
-      const apiResult = result as ApiResponse<T>
+      const apiResult = (result || {}) as ApiResponse<T>
       throw new ApiError(
-        apiResult.error || result.detail || 'An error occurred',
+        apiResult.error || (result as any)?.detail || 'An error occurred',
         apiResult.code || 'UNKNOWN_ERROR',
         response.status
       )
     }
 
-    if ('success' in result && result.success === true && 'data' in result) {
+    if (result && 'success' in result && result.success === true && 'data' in result) {
       return result.data as T
     }
 
-    return result as T
+    return (result ?? undefined) as T
   }
 
   get<T>(path: string, options?: RequestOptions): Promise<T> {
@@ -131,22 +132,23 @@ export class ApiClient {
       body: body ? JSON.stringify(body) : undefined,
     })
 
-    const result = await response.json()
+    const text = await response.text()
+    const result = text ? JSON.parse(text) : null
 
     if (!response.ok) {
-      const apiResult = result as ApiResponse<T>
+      const apiResult = (result || {}) as ApiResponse<T>
       throw new ApiError(
-        apiResult.error || result.detail || 'An error occurred',
+        apiResult.error || (result as any)?.detail || 'An error occurred',
         apiResult.code || 'UNKNOWN_ERROR',
         response.status
       )
     }
 
-    if ('success' in result && result.success === true && 'data' in result) {
+    if (result && 'success' in result && result.success === true && 'data' in result) {
       return result.data as T
     }
 
-    return result as T
+    return (result ?? undefined) as T
   }
 
   postUnauth<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {

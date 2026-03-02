@@ -8,16 +8,16 @@ export function createTemplatesEndpoints(client: ApiClient) {
       orientation?: string
     }) => client.get<LayoutTemplate[]>(`/api/v1/layout-templates`, { params }),
 
-    getLayoutTemplate: (templateId: string) =>
+    getLayoutTemplate: (templateId: number) =>
       client.get<LayoutTemplate>(`/api/v1/layout-templates/${templateId}`),
 
-    createLayoutTemplate: (workspaceId: string, data: TemplateCreateRequest) =>
+    createLayoutTemplate: (workspaceId: number, data: TemplateCreateRequest) =>
       client.post<LayoutTemplate>(`/api/v1/workspaces/${workspaceId}/layout-templates`, data),
 
-    updateLayoutTemplate: (workspaceId: string, templateId: string, data: Partial<TemplateCreateRequest>) =>
+    updateLayoutTemplate: (workspaceId: number, templateId: number, data: Partial<TemplateCreateRequest>) =>
       client.patch<LayoutTemplate>(`/api/v1/workspaces/${workspaceId}/layout-templates/${templateId}`, data),
 
-    deleteLayoutTemplate: (workspaceId: string, templateId: string) =>
+    deleteLayoutTemplate: (workspaceId: number, templateId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/layout-templates/${templateId}`),
 
     listScreenTemplates: (params?: {
@@ -27,7 +27,7 @@ export function createTemplatesEndpoints(client: ApiClient) {
       tags?: string
     }) => client.get<ScreenTemplate[]>(`/api/v1/screen-templates`, { params }),
 
-    getScreenTemplate: (templateId: string) =>
+    getScreenTemplate: (templateId: number) =>
       client.get<ScreenTemplate>(`/api/v1/screen-templates/${templateId}`),
 
     listIndustries: () =>
@@ -36,7 +36,7 @@ export function createTemplatesEndpoints(client: ApiClient) {
     listUseCases: (industry?: string) =>
       client.get<{ use_cases: string[] }>(`/api/v1/screen-templates/use-cases`, { params: industry ? { industry } : undefined }),
 
-    createScreenTemplate: (workspaceId: string, data: {
+    createScreenTemplate: (workspaceId: number, data: {
       name: string
       layout_template_id: string
       industry?: string
@@ -47,7 +47,7 @@ export function createTemplatesEndpoints(client: ApiClient) {
       is_public?: boolean
     }) => client.post<ScreenTemplate>(`/api/v1/workspaces/${workspaceId}/screen-templates`, data),
 
-    updateScreenTemplate: (workspaceId: string, templateId: string, data: Partial<{
+    updateScreenTemplate: (workspaceId: number, templateId: number, data: Partial<{
       name: string
       industry?: string
       use_case?: string
@@ -57,13 +57,13 @@ export function createTemplatesEndpoints(client: ApiClient) {
       is_public?: boolean
     }>) => client.patch<ScreenTemplate>(`/api/v1/workspaces/${workspaceId}/screen-templates/${templateId}`, data),
 
-    deleteScreenTemplate: (workspaceId: string, templateId: string) =>
+    deleteScreenTemplate: (workspaceId: number, templateId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/screen-templates/${templateId}`),
 
-    createChannelFromTemplate: (workspaceId: string, data: { template_id: string; name: string; description?: string }) =>
+    createChannelFromTemplate: (workspaceId: number, data: { template_id: string; name: string; description?: string }) =>
       client.post<Channel>(`/api/v1/workspaces/${workspaceId}/channels/from-template`, data),
 
-    saveChannelAsTemplate: (workspaceId: string, channelId: string, data: {
+    saveChannelAsTemplate: (workspaceId: number, channelId: number, data: {
       name: string
       description?: string
       industry?: string

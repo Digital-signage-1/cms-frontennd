@@ -167,9 +167,16 @@ export async function loadUserData(): Promise<void> {
     const workspaces = await api.auth.getWorkspaces()
     store.setWorkspaces(workspaces)
 
-    const currentWorkspace = store.workspace
-    if (!currentWorkspace && workspaces.length > 0) {
-      store.setWorkspace(workspaces[0])
+    if (workspaces.length > 0) {
+      const current = store.workspace
+      const match = current
+        ? workspaces.find(
+            (w) =>
+              w.workspace_id === (current as any).workspace_id ||
+              w.id === (current as any).id
+          )
+        : null
+      store.setWorkspace(match ?? workspaces[0])
     }
   } catch (error) {
     console.error('Failed to load user data:', error)

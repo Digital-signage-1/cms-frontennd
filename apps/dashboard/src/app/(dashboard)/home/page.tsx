@@ -10,7 +10,7 @@ import { motion } from 'framer-motion'
 
 export default function HomePage() {
   const { user, account, workspace } = useAuthStore()
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
   const { data: playersData = [], isLoading: playersLoading } = usePlayers(workspaceId)
   const { data: channels = [], isLoading: channelsLoading } = useChannels(workspaceId)
   const { data: contentData } = useContent(workspaceId, {})

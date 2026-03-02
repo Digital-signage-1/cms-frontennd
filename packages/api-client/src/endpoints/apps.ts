@@ -3,13 +3,13 @@ import type { App, AppType, AppConfig, AppTypesResponse, AppTypeSchemaResponse }
 
 export function createAppsEndpoints(client: ApiClient) {
   return {
-    list: (workspaceId: string) =>
+    list: (workspaceId: number) =>
       client.get<App[]>(`/api/v1/workspaces/${workspaceId}/apps`),
     
-    get: (workspaceId: string, appId: string) =>
+    get: (workspaceId: number, appId: number) =>
       client.get<App>(`/api/v1/workspaces/${workspaceId}/apps/${appId}`),
     
-    create: (workspaceId: string, data: {
+    create: (workspaceId: number, data: {
       template_type: string
       name: string
       description?: string
@@ -18,10 +18,10 @@ export function createAppsEndpoints(client: ApiClient) {
       config: AppConfig
     }) => client.post<App>(`/api/v1/workspaces/${workspaceId}/apps`, data),
     
-    update: (workspaceId: string, appId: string, data: Partial<App>) =>
+    update: (workspaceId: number, appId: number, data: Partial<App>) =>
       client.patch<App>(`/api/v1/workspaces/${workspaceId}/apps/${appId}`, data),
     
-    delete: (workspaceId: string, appId: string) =>
+    delete: (workspaceId: number, appId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/apps/${appId}`),
 
     listAppTypes: (category?: string) =>

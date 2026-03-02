@@ -26,7 +26,7 @@ import type { WorkspaceMember, InvitationResponse } from '@signage/types'
 
 export default function WorkspaceSettingsPage() {
   const { workspace } = useAuthStore()
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
   const [activeTab, setActiveTab] = useState<'general' | 'team'>('general')
 
   const [isEditing, setIsEditing] = useState(false)
@@ -62,7 +62,7 @@ export default function WorkspaceSettingsPage() {
 
   const handleSave = () => {
     if (!workspaceId) return
-    updateWorkspaceMutation.mutate(
+      updateWorkspaceMutation.mutate(
       { id: workspaceId, data: { name: workspaceData.name, slug: workspaceData.slug } },
       { onSuccess: () => setIsEditing(false) }
     )
@@ -529,7 +529,7 @@ export default function WorkspaceSettingsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => resendInviteMutation.mutate({ workspaceId, invitationId: inv.invitation_id })}
+                            onClick={() => resendInviteMutation.mutate({ workspaceId, invitationId: inv.id })}
                             disabled={resendInviteMutation.isPending}
                             className="h-8 gap-1.5 text-text-secondary"
                           >
@@ -539,7 +539,7 @@ export default function WorkspaceSettingsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => revokeInviteMutation.mutate({ workspaceId, invitationId: inv.invitation_id })}
+                            onClick={() => revokeInviteMutation.mutate({ workspaceId, invitationId: inv.id })}
                             disabled={revokeInviteMutation.isPending}
                             className="h-8 gap-1.5 text-error hover:bg-error/10"
                           >

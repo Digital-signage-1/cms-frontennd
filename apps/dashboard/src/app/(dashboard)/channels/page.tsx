@@ -187,7 +187,7 @@ function ChannelCard({ channel }: { channel: any }) {
       animate={{ opacity: 1, y: 0 }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onClick={() => router.push(`/channels/${channel.channel_id}/studio`)}
+      onClick={() => router.push(`/channels/${channel.id}/studio`)}
     >
       {/* ── Preview area ── */}
       <div
@@ -231,7 +231,7 @@ function ChannelCard({ channel }: { channel: any }) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
-                    router.push(`/channels/${channel.channel_id}/studio`)
+                    router.push(`/channels/${channel.id}/studio`)
                   }}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90"
                   style={{ backgroundColor: '#F5A624', color: '#000000' }}
@@ -301,7 +301,7 @@ type StatusFilter = 'all' | 'published' | 'draft'
 export default function ChannelsPage() {
   const router      = useRouter()
   const workspace   = useAuthStore((s) => s.workspace)
-  const workspaceId = workspace?.workspace_id || ''
+  const workspaceId = workspace?.id ?? 0
 
   const { data: channelsData = [], isLoading } = useChannels(workspaceId)
 
@@ -569,7 +569,7 @@ export default function ChannelsPage() {
           className="grid grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {filteredChannels.map((channel: any) => (
-            <ChannelCard key={channel.channel_id} channel={channel} />
+            <ChannelCard key={channel.id} channel={channel} />
           ))}
         </motion.div>
       )}

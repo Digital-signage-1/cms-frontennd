@@ -24,11 +24,12 @@ export interface Account {
 }
 
 export interface Workspace {
+  id: number
   workspace_id: string
   account_id: string
   name: string
   slug: string
-  s3_prefix: string
+  s3_prefix?: string
   timezone: string
   storage_used_bytes: number
   is_default: boolean
@@ -84,6 +85,7 @@ export interface InviteResponse {
 }
 
 export interface InvitationResponse {
+  id: number
   invitation_id: string
   workspace_id: string
   email: string

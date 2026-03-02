@@ -3,13 +3,13 @@ import type { Channel, ChannelZone, Slide, ZoneApp, ChannelManifest, BackgroundC
 
 export function createChannelsEndpoints(client: ApiClient) {
   return {
-    list: (workspaceId: string) =>
+    list: (workspaceId: number) =>
       client.get<Channel[]>(`/api/v1/workspaces/${workspaceId}/channels`),
     
-    get: (workspaceId: string, channelId: string, includeSlides?: boolean) =>
+    get: (workspaceId: number, channelId: number, includeSlides?: boolean) =>
       client.get<Channel>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}`, { params: includeSlides ? { include_slides: true } : {} }),
     
-    create: (workspaceId: string, data: {
+    create: (workspaceId: number, data: {
       name: string
       description?: string
       layout_type?: string
@@ -17,50 +17,50 @@ export function createChannelsEndpoints(client: ApiClient) {
       slides?: { layout_type: string; duration_seconds?: number; zones?: Array<{ name: string; x: number; y: number; width: number; height: number; z_index?: number; background?: any }> }[]
     }) => client.post<Channel>(`/api/v1/workspaces/${workspaceId}/channels`, data),
     
-    update: (workspaceId: string, channelId: string, data: Partial<Channel>) =>
+    update: (workspaceId: number, channelId: number, data: Partial<Channel>) =>
       client.patch<Channel>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}`, data),
     
-    delete: (workspaceId: string, channelId: string) =>
+    delete: (workspaceId: number, channelId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}`),
     
-    publish: (workspaceId: string, channelId: string) =>
+    publish: (workspaceId: number, channelId: number) =>
       client.post<Channel>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/publish`),
     
-    getManifest: (workspaceId: string, channelId: string) =>
+    getManifest: (workspaceId: number, channelId: number) =>
       client.get<ChannelManifest>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/manifest`),
     
-    listZones: (workspaceId: string, channelId: string) =>
+    listZones: (workspaceId: number, channelId: number) =>
       client.get<ChannelZone[]>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones`),
     
-    listSlides: (workspaceId: string, channelId: string) =>
+    listSlides: (workspaceId: number, channelId: number) =>
       client.get<Slide[]>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/slides`),
 
-    createSlide: (workspaceId: string, channelId: string, data: { layout_type?: string; duration_seconds?: number; position?: number; zones?: Array<{ name: string; x: number; y: number; width: number; height: number; z_index?: number; background?: any }> }) =>
+    createSlide: (workspaceId: number, channelId: number, data: { layout_type?: string; duration_seconds?: number; position?: number; zones?: Array<{ name: string; x: number; y: number; width: number; height: number; z_index?: number; background?: any }> }) =>
       client.post<Slide>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/slides`, data),
 
-    updateSlide: (workspaceId: string, channelId: string, slideId: string, data: Partial<Slide>) =>
+    updateSlide: (workspaceId: number, channelId: number, slideId: number, data: Partial<Slide>) =>
       client.patch<Slide>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/slides/${slideId}`, data),
 
-    deleteSlide: (workspaceId: string, channelId: string, slideId: string) =>
+    deleteSlide: (workspaceId: number, channelId: number, slideId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/slides/${slideId}`),
 
-    createZone: (workspaceId: string, channelId: string, data: Partial<ChannelZone> & { slide_id?: string }) =>
+    createZone: (workspaceId: number, channelId: number, data: Partial<ChannelZone> & { slide_id?: string }) =>
       client.post<ChannelZone>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones`, data),
 
-    createZonesBulk: (workspaceId: string, channelId: string, zones: Partial<ChannelZone>[]) =>
+    createZonesBulk: (workspaceId: number, channelId: number, zones: Partial<ChannelZone>[]) =>
       client.post<ChannelZone[]>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/bulk`, zones),
     
-    updateZone: (workspaceId: string, channelId: string, zoneId: string, data: Partial<ChannelZone>) =>
+    updateZone: (workspaceId: number, channelId: number, zoneId: number, data: Partial<ChannelZone>) =>
       client.patch<ChannelZone>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/${zoneId}`, data),
     
-    deleteZone: (workspaceId: string, channelId: string, zoneId: string) =>
+    deleteZone: (workspaceId: number, channelId: number, zoneId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/${zoneId}`),
     
-    listZoneApps: (workspaceId: string, channelId: string, zoneId: string) =>
+    listZoneApps: (workspaceId: number, channelId: number, zoneId: number) =>
       client.get<ZoneApp[]>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/${zoneId}/apps`),
     
-    addZoneApp: (workspaceId: string, channelId: string, zoneId: string, data: {
-      app_id: string
+    addZoneApp: (workspaceId: number, channelId: number, zoneId: number, data: {
+      app_id: number
       duration_seconds: number
       order?: number
       sequence?: number
@@ -70,10 +70,10 @@ export function createChannelsEndpoints(client: ApiClient) {
       sequence: data.sequence ?? data.order ?? 0,
     }),
     
-    removeZoneApp: (workspaceId: string, channelId: string, zoneId: string, zoneAppId: string) =>
+    removeZoneApp: (workspaceId: number, channelId: number, zoneId: number, zoneAppId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/${zoneId}/apps/${zoneAppId}`),
     
-    reorderZoneApps: (workspaceId: string, channelId: string, zoneId: string, zoneAppIds: string[]) =>
+    reorderZoneApps: (workspaceId: number, channelId: number, zoneId: number, zoneAppIds: string[]) =>
       client.put<ZoneApp[]>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/${zoneId}/apps/reorder`, { zone_app_ids: zoneAppIds }),
   }
 }
