@@ -35,8 +35,8 @@ const TEMPLATE_CONFIG: Record<string, {
     iconBgColor: 'rgba(124,58,237,0.28)',
     iconColor: '#A78BFA',
     Icon: LayoutGrid,
-    tags: ['Fade & Slide', 'Auto-play', 'Thumbnail nav'],
-    defaultDesc: 'Showcase multiple images in a beautiful carousel with customizable animation styles.',
+    tags: ['PowerPoint', 'Presentation', 'PPT/PPTX'],
+    defaultDesc: 'Display PowerPoint presentations as a slideshow with transitions and timing.',
   },
   video: {
     category: 'Media',
@@ -61,6 +61,14 @@ const TEMPLATE_CONFIG: Record<string, {
     Icon: FileText,
     tags: ['Auto-scroll', 'Page control', 'Zoom'],
     defaultDesc: 'Display PDF documents and presentations with smooth page transitions.',
+  },
+  docx: {
+    category: 'Media',
+    iconBgColor: 'rgba(37,99,235,0.28)',
+    iconColor: '#60A5FA',
+    Icon: FileText,
+    tags: ['Word', 'DOCX', 'Document'],
+    defaultDesc: 'Display Word documents with page-by-page viewing and transitions.',
   },
   web: {
     category: 'Utilities',
@@ -116,6 +124,7 @@ type StatusTab = typeof STATUS_TABS[number]
 
 // ── App Card ──────────────────────────────────────────────────────────────────
 function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => void; onDelete: () => void }) {
+  const [thumbnailFailed, setThumbnailFailed] = useState(false)
   const cfg = getConfig(app.template_type)
   const { Icon, iconBgColor, iconColor, tags, defaultDesc, category } = cfg
   const description = app.description || defaultDesc
@@ -126,6 +135,9 @@ function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => voi
   const isActive  = app.status === 'active'
   const isDraft   = app.status === 'draft'
 
+  const thumbUrl = app.thumbnail_url || app.preview_url
+  const showThumb = thumbUrl && !thumbnailFailed
+
   return (
     <div
       className="group rounded-xl overflow-hidden flex flex-col"
@@ -133,12 +145,13 @@ function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => voi
     >
       {/* ── Preview area ── */}
       <div className="relative flex-shrink-0 overflow-hidden" style={{ height: 196, backgroundColor: '#111827' }}>
-        {(app.preview_url || app.thumbnail_url) ? (
+        {showThumb ? (
           <>
             <img
-              src={app.preview_url || app.thumbnail_url || ''}
+              src={app.thumbnail_url || app.preview_url || ''}
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
+              onError={() => setThumbnailFailed(true)}
             />
             <div
               className="absolute inset-0 pointer-events-none"
@@ -174,9 +187,9 @@ function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => voi
           {isActive ? 'Active' : isDraft ? 'Draft' : 'Archived'}
         </div>
 
-        {/* Centered icon (hidden on hover; show only when no preview image) */}
+        {/* Centered icon (show when no thumbnail or thumbnail failed to load) */}
         <div
-          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 group-hover:opacity-0 ${(app.preview_url || app.thumbnail_url) ? 'opacity-0' : ''}`}
+          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 group-hover:opacity-0 ${showThumb ? 'opacity-0' : ''}`}
         >
           <div
             className="w-20 h-20 rounded-2xl flex items-center justify-center"
@@ -263,6 +276,7 @@ export default function AppsPage() {
   const [categoryFilter, setCategoryFilter] = useState('All')
   const [searchQuery,    setSearchQuery]    = useState('')
   const [viewMode,       setViewMode]       = useState<'grid' | 'list'>('grid')
+  const [listThumbFailed, setListThumbFailed] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     setBreadcrumbItems([{ label: 'Apps' }])
@@ -621,11 +635,12 @@ export default function AppsPage() {
                     className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden"
                     style={{ backgroundColor: iconBgColor }}
                   >
-                    {(app.preview_url || app.thumbnail_url) ? (
+                    {(app.thumbnail_url || app.preview_url) && !listThumbFailed.has(app.app_id) ? (
                       <img
-                        src={app.preview_url || app.thumbnail_url || ''}
+                        src={app.thumbnail_url || app.preview_url || ''}
                         alt=""
                         className="w-full h-full object-cover"
+                        onError={() => setListThumbFailed(prev => new Set(prev).add(app.app_id))}
                       />
                     ) : (
                       <Icon className="h-5 w-5" style={{ color: iconColor }} />

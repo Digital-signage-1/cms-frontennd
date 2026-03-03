@@ -552,6 +552,7 @@ export default function ContentPage() {
                 const previewBg  = PREVIEW_BG[label] ?? PREVIEW_BG.FILE
                 const isVideo    = asset.content_type === 'video'
                 const isPdf      = label === 'PDF'
+                const isDocument = asset.content_type === 'document'
 
                 return (
                   <motion.div
@@ -599,26 +600,61 @@ export default function ContentPage() {
 
                       {/* Preview content */}
                       {isVideo ? (
-                        /* Video play button */
-                        <div
-                          className="w-11 h-11 rounded-full flex items-center justify-center"
-                          style={{
-                            backgroundColor: 'rgba(20,184,166,0.22)',
-                            border: '1px solid rgba(20,184,166,0.3)',
-                          }}
-                        >
+                        <>
+                          {asset.thumbnail_url && (
+                            <img
+                              src={asset.thumbnail_url}
+                              alt={asset.name}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                            />
+                          )}
                           <div
-                            className="ml-0.5"
+                            className="w-11 h-11 rounded-full flex items-center justify-center relative z-10"
                             style={{
-                              width: 0, height: 0,
-                              borderTop: '7px solid transparent',
-                              borderBottom: '7px solid transparent',
-                              borderLeft: '12px solid #14B8A6',
+                              backgroundColor: 'rgba(20,184,166,0.22)',
+                              border: '1px solid rgba(20,184,166,0.3)',
                             }}
-                          />
-                        </div>
+                          >
+                            <div
+                              className="ml-0.5"
+                              style={{
+                                width: 0, height: 0,
+                                borderTop: '7px solid transparent',
+                                borderBottom: '7px solid transparent',
+                                borderLeft: '12px solid #14B8A6',
+                              }}
+                            />
+                          </div>
+                        </>
                       ) : isPdf ? (
-                        <FileText className="h-10 w-10 opacity-40" style={{ color: '#F59E0B' }} />
+                        <>
+                          {asset.thumbnail_url && (
+                            <img
+                              src={asset.thumbnail_url}
+                              alt={asset.name}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                            />
+                          )}
+                          {!asset.thumbnail_url && (
+                            <FileText className="h-10 w-10 opacity-40" style={{ color: '#F59E0B' }} />
+                          )}
+                        </>
+                      ) : isDocument ? (
+                        <>
+                          {asset.thumbnail_url && (
+                            <img
+                              src={asset.thumbnail_url}
+                              alt={asset.name}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                            />
+                          )}
+                          {!asset.thumbnail_url && (
+                            <FileText className="h-10 w-10 opacity-40" style={{ color: '#9CA3AF' }} />
+                          )}
+                        </>
                       ) : (
                         <>
                           <ImageIcon className="h-10 w-10 opacity-25" style={{ color: '#9CA3AF' }} />

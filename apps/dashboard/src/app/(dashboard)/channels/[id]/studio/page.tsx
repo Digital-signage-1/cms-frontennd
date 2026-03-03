@@ -51,6 +51,7 @@ function ContentLibraryCard({
 
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('application/json', JSON.stringify({
+      id: app.id,
       app_id: app.app_id,
       name: app.name,
       preview_url: previewUrl || app.preview_url,
@@ -118,6 +119,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const [showGrid, setShowGrid] = useState(true)
   const [sidebarMode, setSidebarMode] = useState<'apps' | 'properties'>('apps')
   const [showAddSlideModal, setShowAddSlideModal] = useState(false)
+  const [previewStreamToken, setPreviewStreamToken] = useState<string | null>(null)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
   const [previewSlideIndex, setPreviewSlideIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(false)
@@ -203,6 +205,11 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     }
   }, [showPreviewModal])
 
+  useEffect(() => {
+    if (showPreviewModal && typeof window !== 'undefined')
+      setPreviewStreamToken(localStorage.getItem('signage_access_token'))
+  }, [showPreviewModal])
+
   const handleSlideDurationSave = useCallback((slideId: number, value: string) => {
     const num = parseInt(value, 10)
     if (!isNaN(num) && num >= 1 && num <= 300) {
@@ -273,16 +280,18 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
 
   const addAppToZone = async (zoneId: string, app: any) => {
     if (!workspaceId || !channelData) return
+    const appId = app.id ?? app.app_id
+    if (appId == null || appId === '') return
     const zone = zones.find((z: any) => z.zone_id === zoneId || (z as any).id === parseInt(zoneId, 10))
-    const zoneIdNum = (zone as any)?.id ?? (typeof zoneId === 'string' ? parseInt(zoneId, 10) : zoneId)
-    if (!zoneIdNum || isNaN(zoneIdNum)) return
+    const zoneIdForApi = zone ? (zone as any).zone_id ?? (zone as any).id : zoneId
+    if (zoneIdForApi == null || zoneIdForApi === '') return
     try {
       await addZoneAppMutation.mutateAsync({
         workspaceId,
         channelId: channelData.id,
-        zoneId: zoneIdNum,
+        zoneId: zoneIdForApi,
         data: {
-          app_id: app.id,
+          app_id: appId,
           duration_seconds: 30,
           order: 0,
         }
@@ -292,7 +301,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  const handleZoneDrop = (zoneId: string, app: { app_id: string; name?: string; preview_url?: string }) => {
+  const handleZoneDrop = (zoneId: string, app: { id?: number; app_id?: string; name?: string; preview_url?: string }) => {
     addAppToZone(zoneId, app)
   }
 
@@ -836,9 +845,27 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                       updated_at: ch?.updated_at ?? '',
                     }
                     const slideZones = manifestData.slides?.[previewSlideIndex]?.zones ?? []
+                    const zonesWithAuth = previewStreamToken
+                      ? slideZones.map((zone: any) => ({
+                          ...zone,
+                          apps: zone.apps?.map((za: any) => {
+                            const a = za?.app
+                            if (a?.template_type === 'pdf' && a?.preview_url) {
+                              return {
+                                ...za,
+                                app: {
+                                  ...a,
+                                  preview_url: a.preview_url + (a.preview_url.includes('?') ? '&' : '?') + 'access_token=' + encodeURIComponent(previewStreamToken),
+                                },
+                              }
+                            }
+                            return za
+                          }) ?? zone.apps,
+                        }))
+                      : slideZones
                     return (
                       <ChannelRenderer
-                        manifest={{ channel, zones: slideZones }}
+                        manifest={{ channel, zones: zonesWithAuth }}
                         isPreview
                         className="w-full h-full"
                       />

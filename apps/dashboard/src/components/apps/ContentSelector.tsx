@@ -207,7 +207,7 @@ export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, cont
                         >
                           <div style={{ width: 44, height: 44, borderRadius: 8, backgroundColor: isSelected ? 'rgba(245,166,36,0.20)' : typeStyle.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
                             <Icon className="h-5 w-5" style={{ color: isSelected ? '#F5A624' : typeStyle.color }} />
-                            {(content.thumbnail_url || content.url) && typeLabel === 'Image' && (
+                            {(content.thumbnail_url || content.url) && (typeLabel === 'Image' || ((typeLabel === 'Video' || typeLabel === 'PDF' || typeLabel === 'File') && content.thumbnail_url)) && (
                               <img
                                 src={content.thumbnail_url || content.url}
                                 alt={content.name}

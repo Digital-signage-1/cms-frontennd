@@ -29,7 +29,7 @@ interface ZoneBuilderProps {
   onZoneUpdate: (zoneId: string, updates: Partial<Zone>) => void
   onZoneDelete: (zoneId: string) => void
   onZoneDuplicate?: (zoneId: string) => void
-  onZoneDrop?: (zoneId: string, app: { app_id: string; name?: string; preview_url?: string }) => void
+  onZoneDrop?: (zoneId: string, app: { id?: number; app_id?: string; name?: string; preview_url?: string }) => void
   showGrid?: boolean
   readonly?: boolean
 }
@@ -266,7 +266,7 @@ export function ZoneBuilder({
                 try {
                   const data = e.dataTransfer.getData('application/json')
                   if (data) {
-                    const app = JSON.parse(data) as { app_id: string; name?: string; preview_url?: string }
+                    const app = JSON.parse(data) as { id?: number; app_id?: string; name?: string; preview_url?: string }
                     onZoneDrop(zone.zone_id, app)
                   }
                 } catch (_) {}
@@ -280,14 +280,27 @@ export function ZoneBuilder({
                 {zone.apps && zone.apps.length > 0 ? (
                   <div className="flex-1 w-full min-h-0 flex flex-col items-center justify-center gap-1">
                     {zone.apps.slice(0, 2).map((zoneApp: any, appIndex: number) => {
-                      const previewUrl = zoneApp.app?.preview_url || zoneApp.app?.content_url
+                      const thumbUrl = zoneApp.app?.thumbnail_url || zoneApp.app?.preview_url || zoneApp.app?.content_url
                       return (
                         <div key={appIndex} className="w-full flex-1 min-h-0 rounded overflow-hidden bg-surface/80 border border-border/50 flex items-center justify-center">
-                          {previewUrl ? (
-                            <img src={previewUrl} alt={zoneApp.app?.name || 'Content'} className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-xs text-text-primary truncate px-1">{zoneApp.app?.name || 'App'}</span>
-                          )}
+                          {thumbUrl ? (
+                            <img
+                              src={thumbUrl}
+                              alt={zoneApp.app?.name || 'Content'}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none'
+                                const fallback = e.currentTarget.nextElementSibling as HTMLElement
+                                if (fallback) fallback.style.display = 'flex'
+                              }}
+                            />
+                          ) : null}
+                          <span
+                            className="text-xs text-text-primary truncate px-1 flex items-center justify-center"
+                            style={{ display: thumbUrl ? 'none' : 'flex' }}
+                          >
+                            {zoneApp.app?.name || 'App'}
+                          </span>
                         </div>
                       )
                     })}

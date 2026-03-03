@@ -54,7 +54,8 @@ const FALLBACK_TEMPLATES: AppType[] = [
   // Media
   { type_id: 'image', name: 'Image Viewer', description: 'Display high-resolution images from your media library', category: 'media', icon: 'image', popular: false, tags: ['image', 'photo', 'png', 'jpg'] },
   { type_id: 'video', name: 'Video Player', description: 'Play MP4 and other video formats from the library', category: 'media', icon: 'video', popular: false, tags: ['mp4', 'video', 'player'] },
-  { type_id: 'slideshow', name: 'Gallery Carousel', description: 'Cycle through multiple images with transitions', category: 'media', icon: 'slideshow', popular: false, tags: ['gallery', 'slideshow', 'carousel'] },
+  { type_id: 'slideshow', name: 'Slideshow', description: 'Display PowerPoint presentations as a slideshow', category: 'media', icon: 'slideshow', popular: false, tags: ['powerpoint', 'presentation', 'ppt'] },
+  { type_id: 'docx', name: 'Word Document', description: 'Display Word documents (DOCX) with page-by-page viewing', category: 'media', icon: 'description', popular: false, tags: ['word', 'docx', 'document'] },
   { type_id: 'audio', name: 'Audio Player', description: 'Play background audio with an ambient visual display', category: 'media', icon: 'audio', popular: false, tags: ['audio', 'mp3', 'music'] },
   // Widgets
   { type_id: 'clock', name: 'Digital Clock', description: 'Live digital or analog clock with timezone support', category: 'widgets', icon: 'clock', popular: false, tags: ['clock', 'time', 'timezone'] },
@@ -261,7 +262,8 @@ export default function CreateAppPage() {
       image: 'image',
       video: 'video',
       pdf: 'pdf',
-      slideshow: 'image',
+      slideshow: 'document',
+      docx: 'document',
     }
     return map[selectedType.type_id]
   }, [selectedType?.type_id])

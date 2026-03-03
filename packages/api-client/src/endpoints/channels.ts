@@ -59,8 +59,8 @@ export function createChannelsEndpoints(client: ApiClient) {
     listZoneApps: (workspaceId: number, channelId: number, zoneId: number) =>
       client.get<ZoneApp[]>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/${zoneId}/apps`),
     
-    addZoneApp: (workspaceId: number, channelId: number, zoneId: number, data: {
-      app_id: number
+    addZoneApp: (workspaceId: number, channelId: number, zoneId: number | string, data: {
+      app_id: number | string
       duration_seconds: number
       order?: number
       sequence?: number

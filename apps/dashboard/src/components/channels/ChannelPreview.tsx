@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Play, Monitor, Smartphone, Tablet, X } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { ChannelRenderer } from '@signage/renderer'
 
 interface ChannelPreviewProps {
   children: React.ReactNode
   channelManifest?: any
+  workspaceId?: number | string
   isOpen?: boolean
   onOpenChange?: (open: boolean) => void
 }
@@ -28,8 +30,44 @@ const deviceFrames: DeviceFrame[] = [
 
 const ZONE_BG = ['#1A1A2E', '#162040', '#0F2044', '#1C1A2E', '#1A2520', '#1A1520', '#1C1015', '#0D1A2A']
 
-export function ChannelPreview({ children, channelManifest, isOpen = false, onOpenChange }: ChannelPreviewProps) {
+export function ChannelPreview({ children, channelManifest, workspaceId, isOpen = false, onOpenChange }: ChannelPreviewProps) {
   const [selectedDevice, setSelectedDevice] = useState<DeviceFrame>(deviceFrames[0])
+  const [streamToken, setStreamToken] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (isOpen && typeof window !== 'undefined')
+      setStreamToken(localStorage.getItem('signage_access_token'))
+  }, [isOpen])
+
+  const manifestWithAuth = streamToken && channelManifest?.slides?.length
+    ? {
+        ...channelManifest,
+        channel: channelManifest.channel ?? {
+          channel_id: channelManifest.channel_id,
+          name: channelManifest.name,
+          background: channelManifest.background,
+        },
+        slides: channelManifest.slides.map((slide: any) => ({
+          ...slide,
+          zones: slide.zones?.map((zone: any) => ({
+            ...zone,
+            apps: zone.apps?.map((za: any) => {
+              const a = za?.app
+              if (a?.template_type === 'pdf' && a?.preview_url) {
+                return {
+                  ...za,
+                  app: {
+                    ...a,
+                    preview_url: a.preview_url + (a.preview_url.includes('?') ? '&' : '?') + 'access_token=' + encodeURIComponent(streamToken),
+                  },
+                }
+              }
+              return za
+            }) ?? zone.apps,
+          })) ?? slide.zones,
+        })) ?? channelManifest.slides,
+      }
+    : channelManifest
 
   const renderZones = () => {
     if (!channelManifest?.zones) return null
@@ -121,11 +159,27 @@ export function ChannelPreview({ children, channelManifest, isOpen = false, onOp
                 className={selectedDevice.aspectClass}
                 style={{ width: selectedDevice.previewWidth, maxWidth: '100%', backgroundColor: '#141420', border: '1px solid #2A2A45', borderRadius: 10, overflow: 'hidden', boxShadow: '0 0 60px rgba(0,0,0,0.6)', position: 'relative' }}
               >
-                {renderZones()}
-                {!channelManifest?.zones && (
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <p style={{ fontSize: 13, color: '#6B7280' }}>No zones configured</p>
+                {manifestWithAuth?.slides?.length ? (
+                  <div style={{ position: 'absolute', inset: 0 }}>
+                    <ChannelRenderer
+                      manifest={{
+                        channel: manifestWithAuth.channel ?? { channel_id: manifestWithAuth.channel_id, name: manifestWithAuth.name, background: manifestWithAuth.background },
+                        slides: manifestWithAuth.slides,
+                        zones: manifestWithAuth.zones,
+                      }}
+                      isPreview
+                      className="w-full h-full"
+                    />
                   </div>
+                ) : (
+                  <>
+                    {renderZones()}
+                    {!channelManifest?.zones && (
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <p style={{ fontSize: 13, color: '#6B7280' }}>No zones configured</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
               <p style={{ textAlign: 'center', fontSize: 11, color: '#6B7280', marginTop: 10 }}>{selectedDevice.name}</p>
@@ -139,8 +193,7 @@ export function ChannelPreview({ children, channelManifest, isOpen = false, onOp
   return <DialogTrigger asChild>{children}</DialogTrigger>
 }
 
-// ── Standalone preview button ─────────────────────────────────────────────────
-export function ChannelPreviewButton({ channelManifest, disabled = false }: { channelManifest?: any; disabled?: boolean }) {
+export function ChannelPreviewButton({ channelManifest, workspaceId, disabled = false }: { channelManifest?: any; workspaceId?: number | string; disabled?: boolean }) {
   const [isOpen, setIsOpen] = useState(false)
   return (
     <>
@@ -152,7 +205,7 @@ export function ChannelPreviewButton({ channelManifest, disabled = false }: { ch
         <Play className="h-3.5 w-3.5" />
         Preview
       </button>
-      <ChannelPreview channelManifest={channelManifest} isOpen={isOpen} onOpenChange={setIsOpen}>
+      <ChannelPreview channelManifest={channelManifest} workspaceId={workspaceId} isOpen={isOpen} onOpenChange={setIsOpen}>
         {null}
       </ChannelPreview>
     </>

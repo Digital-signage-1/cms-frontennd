@@ -113,7 +113,8 @@ export default function EditAppPage() {
       image: 'image',
       video: 'video',
       pdf: 'pdf',
-      slideshow: 'image',
+      slideshow: 'document',
+      docx: 'document',
     }
     return map[app.template_type]
   }, [app?.template_type])

@@ -206,8 +206,8 @@ export function useAddZoneApp() {
     }: {
       workspaceId: number
       channelId: number
-      zoneId: number
-      data: { app_id: number; duration_seconds: number; order?: number; sequence?: number }
+      zoneId: number | string
+      data: { app_id: number | string; duration_seconds: number; order?: number; sequence?: number }
     }) => api.channels.addZoneApp(workspaceId, channelId, zoneId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })

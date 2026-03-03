@@ -67,6 +67,7 @@ export function PDFRenderer({
   const [totalPages, setTotalPages] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [fadingOut, setFadingOut] = useState(false)
 
   const pdfUrl = config.url || contentUrl
@@ -86,11 +87,28 @@ export function PDFRenderer({
     let cancelled = false
     setLoading(true)
     setError(false)
+    setErrorMessage(null)
 
     const load = async () => {
       try {
+        setErrorMessage(null)
+        const res = await fetch(pdfUrl, { credentials: 'include' })
+        if (cancelled) return
+        if (res.status === 503) {
+          setError(true)
+          setErrorMessage('Content is still processing. Try again in a moment.')
+          setLoading(false)
+          return
+        }
+        if (!res.ok) {
+          setError(true)
+          setLoading(false)
+          onError?.(new Error('Failed to load PDF'))
+          return
+        }
         const pdfjsLib = await loadPdfjs()
-        const doc = await pdfjsLib.getDocument(pdfUrl).promise
+        const arrayBuffer = await res.arrayBuffer()
+        const doc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
         if (cancelled) return
         setPdfDoc(doc)
         const numPages = doc.numPages
@@ -254,8 +272,8 @@ export function PDFRenderer({
 
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-red-900/20 text-red-400">
-        <span className="text-sm">Failed to load PDF</span>
+      <div className="w-full h-full flex items-center justify-center bg-red-900/20 text-red-400 text-center px-4">
+        <span className="text-sm">{errorMessage || 'Failed to load PDF'}</span>
       </div>
     )
   }

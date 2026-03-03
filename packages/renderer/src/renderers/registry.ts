@@ -8,6 +8,7 @@ import { HtmlRenderer } from './HtmlRenderer'
 import { ClockRenderer } from './ClockRenderer'
 import { WeatherRenderer } from './WeatherRenderer'
 import { YouTubeRenderer } from './YouTubeRenderer'
+import { DocumentRenderer } from './DocumentRenderer'
 
 const PDFRenderer = lazy(() =>
   import('./PDFRenderer').then(mod => ({ default: mod.PDFRenderer }))
@@ -30,6 +31,7 @@ const registry: Record<string, ComponentType<RendererProps>> = {
   weather: WeatherRenderer as ComponentType<RendererProps>,
   pdf: PDFRenderer as ComponentType<RendererProps>,
   youtube: YouTubeRenderer as ComponentType<RendererProps>,
+  docx: DocumentRenderer as ComponentType<RendererProps>,
 }
 
 export function getRenderer(type: string): ComponentType<RendererProps> | null {

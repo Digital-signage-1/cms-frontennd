@@ -115,6 +115,8 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
 
   const addAppToZone = async (zoneId: string, app: any) => {
     if (!workspaceId || !channelData) return
+    const appId = app.id ?? app.app_id
+    if (appId == null || appId === '') return
     const zone = zones.find((z: any) => z.zone_id === zoneId || (z as any).id === parseInt(zoneId, 10))
     const zoneIdNum = (zone as any)?.id ?? (typeof zoneId === 'string' ? parseInt(zoneId, 10) : zoneId)
     if (!zoneIdNum || isNaN(zoneIdNum)) return
@@ -124,7 +126,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
         channelId: channelData.id,
         zoneId: zoneIdNum,
         data: {
-          app_id: app.id,
+          app_id: appId,
           duration_seconds: 30,
           order: 0,
         }
@@ -192,6 +194,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
               </Button>
               <ChannelPreviewButton
                 channelManifest={manifestData}
+                workspaceId={workspaceId}
                 disabled={!manifestData}
               />
               <Button
