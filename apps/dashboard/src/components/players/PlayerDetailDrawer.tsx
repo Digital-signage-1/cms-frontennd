@@ -12,6 +12,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import {
   Monitor, Wifi, WifiOff, Clock, Tv, Edit3, Trash2, Copy, Info,
   AlertCircle, AlertTriangle, Terminal, Camera, BarChart2, RefreshCw,
+  ExternalLink, Link,
 } from 'lucide-react'
 import type { Player, PlayerCommand } from '@signage/types'
 
@@ -106,10 +107,26 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
     )
   }
 
+  const [urlCopied, setUrlCopied] = useState(false)
+
   const typedPlayer = player as Player | undefined
   const deviceInfo  = typedPlayer?.device_info
   const statusCfg   = STATUS_CFG[typedPlayer?.status || ''] || {
     bg: 'rgba(107,114,128,0.15)', text: '#9CA3AF', dot: '#6B7280', Icon: Info,
+  }
+
+  const PLAYER_BASE_URL = typeof window !== 'undefined'
+    ? (process.env.NEXT_PUBLIC_PLAYER_URL || 'http://localhost:3001')
+    : 'http://localhost:3001'
+  const playerUrl = typedPlayer?.device_token
+    ? `${PLAYER_BASE_URL}/player/${typedPlayer.player_id}?token=${encodeURIComponent(typedPlayer.device_token)}`
+    : null
+
+  const handleCopyUrl = () => {
+    if (!playerUrl) return
+    navigator.clipboard.writeText(playerUrl)
+    setUrlCopied(true)
+    setTimeout(() => setUrlCopied(false), 2000)
   }
 
   const commands    = (commandsData    as PlayerCommand[])        ?? []
@@ -250,6 +267,43 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                               <p style={valueStyle}>{deviceInfo.screen_width}×{deviceInfo.screen_height}</p>
                             </div>
                           )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Player URL (for paired players) */}
+                    {playerUrl && typedPlayer.status !== 'pending' && (
+                      <div style={cardStyle}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                          <Link className="h-4 w-4" style={{ color: '#6B7280' }} />
+                          <p style={{ fontSize: 13, fontWeight: 600, color: '#FFFFFF', margin: 0 }}>Player URL</p>
+                        </div>
+                        <p style={{ fontSize: 11, color: '#6B7280', marginBottom: 8 }}>
+                          Open this URL in any browser to display this player.
+                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <input
+                            readOnly
+                            value={playerUrl}
+                            onClick={(e) => (e.target as HTMLInputElement).select()}
+                            style={{ flex: 1, height: 34, padding: '0 10px', fontSize: 11, fontFamily: 'monospace', backgroundColor: '#13132B', border: '1px solid #2A2A40', borderRadius: 8, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
+                          />
+                          <button
+                            onClick={handleCopyUrl}
+                            style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid #2A2A45', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            title="Copy URL"
+                          >
+                            <Copy className="h-4 w-4" style={{ color: urlCopied ? '#34D399' : '#9CA3AF' }} />
+                          </button>
+                          <a
+                            href={playerUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: 'rgba(245,166,36,0.12)', border: '1px solid rgba(245,166,36,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+                            title="Open player"
+                          >
+                            <ExternalLink className="h-4 w-4" style={{ color: '#F5A624' }} />
+                          </a>
                         </div>
                       </div>
                     )}

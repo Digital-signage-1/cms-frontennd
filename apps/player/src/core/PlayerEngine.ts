@@ -24,22 +24,14 @@ interface PendingCommand {
 }
 
 export class PlayerEngine {
-  private static instance: PlayerEngine
   private deviceManager: DeviceManager
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null
   private commandsPollInterval: ReturnType<typeof setInterval> | null = null
   private currentManifest: ChannelManifest | null = null
   private startTime: number = Date.now()
 
-  private constructor() {
-    this.deviceManager = DeviceManager.getInstance()
-  }
-
-  static getInstance(): PlayerEngine {
-    if (!PlayerEngine.instance) {
-      PlayerEngine.instance = new PlayerEngine()
-    }
-    return PlayerEngine.instance
+  constructor(deviceManager: DeviceManager) {
+    this.deviceManager = deviceManager
   }
 
   async loadChannel(manifestUrl: string): Promise<ChannelManifest> {

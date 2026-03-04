@@ -12,6 +12,7 @@ function getDeviceInfo(): Record<string, unknown> {
     user_agent: navigator.userAgent,
   }
 }
+
 const STORAGE_KEY = 'signage_player_device'
 
 interface StoredDevice {
@@ -20,62 +21,51 @@ interface StoredDevice {
   pairedAt: string
 }
 
-type PairedCallback = (config: PlayerConfig) => void
+type PairedCallback = (playerId: string, deviceToken: string) => void
 
 export class DeviceManager {
-  private static instance: DeviceManager
-  private storedDevice: StoredDevice | null = null
+  private playerId: string | null
+  private deviceToken: string | null
   private pairingCode: string | null = null
   private pollInterval: ReturnType<typeof setInterval> | null = null
   private onPairedCallback: PairedCallback | null = null
 
-  private constructor() {
-    this.loadFromStorage()
+  constructor(playerId?: string, deviceToken?: string) {
+    this.playerId = playerId ?? null
+    this.deviceToken = deviceToken ?? null
   }
 
-  static getInstance(): DeviceManager {
-    if (!DeviceManager.instance) {
-      DeviceManager.instance = new DeviceManager()
-    }
-    return DeviceManager.instance
-  }
-
-  private loadFromStorage(): void {
+  /**
+   * One-time migration: reads old localStorage key, returns credentials, then clears it.
+   */
+  static migrateFromLocalStorage(): { playerId: string; deviceToken: string } | null {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        this.storedDevice = JSON.parse(stored)
-      }
-    } catch (err) {
-      console.error('Failed to load device from storage:', err)
-    }
-  }
-
-  private saveToStorage(): void {
-    try {
-      if (this.storedDevice) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.storedDevice))
-      } else {
+      if (!stored) return null
+      const data: StoredDevice = JSON.parse(stored)
+      if (data.playerId && data.deviceToken) {
         localStorage.removeItem(STORAGE_KEY)
+        return { playerId: data.playerId, deviceToken: data.deviceToken }
       }
-    } catch (err) {
-      console.error('Failed to save device to storage:', err)
+    } catch {
+      // ignore
     }
+    return null
   }
 
   isPaired(): boolean {
-    return this.storedDevice !== null
+    return this.playerId !== null && this.deviceToken !== null
   }
 
   getPlayerId(): string | null {
-    return this.storedDevice?.playerId || null
+    return this.playerId
   }
 
   getDeviceToken(): string | null {
-    return this.storedDevice?.deviceToken || null
+    return this.deviceToken
   }
 
-  async requestPairingCode(_workspaceId?: string): Promise<string> {
+  async requestPairingCode(): Promise<string> {
     try {
       const headers: Record<string, string> = {}
       const deviceInfo = getDeviceInfo()
@@ -120,7 +110,7 @@ export class DeviceManager {
     this.pollInterval = setInterval(async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/players/pairing-status?code=${this.pairingCode}`)
-        
+
         if (response.ok) {
           const data = await response.json()
           if (data.data?.paired) {
@@ -144,48 +134,40 @@ export class DeviceManager {
       clearInterval(this.pollInterval)
     }
 
-    this.storedDevice = {
-      playerId,
-      deviceToken,
-      pairedAt: new Date().toISOString(),
-    }
-    this.saveToStorage()
+    this.playerId = playerId
+    this.deviceToken = deviceToken
 
     if (this.onPairedCallback) {
-      this.fetchConfig().then((config) => {
-        this.onPairedCallback!(config)
-      })
+      this.onPairedCallback(playerId, deviceToken)
     }
-  }
-
-  setPairedFromUrl(playerId: string, deviceToken: string): void {
-    this.storedDevice = {
-      playerId,
-      deviceToken,
-      pairedAt: new Date().toISOString(),
-    }
-    this.saveToStorage()
   }
 
   onPaired(callback: PairedCallback): void {
     this.onPairedCallback = callback
   }
 
+  stopPolling(): void {
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval)
+      this.pollInterval = null
+    }
+  }
+
   async fetchConfig(): Promise<PlayerConfig> {
-    if (!this.storedDevice) {
+    if (!this.playerId || !this.deviceToken) {
       throw new Error('Device not paired')
     }
 
     try {
       const headers: Record<string, string> = {
-        'X-Device-Token': this.storedDevice.deviceToken,
+        'X-Device-Token': this.deviceToken,
       }
       const deviceInfo = getDeviceInfo()
       if (Object.keys(deviceInfo).length > 0) {
         headers['X-Device-Info'] = JSON.stringify(deviceInfo)
       }
       const response = await fetch(
-        `${API_BASE_URL}/players/${this.storedDevice.playerId}/config`,
+        `${API_BASE_URL}/players/${this.playerId}/config`,
         { headers }
       )
 
@@ -198,7 +180,7 @@ export class DeviceManager {
       const player = raw?.player ?? {}
       const channel = raw?.channel
       return {
-        player_id: player.id ?? this.storedDevice.playerId,
+        player_id: player.id ?? this.playerId,
         channel: channel ? {
           channel_id: channel.channel_id,
           manifest_url: channel.manifest_url,
@@ -210,15 +192,10 @@ export class DeviceManager {
     } catch (err) {
       console.error('Failed to fetch config:', err)
       return {
-        player_id: this.storedDevice.playerId,
+        player_id: this.playerId,
         settings: {},
         commands: [],
       }
     }
-  }
-
-  unpair(): void {
-    this.storedDevice = null
-    this.saveToStorage()
   }
 }

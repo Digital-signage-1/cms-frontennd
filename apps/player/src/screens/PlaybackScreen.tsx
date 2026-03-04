@@ -1,16 +1,19 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { ChannelRenderer } from '@signage/renderer'
 import type { PlayerConfig, ChannelManifest } from '@signage/types'
 import { PlayerEngine } from '../core/PlayerEngine'
+import { useDeviceManager } from '../context'
 
 interface PlaybackScreenProps {
   config: PlayerConfig
 }
 
 export function PlaybackScreen({ config }: PlaybackScreenProps) {
+  const deviceManager = useDeviceManager()
   const [manifest, setManifest] = useState<ChannelManifest | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const engineRef = useRef<PlayerEngine | null>(null)
 
   useEffect(() => {
     if (!config.channel) return
@@ -18,7 +21,8 @@ export function PlaybackScreen({ config }: PlaybackScreenProps) {
     async function loadChannel() {
       try {
         setLoading(true)
-        const engine = PlayerEngine.getInstance()
+        const engine = new PlayerEngine(deviceManager)
+        engineRef.current = engine
         const channelManifest = await engine.loadChannel(config.channel!.manifest_url)
         setManifest(channelManifest)
         engine.startHeartbeat()
@@ -33,9 +37,9 @@ export function PlaybackScreen({ config }: PlaybackScreenProps) {
     loadChannel()
 
     return () => {
-      PlayerEngine.getInstance().stopHeartbeat()
+      engineRef.current?.stopHeartbeat()
     }
-  }, [config.channel])
+  }, [config.channel, deviceManager])
 
   if (loading) {
     return (

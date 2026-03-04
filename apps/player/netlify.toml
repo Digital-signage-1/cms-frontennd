@@ -6,3 +6,8 @@
 [build.environment]
   VITE_API_URL = "https://5te33orwoc.execute-api.us-east-1.amazonaws.com/development/api/v1"
   NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

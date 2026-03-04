@@ -50,6 +50,8 @@ const DialogContent = React.forwardRef<
       )}
       {...props}
     >
+      <DialogPrimitive.Title className="sr-only">Dialog</DialogPrimitive.Title>
+      <DialogPrimitive.Description className="sr-only" />
       {children}
       {!hideClose && (
         <DialogPrimitive.Close
