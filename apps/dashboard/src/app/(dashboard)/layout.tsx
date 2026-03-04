@@ -57,6 +57,8 @@ export default function DashboardLayout({
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const isLoading = useAuthStore((state) => state.isLoading)
   const workspace = useAuthStore((state) => state.workspace)
+  const workspaces = useAuthStore((state) => state.workspaces)
+  const workspaceId = workspace?.id ?? workspaces?.[0]?.id ?? 0
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -65,10 +67,10 @@ export default function DashboardLayout({
   }, [isAuthenticated, isLoading, router])
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated && !workspace) {
+    if (!isLoading && isAuthenticated && !workspaceId) {
       loadUserData()
     }
-  }, [isLoading, isAuthenticated, workspace])
+  }, [isLoading, isAuthenticated, workspaceId])
 
   if (isLoading) {
     return (
