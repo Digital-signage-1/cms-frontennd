@@ -8,6 +8,7 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { SidebarProvider, useSidebar } from '@/contexts/sidebar-context'
 import { BreadcrumbProvider, useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { CommandPalette } from '@/components/command-palette/CommandPalette'
+import { loadUserData } from '@/services/auth'
 
 const SIDEBAR_WIDTH_COLLAPSED = 56
 const SIDEBAR_WIDTH_EXPANDED = 240
@@ -55,12 +56,19 @@ export default function DashboardLayout({
   const router = useRouter()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const isLoading = useAuthStore((state) => state.isLoading)
+  const workspace = useAuthStore((state) => state.workspace)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/sign-in')
     }
   }, [isAuthenticated, isLoading, router])
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && !workspace) {
+      loadUserData()
+    }
+  }, [isLoading, isAuthenticated, workspace])
 
   if (isLoading) {
     return (

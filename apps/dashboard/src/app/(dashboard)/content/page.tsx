@@ -87,9 +87,10 @@ export default function ContentPage() {
   const [typeFilter, setTypeFilter]             = useState<'all' | 'image' | 'video'>('all')
 
   const workspace          = useAuthStore((s) => s.workspace)
+  const workspaces         = useAuthStore((s) => s.workspaces)
   const user               = useAuthStore((s) => s.user)
   const isLoadingWorkspace = useAuthStore((s) => s.isLoading)
-  const workspaceId        = workspace?.id ?? 0
+  const workspaceId        = workspace?.id ?? workspaces?.[0]?.id ?? 0
 
   const { setBreadcrumbItems } = useBreadcrumb()
 
@@ -221,7 +222,7 @@ export default function ContentPage() {
 
   // ── Guards ───────────────────────────────────────────────────────────────
 
-  if (isLoadingWorkspace || (user && !workspace)) {
+  if (isLoadingWorkspace || (user && !workspaceId)) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0D0D0D' }}>
         <div className="w-10 h-10 border-2 rounded-full animate-spin" style={{ borderColor: '#2A2A2A', borderTopColor: '#F5A624' }} />
@@ -229,7 +230,7 @@ export default function ContentPage() {
     )
   }
 
-  if (!workspace) {
+  if (!workspaceId) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0D0D0D' }}>
         <div className="text-center">
