@@ -209,7 +209,7 @@ export default function ContentPage() {
     }
     for (const contentId of contentIds) {
       try {
-        await deleteMutation.mutateAsync({ workspaceId, contentId: Number(contentId) })
+        await deleteMutation.mutateAsync({ workspaceId, contentId })
       } catch (err) { alert(`Delete content failed: ${err instanceof Error ? err.message : 'Try again'}`) }
     }
     setSelectedAssets([])
@@ -530,7 +530,7 @@ export default function ContentPage() {
           <AnimatePresence>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredAssets.map((asset: any, idx: number) => {
-                const contentSelectId = `content:${asset.id}`
+                const contentSelectId = `content:${asset.content_id}`
                 const isSelected = selectedAssets.includes(contentSelectId)
                 const label      = getMimeLabel(asset)
                 const badge      = BADGE[label]  ?? BADGE.FILE
