@@ -126,7 +126,7 @@ export default function CreateAppPage() {
   const router = useRouter()
   const { setBreadcrumbItems, clearBreadcrumbs } = useBreadcrumb()
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [search, setSearch]           = useState('')

@@ -267,7 +267,7 @@ function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => voi
 export default function AppsPage() {
   const router = useRouter()
   const workspace = useAuthStore((s) => s.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
   const { data: apps = [], isLoading, error, refetch } = useApps(workspaceId)
   const deleteAppMutation = useDeleteApp()
   const { setBreadcrumbItems } = useBreadcrumb()

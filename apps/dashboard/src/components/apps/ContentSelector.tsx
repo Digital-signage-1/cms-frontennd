@@ -43,7 +43,7 @@ export function ContentSelector({ isOpen, onClose, onSelect, acceptedTypes, cont
   const [searchQuery, setSearchQuery]   = useState('')
   const [currentFolder, setCurrentFolder] = useState<string | null>(null)
   const workspace   = useAuthStore(s => s.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
 
   const { data: contentData, isLoading }          = useContent(workspaceId, { search: searchQuery || undefined, folder_id: currentFolder || undefined, type: contentType })
   const { data: foldersResponse, isLoading: foldersLoading } = useFolders(workspaceId, currentFolder)

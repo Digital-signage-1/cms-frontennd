@@ -134,12 +134,18 @@ export async function signOut(): Promise<void> {
   ;(await getAuthStore()).getState().signOut()
 }
 
+let _loadingInProgress = false
+
 export async function loadUserData(): Promise<void> {
+  if (_loadingInProgress) return
+  _loadingInProgress = true
+
   const store = (await getAuthStore()).getState()
   const token = getAccessToken()
 
   if (!token) {
     store.setLoading(false)
+    _loadingInProgress = false
     return
   }
 
@@ -184,6 +190,7 @@ export async function loadUserData(): Promise<void> {
     store.signOut()
   } finally {
     store.setLoading(false)
+    _loadingInProgress = false
   }
 }
 

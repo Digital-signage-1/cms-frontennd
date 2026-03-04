@@ -110,7 +110,7 @@ function PlayerCard({
 // ── Page ────────────────────────────────────────────────────────────────────
 export default function PlayersPage() {
   const workspace   = useAuthStore((s) => s.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
 
   const { data: playersData = [], isLoading } = usePlayers(workspaceId)
   const { data: channels = [] }               = useChannels(workspaceId)

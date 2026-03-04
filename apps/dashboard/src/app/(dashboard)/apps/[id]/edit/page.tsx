@@ -54,7 +54,7 @@ export default function EditAppPage() {
   const { setBreadcrumbItems, clearBreadcrumbs } = useBreadcrumb()
   
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
 
   const [activeTab, setActiveTab] = useState('configuration')
   const [formData, setFormData] = useState<Record<string, any>>({})

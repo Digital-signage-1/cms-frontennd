@@ -301,7 +301,7 @@ type StatusFilter = 'all' | 'published' | 'draft'
 export default function ChannelsPage() {
   const router      = useRouter()
   const workspace   = useAuthStore((s) => s.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
 
   const { data: channelsData = [], isLoading } = useChannels(workspaceId)
 

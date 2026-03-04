@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sidebar, Header } from '@/components/layout'
 import { useAuthStore } from '@/stores/auth-store'
@@ -58,7 +58,8 @@ export default function DashboardLayout({
   const isLoading = useAuthStore((state) => state.isLoading)
   const workspace = useAuthStore((state) => state.workspace)
   const workspaces = useAuthStore((state) => state.workspaces)
-  const workspaceId = workspace?.id ?? workspaces?.[0]?.id ?? 0
+  const workspaceId = workspace?.id || (workspace as any)?.workspace_id || workspaces?.[0]?.id || (workspaces?.[0] as any)?.workspace_id || 0
+  const hasLoadedRef = useRef(false)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -67,8 +68,12 @@ export default function DashboardLayout({
   }, [isAuthenticated, isLoading, router])
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated && !workspaceId) {
+    if (!isLoading && isAuthenticated && !workspaceId && !hasLoadedRef.current) {
+      hasLoadedRef.current = true
       loadUserData()
+    }
+    if (workspaceId) {
+      hasLoadedRef.current = false
     }
   }, [isLoading, isAuthenticated, workspaceId])
 

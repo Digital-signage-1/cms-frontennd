@@ -89,8 +89,7 @@ export default function ContentPage() {
   const workspace          = useAuthStore((s) => s.workspace)
   const workspaces         = useAuthStore((s) => s.workspaces)
   const user               = useAuthStore((s) => s.user)
-  const isAuthLoading      = useAuthStore((s) => s.isLoading)
-  const workspaceId        = workspace?.id ?? workspaces?.[0]?.id ?? 0
+  const workspaceId: number | string = workspace?.id || (workspace as any)?.workspace_id || workspaces?.[0]?.id || (workspaces?.[0] as any)?.workspace_id || 0
 
   const { setBreadcrumbItems } = useBreadcrumb()
 
@@ -140,7 +139,7 @@ export default function ContentPage() {
     )
   }
 
-  const uploadFileWithRetry = async (file: File, fileId: string, maxRetries = 3): Promise<void> => {
+  const uploadFileWithRetry = async (file: File, fileId: string, wsId: number, maxRetries = 3): Promise<void> => {
     let uploadResponse: { id: number; content_id: string; upload_url: string; s3_key: string; expires_in: number } | null = null
     let lastError: Error | null = null
 
@@ -149,14 +148,14 @@ export default function ContentPage() {
         if (attempt > 0) await new Promise((r) => setTimeout(r, Math.pow(2, attempt - 1) * 1000))
         if (!uploadResponse) {
           uploadResponse = await uploadMutation.mutateAsync({
-            workspaceId,
+            workspaceId: wsId,
             data: { name: file.name, mime_type: file.type, size_bytes: file.size, folder_id: currentFolder || undefined },
           })
         }
         await uploadFileToS3(file, uploadResponse!.upload_url, {
           onProgress: (p) => setUploadProgress((prev) => ({ ...prev, [fileId]: p.percentage })),
         })
-        await confirmUploadMutation.mutateAsync({ workspaceId, contentId: uploadResponse!.id })
+        await confirmUploadMutation.mutateAsync({ workspaceId: wsId, contentId: uploadResponse!.id })
         return
       } catch (err) {
         lastError = err instanceof Error ? err : new Error('Unknown error')
@@ -170,13 +169,17 @@ export default function ContentPage() {
   }
 
   const handleUpload = async (files: FileList | File[]) => {
-    if (!workspaceId) return alert('Please select a workspace before uploading.')
+    const store = useAuthStore.getState()
+    const w = store.workspace
+    const ws = store.workspaces
+    const currentWorkspaceId = w?.id || (w as any)?.workspace_id || ws?.[0]?.id || (ws?.[0] as any)?.workspace_id || workspaceId
+    if (!currentWorkspaceId) return alert('No workspace found. Please refresh and try again.')
     for (const file of Array.from(files)) {
       const fileId = `${file.name}-${file.size}-${Date.now()}`
       try {
         setUploadStatus((p) => ({ ...p, [fileId]: 'uploading' }))
         setUploadProgress((p) => ({ ...p, [fileId]: 0 }))
-        await uploadFileWithRetry(file, fileId)
+        await uploadFileWithRetry(file, fileId, currentWorkspaceId)
         setUploadStatus((p) => ({ ...p, [fileId]: 'success' }))
         setUploadProgress((p) => ({ ...p, [fileId]: 100 }))
         setTimeout(() => {
@@ -222,25 +225,6 @@ export default function ContentPage() {
 
   // ── Guards ───────────────────────────────────────────────────────────────
 
-  if (isAuthLoading && !workspaceId) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0D0D0D' }}>
-        <div className="w-10 h-10 border-2 rounded-full animate-spin" style={{ borderColor: '#2A2A2A', borderTopColor: '#F5A624' }} />
-      </div>
-    )
-  }
-
-  if (!workspaceId && !isAuthLoading && user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0D0D0D' }}>
-        <div className="text-center">
-          <AlertCircle className="h-12 w-12 mx-auto mb-4" style={{ color: '#DC2626' }} />
-          <h2 className="text-lg font-semibold mb-2" style={{ color: '#FFFFFF' }}>No workspace available</h2>
-          <p className="text-sm" style={{ color: '#6B7280' }}>Please create a workspace to get started</p>
-        </div>
-      </div>
-    )
-  }
 
   if (error) {
     return (

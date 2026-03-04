@@ -42,7 +42,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
   const resolvedParams = use(params)
   const router = useRouter()
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
 
   const isNew = resolvedParams.id === 'new'
   const channelIdNum = isNew ? 0 : parseInt(resolvedParams.id, 10)

@@ -58,7 +58,7 @@ export default function IntegrationDetailPage() {
   const [resourceType, setResourceType] = useState('file')
 
   const { data: workspacesData } = useWorkspaces()
-  const workspaceId = workspacesData?.[0]?.id ?? 0
+  const workspaceId = workspacesData?.[0]?.id || workspacesData?.[0]?.workspace_id || 0
 
   const { data: integration, isLoading, refetch } = useIntegration(workspaceId, integrationId)
   const { data: resources, isLoading: loadingResources } = useIntegrationResources(

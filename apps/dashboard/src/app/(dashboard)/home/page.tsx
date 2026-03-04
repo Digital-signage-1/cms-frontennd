@@ -19,7 +19,7 @@ function mapResourceType(type: string): 'player' | 'channel' | 'schedule' | 'con
 
 export default function HomePage() {
   const { user, account, workspace } = useAuthStore()
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
   const { data: playersData = [], isLoading: playersLoading } = usePlayers(workspaceId)
   const { data: channels = [], isLoading: channelsLoading } = useChannels(workspaceId)
   const { data: contentData } = useContent(workspaceId, {})

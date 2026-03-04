@@ -26,7 +26,7 @@ import type { WorkspaceMember, InvitationResponse } from '@signage/types'
 
 export default function WorkspaceSettingsPage() {
   const { workspace } = useAuthStore()
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
   const [activeTab, setActiveTab] = useState<'general' | 'team'>('general')
 
   const [isEditing, setIsEditing] = useState(false)
