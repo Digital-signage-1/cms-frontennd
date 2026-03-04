@@ -57,6 +57,8 @@ export interface PDFAppConfig extends AppConfig {
   zoom_level?: number
   show_page_numbers?: boolean
   background_color?: string
+  auto_scroll?: boolean
+  scroll_speed?: 'slow' | 'medium' | 'fast'
 }
 
 export interface YouTubeAppConfig extends AppConfig {

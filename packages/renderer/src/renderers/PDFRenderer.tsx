@@ -1,14 +1,14 @@
 'use client'
 
 import { useRef, useEffect, useState, useCallback } from 'react'
-import * as pdfjsLib from 'pdfjs-dist'
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'
 
 // The worker must be loaded separately. We use the CDN URL because:
 // - pdfjs worker needs to be a standalone file (loaded in a Web Worker)
 // - Bundlers (Vite/webpack) can't reliably bundle worker entry points
 //   across both Next.js and Vite without extra plugin config
 // - The CDN approach is officially supported by pdf.js
-const PDFJS_VERSION = '5.4.624'
+const PDFJS_VERSION = '4.10.38'
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.mjs`
 
@@ -28,6 +28,8 @@ interface PDFRendererProps {
     zoom_level?: number
     show_page_numbers?: boolean
     background_color?: string
+    auto_scroll?: boolean
+    scroll_speed?: 'slow' | 'medium' | 'fast'
   }
   contentUrl?: string
   onError?: (error: Error) => void
@@ -35,7 +37,11 @@ interface PDFRendererProps {
   onEnded?: () => void
 }
 
-const SCROLL_SPEED = 60 // px/s for fit_all auto-scroll
+const SCROLL_SPEEDS: Record<string, number> = {
+  slow: 30,
+  medium: 60,
+  fast: 120,
+}
 
 export function PDFRenderer({
   config,
@@ -62,6 +68,8 @@ export function PDFRenderer({
   const zoomLevel = config.zoom_level || 1
   const showPageNumbers = config.show_page_numbers !== false
   const bgColor = config.background_color || '#000000'
+  const autoScroll = config.auto_scroll !== false // default true
+  const scrollSpeed = SCROLL_SPEEDS[config.scroll_speed || 'medium'] || SCROLL_SPEEDS.medium
 
   // Load PDF document
   useEffect(() => {
@@ -127,7 +135,10 @@ export function PDFRenderer({
       const unscaledViewport = page.getViewport({ scale: 1 })
       let scale: number
 
-      if (fitMode === 'width') {
+      // When auto-scrolling, always fit to width so content fills display width
+      if (autoScroll) {
+        scale = containerWidth / unscaledViewport.width
+      } else if (fitMode === 'width') {
         scale = containerWidth / unscaledViewport.width
       } else if (fitMode === 'height') {
         scale = containerHeight / unscaledViewport.height
@@ -152,7 +163,7 @@ export function PDFRenderer({
     } catch {
       // Silently handle render errors for individual pages
     }
-  }, [pdfDoc, fitMode, zoomLevel])
+  }, [pdfDoc, fitMode, zoomLevel, autoScroll])
 
   // Render current page(s) based on display mode
   useEffect(() => {
@@ -189,52 +200,69 @@ export function PDFRenderer({
     return () => clearInterval(timer)
   }, [displayMode, pdfDoc, loading, pageDuration, startPage, effectiveEnd, pageCount])
 
-  // Fit-all mode: auto-scroll
+  // Reset scroll position on page change (single/cycle modes with auto-scroll)
   useEffect(() => {
-    if (displayMode !== 'fit_all' || !containerRef.current || loading) return
+    if (displayMode === 'fit_all' || !containerRef.current) return
+    containerRef.current.scrollTop = 0
+  }, [currentPage, displayMode])
+
+  // Auto-scroll: works for all display modes when content overflows
+  useEffect(() => {
+    if (!autoScroll || !containerRef.current || loading) return
 
     const container = containerRef.current
-    const scrollHeight = container.scrollHeight - container.clientHeight
-    if (scrollHeight <= 0) return
+    const cleanupRef = { current: () => {} }
 
-    let animId: number
-    let lastTime = performance.now()
-    let paused = false
-    let pauseTimeout: ReturnType<typeof setTimeout>
+    // Small delay to let canvas render before measuring scroll height
+    const startDelay = setTimeout(() => {
+      const scrollHeight = container.scrollHeight - container.clientHeight
+      if (scrollHeight <= 0) return
 
-    const scroll = (time: number) => {
-      if (paused) {
-        animId = requestAnimationFrame(scroll)
-        return
-      }
+      let animId: number
+      let lastTime = performance.now()
+      let paused = false
+      let pauseTimeout: ReturnType<typeof setTimeout>
 
-      const delta = (time - lastTime) / 1000
-      lastTime = time
-      container.scrollTop += SCROLL_SPEED * delta
+      const scroll = (time: number) => {
+        if (paused) {
+          animId = requestAnimationFrame(scroll)
+          return
+        }
 
-      if (container.scrollTop >= scrollHeight) {
-        paused = true
-        pauseTimeout = setTimeout(() => {
-          container.scrollTop = 0
+        const delta = (time - lastTime) / 1000
+        lastTime = time
+        container.scrollTop += scrollSpeed * delta
+
+        if (container.scrollTop >= container.scrollHeight - container.clientHeight) {
           paused = true
-          pauseTimeout = setTimeout(() => { paused = false }, 1500)
-        }, 2000)
+          pauseTimeout = setTimeout(() => {
+            container.scrollTop = 0
+            paused = true
+            pauseTimeout = setTimeout(() => { paused = false }, 1500)
+          }, 2000)
+        }
+
+        animId = requestAnimationFrame(scroll)
       }
 
-      animId = requestAnimationFrame(scroll)
-    }
+      // Initial pause at top
+      container.scrollTop = 0
+      pauseTimeout = setTimeout(() => {
+        lastTime = performance.now()
+        animId = requestAnimationFrame(scroll)
+      }, 1500)
 
-    // Initial pause at top
-    pauseTimeout = setTimeout(() => {
-      lastTime = performance.now()
-      animId = requestAnimationFrame(scroll)
-    }, 1500)
+      cleanupRef.current = () => {
+        cancelAnimationFrame(animId)
+        clearTimeout(pauseTimeout)
+      }
+    }, 500)
 
     return () => {
-      cancelAnimationFrame(animId)
-      clearTimeout(pauseTimeout)
+      clearTimeout(startDelay)
+      cleanupRef.current()
     }
-  }, [displayMode, loading, totalPages])
+  }, [autoScroll, loading, scrollSpeed, totalPages, currentPage, displayMode])
 
   if (!pdfUrl) {
     return (
@@ -276,7 +304,7 @@ export function PDFRenderer({
                 ref={el => {
                   if (el) canvasRefs.current.set(pageNum, el)
                 }}
-                className="max-w-full"
+                className={autoScroll ? 'w-full' : 'max-w-full'}
                 style={{ marginBottom: '4px' }}
               />
             )
@@ -292,6 +320,34 @@ export function PDFRenderer({
   }
 
   // Single or cycle mode
+  if (autoScroll) {
+    // Auto-scroll mode: full width, overflow hidden, scrolls vertically
+    return (
+      <div
+        ref={containerRef}
+        className="relative w-full h-full overflow-hidden"
+        style={{ backgroundColor: bgColor }}
+      >
+        <canvas
+          ref={el => {
+            if (el) canvasRefs.current.set(currentPage, el)
+          }}
+          className="w-full"
+          style={{
+            opacity: fadingOut ? 0 : 1,
+            transition: 'opacity 300ms ease-in-out',
+          }}
+        />
+        {showPageNumbers && totalPages > 1 && (
+          <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+            {currentPage} / {totalPages}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // No auto-scroll: fit to container
   return (
     <div
       ref={containerRef}
