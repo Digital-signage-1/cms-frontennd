@@ -3,7 +3,7 @@
 import {
   Search, Plus, AlertCircle, ImageIcon, FileVideo, Globe, Code,
   Clock, Cloud, LayoutGrid, Youtube, FileText, Sparkles, Play,
-  MessageSquare, Grid2X2, List,
+  MessageSquare, Grid2X2, List, Eye,
 } from 'lucide-react'
 import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useApps, useDeleteApp } from '@/hooks/queries/useApps'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { formatDate } from '@/lib/utils'
+import { AppPreviewModal } from '@/components/apps/AppPreviewModal'
 import type { App as SignageApp } from '@signage/types'
 
 // ── Template type → visual config ─────────────────────────────────────────────
@@ -123,7 +124,7 @@ const STATUS_TABS = ['all', 'active', 'draft', 'archived'] as const
 type StatusTab = typeof STATUS_TABS[number]
 
 // ── App Card ──────────────────────────────────────────────────────────────────
-function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => void; onDelete: () => void }) {
+function AppCard({ app, onEdit, onDelete, onPreview }: { app: SignageApp; onEdit: () => void; onDelete: () => void; onPreview: () => void }) {
   const [thumbnailFailed, setThumbnailFailed] = useState(false)
   const cfg = getConfig(app.template_type)
   const { Icon, iconBgColor, iconColor, tags, defaultDesc, category } = cfg
@@ -205,6 +206,16 @@ function AppCard({ app, onEdit, onDelete }: { app: SignageApp; onEdit: () => voi
           style={{ backgroundColor: 'rgba(0,0,0,0.82)' }}
         >
           <button
+            onClick={(e) => { e.stopPropagation(); onPreview() }}
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            style={{ backgroundColor: '#F5A624', color: '#000000' }}
+            onMouseOver={e => (e.currentTarget.style.backgroundColor = '#D4900F')}
+            onMouseOut={e => (e.currentTarget.style.backgroundColor = '#F5A624')}
+          >
+            <Eye className="h-4 w-4" />
+            Preview
+          </button>
+          <button
             onClick={(e) => { e.stopPropagation(); onEdit() }}
             className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             style={{ backgroundColor: '#1C1C1C', color: '#FFFFFF', border: '1px solid #3A3A3A' }}
@@ -277,6 +288,7 @@ export default function AppsPage() {
   const [searchQuery,    setSearchQuery]    = useState('')
   const [viewMode,       setViewMode]       = useState<'grid' | 'list'>('grid')
   const [listThumbFailed, setListThumbFailed] = useState<Set<string>>(new Set())
+  const [previewApp,     setPreviewApp]     = useState<SignageApp | null>(null)
 
   useEffect(() => {
     setBreadcrumbItems([{ label: 'Apps' }])
@@ -613,6 +625,7 @@ export default function AppsPage() {
                 app={app}
                 onEdit={() => router.push(`/apps/${app.id}/edit`)}
                 onDelete={() => handleDelete(app)}
+                onPreview={() => setPreviewApp(app)}
               />
             ))}
           </div>
@@ -666,6 +679,14 @@ export default function AppsPage() {
                     {playerCount} players
                   </span>
                   <button
+                    onClick={() => setPreviewApp(app)}
+                    className="text-xs px-3 py-1.5 rounded-lg font-medium flex-shrink-0 flex items-center gap-1.5"
+                    style={{ backgroundColor: 'rgba(245,166,36,0.18)', color: '#F5A624', border: '1px solid rgba(245,166,36,0.3)' }}
+                  >
+                    <Eye className="h-3 w-3" />
+                    Preview
+                  </button>
+                  <button
                     onClick={() => router.push(`/apps/${app.id}/edit`)}
                     className="text-xs px-3 py-1.5 rounded-lg font-medium flex-shrink-0"
                     style={{ backgroundColor: '#2A2A2A', color: '#9CA3AF', border: '1px solid #3A3A3A' }}
@@ -678,6 +699,17 @@ export default function AppsPage() {
           </div>
         )}
       </div>
+
+      {/* Preview Modal */}
+      {previewApp && (
+        <AppPreviewModal
+          isOpen={!!previewApp}
+          onClose={() => setPreviewApp(null)}
+          app={previewApp}
+          config={previewApp.config ?? {}}
+          contentUrl={previewApp.preview_url || undefined}
+        />
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 interface YouTubeRendererProps {
   config: {
@@ -30,73 +30,60 @@ export function YouTubeRenderer({
   onError,
   onLoad,
 }: YouTubeRendererProps) {
-  const [loaded, setLoaded] = useState(false)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   const rawUrl = config.video_url || config.url || contentUrl
   const videoId = rawUrl ? extractVideoId(rawUrl) : null
-
-  const autoplay = config.autoplay !== false
-  const muted = config.muted !== false
   const loop = config.loop !== false
 
   useEffect(() => {
-    if (!videoId) {
-      onError?.(new Error('Invalid YouTube URL'))
-    }
+    if (!videoId) onError?.(new Error('Invalid YouTube URL'))
   }, [videoId, onError])
 
-  if (!rawUrl || !videoId) {
+  const embedUrl = useMemo(() => {
+    if (!videoId) return null
+    const params = new URLSearchParams()
+    params.set('autoplay', '1')
+    params.set('mute', '1')
+    params.set('controls', '0')
+    params.set('rel', '0')
+    params.set('modestbranding', '1')
+    params.set('playsinline', '1')
+    params.set('iv_load_policy', '3')
+    params.set('disablekb', '1')
+    params.set('fs', '0')
+    // playlist=VIDEO_ID is the key: enables native loop AND hides end-screen suggestions
+    params.set('playlist', videoId)
+    if (loop) params.set('loop', '1')
+    if (config.start_time && config.start_time > 0) {
+      params.set('start', String(Math.floor(config.start_time)))
+    }
+    if (config.end_time && config.end_time > 0) {
+      params.set('end', String(Math.floor(config.end_time)))
+    }
+    return `https://www.youtube.com/embed/${videoId}?${params.toString()}`
+  }, [videoId, loop, config.start_time, config.end_time])
+
+  if (!rawUrl || !videoId || !embedUrl) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-400">
-        <span className="text-sm">Invalid or missing YouTube URL</span>
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1f2937', color: '#9ca3af' }}>
+        <span style={{ fontSize: 14 }}>Invalid or missing YouTube URL</span>
       </div>
     )
   }
 
-  const params = new URLSearchParams({
-    autoplay: autoplay ? '1' : '0',
-    mute: muted ? '1' : '0',
-    loop: loop ? '1' : '0',
-    controls: '0',
-    rel: '0',
-    modestbranding: '1',
-    playsinline: '1',
-  })
-
-  if (loop) {
-    params.set('playlist', videoId)
-  }
-  if (config.start_time != null && config.start_time > 0) {
-    params.set('start', String(Math.floor(config.start_time)))
-  }
-  if (config.end_time != null && config.end_time > 0) {
-    params.set('end', String(Math.floor(config.end_time)))
-  }
-
-  const embedUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`
-
   return (
-    <div className="relative w-full h-full bg-black">
-      {!loaded && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-        </div>
-      )}
-      <iframe
-        src={embedUrl}
-        title="YouTube video"
-        allow="autoplay; encrypted-media"
-        allowFullScreen
-        onLoad={() => {
-          setLoaded(true)
-          onLoad?.()
-        }}
-        className="w-full h-full border-0"
-        style={{
-          opacity: loaded ? 1 : 0,
-          transition: 'opacity 300ms ease-in-out',
-        }}
-      />
-    </div>
+    <iframe
+      ref={iframeRef}
+      src={embedUrl}
+      title="YouTube video"
+      width="100%"
+      height="100%"
+      frameBorder="0"
+      allow="autoplay; encrypted-media"
+      allowFullScreen
+      onLoad={() => onLoad?.()}
+      style={{ border: 0, display: 'block' }}
+    />
   )
 }

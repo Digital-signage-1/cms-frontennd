@@ -5,6 +5,6 @@ export { WebRenderer } from './WebRenderer'
 export { HtmlRenderer } from './HtmlRenderer'
 export { ClockRenderer } from './ClockRenderer'
 export { WeatherRenderer } from './WeatherRenderer'
-export { PDFRenderer } from './PDFRenderer'
+// PDFRenderer is lazy-loaded via registry to keep pdfjs-dist out of the main bundle
 export { YouTubeRenderer } from './YouTubeRenderer'
 export { getRenderer, registerRenderer, type RendererProps } from './registry'

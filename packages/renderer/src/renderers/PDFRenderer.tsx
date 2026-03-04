@@ -1,33 +1,16 @@
 'use client'
 
 import { useRef, useEffect, useState, useCallback } from 'react'
+import * as pdfjsLib from 'pdfjs-dist'
 
-// pdfjs-dist crashes in Next.js dev mode due to webpack eval-source-map
-// shadowing __webpack_exports__. We bypass webpack entirely by loading from CDN.
-// See: https://github.com/mozilla/pdf.js/issues/20478
+// The worker must be loaded separately. We use the CDN URL because:
+// - pdfjs worker needs to be a standalone file (loaded in a Web Worker)
+// - Bundlers (Vite/webpack) can't reliably bundle worker entry points
+//   across both Next.js and Vite without extra plugin config
+// - The CDN approach is officially supported by pdf.js
 const PDFJS_VERSION = '5.4.624'
-const PDFJS_CDN = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}`
-
-type PDFLib = typeof import('pdfjs-dist')
-
-let _pdfjsLib: PDFLib | null = null
-let _pdfjsPromise: Promise<PDFLib> | null = null
-
-function loadPdfjs(): Promise<PDFLib> {
-  if (_pdfjsLib) return Promise.resolve(_pdfjsLib)
-  if (_pdfjsPromise) return _pdfjsPromise
-
-  _pdfjsPromise = import(
-    /* webpackIgnore: true */
-    `${PDFJS_CDN}/pdf.min.mjs`
-  ).then((mod: PDFLib) => {
-    mod.GlobalWorkerOptions.workerSrc = `${PDFJS_CDN}/pdf.worker.min.mjs`
-    _pdfjsLib = mod
-    return mod
-  })
-
-  return _pdfjsPromise
-}
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.mjs`
 
 interface PDFDocumentProxy {
   numPages: number
@@ -92,7 +75,7 @@ export function PDFRenderer({
     const load = async () => {
       try {
         setErrorMessage(null)
-        const res = await fetch(pdfUrl, { credentials: 'include' })
+        const res = await fetch(pdfUrl)
         if (cancelled) return
         if (res.status === 503) {
           setError(true)
@@ -106,7 +89,6 @@ export function PDFRenderer({
           onError?.(new Error('Failed to load PDF'))
           return
         }
-        const pdfjsLib = await loadPdfjs()
         const arrayBuffer = await res.arrayBuffer()
         const doc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
         if (cancelled) return
