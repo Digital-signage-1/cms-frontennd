@@ -63,7 +63,7 @@ function ProviderIcon({ provider }: { provider: string }) {
 
 interface CredentialFormProps {
   provider: IntegrationProvider
-  workspaceId: string
+  workspaceId: number | string
   onSuccess: () => void
   onBack: () => void
 }
@@ -172,7 +172,7 @@ function CredentialForm({ provider, workspaceId, onSuccess, onBack }: Credential
 
 interface OAuthConnectProps {
   provider: IntegrationProvider
-  workspaceId: string
+  workspaceId: number | string
   onBack: () => void
 }
 
@@ -211,7 +211,7 @@ function OAuthConnect({ provider, workspaceId, onBack }: OAuthConnectProps) {
 }
 
 interface AddIntegrationModalProps {
-  workspaceId: string
+  workspaceId: number | string
   onClose: () => void
   onSuccess?: () => void
 }

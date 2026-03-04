@@ -148,10 +148,13 @@
 @layer base {
   * {
     border-color: var(--color-border);
+    box-sizing: border-box;
   }
 
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   body {
@@ -163,6 +166,13 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  img, video, svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -173,12 +183,20 @@
     color: var(--color-text-primary);
   }
 
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
+  h1 { font-size: clamp(1.5rem, 4vw, 2rem); }
+  h2 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+  h3 { font-size: clamp(1.1rem, 2.5vw, 1.25rem); }
   h4 { font-size: 1rem; }
   h5 { font-size: 0.875rem; }
   h6 { font-size: 0.75rem; }
+
+  button, a, input, select, textarea {
+    touch-action: manipulation;
+  }
+
+  input, textarea, select {
+    font-size: max(1rem, 16px);
+  }
 }
 
 @layer components {
@@ -205,19 +223,19 @@
 @layer utilities {
   .content-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
     gap: var(--space-6);
   }
 
   .content-grid-large {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
     gap: var(--space-8);
   }
 
   .bento-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
     gap: 1.5rem;
     grid-auto-rows: minmax(200px, auto);
   }
@@ -232,15 +250,77 @@
     margin-bottom: 1.5rem;
   }
 
-  @media (max-width: 1024px) {
+  @media only screen and (max-width: 1024px) {
     .masonry-grid {
       column-count: 2;
     }
   }
 
-  @media (max-width: 640px) {
+  @media only screen and (max-width: 640px) {
     .masonry-grid {
       column-count: 1;
+    }
+  }
+
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .page-container {
+    padding: clamp(0.75rem, 2vw, 1.25rem);
+  }
+
+  .responsive-hero {
+    padding: clamp(1rem, 3vw, 1.75rem) clamp(1rem, 4vw, 1.75rem);
+  }
+
+  .responsive-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+    gap: clamp(0.75rem, 2vw, 1rem);
+  }
+
+  .scroll-x {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .scroll-x::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .scroll-x::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scroll-x::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: 2px;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .hide-mobile {
+      display: none !important;
+    }
+    .show-mobile {
+      display: flex !important;
+    }
+    .stack-mobile {
+      flex-direction: column !important;
+    }
+    .full-mobile {
+      width: 100% !important;
+    }
+  }
+
+  @media only screen and (min-width: 769px) {
+    .hide-desktop {
+      display: none !important;
     }
   }
 

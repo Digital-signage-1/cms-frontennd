@@ -224,7 +224,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await updateChannelMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
         data: { name: channelName },
       })
     } catch (error) {
@@ -237,7 +237,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await publishChannelMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
       })
     } catch (error) {
       console.error('Failed to publish channel:', error)
@@ -250,7 +250,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await createZoneMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
         data: {
           name: zoneConfig.name,
           x_percent: zoneConfig.x,
@@ -288,7 +288,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await addZoneAppMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
         zoneId: zoneIdForApi,
         data: {
           app_id: appId,
@@ -312,7 +312,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await createSlideMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
         data: {
           layout_type: template.id,
           duration_seconds: newSlideDuration,

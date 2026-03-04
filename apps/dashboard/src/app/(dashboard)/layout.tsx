@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sidebar, Header } from '@/components/layout'
 import { useAuthStore } from '@/stores/auth-store'
@@ -15,8 +15,17 @@ const SIDEBAR_WIDTH_EXPANDED = 240
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const { isExpanded } = useSidebar()
   const { breadcrumbItems } = useBreadcrumb()
+  const [isMobile, setIsMobile] = useState(false)
 
-  const sidebarWidth = isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const update = () => setIsMobile(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+
+  const sidebarWidth = isMobile ? 0 : (isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED)
 
   return (
     <div className="dark min-h-screen bg-background">

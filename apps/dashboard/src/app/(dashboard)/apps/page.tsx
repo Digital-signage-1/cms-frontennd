@@ -341,7 +341,7 @@ export default function AppsPage() {
     <div style={{ backgroundColor: '#0D0D0D', minHeight: '100vh' }}>
 
       {/* ── Hero Banner ── */}
-      <div className="px-5 pt-5">
+      <div className="page-container pt-4 sm:pt-5">
         <div
           className="rounded-xl relative overflow-hidden"
           style={{
@@ -359,9 +359,9 @@ export default function AppsPage() {
             }}
           />
 
-          <div className="relative z-10 px-6 pt-6 pb-5">
+          <div className="relative z-10 responsive-hero pb-5">
             {/* Top row */}
-            <div className="flex items-start justify-between mb-5">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
               <div>
                 <p
                   className="text-xs font-semibold tracking-widest uppercase mb-2"
@@ -369,14 +369,14 @@ export default function AppsPage() {
                 >
                   App Gallery
                 </p>
-                <h1 className="text-4xl font-bold text-white mb-2">Apps</h1>
+                <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">Apps</h1>
                 <p className="text-sm max-w-xl" style={{ color: '#6B7280' }}>
                   Browse, configure, and deploy apps to your display network. Extend your screens with powerful widgets.
                 </p>
               </div>
               <button
                 onClick={() => router.push('/apps/create')}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm flex-shrink-0 mt-1"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm flex-shrink-0 sm:mt-1 self-start touch-target"
                 style={{ backgroundColor: '#F5A624', color: '#000000' }}
               >
                 <Plus className="h-4 w-4" />
@@ -385,7 +385,7 @@ export default function AppsPage() {
             </div>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {/* Total Apps */}
               <div
                 className="rounded-xl p-4 flex items-center gap-3"
@@ -476,7 +476,7 @@ export default function AppsPage() {
       </div>
 
       {/* ── Toolbar ── */}
-      <div className="px-5 py-4 flex items-center gap-3 flex-wrap">
+      <div className="page-container py-4 flex flex-col sm:flex-row sm:items-center gap-3 flex-wrap">
         {/* Status filter tabs */}
         <div className="flex items-center gap-1">
           {STATUS_TABS.map((s) => {
@@ -570,9 +570,9 @@ export default function AppsPage() {
       </div>
 
       {/* ── App grid ── */}
-      <div className="px-5 pb-5">
+      <div className="page-container pb-5">
         {isLoading ? (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
@@ -606,7 +606,7 @@ export default function AppsPage() {
             )}
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((app) => (
               <AppCard
                 key={app.app_id}

@@ -256,7 +256,7 @@ export default function ContentPage() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="p-5 space-y-5" style={{ backgroundColor: '#0D0D0D', minHeight: '100%' }}>
+    <div className="page-container space-y-4 sm:space-y-5" style={{ backgroundColor: '#0D0D0D', minHeight: '100%' }}>
 
       {/* ── Hero banner ───────────────────────────────────────── */}
       <motion.div
@@ -281,7 +281,7 @@ export default function ContentPage() {
         />
 
         {/* Title row */}
-        <div className="relative flex items-start justify-between px-7 pt-6 pb-4">
+        <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 responsive-hero pb-4">
           <div>
             <p
               className="text-xs uppercase font-semibold mb-2"
@@ -289,7 +289,7 @@ export default function ContentPage() {
             >
               Content Library
             </p>
-            <h1 className="text-3xl font-bold leading-tight mb-1.5" style={{ color: '#FFFFFF' }}>
+            <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1.5" style={{ color: '#FFFFFF' }}>
               Media Library
             </h1>
             <p className="text-sm" style={{ color: '#6B7280' }}>
@@ -299,7 +299,7 @@ export default function ContentPage() {
 
           <button
             onClick={() => document.getElementById('file-upload')?.click()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 mt-1 transition-opacity hover:opacity-90"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 transition-opacity hover:opacity-90 touch-target self-start"
             style={{ backgroundColor: '#F5A624', color: '#000000' }}
           >
             <UploadCloud className="h-4 w-4" />
@@ -312,7 +312,7 @@ export default function ContentPage() {
         </div>
 
         {/* Stat cards */}
-        <div className="relative flex items-stretch gap-3 px-7 pb-5">
+        <div className="relative grid grid-cols-2 sm:flex sm:items-stretch gap-3 px-4 sm:px-7 pb-5">
           {[
             { label: 'Total Files',   value: totalFiles.toString(),   Icon: FileText   },
             { label: 'Storage Used',  value: formatBytes(storageUsed), Icon: HardDrive  },
@@ -321,7 +321,7 @@ export default function ContentPage() {
           ].map(({ label, value, Icon }) => (
             <div
               key={label}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl flex-1"
+              className="flex items-center gap-3 px-3 sm:px-4 py-3 rounded-xl sm:flex-1"
               style={{
                 backgroundColor: 'rgba(0,0,0,0.28)',
                 border: '1px solid rgba(255,255,255,0.07)',
@@ -333,9 +333,9 @@ export default function ContentPage() {
               >
                 <Icon className="h-4 w-4" style={{ color: '#6B7280' }} />
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-medium" style={{ color: '#6B7280' }}>{label}</p>
-                <p className="text-lg font-bold leading-tight" style={{ color: '#FFFFFF' }}>{value}</p>
+                <p className="text-base sm:text-lg font-bold leading-tight truncate" style={{ color: '#FFFFFF' }}>{value}</p>
               </div>
             </div>
           ))}
@@ -382,7 +382,7 @@ export default function ContentPage() {
       {(isLoading || foldersLoading) ? (
         <div className="space-y-3">
           <div className="h-5 w-20 rounded animate-pulse" style={{ backgroundColor: '#1C1C1C' }} />
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-20 rounded-xl animate-pulse" style={{ backgroundColor: '#1C1C1C' }} />
             ))}
@@ -409,7 +409,7 @@ export default function ContentPage() {
           </div>
 
           {/* Folder cards */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {filteredFolders.map((folder, i) => {
               const color = FOLDER_ACCENT_COLORS[i % FOLDER_ACCENT_COLORS.length]
               return (
@@ -450,10 +450,10 @@ export default function ContentPage() {
         className="space-y-4"
       >
         {/* Content toolbar */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 
           {/* Left: "Content" title + type filter tabs */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
             <h2 className="text-base font-semibold" style={{ color: '#FFFFFF' }}>Content</h2>
             <div
               className="flex items-center gap-1 p-1 rounded-lg"
@@ -463,7 +463,7 @@ export default function ContentPage() {
                 <button
                   key={tab}
                   onClick={() => setTypeFilter(tab)}
-                  className="px-3 py-1 text-xs font-medium rounded-md transition-all"
+                  className="px-3 py-1.5 text-xs font-medium rounded-md transition-all touch-target"
                   style={
                     typeFilter === tab
                       ? { backgroundColor: '#F5A624', color: '#000000' }
@@ -476,10 +476,10 @@ export default function ContentPage() {
             </div>
           </div>
 
-          {/* Right: search + view toggle + sort + delete */}
+          {/* Right: search + delete */}
           <div className="flex items-center gap-2">
             {/* Search */}
-            <div className="relative">
+            <div className="relative flex-1 sm:flex-none">
               <Search
                 className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
                 style={{ color: '#6B7280' }}
@@ -488,7 +488,7 @@ export default function ContentPage() {
                 placeholder="Search media..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-52"
+                className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-full sm:w-52"
                 style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#FFFFFF' }}
               />
             </div>
@@ -497,7 +497,7 @@ export default function ContentPage() {
             {selectedAssets.length > 0 && (
               <button
                 onClick={() => handleDelete(selectedAssets)}
-                className="h-9 px-3 text-sm font-medium rounded-lg"
+                className="h-9 px-3 text-sm font-medium rounded-lg flex-shrink-0 touch-target"
                 style={{
                   backgroundColor: 'rgba(220,38,38,0.12)',
                   border: '1px solid rgba(220,38,38,0.25)',

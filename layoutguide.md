@@ -728,3 +728,155 @@ MOBILE                    <768px
 4. **Implement dark/light toggle** — Not everyone wants dark mode. Give them the choice.
 
 5. **Add keyboard shortcuts** — Start with ⌘K. It changes everything.
+
+---
+
+## Responsive Layout Architecture
+
+### Philosophy
+
+This app is **mobile-first**: base styles target 320px minimum and scale up. Every layout decision starts with the smallest screen and progressively enhances.
+
+### Breakpoint System
+
+```
+320px  ←──────── Mobile (base) ──────────→ 767px
+768px  ←──────── Tablet (md:) ───────────→ 1023px
+1024px ←──────── Laptop (lg:) ───────────→ 1439px
+1440px ←──────── Desktop (xl:) ──────────→ 1919px
+1920px ←──────── Ultrawide (2xl:) ────────→ ∞
+```
+
+### Shell Layout (Sidebar + Main Content)
+
+```
+┌─────────────────────────────────────────┐
+│ MOBILE (< 768px)                        │
+│                                         │
+│ ┌─────────────────────────────────────┐ │
+│ │ HEADER  [☰] [breadcrumb]  [🔔][👤] │ │
+│ └─────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────┐ │
+│ │                                     │ │
+│ │         MAIN CONTENT                │ │
+│ │         (full width)                │ │
+│ │                                     │ │
+│ └─────────────────────────────────────┘ │
+│                                         │
+│ [SIDEBAR = off-screen, slides in as     │
+│  overlay when hamburger is tapped]      │
+└─────────────────────────────────────────┘
+
+┌────┬────────────────────────────────────┐
+│    │ TABLET / DESKTOP (≥ 768px)         │
+│ S  ├────────────────────────────────────┤
+│ I  │ HEADER  [breadcrumb]  [🔍][🔔][👤]│
+│ D  ├────────────────────────────────────┤
+│ E  │                                    │
+│ B  │        MAIN CONTENT                │
+│ A  │        (calc(100% - sidebarW))     │
+│ R  │                                    │
+└────┴────────────────────────────────────┘
+```
+
+### Page Layout Patterns
+
+#### Hero Banner
+```
+Mobile:   flex-col — title/desc stacked, CTA below
+Desktop:  flex-row — title/desc left, CTA right
+```
+
+#### Stat Cards
+```
+Mobile:   grid 2-cols (2×2 or 2×3)
+Desktop:  flex row (all in one line)
+```
+
+#### Content Grids
+```
+Mobile:   1 or 2 columns
+Tablet:   2 or 3 columns
+Desktop:  3 or 4 columns
+```
+
+#### Toolbars (Filter + Search)
+```
+Mobile:   flex-col, filter tabs scroll horizontally
+Desktop:  flex-row, justified left/right
+```
+
+### Critical CSS Utilities Added
+
+```css
+/* In globals.css */
+
+.page-container {
+  padding: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+.responsive-hero {
+  padding: clamp(1rem, 3vw, 1.75rem) clamp(1rem, 4vw, 1.75rem);
+}
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+```
+
+### Typography
+
+All headings use `clamp()` for fluid scaling:
+
+| Element | Value |
+|---|---|
+| `h1` | `clamp(1.5rem, 4vw, 2rem)` |
+| `h2` | `clamp(1.25rem, 3vw, 1.5rem)` |
+| `h3` | `clamp(1.1rem, 2.5vw, 1.25rem)` |
+| All inputs/textareas | `font-size: max(1rem, 16px)` — prevents iOS zoom |
+
+### Accessibility
+
+- All touch targets meet WCAG 2.1 minimum of 44×44px via `.touch-target`
+- Hamburger button: `aria-label="Open navigation menu"`
+- Mobile sidebar close button: `aria-label="Close navigation menu"`
+- Mobile search button: `aria-label="Search"`, `aria-label="Notifications"` on bell
+- Keyboard navigation fully preserved (no interactive elements removed)
+- `overflow-x: hidden` on `body` prevents horizontal scroll bleed
+
+### Preserved Desktop Features
+
+- Sidebar hover-expand animation (Framer Motion) — desktop only
+- Search bar expand animation `180px → 260px` — desktop only
+- ⌘K keyboard shortcut hint in search — desktop only
+- Collapse toggle chevron — hidden on mobile (`hidden md:flex`)
+- Analytics two-column layout — desktop only (`lg:grid-cols-[1fr_380px]`)
+
+### Files Changed for Responsiveness
+
+| File | Changes |
+|---|---|
+| `contexts/sidebar-context.tsx` | Added `mobileOpen`, `openMobile()`, `closeMobile()` |
+| `components/layout/sidebar.tsx` | Mobile overlay, backdrop, close button, `md:translate-x-0` |
+| `components/layout/header.tsx` | Hamburger button, mobile search overlay, `useSidebar` |
+| `app/(dashboard)/layout.tsx` | JS margin = 0 on mobile via `matchMedia` listener |
+| `app/globals.css` | `clamp()` headings, `.touch-target`, `.page-container`, `.responsive-hero`, `.scroll-x`, `img max-width`, `overflow-x hidden` on body |
+| `app/(dashboard)/home/page.tsx` | Hero flex-col mobile, responsive padding |
+| `app/(dashboard)/content/page.tsx` | Stat cards 2-col grid mobile, folder grid responsive, toolbar stack |
+| `app/(dashboard)/apps/page.tsx` | Stat cards 2/3/5 grid, app card grid 1/2/3 col, hero stack |
+| `app/(dashboard)/channels/page.tsx` | Hero stack, stat cards grid, filter toolbar stack |
+| `app/(dashboard)/players/page.tsx` | Hero stack, stat cards grid, split layout flex-col on mobile |
+| `app/(dashboard)/schedules/page.tsx` | Hero stack, stat cards grid, toolbar stack |
+| `app/(dashboard)/analytics/page.tsx` | Hero stack, KPI 2/4 grid, time tabs scroll, overview 1/2-col |
+| `app/(dashboard)/settings/page.tsx` | Mobile tab bar (scroll-x), desktop sidebar only, form grid responsive |
+| `app/(auth)/layout.tsx` | Reduced padding on mobile, responsive heading |

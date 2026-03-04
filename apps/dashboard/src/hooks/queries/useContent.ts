@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient, type UseQueryOptions } from '@ta
 import { api } from '@/services/api'
 import type { Content, Folder, ContentListParams, ContentUploadRequest } from '@signage/types'
 
-export function useContent(workspaceId: string, params?: ContentListParams) {
+export function useContent(workspaceId: number | string, params?: ContentListParams) {
   return useQuery({
     queryKey: ['content', workspaceId, params],
     queryFn: () => api.content.list(workspaceId, params),
@@ -11,7 +11,7 @@ export function useContent(workspaceId: string, params?: ContentListParams) {
 }
 
 export function useContentItem(
-  workspaceId: string, 
+  workspaceId: number | string, 
   contentId: string,
   options?: Omit<UseQueryOptions<Content>, 'queryKey' | 'queryFn'>
 ) {
@@ -23,7 +23,7 @@ export function useContentItem(
   })
 }
 
-export function useFolders(workspaceId: string, parentId?: string | null) {
+export function useFolders(workspaceId: number | string, parentId?: string | null) {
   return useQuery({
     queryKey: ['folders', workspaceId, parentId],
     queryFn: () => api.content.listFolders(workspaceId, parentId),
@@ -31,7 +31,7 @@ export function useFolders(workspaceId: string, parentId?: string | null) {
   })
 }
 
-export function useAllFolders(workspaceId: string) {
+export function useAllFolders(workspaceId: number | string) {
   return useQuery({
     queryKey: ['folders', workspaceId, 'all'],
     queryFn: () => api.content.listFolders(workspaceId),
@@ -43,7 +43,7 @@ export function useUploadContent() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: ContentUploadRequest }) => {
+    mutationFn: ({ workspaceId, data }: { workspaceId: number | string; data: ContentUploadRequest }) => {
       if (!workspaceId) {
         throw new Error('Workspace ID is required')
       }
@@ -75,7 +75,7 @@ export function useDeleteContent() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, contentId }: { workspaceId: string; contentId: number }) => {
+    mutationFn: ({ workspaceId, contentId }: { workspaceId: number | string; contentId: number | string }) => {
       if (!workspaceId) {
         throw new Error('Workspace ID is required')
       }
@@ -91,7 +91,7 @@ export function useCreateFolder() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: { name: string; parent_id?: string } }) => {
+    mutationFn: ({ workspaceId, data }: { workspaceId: number | string; data: { name: string; parent_id?: string } }) => {
       if (!workspaceId) {
         throw new Error('Workspace ID is required')
       }
@@ -107,7 +107,7 @@ export function useDeleteFolder() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, folderId }: { workspaceId: string; folderId: string }) =>
+    mutationFn: ({ workspaceId, folderId }: { workspaceId: number | string; folderId: number | string }) =>
       api.content.deleteFolder(workspaceId, folderId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['folders', variables.workspaceId] })
@@ -128,7 +128,7 @@ export function useCreateTag() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: { name: string; color: string } }) =>
+    mutationFn: ({ workspaceId, data }: { workspaceId: number | string; data: { name: string; color: string } }) =>
       api.content.createTag(workspaceId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tags', variables.workspaceId] })
@@ -140,7 +140,7 @@ export function useDeleteTag() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, tagId }: { workspaceId: string; tagId: string }) =>
+    mutationFn: ({ workspaceId, tagId }: { workspaceId: number | string; tagId: number | string }) =>
       api.content.deleteTag(workspaceId, tagId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['tags', variables.workspaceId] })

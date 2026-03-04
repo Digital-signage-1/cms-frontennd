@@ -4,10 +4,16 @@ import { useState, useEffect } from 'react'
 import {
   User, Lock, Bell, CreditCard, Users,
   Building2, AlertTriangle, CheckCircle2, Key, Shield,
+  Mail, Trash2, RefreshCw, UserPlus, X,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
-import { useUpdateAccount, useDeleteAccount } from '@/hooks/queries'
+import {
+  useUpdateAccount, useDeleteAccount,
+  useUpdateWorkspace, useWorkspaceMembers,
+  useWorkspaceInvitations, useSendInvitation, useRevokeInvitation,
+} from '@/hooks/queries'
+import { api } from '@/services/api'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
@@ -119,43 +125,50 @@ export default function SettingsPage() {
   const { user, account, workspace } = useAuthStore()
   const { setBreadcrumbItems } = useBreadcrumb()
   const [activeTab, setActiveTab] = useState<NavKey>('profile')
-  const [saving, setSaving] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const updateAccountMutation = useUpdateAccount()
   const deleteAccountMutation = useDeleteAccount()
+  const updateWorkspaceMutation = useUpdateWorkspace()
+  const sendInvitationMutation = useSendInvitation()
+  const revokeInvitationMutation = useRevokeInvitation()
+
+  const workspaceNumId = workspace?.id ?? 0
+
+  const { data: membersData } = useWorkspaceMembers(workspaceNumId)
+  const { data: invitationsData } = useWorkspaceInvitations(workspaceNumId || undefined)
+  const members = (membersData as any[]) ?? []
+  const invitations = (invitationsData as any[]) ?? []
 
   useEffect(() => {
     setBreadcrumbItems([{ label: 'Settings' }])
   }, [setBreadcrumbItems])
 
-  // Derive initials
-  const fullName   = (user as any)?.name || (user as any)?.displayName || ''
-  const email      = (user as any)?.email || ''
-  const nameParts  = fullName.trim().split(' ')
-  const firstName  = (user as any)?.given_name || nameParts[0] || ''
-  const lastName   = (user as any)?.family_name || nameParts.slice(1).join(' ') || ''
-  const initials   = [firstName[0], lastName[0]].filter(Boolean).join('').toUpperCase() || email.slice(0, 2).toUpperCase() || 'YC'
-  const orgId      = workspace?.workspace_id || 'org_stud_x8IQ9mz'
-  const orgName    = (workspace as any)?.name || 'Studio'
+  const fullName  = (user as any)?.name || (user as any)?.displayName || ''
+  const email     = (user as any)?.email || ''
+  const nameParts = fullName.trim().split(' ')
+  const firstName = (user as any)?.given_name || nameParts[0] || ''
+  const lastName  = (user as any)?.family_name || nameParts.slice(1).join(' ') || ''
+  const initials  = [firstName[0], lastName[0]].filter(Boolean).join('').toUpperCase() || email.slice(0, 2).toUpperCase() || 'YC'
+  const orgId     = workspace?.workspace_id || ''
 
-  // Profile form state
   const [profile, setProfile] = useState({
     firstName, lastName,
     email,
     displayName: fullName || `${firstName} ${lastName}`.trim(),
   })
 
-  // Org form state
   const [org, setOrg] = useState({
-    name: orgName,
-    timezone: 'Asia/Kolkata (GMT+5:30)',
+    name: (workspace as any)?.name || '',
+    timezone: (workspace as any)?.timezone || 'UTC',
   })
 
-  // Security form
-  const [passwords, setPasswords] = useState({ current: '', next: '', confirm: '' })
+  const [pwStep, setPwStep] = useState<'form' | 'verify'>('form')
+  const [pwForm, setPwForm] = useState({ newPassword: '', confirm: '' })
+  const [pwCode, setPwCode] = useState('')
+  const [pwSaving, setPwSaving] = useState(false)
+  const [pwMessage, setPwMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  // Notifications
   const [notif, setNotif] = useState({
     emailNotifications: true,
     pushNotifications: true,
@@ -163,6 +176,9 @@ export default function SettingsPage() {
     systemUpdates: false,
     marketingEmails: false,
   })
+
+  const [inviteForm, setInviteForm] = useState({ email: '', role: 'viewer' })
+  const [inviteError, setInviteError] = useState('')
 
   const handleProfileSave = () => {
     if (!account?.account_id) return
@@ -179,18 +195,74 @@ export default function SettingsPage() {
     })
   }
 
-  // Kept for non-wired tabs (security, notifications, org) — no-op stub
-  const handleSave = async () => {
-    setSaving(true)
-    await new Promise((r) => setTimeout(r, 800))
-    setSaving(false)
+  const handleOrgSave = () => {
+    if (!workspaceNumId) return
+    updateWorkspaceMutation.mutate({
+      id: workspaceNumId,
+      data: { name: org.name, timezone: org.timezone },
+    })
+  }
+
+  const handleSendPasswordCode = async () => {
+    if (!email) return
+    if (pwForm.newPassword.length < 8) {
+      setPwMessage({ type: 'error', text: 'New password must be at least 8 characters.' })
+      return
+    }
+    if (pwForm.newPassword !== pwForm.confirm) {
+      setPwMessage({ type: 'error', text: 'Passwords do not match.' })
+      return
+    }
+    setPwSaving(true)
+    setPwMessage(null)
+    try {
+      await api.auth.forgotPassword(email)
+      setPwStep('verify')
+      setPwMessage({ type: 'success', text: `Verification code sent to ${email}` })
+    } catch (err: any) {
+      setPwMessage({ type: 'error', text: err?.message || 'Failed to send code.' })
+    } finally {
+      setPwSaving(false)
+    }
+  }
+
+  const handleConfirmPassword = async () => {
+    if (!email || !pwCode) return
+    setPwSaving(true)
+    setPwMessage(null)
+    try {
+      await api.auth.confirmForgotPassword(email, pwCode, pwForm.newPassword)
+      setPwMessage({ type: 'success', text: 'Password updated successfully.' })
+      setPwStep('form')
+      setPwForm({ newPassword: '', confirm: '' })
+      setPwCode('')
+    } catch (err: any) {
+      setPwMessage({ type: 'error', text: err?.message || 'Invalid code or request expired.' })
+    } finally {
+      setPwSaving(false)
+    }
+  }
+
+  const handleInvite = () => {
+    if (!inviteForm.email.trim()) { setInviteError('Email is required.'); return }
+    if (!workspaceNumId) return
+    setInviteError('')
+    sendInvitationMutation.mutate(
+      { workspaceId: workspaceNumId, email: inviteForm.email.trim(), role: inviteForm.role },
+      { onSuccess: () => setInviteForm({ email: '', role: 'viewer' }), onError: (e: any) => setInviteError(e?.message || 'Failed to send invitation.') }
+    )
+  }
+
+  const handleRevokeInvitation = (invitationId: number) => {
+    if (!workspaceNumId) return
+    revokeInvitationMutation.mutate({ workspaceId: workspaceNumId, invitationId })
   }
 
   return (
     <div style={{ backgroundColor: '#0D0D0D', minHeight: '100vh' }}>
 
       {/* ── Slim hero banner ── */}
-      <div className="px-5 pt-5">
+      <div className="page-container pt-4 sm:pt-5">
         <div
           className="rounded-xl relative overflow-hidden"
           style={{
@@ -206,11 +278,11 @@ export default function SettingsPage() {
               backgroundSize: '40px 40px',
             }}
           />
-          <div className="relative z-10 px-6 py-5">
+          <div className="relative z-10 responsive-hero">
             <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: '#F5A624' }}>
               Settings
             </p>
-            <h1 className="text-3xl font-bold text-white mb-1">Account Settings</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">Account Settings</h1>
             <p className="text-sm" style={{ color: '#6B7280' }}>
               Manage your account preferences, security, notifications, and team.
             </p>
@@ -218,12 +290,36 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* ── Two-column layout ── */}
-      <div className="px-5 py-4 flex gap-4 items-start">
+      {/* ── Mobile tab nav (horizontal scroll) ── */}
+      <div className="md:hidden scroll-x px-3 py-3" style={{ borderBottom: '1px solid #1C1C1C' }}>
+        <div className="flex gap-1 w-max">
+          {NAV.map(({ key, label, Icon }) => {
+            const isActive = activeTab === key
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap flex-shrink-0 touch-target"
+                style={
+                  isActive
+                    ? { backgroundColor: 'rgba(245,166,36,0.12)', color: '#F5A624', border: '1px solid rgba(245,166,36,0.3)' }
+                    : { color: '#6B7280', border: '1px solid transparent' }
+                }
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
 
-        {/* ── Left sidebar nav ── */}
+      {/* ── Two-column layout (desktop) / stacked (mobile) ── */}
+      <div className="page-container py-4 flex flex-col md:flex-row gap-4 items-start">
+
+        {/* ── Left sidebar nav – desktop only ── */}
         <div
-          className="flex-shrink-0 rounded-xl overflow-hidden"
+          className="hidden md:block flex-shrink-0 rounded-xl overflow-hidden"
           style={{ width: 160, backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
         >
           {NAV.map(({ key, label, Icon }) => {
@@ -232,7 +328,7 @@ export default function SettingsPage() {
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-medium transition-colors text-left"
+                className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-medium transition-colors text-left touch-target"
                 style={
                   isActive
                     ? {
@@ -254,7 +350,7 @@ export default function SettingsPage() {
         </div>
 
         {/* ── Right content ── */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 w-full">
 
           {/* ══ PROFILE TAB ══ */}
           {activeTab === 'profile' && (
@@ -263,9 +359,9 @@ export default function SettingsPage() {
               <div style={SECTION_CARD}>
                 <SectionHeader Icon={User} title="Profile Information" subtitle="Your personal details and avatar" />
 
-                <div className="flex gap-8">
+                <div className="flex flex-col sm:flex-row gap-6 sm:gap-8">
                   {/* Avatar */}
-                  <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                  <div className="flex flex-row sm:flex-col items-center gap-4 sm:gap-2 flex-shrink-0">
                     <div
                       className="w-20 h-20 rounded-xl flex items-center justify-center text-2xl font-bold"
                       style={{ backgroundColor: '#F5A624', color: '#000000' }}
@@ -280,7 +376,7 @@ export default function SettingsPage() {
                   {/* Form fields */}
                   <div className="flex-1 space-y-4">
                     {/* First + Last Name row */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label style={LABEL_STYLE}>First Name</label>
                         <input
@@ -391,7 +487,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <SaveBtn onClick={handleSave} saving={saving} />
+                <SaveBtn onClick={handleOrgSave} saving={updateWorkspaceMutation.isPending} />
               </div>
 
               {/* Danger Zone */}
@@ -426,63 +522,110 @@ export default function SettingsPage() {
           {/* ══ SECURITY TAB ══ */}
           {activeTab === 'security' && (
             <>
-              {/* Change Password */}
               <div style={SECTION_CARD}>
-                <SectionHeader Icon={Key} title="Change Password" subtitle="Update your password to keep your account secure" />
+                <SectionHeader Icon={Key} title="Change Password" subtitle="A verification code will be sent to your email" />
 
-                <div className="space-y-4">
-                  <div>
-                    <label style={LABEL_STYLE}>Current Password</label>
-                    <input
-                      style={INPUT_STYLE}
-                      type="password"
-                      placeholder="••••••••"
-                      value={passwords.current}
-                      onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
-                      onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
-                      onBlur={(e)  => (e.currentTarget.style.borderColor = '#1F2937')}
-                    />
+                {pwMessage && (
+                  <div
+                    className="flex items-center gap-2 p-3 rounded-lg mb-4 text-sm"
+                    style={{
+                      backgroundColor: pwMessage.type === 'success' ? 'rgba(52,211,153,0.08)' : 'rgba(248,113,113,0.08)',
+                      border: `1px solid ${pwMessage.type === 'success' ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)'}`,
+                      color: pwMessage.type === 'success' ? '#34D399' : '#F87171',
+                    }}
+                  >
+                    {pwMessage.type === 'success'
+                      ? <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+                      : <AlertTriangle className="h-4 w-4 flex-shrink-0" />}
+                    {pwMessage.text}
                   </div>
-                  <div>
-                    <label style={LABEL_STYLE}>New Password</label>
-                    <input
-                      style={INPUT_STYLE}
-                      type="password"
-                      placeholder="••••••••"
-                      value={passwords.next}
-                      onChange={(e) => setPasswords({ ...passwords, next: e.target.value })}
-                      onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
-                      onBlur={(e)  => (e.currentTarget.style.borderColor = '#1F2937')}
-                    />
-                    <p className="text-xs mt-1.5" style={{ color: '#6B7280' }}>Must be at least 8 characters</p>
-                  </div>
-                  <div>
-                    <label style={LABEL_STYLE}>Confirm New Password</label>
-                    <input
-                      style={INPUT_STYLE}
-                      type="password"
-                      placeholder="••••••••"
-                      value={passwords.confirm}
-                      onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                      onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
-                      onBlur={(e)  => (e.currentTarget.style.borderColor = '#1F2937')}
-                    />
-                  </div>
-                </div>
+                )}
 
-                <SaveBtn onClick={handleSave} saving={saving} />
+                {pwStep === 'form' ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label style={LABEL_STYLE}>Account Email</label>
+                      <input style={{ ...INPUT_STYLE, color: '#6B7280', cursor: 'default' }} value={email} readOnly />
+                    </div>
+                    <div>
+                      <label style={LABEL_STYLE}>New Password</label>
+                      <input
+                        style={INPUT_STYLE}
+                        type="password"
+                        placeholder="••••••••"
+                        value={pwForm.newPassword}
+                        onChange={(e) => setPwForm({ ...pwForm, newPassword: e.target.value })}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#1F2937')}
+                      />
+                      <p className="text-xs mt-1.5" style={{ color: '#6B7280' }}>Must be at least 8 characters</p>
+                    </div>
+                    <div>
+                      <label style={LABEL_STYLE}>Confirm New Password</label>
+                      <input
+                        style={INPUT_STYLE}
+                        type="password"
+                        placeholder="••••••••"
+                        value={pwForm.confirm}
+                        onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#1F2937')}
+                      />
+                    </div>
+                    <div className="flex justify-end pt-4 mt-4" style={{ borderTop: '1px solid #2A2A2A' }}>
+                      <button
+                        onClick={handleSendPasswordCode}
+                        disabled={pwSaving}
+                        className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
+                        style={{ backgroundColor: '#F5A624', color: '#000000', opacity: pwSaving ? 0.6 : 1 }}
+                      >
+                        <Mail className="h-4 w-4" />
+                        {pwSaving ? 'Sending…' : 'Send Verification Code'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <label style={LABEL_STYLE}>Verification Code</label>
+                      <input
+                        style={INPUT_STYLE}
+                        placeholder="Enter the code from your email"
+                        value={pwCode}
+                        onChange={(e) => setPwCode(e.target.value)}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#1F2937')}
+                      />
+                      <p className="text-xs mt-1.5" style={{ color: '#6B7280' }}>
+                        Check your inbox at <span style={{ color: '#F5A624' }}>{email}</span>
+                      </p>
+                    </div>
+                    <div className="flex justify-between pt-4 mt-4" style={{ borderTop: '1px solid #2A2A2A' }}>
+                      <button
+                        onClick={() => { setPwStep('form'); setPwMessage(null) }}
+                        className="px-4 py-2 rounded-lg text-sm font-medium"
+                        style={{ backgroundColor: '#1F2937', color: '#9CA3AF', border: '1px solid #2A2A2A' }}
+                      >
+                        Back
+                      </button>
+                      <button
+                        onClick={handleConfirmPassword}
+                        disabled={pwSaving || !pwCode}
+                        className="px-5 py-2 rounded-lg text-sm font-semibold"
+                        style={{ backgroundColor: '#F5A624', color: '#000000', opacity: pwSaving || !pwCode ? 0.6 : 1 }}
+                      >
+                        {pwSaving ? 'Applying…' : 'Apply Change'}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* 2FA */}
               <div style={SECTION_CARD}>
                 <SectionHeader Icon={Shield} title="Two-Factor Authentication" subtitle="Add an extra layer of security to your account" />
-
                 <div
                   className="flex items-center justify-between p-4 rounded-lg"
-                  style={{
-                    backgroundColor: 'rgba(5,150,105,0.06)',
-                    border: '1px solid rgba(5,150,105,0.2)',
-                  }}
+                  style={{ backgroundColor: 'rgba(5,150,105,0.06)', border: '1px solid rgba(5,150,105,0.2)' }}
                 >
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 flex-shrink-0" style={{ color: '#34D399' }} />
@@ -491,16 +634,6 @@ export default function SettingsPage() {
                       <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>Your account is protected with 2FA</p>
                     </div>
                   </div>
-                  <button
-                    className="px-4 py-1.5 rounded-lg text-sm font-medium"
-                    style={{
-                      backgroundColor: 'rgba(220,38,38,0.10)',
-                      color: '#F87171',
-                      border: '1px solid rgba(220,38,38,0.25)',
-                    }}
-                  >
-                    Disable
-                  </button>
                 </div>
               </div>
             </>
@@ -537,7 +670,6 @@ export default function SettingsPage() {
                 })}
               </div>
 
-              <SaveBtn onClick={handleSave} saving={saving} />
             </div>
           )}
 
@@ -583,24 +715,127 @@ export default function SettingsPage() {
 
           {/* ══ TEAM TAB ══ */}
           {activeTab === 'team' && (
-            <div style={SECTION_CARD}>
-              <SectionHeader Icon={Users} title="Team Members" subtitle="Manage who has access to your workspace" />
+            <>
+              <div style={SECTION_CARD}>
+                <SectionHeader Icon={UserPlus} title="Invite Member" subtitle="Send an invitation to collaborate on this workspace" />
 
-              <div
-                className="flex flex-col items-center justify-center py-12"
-                style={{ borderRadius: 8, backgroundColor: '#111827', border: '1px solid #1F2937' }}
-              >
-                <Users className="h-10 w-10 mb-3" style={{ color: '#2A2A2A' }} />
-                <p className="text-sm font-medium text-white mb-1">No team members yet</p>
-                <p className="text-xs mb-4" style={{ color: '#6B7280' }}>Invite colleagues to collaborate on your workspace</p>
-                <button
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
-                  style={{ backgroundColor: '#F5A624', color: '#000000' }}
-                >
-                  Invite Member
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <label style={LABEL_STYLE}>Email Address</label>
+                    <input
+                      style={INPUT_STYLE}
+                      type="email"
+                      placeholder="colleague@example.com"
+                      value={inviteForm.email}
+                      onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
+                      onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
+                      onBlur={(e)  => (e.currentTarget.style.borderColor = '#1F2937')}
+                    />
+                  </div>
+                  <div style={{ width: 140 }}>
+                    <label style={LABEL_STYLE}>Role</label>
+                    <select
+                      value={inviteForm.role}
+                      onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
+                      style={{ ...INPUT_STYLE, width: '100%', cursor: 'pointer' }}
+                    >
+                      <option value="viewer">Viewer</option>
+                      <option value="editor">Editor</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                </div>
+
+                {inviteError && (
+                  <p className="text-xs mt-2" style={{ color: '#F87171' }}>{inviteError}</p>
+                )}
+
+                <div className="flex justify-end mt-5 pt-4" style={{ borderTop: '1px solid #2A2A2A' }}>
+                  <button
+                    onClick={handleInvite}
+                    disabled={sendInvitationMutation.isPending}
+                    className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold"
+                    style={{ backgroundColor: '#F5A624', color: '#000000', opacity: sendInvitationMutation.isPending ? 0.6 : 1 }}
+                  >
+                    <Mail className="h-4 w-4" />
+                    {sendInvitationMutation.isPending ? 'Sending…' : 'Send Invitation'}
+                  </button>
+                </div>
               </div>
-            </div>
+
+              <div style={SECTION_CARD}>
+                <SectionHeader Icon={Users} title="Team Members" subtitle="Current members of this workspace" />
+
+                {members.length === 0 ? (
+                  <p className="text-sm py-4 text-center" style={{ color: '#6B7280' }}>No members found</p>
+                ) : (
+                  <div className="space-y-2">
+                    {members.map((m: any, i: number) => (
+                      <div
+                        key={m.cognito_sub || i}
+                        className="flex items-center justify-between px-4 py-3 rounded-lg"
+                        style={{ backgroundColor: '#111827', border: '1px solid #1F2937' }}
+                      >
+                        <div>
+                          <p className="text-sm font-medium text-white">{m.email || m.cognito_sub}</p>
+                          {m.joined_at && (
+                            <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                              Joined {new Date(m.joined_at).toLocaleDateString()}
+                            </p>
+                          )}
+                        </div>
+                        <span
+                          className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
+                          style={{
+                            backgroundColor: 'rgba(245,166,36,0.12)',
+                            color: '#F5A624',
+                            border: '1px solid rgba(245,166,36,0.25)',
+                          }}
+                        >
+                          {m.role}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {invitations.length > 0 && (
+                <div style={SECTION_CARD}>
+                  <SectionHeader Icon={RefreshCw} title="Pending Invitations" subtitle="Invitations awaiting acceptance" />
+
+                  <div className="space-y-2">
+                    {invitations.map((inv: any, i: number) => (
+                      <div
+                        key={inv.invitation_id || i}
+                        className="flex items-center justify-between px-4 py-3 rounded-lg"
+                        style={{ backgroundColor: '#111827', border: '1px solid #1F2937' }}
+                      >
+                        <div>
+                          <p className="text-sm font-medium text-white">{inv.email}</p>
+                          <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                            Role: {inv.role} · Expires {new Date(inv.expires_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleRevokeInvitation(inv.id)}
+                          disabled={revokeInvitationMutation.isPending}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+                          style={{
+                            backgroundColor: 'rgba(220,38,38,0.10)',
+                            color: '#F87171',
+                            border: '1px solid rgba(220,38,38,0.25)',
+                          }}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                          Revoke
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
         </div>

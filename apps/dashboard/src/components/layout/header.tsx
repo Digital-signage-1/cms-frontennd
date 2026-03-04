@@ -3,10 +3,11 @@
 import { Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useAuthStore } from '@/stores/auth-store'
-import { Bell, HelpCircle, LogOut, Search, Settings, User, Building2 } from 'lucide-react'
+import { Bell, HelpCircle, LogOut, Search, Settings, User, Building2, Menu } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useSidebar } from '@/contexts/sidebar-context'
 
 interface BreadcrumbItem {
   label: string
@@ -19,7 +20,9 @@ interface HeaderProps {
 
 export function Header({ breadcrumbItems }: HeaderProps) {
   const { user, account, workspace } = useAuthStore()
+  const { openMobile } = useSidebar()
   const [searchFocused, setSearchFocused] = useState(false)
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false)
 
   const userDisplayName = useMemo(() => {
     if (user?.given_name && user?.family_name) return `${user.given_name} ${user.family_name}`
@@ -52,11 +55,40 @@ export function Header({ breadcrumbItems }: HeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-30 flex h-14 items-center justify-between px-4 sm:px-6"
+      className="sticky top-0 z-30 flex h-14 items-center justify-between px-3 sm:px-6"
       style={{ backgroundColor: '#0D0D0D', borderBottom: '1px solid #1C1C1C' }}
     >
-      {/* Left: page title or breadcrumb */}
-      <div className="flex items-center gap-4 flex-1 min-w-0">
+      {/* Left: hamburger (mobile) + breadcrumb */}
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+        {/* Hamburger – mobile only */}
+        <button
+          onClick={openMobile}
+          className="md:hidden flex items-center justify-center h-9 w-9 rounded-lg flex-shrink-0 touch-target"
+          style={{ color: '#9CA3AF' }}
+          aria-label="Open navigation menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        {/* Mobile search expand overlay */}
+        {mobileSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-x-0 top-0 h-14 flex items-center px-3 z-10 sm:hidden"
+            style={{ backgroundColor: '#0D0D0D', borderBottom: '1px solid #1C1C1C' }}
+          >
+            <Search className="absolute left-7 h-3.5 w-3.5 pointer-events-none" style={{ color: '#6B7280' }} />
+            <input
+              autoFocus
+              placeholder="Search..."
+              onBlur={() => setMobileSearchOpen(false)}
+              className="w-full h-9 pl-9 pr-4 text-sm rounded-lg outline-none"
+              style={{ backgroundColor: '#1C1C1C', border: '1px solid #F5A624', color: '#FFFFFF' }}
+            />
+          </motion.div>
+        )}
+
         {breadcrumbItems && breadcrumbItems.length > 0 ? (
           <Breadcrumb items={breadcrumbItems} className="min-w-0" />
         ) : (
@@ -65,9 +97,9 @@ export function Header({ breadcrumbItems }: HeaderProps) {
       </div>
 
       {/* Right: search + bell + avatar */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1 sm:gap-3">
 
-        {/* Search */}
+        {/* Search – desktop */}
         <motion.div
           animate={{ width: searchFocused ? '260px' : '180px' }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
@@ -96,12 +128,23 @@ export function Header({ breadcrumbItems }: HeaderProps) {
           </kbd>
         </motion.div>
 
+        {/* Search icon – mobile only */}
+        <button
+          onClick={() => setMobileSearchOpen(true)}
+          className="sm:hidden relative p-2 rounded-lg touch-target"
+          style={{ color: '#6B7280' }}
+          aria-label="Search"
+        >
+          <Search className="h-5 w-5" />
+        </button>
+
         {/* Notification bell */}
         <button
-          className="relative p-2 rounded-lg transition-colors"
+          className="relative p-2 rounded-lg transition-colors touch-target"
           style={{ color: '#6B7280' }}
           onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#1C1C1C'; (e.currentTarget as HTMLElement).style.color = '#FFFFFF' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#6B7280' }}
+          aria-label="Notifications"
         >
           <Bell className="h-5 w-5" />
           <span

@@ -33,7 +33,7 @@ export default function AuthLayout({
 
   return (
     <div
-      className="dark relative min-h-screen flex items-center justify-center p-6"
+      className="dark relative min-h-screen flex items-center justify-center p-4 sm:p-6"
       style={{
         backgroundColor: '#0D0D0D',
         '--color-primary': '#F5A624',
@@ -60,11 +60,11 @@ export default function AuthLayout({
       />
 
       {/* Two-box layout */}
-      <div className="relative z-10 w-full max-w-7xl flex items-stretch gap-6">
+      <div className="relative z-10 w-full max-w-7xl flex items-stretch gap-4 sm:gap-6">
 
         {/* Left Box */}
         <div
-          className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-10 rounded-2xl"
+          className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-8 xl:p-10 rounded-2xl"
           style={{ backgroundColor: '#161616', border: '1px solid #2A2A2A' }}
         >
           <div className="w-full max-w-sm">
@@ -78,7 +78,7 @@ export default function AuthLayout({
 
             {/* Heading */}
             <h1
-              className="text-[3.2rem] leading-[1.12] font-light text-white mb-5"
+              className="text-[2.4rem] xl:text-[3.2rem] leading-[1.12] font-light text-white mb-5"
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
               Digital Signage,
@@ -130,7 +130,7 @@ export default function AuthLayout({
 
         {/* Right Box – Form */}
         <div
-          className="flex w-full lg:w-1/2 items-center justify-center p-10 rounded-2xl"
+          className="flex w-full lg:w-1/2 items-center justify-center p-6 sm:p-8 lg:p-10 rounded-2xl"
           style={{ backgroundColor: '#141414', border: '1px solid #2A2A2A' }}
         >
           <div className="w-full max-w-[380px]">

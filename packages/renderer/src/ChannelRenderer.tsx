@@ -71,8 +71,8 @@ export function ChannelRenderer({
   )
 
   const handleZoneAppChange = useCallback(
-    (zoneId: string) => (appId: string) => {
-      onAppChange?.(zoneId, appId)
+    (zoneId: string) => (appId: number | string) => {
+      onAppChange?.(zoneId, String(appId))
     },
     [onAppChange]
   )

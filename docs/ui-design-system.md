@@ -996,7 +996,156 @@ Configure form (template selected):
 
 ---
 
-## 14. CHANGE LOG
+## 14. RESPONSIVE DESIGN SYSTEM
+
+### Breakpoints
+
+| Name | Range | Target Devices |
+|---|---|---|
+| Mobile-sm | 320px–480px | iPhone SE, small Androids |
+| Mobile | 480px–768px | iPhone 14, most phones (portrait + landscape) |
+| Tablet | 768px–1024px | iPad portrait/landscape |
+| Laptop | 1024px–1440px | MacBook, standard laptops |
+| Desktop | 1440px–1920px | Full desktop monitors |
+| Ultrawide | 1920px+ | 4K/ultrawide monitors |
+
+### Tailwind Breakpoint Aliases Used
+
+| Prefix | Min-width | Usage Pattern |
+|---|---|---|
+| (none) | 0px | Mobile-first base styles |
+| `sm:` | 640px | Tablet small / phone landscape |
+| `md:` | 768px | Tablet portrait breakpoint |
+| `lg:` | 1024px | Laptop/desktop transition |
+| `xl:` | 1280px | Wide desktop |
+
+### Navigation (Sidebar) — Responsive Behavior
+
+| Screen | Behavior |
+|---|---|
+| **< 768px (mobile)** | Sidebar is **hidden off-screen** (`-translate-x-full`). Hamburger button (`Menu` icon) in header opens it as a **full-height overlay** with dark backdrop. Tap backdrop or `X` button to close. Sidebar width is always 240px when open on mobile. |
+| **≥ 768px (tablet/desktop)** | Sidebar is **always visible** on the left. Toggle button collapses it to 56px icon-only. Hover re-expands to 240px with label fade. |
+
+### Header — Responsive Behavior
+
+| Element | Mobile | Desktop |
+|---|---|---|
+| Hamburger button | Visible (`Menu` icon, `h-9 w-9`) | Hidden (`md:hidden`) |
+| Search bar | Hidden; search icon shows mobile fullscreen overlay | Expanding input `180px→260px` |
+| Breadcrumb | Truncated, single-level | Full multi-level |
+| Bell + Avatar | Always visible | Always visible |
+
+### Layout Shell — Responsive Margins
+
+The dashboard main content area uses JS-computed margins:
+- **Mobile (< 768px)**: `marginLeft: 0` — sidebar is an overlay, no margin needed
+- **Desktop (≥ 768px)**: `marginLeft: 56px` (collapsed) or `240px` (expanded)
+
+### Page Container Patterns
+
+| Class | Behavior |
+|---|---|
+| `.page-container` | `padding: clamp(0.75rem, 2vw, 1.25rem)` — fluid responsive padding |
+| `.responsive-hero` | `padding: clamp(1rem, 3vw, 1.75rem) clamp(1rem, 4vw, 1.75rem)` |
+| `.touch-target` | `min-height: 44px; min-width: 44px` — WCAG touch target compliance |
+| `.scroll-x` | Horizontal scroll with hidden scrollbar for tab bars on mobile |
+
+### Hero Banner — Responsive Layout
+
+```
+Desktop:  [Title / Description]  [CTA Button]  — flex-row, items-start, justify-between
+Mobile:   [Title / Description]                — flex-col, stacked
+          [CTA Button]                         — self-start, full-width optional
+```
+
+Hero heading scales: `text-2xl sm:text-3xl md:text-4xl`
+
+### Stat Cards — Responsive Grid
+
+| Pages | Mobile | Tablet | Desktop |
+|---|---|---|---|
+| Home metrics | `grid-cols-2` | `grid-cols-2` | `grid-cols-4` |
+| Content stats | `grid-cols-2` | `flex` (row) | `flex` (row) |
+| Players stats | `grid-cols-2` | `flex` (row) | `flex` (row) |
+| Channels stats | `grid-cols-2` | `flex` (row) | `flex` (row) |
+| Apps stats | `grid-cols-2` | `grid-cols-3` | `grid-cols-5` |
+| Schedules stats | `grid-cols-2` | `grid-cols-3` | `grid-cols-5` |
+| Analytics KPIs | `grid-cols-2` | `grid-cols-2` | `grid-cols-4` |
+
+### Content Grids — Responsive Columns
+
+| Grid | Mobile | Tablet | Desktop |
+|---|---|---|---|
+| Content media files | `grid-cols-2` | `grid-cols-3` | `grid-cols-4` |
+| Folder cards | `grid-cols-1` | `grid-cols-2` | `grid-cols-3` |
+| App cards | `grid-cols-1` | `grid-cols-2` | `grid-cols-3` |
+| Channel cards | `grid-cols-2` | `grid-cols-2` | `grid-cols-4` |
+| Schedule cards | `grid-cols-1` | `grid-cols-2` | `grid-cols-3` |
+
+### Toolbar Patterns — Responsive
+
+All page toolbars follow this pattern:
+```
+Mobile:  flex-col, gap-3 (filter tabs stacked above search/actions)
+Desktop: flex-row, items-center, justify-between
+```
+Filter tab rows use `.scroll-x` on mobile to allow horizontal scrolling without wrapping.
+
+### Settings Page — Responsive
+
+| Screen | Layout |
+|---|---|
+| **Mobile** | Horizontal scrollable tab bar (`.scroll-x`) above content area. Left sidebar is hidden. |
+| **Desktop** | 160px left sidebar nav with amber active border. Content area `flex-1`. |
+
+Profile form name fields: `grid-cols-1 sm:grid-cols-2`
+Avatar + form: `flex-col sm:flex-row`
+
+### Auth Layout — Responsive
+
+| Screen | Layout |
+|---|---|
+| **Mobile** | Single column form. Marketing panel hidden (`hidden lg:flex`). Mobile logo shown (`lg:hidden`). Padding `p-4`. |
+| **Desktop** | Two-column split. Left: marketing (50%), Right: form (50%). Padding `p-10`. |
+
+### Typography Scale (Responsive)
+
+| Element | Value |
+|---|---|
+| `h1` | `clamp(1.5rem, 4vw, 2rem)` |
+| `h2` | `clamp(1.25rem, 3vw, 1.5rem)` |
+| `h3` | `clamp(1.1rem, 2.5vw, 1.25rem)` |
+| Page hero title | `text-2xl sm:text-3xl` or `text-2xl sm:text-4xl` |
+| Body text | `text-sm` (14px) — unchanged across breakpoints |
+| Labels/captions | `text-xs` (12px) — unchanged across breakpoints |
+
+Note: `font-size: max(1rem, 16px)` applied to all inputs to prevent iOS auto-zoom.
+
+### Touch Targets
+
+All interactive elements on mobile must meet 44px minimum:
+- Nav items: `py-2.5` + icon (≥ 44px)
+- Buttons: `.touch-target` utility class
+- Filter tabs: `py-1.5` + `.touch-target`
+- Toggle switches: `h-11 w-11` wrapper
+
+### Analytics Two-Column Layout
+
+```
+Mobile/Tablet (<1024px): grid-cols-1 (chart above, top content below)
+Desktop (≥1024px):       grid-cols-[1fr_380px] (chart left, top content right)
+```
+
+### Players Split Layout
+
+```
+Mobile (<1024px):  flex-col, overflow-auto (stacked: filter+map above, player list below)
+Desktop (≥1024px): flex-row, overflow-hidden (side-by-side)
+```
+
+---
+
+## 15. CHANGE LOG
 
 | Date | Change | Files Affected |
 |---|---|---|
@@ -1015,3 +1164,4 @@ Configure form (template selected):
 | 2026-03-01 | Global Dialog system dark-theme upgrade — overlay bg-black/65 + backdrop-blur, content bg-[#13132B] border-[#2A2A45] rounded-2xl, X button restyled as dark rounded-lg square, hideClose prop added to DialogContent, DialogTitle text-white, DialogDescription text-[#6B7280] | `components/ui/dialog.tsx`, `ui-design-system.md` |
 | 2026-03-01 | Complete Schedule Modal revamp — dark navy #13132B modal; header with amber Calendar icon badge + title + subtitle + X button; scrollable body with Schedule Name (h-48 input), Start/End Time (2-col, Clock icon left, time input font-600), Duration computed row (amber bold value), Days of Week (7-col grid amber/dark day buttons + Weekdays/Weekends/All quick selectors), Repeat dropdown + Start Date + End Date (3-col), Priority 3-card selector (High/Medium/Low, amber selected state), Channels list (TV icon + name + Published green badge, selected amber tint); fixed footer with summary text + Cancel + amber "+ Create Schedule" button; new state: repeat/startDate/endDate/priority | `components/schedules/ScheduleModal.tsx`, `ui-design-system.md` |
 | 2026-03-01 | Complete Apps Create page revamp — 3-column fixed layout (200px sidebar / flex-1 template list / 320px right panel); sub-header with "← Apps" back pill + "Create New App" title + 3-step stepper (amber active circle); left sidebar with APP TYPES amber label + category nav (All Types/Custom/Document/Embeds/Media/Widgets with count badges, amber active border) + TEMPLATES count at bottom; middle panel with search bar + N results + grouped template rows (colored 40px icon per category, name + POPULAR amber badge, description 2-line clamp, tag pills, amber left border + tint when selected, chevron indicator); right panel: ChevronRight empty state → configure form (template header with icon, App Name / Description fields bg #111827, content selector, dynamic FormFieldRenderer schema fields, amber Create App button); static FALLBACK_TEMPLATES (20 templates: Custom/Document/Embeds/Media/Widgets); preserved useCreateApp + useAppTypes + useAppTypeSchema + ContentSelector logic | `apps/create/page.tsx`, `ui-design-system.md` |
+| 2026-03-03 | **Full responsive / mobile-first overhaul** — Added `mobileOpen` state + hamburger menu to sidebar; `Menu` icon + mobile search overlay in header; JS margin = 0 on mobile in layout; `clamp()` responsive typography; `.touch-target` / `.page-container` / `.responsive-hero` / `.scroll-x` utility classes; all hero banners flex-col on mobile; all stat cards responsive grids; all toolbars stack on mobile; settings page horizontal tab bar on mobile; auth layout responsive padding; analytics/players 2-col → 1-col on mobile; all page grids updated; Section 14 Responsive Design System documentation added; `layoutguide.md` Responsive Layout Architecture section added | `sidebar-context.tsx`, `sidebar.tsx`, `header.tsx`, `(dashboard)/layout.tsx`, `globals.css`, `home/page.tsx`, `content/page.tsx`, `apps/page.tsx`, `channels/page.tsx`, `players/page.tsx`, `schedules/page.tsx`, `analytics/page.tsx`, `settings/page.tsx`, `(auth)/layout.tsx`, `ui-design-system.md`, `layoutguide.md` |

@@ -2,11 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/services/api'
 import type { Channel, ChannelManifest, ChannelZone, BackgroundConfig } from '@signage/types'
 
-export function useChannels(workspaceId: number | undefined) {
+export function useChannels(workspaceId: number | string | undefined) {
+  const id = workspaceId ? Number(workspaceId) : undefined
   return useQuery({
-    queryKey: ['channels', workspaceId],
-    queryFn: () => api.channels.list(workspaceId!),
-    enabled: !!workspaceId && workspaceId > 0,
+    queryKey: ['channels', id],
+    queryFn: () => api.channels.list(id!),
+    enabled: !!id && id > 0,
   })
 }
 

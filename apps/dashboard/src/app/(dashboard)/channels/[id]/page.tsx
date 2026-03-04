@@ -93,7 +93,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
     try {
       await updateChannelMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
         data: { name: channelName },
       })
     } catch (error) {
@@ -106,7 +106,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
     try {
       await publishChannelMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
       })
     } catch (error) {
       console.error('Failed to publish channel:', error)
@@ -123,7 +123,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
     try {
       await addZoneAppMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
         zoneId: zoneIdNum,
         data: {
           app_id: appId,

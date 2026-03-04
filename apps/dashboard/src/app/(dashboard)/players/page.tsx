@@ -10,6 +10,7 @@ import { PlayerRegistrationModal } from '@/components/players/PlayerRegistration
 import { PlayerDetailDrawer } from '@/components/players/PlayerDetailDrawer'
 import { useAuthStore } from '@/stores/auth-store'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
+import { useRealtimePlayers } from '@/hooks/useRealtimePlayers'
 import type { Player } from '@signage/types'
 
 // ── Status token map ────────────────────────────────────────────────────────
@@ -114,6 +115,8 @@ export default function PlayersPage() {
   const { data: playersData = [], isLoading } = usePlayers(workspaceId)
   const { data: channels = [] }               = useChannels(workspaceId)
 
+  useRealtimePlayers(workspaceId || undefined)
+
   const [searchQuery, setSearchQuery]         = useState('')
   const [statusFilter, setStatusFilter]       = useState<StatusFilter>('all')
   const [selectedPlayer, setSelectedPlayer]   = useState<string | null>(null)
@@ -164,7 +167,7 @@ export default function PlayersPage() {
       }}
     >
       {/* ── Hero banner ─────────────────────────────────────────── */}
-      <div className="px-5 pt-5 pb-0 flex-shrink-0">
+      <div className="page-container pt-4 sm:pt-5 pb-0 flex-shrink-0">
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -187,7 +190,7 @@ export default function PlayersPage() {
           />
 
           {/* Title row */}
-          <div className="relative flex items-start justify-between px-7 pt-5 pb-4">
+          <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between responsive-hero pb-4 gap-3">
             <div>
               <p
                 className="text-xs uppercase font-semibold mb-1.5"
@@ -195,7 +198,7 @@ export default function PlayersPage() {
               >
                 Control Center
               </p>
-              <h1 className="text-3xl font-bold leading-tight mb-1" style={{ color: '#FFFFFF' }}>
+              <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1" style={{ color: '#FFFFFF' }}>
                 Player Network
               </h1>
               <p className="text-sm" style={{ color: '#6B7280' }}>
@@ -205,7 +208,7 @@ export default function PlayersPage() {
 
             <button
               onClick={() => setIsRegistrationOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 mt-1 transition-opacity hover:opacity-90"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 self-start transition-opacity hover:opacity-90 touch-target"
               style={{ backgroundColor: '#F5A624', color: '#000000' }}
             >
               <Plus className="h-4 w-4" />
@@ -214,7 +217,7 @@ export default function PlayersPage() {
           </div>
 
           {/* Stat cards */}
-          <div className="relative flex items-stretch gap-3 px-7 pb-5">
+          <div className="relative grid grid-cols-2 sm:flex sm:items-stretch gap-3 px-4 sm:px-7 pb-5">
             {STAT_CARDS.map(({ label, value, color, iconType }) => (
               <div
                 key={label}
@@ -250,7 +253,7 @@ export default function PlayersPage() {
       </div>
 
       {/* ── Main two-column area ─────────────────────────────────── */}
-      <div className="flex flex-1 overflow-hidden gap-4 p-5 pt-4">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-auto lg:overflow-hidden gap-4 p-4 sm:p-5 pt-4">
 
         {/* Left: Map + filter toolbar + legend */}
         <motion.div
@@ -262,16 +265,16 @@ export default function PlayersPage() {
         >
           {/* Filter toolbar */}
           <div
-            className="flex items-center justify-between px-4 py-3 flex-shrink-0"
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 gap-2 flex-shrink-0"
             style={{ borderBottom: '1px solid #242424' }}
           >
             {/* Status filter tabs */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 overflow-x-auto scroll-x">
               {FILTER_TABS.map((tab) => (
                 <button
                   key={tab.value}
                   onClick={() => setStatusFilter(tab.value)}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
+                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target"
                   style={
                     statusFilter === tab.value
                       ? { backgroundColor: '#F5A624', color: '#000000' }

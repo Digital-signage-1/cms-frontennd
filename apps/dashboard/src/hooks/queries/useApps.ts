@@ -52,7 +52,7 @@ export function useCreateApp() {
       workspaceId,
       data,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       data: {
         template_type: string
         name: string

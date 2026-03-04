@@ -1,5 +1,5 @@
 export interface Channel {
-  id: number
+  id?: number
   channel_id: string
   workspace_id: string
   name: string
@@ -38,7 +38,7 @@ export interface Slide {
 }
 
 export interface ChannelZone {
-  id: number
+  id?: number
   zone_id: string
   channel_id?: string
   slide_id?: string
@@ -53,10 +53,10 @@ export interface ChannelZone {
 }
 
 export interface ZoneApp {
-  id: number
+  id?: number
   zone_app_id: string
   zone_id: string
-  app_id: number
+  app_id: number | string
   order: number
   duration_seconds: number
   start_date?: string
