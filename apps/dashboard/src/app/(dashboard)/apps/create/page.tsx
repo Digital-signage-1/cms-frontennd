@@ -90,7 +90,7 @@ const APP_TYPE_ICONS = new Set([
   'clock','weather','social','countdown','qrcode','rss_feed','sheets',
 ])
 const ICON_ALIAS: Record<string, string> = {
-  react: 'html', 'qr-code': 'qrcode', qr: 'qrcode', spreadsheet: 'docx',
+  react: 'html', 'qr-code': 'qrcode', qr: 'qrcode',
   slides: 'slideshow', picture_as_pdf: 'pdf', photo: 'image',
   view_carousel: 'slideshow', play_circle: 'video', 'cloud-sun': 'weather',
   rss: 'rss_feed', iframe: 'web', maps: 'web', table: 'sheets', spreadsheet: 'sheets',
