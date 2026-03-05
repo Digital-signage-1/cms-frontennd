@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui'
-import { Plus, Grid, Move, RotateCcw, RotateCw, Trash2, Copy, Settings } from 'lucide-react'
+import { Plus, Grid, Move, RotateCcw, RotateCw, Trash2, Copy, Settings, Image, Video, Globe, Code, Clock, Cloud, Play, FileText, LayoutGrid } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -281,6 +281,11 @@ export function ZoneBuilder({
                   <div className="flex-1 w-full min-h-0 flex flex-col items-center justify-center gap-1">
                     {zone.apps.slice(0, 2).map((zoneApp: any, appIndex: number) => {
                       const thumbUrl = zoneApp.app?.thumbnail_url || zoneApp.app?.preview_url || zoneApp.app?.content_url
+                      const appIconMap: Record<string, any> = {
+                        image: Image, video: Video, web: Globe, html: Code,
+                        clock: Clock, weather: Cloud, youtube: Play, pdf: FileText,
+                      }
+                      const AppIcon = appIconMap[zoneApp.app?.template_type] || LayoutGrid
                       return (
                         <div key={appIndex} className="w-full flex-1 min-h-0 rounded overflow-hidden bg-surface/80 border border-border/50 flex items-center justify-center">
                           {thumbUrl ? (
@@ -295,12 +300,15 @@ export function ZoneBuilder({
                               }}
                             />
                           ) : null}
-                          <span
-                            className="text-xs text-text-primary truncate px-1 flex items-center justify-center"
+                          <div
+                            className="flex flex-col items-center justify-center gap-1 px-1"
                             style={{ display: thumbUrl ? 'none' : 'flex' }}
                           >
-                            {zoneApp.app?.name || 'App'}
-                          </span>
+                            <AppIcon className="h-5 w-5 text-text-muted" />
+                            <span className="text-xs text-text-primary truncate max-w-full">
+                              {zoneApp.app?.name || 'App'}
+                            </span>
+                          </div>
                         </div>
                       )
                     })}
