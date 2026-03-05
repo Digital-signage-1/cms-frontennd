@@ -6,9 +6,17 @@ import { VideoRenderer } from './VideoRenderer'
 import { WebRenderer } from './WebRenderer'
 import { HtmlRenderer } from './HtmlRenderer'
 import { ClockRenderer } from './ClockRenderer'
+import { CountdownRenderer } from './CountdownRenderer'
 import { WeatherRenderer } from './WeatherRenderer'
 import { YouTubeRenderer } from './YouTubeRenderer'
-import { DocumentRenderer } from './DocumentRenderer'
+const DocumentRenderer = lazy(() =>
+  import('./DocumentRenderer').then(mod => ({ default: mod.DocumentRenderer }))
+)
+import { SlideshowRenderer } from './SlideshowRenderer'
+import { QRCodeRenderer } from './QRCodeRenderer'
+import { SocialMediaRenderer } from './SocialMediaRenderer'
+import { RSSFeedRenderer } from './RSSFeedRenderer'
+import { SheetRenderer } from './SheetRenderer'
 
 const PDFRenderer = lazy(() =>
   import('./PDFRenderer').then(mod => ({ default: mod.PDFRenderer }))
@@ -28,10 +36,16 @@ const registry: Record<string, ComponentType<RendererProps>> = {
   web: WebRenderer as ComponentType<RendererProps>,
   html: HtmlRenderer as ComponentType<RendererProps>,
   clock: ClockRenderer as ComponentType<RendererProps>,
+  countdown: CountdownRenderer as ComponentType<RendererProps>,
   weather: WeatherRenderer as ComponentType<RendererProps>,
   pdf: PDFRenderer as ComponentType<RendererProps>,
   youtube: YouTubeRenderer as ComponentType<RendererProps>,
   docx: DocumentRenderer as ComponentType<RendererProps>,
+  slideshow: SlideshowRenderer as ComponentType<RendererProps>,
+  qrcode: QRCodeRenderer as ComponentType<RendererProps>,
+  social: SocialMediaRenderer as ComponentType<RendererProps>,
+  rss_feed: RSSFeedRenderer as ComponentType<RendererProps>,
+  sheets: SheetRenderer as ComponentType<RendererProps>,
 }
 
 export function getRenderer(type: string): ComponentType<RendererProps> | null {

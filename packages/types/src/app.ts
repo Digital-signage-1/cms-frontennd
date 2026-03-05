@@ -6,10 +6,13 @@ export type AppTemplateType =
   | 'html'
   | 'youtube'
   | 'clock'
+  | 'countdown'
   | 'weather'
+  | 'qrcode'
   | 'slideshow'
   | 'social'
   | 'sheets'
+  | 'rss_feed'
 
 export interface App {
   id: number
@@ -83,19 +86,112 @@ export interface WebAppConfig extends AppConfig {
   scroll_enabled: boolean
 }
 
+export interface SocialAppConfig extends AppConfig {
+  platform: 'instagram' | 'twitter' | 'facebook' | 'tiktok' | 'linkedin'
+  embed_url: string
+  display_mode?: 'post' | 'profile' | 'feed'
+  theme?: 'dark' | 'light'
+  show_header?: boolean
+  show_footer?: boolean
+  auto_refresh?: boolean
+  refresh_interval?: number
+  background_color?: string
+  scale?: 'fit' | 'fill' | 'original'
+}
+
 export interface ClockAppConfig extends AppConfig {
-  format: '12h' | '24h'
-  show_seconds: boolean
-  show_date: boolean
+  format?: '12h' | '24h'
+  show_seconds?: boolean
+  show_date?: boolean
   timezone?: string
-  theme: 'light' | 'dark' | 'minimal'
+  date_format?: 'full' | 'long' | 'medium' | 'short' | 'iso'
+  theme?: 'light' | 'dark' | 'transparent' | 'custom'
+  background_color?: string
+  text_color?: string
+  font_size?: 'small' | 'medium' | 'large' | 'xlarge'
+}
+
+export interface CountdownAppConfig extends AppConfig {
+  target_date: string
+  target_time?: string
+  title?: string
+  subtitle?: string
+  completed_message?: string
+  show_days?: boolean
+  show_hours?: boolean
+  show_minutes?: boolean
+  show_seconds?: boolean
+  theme?: 'dark' | 'light' | 'transparent' | 'gradient'
+  layout?: 'standard' | 'compact' | 'large' | 'minimal'
+  background_color?: string
+  text_color?: string
+  accent_color?: string
 }
 
 export interface WeatherAppConfig extends AppConfig {
   location: string
-  units: 'celsius' | 'fahrenheit'
-  show_forecast: boolean
-  forecast_days: number
+  units?: 'metric' | 'imperial'
+  show_forecast?: boolean
+  show_humidity?: boolean
+  show_wind?: boolean
+  show_feels_like?: boolean
+  theme?: 'dark' | 'light' | 'transparent' | 'gradient'
+  layout?: 'standard' | 'compact' | 'detailed' | 'large_icon'
+  refresh_interval?: number
+  background_mode?: 'weather_dynamic' | 'custom_image' | 'solid_color'
+  background_image_id?: string
+  background_image_url?: string
+  background_color?: string
+  text_color?: string
+}
+
+export interface RSSFeedAppConfig extends AppConfig {
+  feed_url: string
+  max_items?: number
+  display_mode?: 'ticker' | 'cards' | 'list' | 'headlines'
+  scroll_speed?: 'slow' | 'medium' | 'fast'
+  show_images?: boolean
+  show_description?: boolean
+  show_date?: boolean
+  show_source?: boolean
+  refresh_interval?: number
+  theme?: 'dark' | 'light' | 'transparent'
+  background_color?: string
+  text_color?: string
+}
+
+export interface QRCodeAppConfig extends AppConfig {
+  url: string
+  title?: string
+  subtitle?: string
+  size?: 'small' | 'medium' | 'large' | 'full'
+  foreground_color?: string
+  background_color?: string
+  logo_content_id?: string
+  show_url_text?: boolean
+  error_correction?: 'L' | 'M' | 'Q' | 'H'
+  theme?: 'light' | 'dark' | 'transparent'
+  padding?: number
+}
+
+export interface SheetAppConfig extends AppConfig {
+  source_type?: 'google_sheets' | 'upload'
+  sheet_url?: string
+  file_content_id?: string
+  file_content_url?: string
+  sheet_name?: string
+  header_row?: boolean
+  show_row_numbers?: boolean
+  show_gridlines?: boolean
+  auto_scroll?: boolean
+  scroll_speed?: 'slow' | 'medium' | 'fast'
+  refresh_interval?: number
+  theme?: 'dark' | 'light' | 'excel' | 'minimal'
+  font_size?: 'small' | 'medium' | 'large'
+  highlight_alternate_rows?: boolean
+  header_color?: string
+  background_color?: string
+  text_color?: string
 }
 
 // Backend dynamic app type metadata
