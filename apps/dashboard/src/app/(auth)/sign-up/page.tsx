@@ -434,7 +434,7 @@ export default function SignUpPage() {
         <div className="relative flex justify-center">
           <span
             className="px-4 text-xs uppercase tracking-widest font-medium"
-            style={{ backgroundColor: '#0D0D0D', color: '#6B7280' }}
+            style={{ backgroundColor: '#141414', color: '#6B7280' }}
           >
             or
           </span>

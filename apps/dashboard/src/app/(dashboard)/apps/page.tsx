@@ -123,152 +123,63 @@ const CATEGORIES = ['All', 'Media', 'Social', 'Utilities', 'Data', 'Interactive'
 const STATUS_TABS = ['all', 'active', 'draft', 'archived'] as const
 type StatusTab = typeof STATUS_TABS[number]
 
-// ── App Card ──────────────────────────────────────────────────────────────────
+// ── App Card (clean, compact) ─────────────────────────────────────────────────
 function AppCard({ app, onEdit, onDelete, onPreview }: { app: SignageApp; onEdit: () => void; onDelete: () => void; onPreview: () => void }) {
-  const [thumbnailFailed, setThumbnailFailed] = useState(false)
   const cfg = getConfig(app.template_type)
-  const { Icon, iconBgColor, iconColor, tags, defaultDesc, category } = cfg
-  const description = app.description || defaultDesc
-  const version = (app as any).version ? `v${(app as any).version}` : 'v1.0.0'
-  const playerCount = (app as any).player_count ?? 0
-  const dateStr = formatDate(app.updated_at ?? app.created_at)
+  const { Icon, iconBgColor, iconColor, category } = cfg
 
   const isActive  = app.status === 'active'
   const isDraft   = app.status === 'draft'
 
-  const thumbUrl = app.thumbnail_url || app.preview_url
-  const showThumb = thumbUrl && !thumbnailFailed
-
   return (
     <div
-      className="group rounded-xl overflow-hidden flex flex-col"
+      className="group rounded-xl overflow-hidden flex flex-col cursor-pointer transition-colors"
       style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+      onClick={onEdit}
     >
-      {/* ── Preview area ── */}
-      <div className="relative flex-shrink-0 overflow-hidden" style={{ height: 196, backgroundColor: '#111827' }}>
-        {showThumb ? (
-          <>
-            <img
-              src={app.thumbnail_url || app.preview_url || ''}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover"
-              onError={() => setThumbnailFailed(true)}
-            />
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, transparent 50%, transparent 100%)' }}
-            />
-          </>
-        ) : null}
-        {/* Category badge — top left */}
+      {/* ── Icon area ── */}
+      <div className="relative flex-shrink-0 flex items-center justify-center" style={{ height: 100, backgroundColor: '#111827' }}>
         <div
-          className="absolute top-3 left-3 z-10 text-xs px-2.5 py-1 rounded-md font-medium"
-          style={{ backgroundColor: 'rgba(0,0,0,0.55)', color: '#9CA3AF', border: '1px solid rgba(255,255,255,0.08)' }}
+          className="w-12 h-12 rounded-xl flex items-center justify-center"
+          style={{ backgroundColor: iconBgColor }}
         >
-          {category}
+          <Icon className="h-6 w-6" style={{ color: iconColor }} />
         </div>
 
-        {/* Status badge — top right */}
+        {/* Status dot — top right */}
         <div
-          className="absolute top-3 right-3 z-10 flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md font-medium"
-          style={
-            isActive
-              ? { backgroundColor: 'rgba(5,150,105,0.18)', color: '#34D399', border: '1px solid rgba(5,150,105,0.3)' }
-              : isDraft
-              ? { backgroundColor: 'rgba(245,166,36,0.18)', color: '#F5A624', border: '1px solid rgba(245,166,36,0.3)' }
-              : { backgroundColor: 'rgba(100,116,139,0.18)', color: '#94A3B8', border: '1px solid rgba(100,116,139,0.3)' }
-          }
-        >
-          <div
-            className="w-1.5 h-1.5 rounded-full"
-            style={{
-              backgroundColor: isActive ? '#34D399' : isDraft ? '#F5A624' : '#94A3B8',
-            }}
-          />
-          {isActive ? 'Active' : isDraft ? 'Draft' : 'Archived'}
-        </div>
+          className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full"
+          style={{ backgroundColor: isActive ? '#34D399' : isDraft ? '#F5A624' : '#94A3B8' }}
+          title={isActive ? 'Active' : isDraft ? 'Draft' : 'Archived'}
+        />
 
-        {/* Centered icon (show when no thumbnail or thumbnail failed to load) */}
-        <div
-          className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 group-hover:opacity-0 ${showThumb ? 'opacity-0' : ''}`}
-        >
-          <div
-            className="w-20 h-20 rounded-2xl flex items-center justify-center"
-            style={{ backgroundColor: iconBgColor }}
-          >
-            <Icon className="h-9 w-9" style={{ color: iconColor }} />
-          </div>
-        </div>
-
-        {/* Hover overlay with action buttons */}
+        {/* Hover overlay */}
         <div
           className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           style={{ backgroundColor: 'rgba(0,0,0,0.82)' }}
         >
           <button
             onClick={(e) => { e.stopPropagation(); onPreview() }}
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+            className="px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5"
             style={{ backgroundColor: '#F5A624', color: '#000000' }}
-            onMouseOver={e => (e.currentTarget.style.backgroundColor = '#D4900F')}
-            onMouseOut={e => (e.currentTarget.style.backgroundColor = '#F5A624')}
           >
-            <Eye className="h-4 w-4" />
+            <Eye className="h-3.5 w-3.5" />
             Preview
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onEdit() }}
-            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            style={{ backgroundColor: '#1C1C1C', color: '#FFFFFF', border: '1px solid #3A3A3A' }}
-            onMouseOver={e => (e.currentTarget.style.backgroundColor = '#2A2A2A')}
-            onMouseOut={e => (e.currentTarget.style.backgroundColor = '#1C1C1C')}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium"
+            style={{ backgroundColor: '#2A2A2A', color: '#FFFFFF', border: '1px solid #3A3A3A' }}
           >
-            Configure
+            Edit
           </button>
         </div>
       </div>
 
-      {/* ── Info area ── */}
-      <div className="p-4 flex flex-col flex-1" style={{ borderTop: '1px solid #2A2A2A' }}>
-        {/* Icon + name + version */}
-        <div className="flex items-start gap-3 mb-3">
-          <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: iconBgColor }}
-          >
-            <Icon className="h-4 w-4" style={{ color: iconColor }} />
-          </div>
-          <div className="min-w-0">
-            <h3 className="text-sm font-bold text-white leading-tight truncate">{app.name}</h3>
-            <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>{version}</p>
-          </div>
-        </div>
-
-        {/* Description */}
-        <p className="text-xs leading-relaxed mb-3 line-clamp-2" style={{ color: '#6B7280' }}>
-          {description}
-        </p>
-
-        {/* Feature tags */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          {tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-[10px] px-2 py-0.5 rounded-md"
-              style={{ backgroundColor: 'rgba(255,255,255,0.06)', color: '#9CA3AF', border: '1px solid rgba(255,255,255,0.06)' }}
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {/* Footer row */}
-        <div className="flex items-center justify-between mt-auto pt-2" style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="flex items-center gap-1.5">
-            <MessageSquare className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
-            <span className="text-xs" style={{ color: '#6B7280' }}>{playerCount} players</span>
-          </div>
-          <span className="text-xs" style={{ color: '#6B7280' }}>{dateStr}</span>
-        </div>
+      {/* ── Name + type ── */}
+      <div className="px-3 py-2.5" style={{ borderTop: '1px solid #2A2A2A' }}>
+        <h3 className="text-xs font-semibold text-white leading-tight truncate">{app.name}</h3>
+        <p className="text-[11px] mt-0.5 truncate" style={{ color: '#6B7280' }}>{category} &middot; {app.template_type}</p>
       </div>
     </div>
   )
@@ -352,143 +263,84 @@ export default function AppsPage() {
   return (
     <div style={{ backgroundColor: '#0D0D0D', minHeight: '100vh' }}>
 
-      {/* ── Hero Banner ── */}
-      <div className="page-container pt-4 sm:pt-5">
-        <div
-          className="rounded-xl relative overflow-hidden"
-          style={{
-            background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
-            border: '1px solid #2A3050',
-          }}
-        >
-          {/* Grid overlay */}
+      {/* ── Sticky Header: Hero + Stats + Toolbar ── */}
+      <div className="sticky top-0 z-20" style={{ backgroundColor: '#0D0D0D' }}>
+
+        {/* Hero banner — compact 2-row layout */}
+        <div className="page-container pt-3 pb-2">
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="rounded-xl relative overflow-hidden"
             style={{
-              backgroundImage:
-                'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
-              backgroundSize: '40px 40px',
+              background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
+              border: '1px solid #2A3050',
             }}
-          />
+          >
+            {/* Grid overlay */}
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                backgroundImage:
+                  'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+                backgroundSize: '40px 40px',
+              }}
+            />
 
-          <div className="relative z-10 responsive-hero pb-5">
-            {/* Top row */}
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
-              <div>
-                <p
-                  className="text-xs font-semibold tracking-widest uppercase mb-2"
-                  style={{ color: '#F5A624' }}
-                >
-                  App Gallery
-                </p>
-                <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">Apps</h1>
-                <p className="text-sm max-w-xl" style={{ color: '#6B7280' }}>
-                  Browse, configure, and deploy apps to your display network. Extend your screens with powerful widgets.
-                </p>
-              </div>
-              <button
-                onClick={() => router.push('/apps/create')}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm flex-shrink-0 sm:mt-1 self-start touch-target"
-                style={{ backgroundColor: '#F5A624', color: '#000000' }}
-              >
-                <Plus className="h-4 w-4" />
-                New App
-              </button>
-            </div>
-
-            {/* Stat cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-              {/* Total Apps */}
-              <div
-                className="rounded-xl p-4 flex items-center gap-3"
-                style={{ backgroundColor: 'rgba(0,0,0,0.28)', border: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
-                  📦
-                </div>
+            <div className="relative z-10 px-4 sm:px-5 py-4">
+              {/* Title row */}
+              <div className="flex items-center justify-between gap-3 mb-3">
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#6B7280' }}>Total Apps</p>
-                  <p className="text-xl font-bold" style={{ color: '#F5A624' }}>{stats.total}</p>
+                  <p className="text-[10px] font-semibold tracking-widest uppercase mb-1" style={{ color: '#F5A624' }}>
+                    App Gallery
+                  </p>
+                  <h1 className="text-xl font-bold text-white">Apps</h1>
                 </div>
+                <button
+                  onClick={() => router.push('/apps/create')}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm flex-shrink-0"
+                  style={{ backgroundColor: '#F5A624', color: '#000000' }}
+                >
+                  <Plus className="h-4 w-4" />
+                  New App
+                </button>
               </div>
 
-              {/* Active */}
-              <div
-                className="rounded-xl p-4 flex items-center gap-3"
-                style={{ backgroundColor: 'rgba(0,0,0,0.28)', border: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
-                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#22C55E' }} />
-                </div>
-                <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#6B7280' }}>Active</p>
-                  <p className="text-xl font-bold" style={{ color: '#34D399' }}>{stats.active}</p>
-                </div>
-              </div>
-
-              {/* Drafts */}
-              <div
-                className="rounded-xl p-4 flex items-center gap-3"
-                style={{ backgroundColor: 'rgba(0,0,0,0.28)', border: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
-                  📝
-                </div>
-                <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#6B7280' }}>Drafts</p>
-                  <p className="text-xl font-bold" style={{ color: '#F5A624' }}>{stats.draft}</p>
-                </div>
-              </div>
-
-              {/* Archived */}
-              <div
-                className="rounded-xl p-4 flex items-center gap-3"
-                style={{ backgroundColor: 'rgba(0,0,0,0.28)', border: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
-                  🗂
-                </div>
-                <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#6B7280' }}>Archived</p>
-                  <p className="text-xl font-bold text-white">{stats.archived}</p>
-                </div>
-              </div>
-
-              {/* Deployments */}
-              <div
-                className="rounded-xl p-4 flex items-center gap-3"
-                style={{ backgroundColor: 'rgba(0,0,0,0.28)', border: '1px solid rgba(255,255,255,0.07)' }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
-                  🚀
-                </div>
-                <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#6B7280' }}>Deployments</p>
-                  <p className="text-xl font-bold" style={{ color: '#60A5FA' }}>{stats.deployments}</p>
-                </div>
+              {/* Stat cards row */}
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                {[
+                  { label: 'Total Apps', value: stats.total, color: '#F5A624', emoji: '📦' },
+                  { label: 'Active', value: stats.active, color: '#34D399', dot: '#22C55E' },
+                  { label: 'Drafts', value: stats.draft, color: '#F5A624', emoji: '📝' },
+                  { label: 'Archived', value: stats.archived, color: '#FFFFFF', emoji: '🗂' },
+                  { label: 'Deployments', value: stats.deployments, color: '#60A5FA', emoji: '🚀' },
+                ].map((s) => (
+                  <div
+                    key={s.label}
+                    className="rounded-lg p-2.5 flex items-center gap-2"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.28)', border: '1px solid rgba(255,255,255,0.07)' }}
+                  >
+                    <div
+                      className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
+                      style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
+                    >
+                      {s.dot ? (
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: s.dot }} />
+                      ) : (
+                        <span className="text-xs">{s.emoji}</span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-[10px] leading-tight" style={{ color: '#6B7280' }}>{s.label}</p>
+                      <p className="text-sm font-bold leading-tight" style={{ color: s.color }}>{s.value}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Toolbar ── */}
-      <div className="page-container py-4 flex flex-col sm:flex-row sm:items-center gap-3 flex-wrap">
+        {/* Toolbar row */}
+        <div className="page-container pb-2 flex flex-col sm:flex-row sm:items-center gap-2.5 flex-wrap" style={{ borderBottom: '1px solid #2A2A2A' }}>
         {/* Status filter tabs */}
         <div className="flex items-center gap-1">
           {STATUS_TABS.map((s) => {
@@ -555,41 +407,38 @@ export default function AppsPage() {
             />
           </div>
 
-          <button
-            onClick={() => setViewMode('grid')}
-            className="p-2 rounded-lg transition-colors"
-            style={
-              viewMode === 'grid'
-                ? { backgroundColor: '#F5A624', color: '#000000' }
-                : { backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#6B7280' }
-            }
-          >
-            <Grid2X2 className="h-4 w-4" />
-          </button>
-
-          <button
-            onClick={() => setViewMode('list')}
-            className="p-2 rounded-lg transition-colors"
-            style={
-              viewMode === 'list'
-                ? { backgroundColor: '#F5A624', color: '#000000' }
-                : { backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#6B7280' }
-            }
-          >
-            <List className="h-4 w-4" />
-          </button>
+          {([
+            { mode: 'grid' as const, icon: Grid2X2, title: 'Grid view' },
+            { mode: 'list' as const, icon: List, title: 'List view' },
+          ]).map(({ mode, icon: BtnIcon, title }) => (
+            <button
+              key={mode}
+              onClick={() => setViewMode(mode)}
+              className="p-2 rounded-lg transition-colors"
+              title={title}
+              style={
+                viewMode === mode
+                  ? { backgroundColor: '#F5A624', color: '#000000' }
+                  : { backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#6B7280' }
+              }
+            >
+              <BtnIcon className="h-4 w-4" />
+            </button>
+          ))}
         </div>
       </div>
+
+      </div>{/* end sticky header */}
 
       {/* ── App grid ── */}
       <div className="page-container pb-5">
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div
                 key={i}
                 className="rounded-xl animate-pulse"
-                style={{ height: 360, backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+                style={{ height: 148, backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
               />
             ))}
           </div>
@@ -618,7 +467,7 @@ export default function AppsPage() {
             )}
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {filtered.map((app) => (
               <AppCard
                 key={app.app_id}

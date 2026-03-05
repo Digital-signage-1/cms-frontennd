@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@signage/types": "workspace:*",
-    "pdfjs-dist": "^5.4.624"
+    "mammoth": "^1.11.0",
+    "pdfjs-dist": "4.10.38"
   },
   "peerDependencies": {
     "react": "^19.0.0",

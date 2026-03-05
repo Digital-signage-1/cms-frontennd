@@ -48,9 +48,17 @@ export function FormFieldRenderer({
         return (
           <Input
             id={field.name}
-            type={field.type === 'url' ? 'url' : field.type === 'email' ? 'email' : 'text'}
+            type={field.type === 'email' ? 'email' : 'text'}
             value={fieldValue}
-            onChange={(e) => onChange(e.target.value)}
+            onChange={(e) => {
+              let val = e.target.value
+              // If user pastes an <iframe> or embed code, extract the src URL
+              if (field.type === 'url' && val.includes('<iframe')) {
+                const srcMatch = val.match(/src=["']([^"']+)["']/)
+                if (srcMatch) val = srcMatch[1]
+              }
+              onChange(val)
+            }}
             placeholder={field.placeholder}
             className={error ? 'border-error' : ''}
           />

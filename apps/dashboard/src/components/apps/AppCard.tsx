@@ -1,6 +1,6 @@
 'use client'
 
-import { FileImage, FileVideo, Globe, Code, Clock, Cloud, Layout, Youtube, FileText, MoreHorizontal, Play, Edit, Copy, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Play, Edit, Copy, Trash2, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { formatDate } from '@/lib/utils'
 import type { App } from '@signage/types'
@@ -13,19 +13,13 @@ interface AppCardProps {
   onPreview?: (app: App) => void
 }
 
-const getAppIcon = (templateType: string) => {
-  const iconMap: Record<string, any> = {
-    'image': FileImage,
-    'video': FileVideo,
-    'pdf': FileText,
-    'web': Globe,
-    'html': Code,
-    'clock': Clock,
-    'weather': Cloud,
-    'slideshow': Layout,
-    'youtube': Youtube,
-  }
-  return iconMap[templateType] || Layout
+const APP_TYPE_ICONS = new Set([
+  'youtube','image','video','pdf','slideshow','docx','web','html',
+  'clock','weather','social','countdown','qrcode','rss_feed','sheets',
+])
+function getAppTypeIconPath(typeId: string): string | null {
+  if (APP_TYPE_ICONS.has(typeId)) return `/icons/app-types/${typeId}.svg`
+  return null
 }
 
 const getStatusColor = (status: string) => {
@@ -38,12 +32,16 @@ const getStatusColor = (status: string) => {
 }
 
 export function AppCard({ app, onEdit, onDuplicate, onDelete, onPreview }: AppCardProps) {
-  const Icon = getAppIcon(app.template_type)
+  const iconPath = getAppTypeIconPath(app.template_type)
 
   return (
     <div className="group bg-surface border border-border rounded-xl overflow-hidden hover:shadow-md hover:border-primary/30 transition-all">
       <div className="relative h-48 bg-gradient-to-br from-primary/5 to-primary/10 flex items-center justify-center">
-        <Icon className="h-16 w-16 text-primary/40" />
+        {iconPath ? (
+          <img src={iconPath} alt={app.template_type} style={{ width: 80, height: 80, objectFit: 'contain', opacity: 0.6 }} />
+        ) : (
+          <Sparkles className="h-16 w-16 text-primary/40" />
+        )}
         
         <div className="absolute top-3 right-3 flex gap-2">
           <span className={`text-xs px-2 py-1 rounded-full border ${getStatusColor(app.status)}`}>
