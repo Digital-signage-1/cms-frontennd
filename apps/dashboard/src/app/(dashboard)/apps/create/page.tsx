@@ -36,37 +36,34 @@ interface FormField {
   validation?: any
 }
 
-// ── Static fallback templates ─────────────────────────────────────────────────
+// ── Static fallback templates (shown while API loads, type_ids match backend) ─
 const FALLBACK_TEMPLATES: AppType[] = [
   // Custom
   { type_id: 'html', name: 'Custom HTML', description: 'Build anything with raw HTML, CSS and JavaScript', category: 'custom', icon: 'html', popular: true, tags: ['code', 'html', 'custom'] },
-  { type_id: 'react', name: 'React Component', description: 'Deploy a React-based component as a signage app', category: 'custom', icon: 'react', popular: false, tags: ['react', 'js', 'component'] },
-  // Document
-  { type_id: 'pdf', name: 'PDF Document', description: 'Display PDF files with auto-scroll and page control', category: 'document', icon: 'pdf', popular: false, tags: ['pdf', 'document'] },
-  { type_id: 'spreadsheet', name: 'Spreadsheet', description: 'Show live data from spreadsheets and tables', category: 'document', icon: 'spreadsheet', popular: false, tags: ['excel', 'data', 'table'] },
-  { type_id: 'slides', name: 'Slide Deck', description: 'Present slideshows from Google Slides or PowerPoint', category: 'document', icon: 'slides', popular: false, tags: ['slides', 'presentation'] },
-  // Embeds
-  { type_id: 'web', name: 'Web Page', description: 'Embed any website or web application via URL', category: 'embeds', icon: 'web', popular: true, tags: ['url', 'iframe', 'web'] },
-  { type_id: 'youtube', name: 'YouTube Video', description: 'Stream YouTube videos directly on your display', category: 'embeds', icon: 'youtube', popular: false, tags: ['youtube', 'video', 'stream'] },
-  { type_id: 'maps', name: 'Google Maps', description: 'Show interactive or static map views', category: 'embeds', icon: 'maps', popular: false, tags: ['maps', 'location', 'geo'] },
-  { type_id: 'iframe', name: 'iFrame Embed', description: 'Embed any compatible external content via iFrame', category: 'embeds', icon: 'iframe', popular: false, tags: ['iframe', 'embed'] },
+  // Embed
+  { type_id: 'web', name: 'Web Page', description: 'Embed any website or web application via URL', category: 'embed', icon: 'web', popular: true, tags: ['url', 'iframe', 'web'] },
+  { type_id: 'youtube', name: 'YouTube Video', description: 'Stream YouTube videos directly on your display', category: 'embed', icon: 'youtube', popular: false, tags: ['youtube', 'video', 'stream'] },
+  { type_id: 'maps', name: 'Google Maps', description: 'Show interactive or static map views', category: 'embed', icon: 'maps', popular: false, tags: ['maps', 'location', 'geo'] },
+  { type_id: 'iframe', name: 'iFrame Embed', description: 'Embed any compatible external content via iFrame', category: 'embed', icon: 'iframe', popular: false, tags: ['iframe', 'embed'] },
   // Media
-  { type_id: 'image', name: 'Image Viewer', description: 'Display high-resolution images from your media library', category: 'media', icon: 'image', popular: false, tags: ['image', 'photo', 'png', 'jpg'] },
+  { type_id: 'image', name: 'Image Display', description: 'Display high-resolution images from your media library', category: 'media', icon: 'image', popular: false, tags: ['image', 'photo', 'png', 'jpg'] },
   { type_id: 'video', name: 'Video Player', description: 'Play MP4 and other video formats from the library', category: 'media', icon: 'video', popular: false, tags: ['mp4', 'video', 'player'] },
   { type_id: 'slideshow', name: 'Slideshow', description: 'Display PowerPoint presentations as a slideshow', category: 'media', icon: 'slideshow', popular: false, tags: ['powerpoint', 'presentation', 'ppt'] },
-  { type_id: 'docx', name: 'Word Document', description: 'Display Word documents (DOCX) with page-by-page viewing', category: 'media', icon: 'description', popular: false, tags: ['word', 'docx', 'document'] },
+  { type_id: 'docx', name: 'Word Document', description: 'Display Word documents (DOCX) with page-by-page viewing', category: 'media', icon: 'docx', popular: false, tags: ['word', 'docx', 'document'] },
+  { type_id: 'pdf', name: 'PDF Document', description: 'Display PDF files with auto-scroll and page control', category: 'media', icon: 'pdf', popular: false, tags: ['pdf', 'document'] },
   { type_id: 'audio', name: 'Audio Player', description: 'Play background audio with an ambient visual display', category: 'media', icon: 'audio', popular: false, tags: ['audio', 'mp3', 'music'] },
   // Widgets
-  { type_id: 'clock', name: 'Digital Clock', description: 'Live digital or analog clock with timezone support', category: 'widgets', icon: 'clock', popular: false, tags: ['clock', 'time', 'timezone'] },
-  { type_id: 'weather', name: 'Weather Widget', description: 'Real-time weather for any location worldwide', category: 'widgets', icon: 'weather', popular: false, tags: ['weather', 'forecast', 'temperature'] },
-  { type_id: 'stock', name: 'Stock Ticker', description: 'Live stock prices and market indices ticker tape', category: 'widgets', icon: 'stock', popular: false, tags: ['stocks', 'finance', 'market'] },
-  { type_id: 'rss', name: 'RSS Feed', description: 'Auto-cycling news and content from any RSS feed', category: 'widgets', icon: 'rss', popular: false, tags: ['rss', 'news', 'feed'] },
-  { type_id: 'social', name: 'Social Feed', description: 'Display a live social media feed on screen', category: 'widgets', icon: 'social', popular: false, tags: ['social', 'twitter', 'feed'] },
-  { type_id: 'qr', name: 'QR Code', description: 'Generate and display QR codes for any URL', category: 'widgets', icon: 'qr', popular: false, tags: ['qr', 'code', 'url'] },
+  { type_id: 'clock', name: 'Clock & Date', description: 'Live digital or analog clock with timezone support', category: 'widgets', icon: 'clock', popular: false, tags: ['clock', 'time', 'timezone'] },
+  { type_id: 'weather', name: 'Weather Display', description: 'Real-time weather for any location worldwide', category: 'widgets', icon: 'weather', popular: false, tags: ['weather', 'forecast', 'temperature'] },
   { type_id: 'countdown', name: 'Countdown Timer', description: 'Count down to events, launches, or deadlines', category: 'widgets', icon: 'countdown', popular: false, tags: ['timer', 'countdown', 'event'] },
+  { type_id: 'qrcode', name: 'QR Code Display', description: 'Generate and display QR codes for any URL', category: 'widgets', icon: 'qrcode', popular: false, tags: ['qr', 'code', 'url'] },
+  { type_id: 'rss_feed', name: 'News / RSS Feed', description: 'Auto-cycling news and content from any RSS feed', category: 'widgets', icon: 'rss_feed', popular: false, tags: ['rss', 'news', 'feed'] },
+  { type_id: 'social', name: 'Social Media Embed', description: 'Display a live social media feed on screen', category: 'integrations', icon: 'social', popular: false, tags: ['social', 'twitter', 'feed'] },
+  { type_id: 'sheets', name: 'Spreadsheet / Sheet', description: 'Display Google Sheets or CSV/Excel files as tables', category: 'widgets', icon: 'sheets', popular: false, tags: ['excel', 'data', 'table'] },
+  { type_id: 'stock', name: 'Stock Ticker', description: 'Live stock prices and market indices ticker tape', category: 'widgets', icon: 'stock', popular: false, tags: ['stocks', 'finance', 'market'] },
 ]
 
-const CATEGORY_ORDER = ['custom', 'embed', 'embeds', 'media', 'document', 'widgets']
+const CATEGORY_ORDER = ['custom', 'embed', 'media', 'widgets', 'integrations']
 
 function getCategoriesFromTemplates(templates: AppType[]): { id: string; label: string }[] {
   const cats = [...new Set(templates.map((t) => t.category).filter(Boolean))]
@@ -76,11 +73,10 @@ function getCategoriesFromTemplates(templates: AppType[]): { id: string; label: 
   const labels: Record<string, string> = {
     all: 'All Types',
     custom: 'Custom',
-    document: 'Document',
     embed: 'Embed',
-    embeds: 'Embeds',
     media: 'Media',
     widgets: 'Widgets',
+    integrations: 'Integrations',
   }
   return [
     { id: 'all', label: 'All Types' },
@@ -155,11 +151,21 @@ export default function CreateAppPage() {
     return () => clearBreadcrumbs()
   }, [setBreadcrumbItems, clearBreadcrumbs])
 
-  // Merge API templates with static fallback
+  // Use API app types when available, static fallbacks while loading
   const apiTypes: any[] = appTypesData?.app_types || []
-  const templates: AppType[] = apiTypes.length > 0
-    ? apiTypes.map((t) => ({ ...t, popular: false, tags: [] }))
-    : FALLBACK_TEMPLATES
+  const templates: AppType[] = useMemo(() => {
+    if (apiTypes.length === 0) return FALLBACK_TEMPLATES
+    return apiTypes.map((t) => {
+      const fallback = FALLBACK_TEMPLATES.find((f) => f.type_id === t.type_id)
+      return {
+        ...t,
+        popular: fallback?.popular ?? false,
+        tags: fallback?.tags ?? [],
+        category: t.category || fallback?.category || 'other',
+        icon: t.icon || fallback?.icon || t.type_id,
+      }
+    })
+  }, [apiTypes])
 
   const schema       = schemaData?.schema
   const defaultConfig = schemaData?.default_config || {}
