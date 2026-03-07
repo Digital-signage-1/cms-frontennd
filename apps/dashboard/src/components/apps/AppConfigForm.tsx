@@ -119,6 +119,7 @@ export function AppConfigForm({ appType, workspaceId, onBack, onSuccess, onCance
           name: formData.name,
           description: formData.description || undefined,
           content_id: formData.content_id,
+          integration_id: formData.integration_id || undefined,
           config,
         }
       })
@@ -234,6 +235,8 @@ export function AppConfigForm({ appType, workspaceId, onBack, onSuccess, onCance
                   setContentSelectorField(fieldName)
                   setContentSelectorOpen(true)
                 }}
+                formData={formData}
+                workspaceId={workspaceId}
               />
             )
           })}

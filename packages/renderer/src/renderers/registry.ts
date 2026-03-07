@@ -21,6 +21,14 @@ import { AudioRenderer } from './AudioRenderer'
 import { MapsRenderer } from './MapsRenderer'
 import { IframeRenderer } from './IframeRenderer'
 import { StockRenderer } from './StockRenderer'
+import { GoogleSlidesRenderer } from './GoogleSlidesRenderer'
+import { GoogleCalendarRenderer } from './GoogleCalendarRenderer'
+import { GoogleDocsRenderer } from './GoogleDocsRenderer'
+import { GooglePhotosRenderer } from './GooglePhotosRenderer'
+import { GoogleFormsRenderer } from './GoogleFormsRenderer'
+import { GoogleMapsRenderer } from './GoogleMapsRenderer'
+import { LookerStudioRenderer } from './LookerStudioRenderer'
+import { GoogleAlertsRenderer } from './GoogleAlertsRenderer'
 
 const PDFRenderer = lazy(() =>
   import('./PDFRenderer').then(mod => ({ default: mod.PDFRenderer }))
@@ -54,6 +62,14 @@ const registry: Record<string, ComponentType<RendererProps>> = {
   maps: MapsRenderer as ComponentType<RendererProps>,
   iframe: IframeRenderer as ComponentType<RendererProps>,
   stock: StockRenderer as ComponentType<RendererProps>,
+  google_slides: GoogleSlidesRenderer as ComponentType<RendererProps>,
+  google_calendar: GoogleCalendarRenderer as ComponentType<RendererProps>,
+  google_docs: GoogleDocsRenderer as ComponentType<RendererProps>,
+  google_photos: GooglePhotosRenderer as ComponentType<RendererProps>,
+  google_forms: GoogleFormsRenderer as ComponentType<RendererProps>,
+  google_maps: GoogleMapsRenderer as ComponentType<RendererProps>,
+  looker_studio: LookerStudioRenderer as ComponentType<RendererProps>,
+  google_alerts: GoogleAlertsRenderer as ComponentType<RendererProps>,
 }
 
 export function getRenderer(type: string): ComponentType<RendererProps> | null {

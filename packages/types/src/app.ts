@@ -13,6 +13,14 @@ export type AppTemplateType =
   | 'social'
   | 'sheets'
   | 'rss_feed'
+  | 'google_slides'
+  | 'google_calendar'
+  | 'google_docs'
+  | 'google_photos'
+  | 'google_forms'
+  | 'google_maps'
+  | 'looker_studio'
+  | 'google_alerts'
 
 export interface App {
   id: number
@@ -192,6 +200,78 @@ export interface SheetAppConfig extends AppConfig {
   header_color?: string
   background_color?: string
   text_color?: string
+}
+
+export interface GoogleSlidesAppConfig extends AppConfig {
+  presentation_id: string
+  auto_advance?: boolean
+  delay_ms?: number
+  loop?: boolean
+  start_slide?: number
+}
+
+export interface GoogleCalendarAppConfig extends AppConfig {
+  calendar_id: string
+  display_mode?: 'agenda' | 'day' | 'week' | 'meeting_room'
+  max_events?: number
+  days_ahead?: number
+  show_description?: boolean
+  show_location?: boolean
+  show_attendees?: boolean
+  room_name?: string
+  refresh_interval?: number
+  theme?: 'dark' | 'light' | 'google'
+}
+
+export interface GoogleDocsAppConfig extends AppConfig {
+  document_id: string
+  auto_scroll?: boolean
+  scroll_speed?: 'slow' | 'medium' | 'fast'
+  zoom_level?: number
+}
+
+export interface GooglePhotosAppConfig extends AppConfig {
+  album_id: string
+  transition?: 'fade' | 'slide' | 'zoom' | 'none'
+  duration_seconds?: number
+  shuffle?: boolean
+  fit_mode?: 'cover' | 'contain'
+  show_caption?: boolean
+  refresh_interval?: number
+}
+
+export interface GoogleFormsAppConfig extends AppConfig {
+  form_id: string
+  display_mode?: 'summary_charts' | 'live_responses' | 'single_question'
+  chart_type?: 'bar' | 'pie' | 'donut'
+  show_question_text?: boolean
+  refresh_interval?: number
+  theme?: 'dark' | 'light' | 'google'
+}
+
+export interface GoogleMapsAppConfig extends AppConfig {
+  location: string
+  zoom?: number
+  map_type?: 'roadmap' | 'satellite' | 'terrain' | 'hybrid'
+  show_traffic?: boolean
+}
+
+export interface LookerStudioAppConfig extends AppConfig {
+  report_url: string
+  page_number?: number
+  auto_refresh?: boolean
+  refresh_interval?: number
+}
+
+export interface GoogleAlertsAppConfig extends AppConfig {
+  topic: string
+  language?: string
+  region?: string
+  max_items?: number
+  display_mode?: 'ticker' | 'cards' | 'list'
+  show_source?: boolean
+  refresh_interval?: number
+  theme?: 'dark' | 'light'
 }
 
 // Backend dynamic app type metadata

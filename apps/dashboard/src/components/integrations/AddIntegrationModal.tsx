@@ -35,6 +35,64 @@ const PROVIDER_ICONS: Record<string, React.ReactNode> = {
       <path d="M5 17h14l-3-5H8L5 17z" fill="white" fillOpacity="0.5" />
     </svg>
   ),
+  google_slides: (
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+      <rect width="24" height="24" rx="4" fill="#F4B400" />
+      <rect x="6" y="7" width="12" height="10" rx="1" stroke="white" strokeWidth="1.5" />
+      <path d="M10 12h4" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  ),
+  google_calendar: (
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+      <rect width="24" height="24" rx="4" fill="#4285F4" />
+      <rect x="6" y="7" width="12" height="11" rx="1" stroke="white" strokeWidth="1.5" />
+      <path d="M6 10h12" stroke="white" strokeWidth="1.5" />
+      <path d="M9 5v4M15 5v4" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  ),
+  google_docs: (
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+      <rect width="24" height="24" rx="4" fill="#4285F4" />
+      <path d="M8 8h8M8 11h8M8 14h5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  ),
+  google_photos: (
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+      <rect width="24" height="24" rx="4" fill="#EA4335" />
+      <circle cx="12" cy="12" r="5" stroke="white" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="2" fill="white" />
+    </svg>
+  ),
+  google_forms: (
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+      <rect width="24" height="24" rx="4" fill="#673AB7" />
+      <circle cx="9" cy="9" r="1.5" fill="white" />
+      <circle cx="9" cy="13" r="1.5" fill="white" />
+      <path d="M13 9h4M13 13h4" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  ),
+  google_maps: (
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+      <rect width="24" height="24" rx="4" fill="#34A853" />
+      <path d="M12 6c-2.21 0-4 1.79-4 4 0 3 4 8 4 8s4-5 4-8c0-2.21-1.79-4-4-4z" fill="white" />
+      <circle cx="12" cy="10" r="1.5" fill="#34A853" />
+    </svg>
+  ),
+  google_news: (
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+      <rect width="24" height="24" rx="4" fill="#4285F4" />
+      <path d="M7 8h10M7 11h10M7 14h7" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="17" cy="14" r="2" fill="white" />
+    </svg>
+  ),
+  looker_studio: (
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+      <rect width="24" height="24" rx="4" fill="#4285F4" />
+      <rect x="7" y="12" width="3" height="5" rx="0.5" fill="white" />
+      <rect x="11" y="9" width="3" height="8" rx="0.5" fill="white" />
+      <rect x="15" y="7" width="3" height="10" rx="0.5" fill="white" />
+    </svg>
+  ),
   powerbi: (
     <div className="flex h-7 w-7 items-center justify-center rounded bg-yellow-500 text-white font-bold text-xs">PBI</div>
   ),

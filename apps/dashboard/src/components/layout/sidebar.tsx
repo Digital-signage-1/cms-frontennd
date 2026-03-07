@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { LayoutGrid, Monitor, Calendar, Settings, BarChart, ChevronLeft, Layers, Upload, Box, HelpCircle, X } from 'lucide-react'
+import { LayoutGrid, Monitor, Calendar, Settings, BarChart, ChevronLeft, Layers, Upload, Box, HelpCircle, X, Plug } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Button } from '../ui/button'
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { label: 'Dashboard', href: '/home', icon: LayoutGrid, badge: undefined },
   { label: 'Content', href: '/content', icon: Upload, badge: undefined },
   { label: 'Apps', href: '/apps', icon: Box, badge: undefined },
+  { label: 'Integrations', href: '/integrations', icon: Plug, badge: undefined },
   { label: 'Channels', href: '/channels', icon: Layers, badge: undefined },
   { label: 'Players', href: '/players', icon: Monitor, badge: undefined },
   { label: 'Schedules', href: '/schedules', icon: Calendar, badge: undefined },

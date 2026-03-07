@@ -1,7 +1,11 @@
 'use client'
 
+import { useState, useMemo } from 'react'
 import { Input, Label } from '@/components/ui'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, Loader2, Link as LinkIcon } from 'lucide-react'
+import { GoogleResourcePicker } from '@/components/integrations/GoogleResourcePicker'
+import { GoogleOAuthButton } from '@/components/integrations/GoogleOAuthButton'
+import { useIntegrations } from '@/hooks/queries/useIntegrations'
 
 interface ValidationRule {
   min?: number
@@ -21,6 +25,10 @@ interface FormField {
   placeholder?: string
   default_value?: any
   validation?: ValidationRule
+  provider?: string
+  resource_type?: string
+  allow_manual?: boolean
+  [key: string]: any
 }
 
 interface FormFieldRendererProps {
@@ -29,14 +37,18 @@ interface FormFieldRendererProps {
   onChange: (value: any) => void
   error?: string
   onContentSelect?: (contentId: string) => void
+  formData?: Record<string, any>
+  workspaceId?: string | number
 }
 
-export function FormFieldRenderer({ 
-  field, 
-  value, 
-  onChange, 
+export function FormFieldRenderer({
+  field,
+  value,
+  onChange,
   error,
-  onContentSelect 
+  onContentSelect,
+  formData,
+  workspaceId,
 }: FormFieldRendererProps) {
   const fieldValue = value !== undefined && value !== null ? value : (field.default_value ?? '')
 
@@ -239,6 +251,29 @@ export function FormFieldRenderer({
           </div>
         )
 
+      case 'integration_selector':
+        return (
+          <IntegrationSelectorField
+            provider={field.provider || ''}
+            workspaceId={workspaceId}
+            value={fieldValue}
+            onChange={onChange}
+            error={error}
+          />
+        )
+
+      case 'resource_picker':
+        return (
+          <ResourcePickerField
+            field={field}
+            value={fieldValue}
+            onChange={onChange}
+            integrationId={formData?.integration_id}
+            workspaceId={workspaceId}
+            error={error}
+          />
+        )
+
       default:
         return (
           <Input
@@ -281,6 +316,160 @@ export function FormFieldRenderer({
           <AlertCircle className="h-3 w-3" />
           <span>{error}</span>
         </div>
+      )}
+    </div>
+  )
+}
+
+
+// --- Sub-components for integration fields ---
+
+function IntegrationSelectorField({
+  provider,
+  workspaceId,
+  value,
+  onChange,
+  error,
+}: {
+  provider: string
+  workspaceId?: string | number
+  value: any
+  onChange: (value: any) => void
+  error?: string
+}) {
+  // For Google app types, look for the single "google" integration.
+  const isGoogle = provider.startsWith('google')
+  const queryProvider = isGoogle ? undefined : provider
+  const { data, isLoading } = useIntegrations(workspaceId ?? '', queryProvider)
+
+  const allIntegrations = data?.integrations ?? (Array.isArray(data) ? data : [])
+  const integrations = allIntegrations.filter((i: any) => {
+    if (i.status !== 'active') return false
+    if (isGoogle) return i.provider === 'google' || i.provider?.startsWith('google_')
+    return true
+  })
+
+  // Deduplicate by display_name (one entry per Google account)
+  const displayOptions = useMemo(() => {
+    const seen = new Map<string, { id: string; label: string }>()
+    for (const i of integrations) {
+      const key = i.display_name || i.provider
+      if (!seen.has(key)) {
+        seen.set(key, { id: i.integration_id || i.id, label: key })
+      }
+    }
+    return Array.from(seen.values())
+  }, [integrations])
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 py-3">
+        <Loader2 className="h-4 w-4 animate-spin text-text-muted" />
+        <span className="text-sm text-text-muted">Loading accounts...</span>
+      </div>
+    )
+  }
+
+  if (displayOptions.length === 0) {
+    return (
+      <div className="flex flex-col gap-3 rounded-xl border border-dashed border-border p-4 text-center">
+        <p className="text-sm text-text-muted">
+          No Google account connected. Connect one first from the Integrations page.
+        </p>
+        {workspaceId && (
+          <GoogleOAuthButton
+            workspaceId={workspaceId}
+            provider={isGoogle ? 'google_sheets' : provider}
+            size="sm"
+          />
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <select
+      value={value || ''}
+      onChange={(e) => onChange(e.target.value)}
+      className={`w-full px-3 py-2 bg-surface border rounded-lg focus:outline-none focus:border-primary ${
+        error ? 'border-error' : 'border-border'
+      }`}
+    >
+      <option value="">Select a Google account...</option>
+      {displayOptions.map((opt) => (
+        <option key={opt.id} value={opt.id}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
+  )
+}
+
+function ResourcePickerField({
+  field,
+  value,
+  onChange,
+  integrationId,
+  workspaceId,
+  error,
+}: {
+  field: FormField
+  value: any
+  onChange: (value: any) => void
+  integrationId?: string | number
+  workspaceId?: string | number
+  error?: string
+}) {
+  const [manualMode, setManualMode] = useState(false)
+
+  if (!integrationId) {
+    return (
+      <div className="rounded-lg border border-border bg-surface-alt/30 px-3 py-3">
+        <p className="text-sm text-text-muted">Select a Google account first</p>
+      </div>
+    )
+  }
+
+  if (manualMode) {
+    return (
+      <div className="space-y-2">
+        <Input
+          type="text"
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder || `Enter ${field.label} ID or URL`}
+          className={error ? 'border-error' : ''}
+        />
+        <button
+          type="button"
+          onClick={() => setManualMode(false)}
+          className="text-xs text-primary hover:underline flex items-center gap-1"
+        >
+          Browse resources instead
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      <GoogleResourcePicker
+        workspaceId={workspaceId ?? ''}
+        provider={field.provider || ''}
+        integrationId={integrationId}
+        resourceType={field.resource_type || 'file'}
+        onSelect={(resourceId) => onChange(resourceId)}
+        selectedId={value}
+      />
+      {field.allow_manual && (
+        <button
+          type="button"
+          onClick={() => setManualMode(true)}
+          className="text-xs text-primary hover:underline flex items-center gap-1"
+        >
+          <LinkIcon className="h-3 w-3" />
+          Enter ID manually
+        </button>
       )}
     </div>
   )

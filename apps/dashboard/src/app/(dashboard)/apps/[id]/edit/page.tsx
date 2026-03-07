@@ -408,6 +408,8 @@ export default function EditAppPage() {
                           setContentSelectorField(fieldName)
                           setContentSelectorOpen(true)
                         }}
+                        formData={formData}
+                        workspaceId={workspaceId}
                       />
                     )
                   })}

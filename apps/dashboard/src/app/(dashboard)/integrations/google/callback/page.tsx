@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react'
 import { useOAuthCallback } from '@/hooks/queries/useIntegrations'
-import { useWorkspaces } from '@/hooks/queries/useWorkspaces'
+import { useAuthStore } from '@/stores/auth-store'
 import { Button } from '@/components/ui/button'
 
 type State = 'loading' | 'success' | 'error'
@@ -16,8 +16,17 @@ export default function GoogleOAuthCallbackPage() {
   const [errorMsg, setErrorMsg] = useState('')
   const hasRun = useRef(false)
 
-  const { data: workspacesData } = useWorkspaces()
-  const workspaceId = workspacesData?.[0]?.id || workspacesData?.[0]?.workspace_id || 0
+  // Use auth store workspaces — persisted in localStorage, available immediately
+  // on page load (no API call needed). This avoids the race condition where
+  // useWorkspaces() hasn't resolved yet after the Google redirect.
+  const workspace = useAuthStore((s) => s.workspace)
+  const workspaces = useAuthStore((s) => s.workspaces)
+  const workspaceId =
+    workspace?.id ||
+    (workspace as any)?.workspace_id ||
+    workspaces?.[0]?.id ||
+    (workspaces?.[0] as any)?.workspace_id ||
+    0
 
   const oauthCallback = useOAuthCallback()
 
@@ -28,6 +37,8 @@ export default function GoogleOAuthCallbackPage() {
     const code = searchParams.get('code')
     const stateParam = searchParams.get('state')
     const error = searchParams.get('error')
+    // Provider defaults to google_sheets — doesn't matter much since the backend
+    // creates integrations for ALL google_* providers in one OAuth dance.
     const provider = searchParams.get('provider') ?? 'google_sheets'
 
     if (error) {
@@ -54,7 +65,9 @@ export default function GoogleOAuthCallbackPage() {
         },
       }
     )
-  }, [workspaceId, searchParams, oauthCallback])
+    // Only re-run when workspaceId becomes available
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workspaceId])
 
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
@@ -97,7 +110,7 @@ export default function GoogleOAuthCallbackPage() {
               <Button variant="outline" className="flex-1" onClick={() => router.push('/integrations')}>
                 Cancel
               </Button>
-              <Button className="flex-1" onClick={() => router.back()}>
+              <Button className="flex-1" onClick={() => router.push('/integrations')}>
                 Try Again
               </Button>
             </div>
