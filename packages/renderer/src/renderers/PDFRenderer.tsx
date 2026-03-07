@@ -1,14 +1,14 @@
 'use client'
 
 import { useRef, useEffect, useState, useCallback } from 'react'
-import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs'
+import * as pdfjsLib from 'pdfjs-dist'
 
 // The worker must be loaded separately. We use the CDN URL because:
 // - pdfjs worker needs to be a standalone file (loaded in a Web Worker)
 // - Bundlers (Vite/webpack) can't reliably bundle worker entry points
 //   across both Next.js and Vite without extra plugin config
 // - The CDN approach is officially supported by pdf.js
-const PDFJS_VERSION = '4.10.38'
+const PDFJS_VERSION = '5.4.624'
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDFJS_VERSION}/pdf.worker.min.mjs`
 

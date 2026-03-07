@@ -123,8 +123,9 @@ const CATEGORIES = ['All', 'Media', 'Social', 'Utilities', 'Data', 'Interactive'
 const STATUS_TABS = ['all', 'active', 'draft', 'archived'] as const
 type StatusTab = typeof STATUS_TABS[number]
 
-// ── App Card (clean, compact) ─────────────────────────────────────────────────
+// ── App Card ──────────────────────────────────────────────────────────────────
 function AppCard({ app, onEdit, onDelete, onPreview }: { app: SignageApp; onEdit: () => void; onDelete: () => void; onPreview: () => void }) {
+  const [thumbnailFailed, setThumbnailFailed] = useState(false)
   const cfg = getConfig(app.template_type)
   const { Icon, iconBgColor, iconColor, category } = cfg
 
@@ -160,10 +161,12 @@ function AppCard({ app, onEdit, onDelete, onPreview }: { app: SignageApp; onEdit
         >
           <button
             onClick={(e) => { e.stopPropagation(); onPreview() }}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5"
+            className="px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
             style={{ backgroundColor: '#F5A624', color: '#000000' }}
+            onMouseOver={e => (e.currentTarget.style.backgroundColor = '#D4900F')}
+            onMouseOut={e => (e.currentTarget.style.backgroundColor = '#F5A624')}
           >
-            <Eye className="h-3.5 w-3.5" />
+            <Eye className="h-4 w-4" />
             Preview
           </button>
           <button
