@@ -29,7 +29,7 @@ export function useCreateLayoutTemplate() {
       workspaceId,
       data,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       data: TemplateCreateRequest
     }) => api.templates.createLayoutTemplate(workspaceId, data),
     onSuccess: () => {
@@ -47,7 +47,7 @@ export function useUpdateLayoutTemplate() {
       templateId,
       data,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       templateId: string
       data: Partial<TemplateCreateRequest>
     }) => api.templates.updateLayoutTemplate(workspaceId, templateId, data),
@@ -66,7 +66,7 @@ export function useDeleteLayoutTemplate() {
       workspaceId,
       templateId,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       templateId: string
     }) => api.templates.deleteLayoutTemplate(workspaceId, templateId),
     onSuccess: () => {

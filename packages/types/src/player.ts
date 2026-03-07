@@ -88,7 +88,7 @@ export interface PairingRequest {
   code: string
   name?: string
   channel_id?: string
-  workspace_id?: string
+  workspace_id?: number | string
   location?: string
   group_id?: string
 }

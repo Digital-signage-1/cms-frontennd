@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/services/api'
 import type { Player, PairingRequest, PlayerCommand } from '@signage/types'
 
-export function usePlayers(workspaceId: string | undefined) {
+export function usePlayers(workspaceId: number | string | undefined) {
   return useQuery({
     queryKey: ['players', workspaceId],
     queryFn: () => api.players.list(workspaceId!),
@@ -10,7 +10,7 @@ export function usePlayers(workspaceId: string | undefined) {
   })
 }
 
-export function usePlayer(workspaceId: string, playerId: string) {
+export function usePlayer(workspaceId: number | string, playerId: string) {
   return useQuery({
     queryKey: ['players', workspaceId, playerId],
     queryFn: () => api.players.get(workspaceId, playerId),
@@ -22,7 +22,7 @@ export function usePairPlayer() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: PairingRequest }) =>
+    mutationFn: ({ workspaceId, data }: { workspaceId: number | string; data: PairingRequest }) =>
       api.players.pair(workspaceId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['players', variables.workspaceId] })
@@ -39,7 +39,7 @@ export function useAssignChannel() {
       playerId,
       channelId,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       playerId: string
       channelId: string | null
     }) => api.players.assignChannel(workspaceId, playerId, channelId),
@@ -59,7 +59,7 @@ export function useSendCommand() {
       playerId,
       command,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       playerId: string
       command: { type: string; params?: Record<string, unknown> }
     }) => api.players.sendCommand(workspaceId, playerId, command),
@@ -69,7 +69,7 @@ export function useSendCommand() {
   })
 }
 
-export function usePlayerCommands(workspaceId: string, playerId: string) {
+export function usePlayerCommands(workspaceId: number | string, playerId: string) {
   return useQuery({
     queryKey: ['players', workspaceId, playerId, 'commands'],
     queryFn: () => api.players.listCommands(workspaceId, playerId),
@@ -81,7 +81,7 @@ export function useRequestScreenshot() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, playerId }: { workspaceId: string; playerId: string }) =>
+    mutationFn: ({ workspaceId, playerId }: { workspaceId: number | string; playerId: string }) =>
       api.players.requestScreenshot(workspaceId, playerId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['players', variables.workspaceId, variables.playerId] })
@@ -97,7 +97,7 @@ export function useCreatePlayer() {
       workspaceId,
       data
     }: {
-      workspaceId: string
+      workspaceId: number | string
       data: { name: string; device_type?: string; channel_id?: string }
     }) => api.players.create(workspaceId, data),
     onSuccess: (_, variables) => {
@@ -115,7 +115,7 @@ export function useUpdatePlayer() {
       playerId,
       data,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       playerId: string
       data: Partial<Player>
     }) => api.players.update(workspaceId, playerId, data),
@@ -134,7 +134,7 @@ export function useDeletePlayer() {
       workspaceId,
       playerId,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       playerId: string
     }) => api.players.delete(workspaceId, playerId),
     onSuccess: (_, variables) => {
@@ -143,7 +143,7 @@ export function useDeletePlayer() {
   })
 }
 
-export function useRequestPairingCode(workspaceId: string, channelId: string) {
+export function useRequestPairingCode(workspaceId: number | string, channelId: string) {
   return useQuery({
     queryKey: ['pairing-code', workspaceId, channelId],
     queryFn: () => api.players.requestPairingCode(workspaceId, channelId),
@@ -153,7 +153,7 @@ export function useRequestPairingCode(workspaceId: string, channelId: string) {
   })
 }
 
-export function usePlayerScreenshots(workspaceId: string, playerId: string) {
+export function usePlayerScreenshots(workspaceId: number | string, playerId: string) {
   return useQuery({
     queryKey: ['players', workspaceId, playerId, 'screenshots'],
     queryFn: () => api.players.listScreenshots(workspaceId, playerId),
@@ -161,7 +161,7 @@ export function usePlayerScreenshots(workspaceId: string, playerId: string) {
   })
 }
 
-export function usePlayerMetrics(workspaceId: string, playerId: string, days?: number) {
+export function usePlayerMetrics(workspaceId: number | string, playerId: number | string, days?: number) {
   return useQuery({
     queryKey: ['players', workspaceId, playerId, 'metrics', days],
     queryFn: () => api.players.getMetrics(workspaceId, playerId, days),

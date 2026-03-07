@@ -34,7 +34,7 @@ interface ScheduleModalProps {
   isOpen: boolean
   onClose: () => void
   schedule?: any
-  workspaceId: string
+  workspaceId: number | string
 }
 
 // ── Shared input style ────────────────────────────────────────────────────────

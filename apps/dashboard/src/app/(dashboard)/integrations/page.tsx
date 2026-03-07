@@ -18,7 +18,7 @@ export default function IntegrationsPage() {
   const [showAdd, setShowAdd] = useState(false)
 
   const { data: workspacesData } = useWorkspaces()
-  const workspaceId = workspacesData?.[0]?.id ?? 0
+  const workspaceId = workspacesData?.[0]?.id || workspacesData?.[0]?.workspace_id || 0
 
   const { data, isLoading, refetch } = useIntegrations(workspaceId)
   const disconnect = useDisconnectIntegration()

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { useInitiateOAuth } from '@/hooks/queries/useIntegrations'
 
 interface GoogleOAuthButtonProps {
-  workspaceId: string
+  workspaceId: number | string
   provider: string
   label?: string
   redirectUri?: string

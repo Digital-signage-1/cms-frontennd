@@ -17,36 +17,36 @@ export function createIntegrationsEndpoints(client: ApiClient) {
         params: category ? { category } : undefined,
       }),
 
-    list: (workspaceId: number, provider?: string) =>
+    list: (workspaceId: number | string, provider?: string) =>
       client.get<ListIntegrationsResponse>(
         `/api/v1/workspaces/${workspaceId}/integrations`,
         { params: provider ? { provider } : undefined }
       ),
 
-    get: (workspaceId: number, integrationId: number) =>
+    get: (workspaceId: number | string, integrationId: number | string) =>
       client.get<IntegrationDetail>(
         `/api/v1/workspaces/${workspaceId}/integrations/${integrationId}`
       ),
 
-    update: (workspaceId: number, integrationId: number, data: IntegrationUpdateRequest) =>
+    update: (workspaceId: number | string, integrationId: number | string, data: IntegrationUpdateRequest) =>
       client.patch<Integration>(
         `/api/v1/workspaces/${workspaceId}/integrations/${integrationId}`,
         data
       ),
 
-    disconnect: (workspaceId: number, integrationId: number) =>
+    disconnect: (workspaceId: number | string, integrationId: number | string) =>
       client.post<{ success: boolean; message: string }>(
         `/api/v1/workspaces/${workspaceId}/integrations/${integrationId}/disconnect`
       ),
 
-    delete: (workspaceId: number, integrationId: number) =>
+    delete: (workspaceId: number | string, integrationId: number | string) =>
       client.delete<{ success: boolean }>(
         `/api/v1/workspaces/${workspaceId}/integrations/${integrationId}`
       ),
 
     listResources: (
-      workspaceId: number,
-      integrationId: number,
+      workspaceId: number | string,
+      integrationId: number | string,
       resourceType?: string,
       sync?: boolean
     ) =>
@@ -60,13 +60,13 @@ export function createIntegrationsEndpoints(client: ApiClient) {
         }
       ),
 
-    initiateOAuth: (workspaceId: number, provider: string, redirectUri: string) =>
+    initiateOAuth: (workspaceId: number | string, provider: string, redirectUri: string) =>
       client.post<OAuthInitResponse>(
         `/api/v1/workspaces/${workspaceId}/integrations/oauth/init?provider=${encodeURIComponent(provider)}&redirect_uri=${encodeURIComponent(redirectUri)}`
       ),
 
     handleOAuthCallback: (
-      workspaceId: number,
+      workspaceId: number | string,
       provider: string,
       data: { code: string; state: string; redirect_uri: string }
     ) =>
@@ -75,7 +75,7 @@ export function createIntegrationsEndpoints(client: ApiClient) {
         data
       ),
 
-    connectWithCredentials: (workspaceId: number, data: CredentialConnectRequest) =>
+    connectWithCredentials: (workspaceId: number | string, data: CredentialConnectRequest) =>
       client.post<Integration>(
         `/api/v1/workspaces/${workspaceId}/integrations/connect`,
         data

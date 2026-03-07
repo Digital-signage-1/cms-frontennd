@@ -20,18 +20,19 @@ interface AppSelectorModalProps {
   isOpen: boolean
   onClose: () => void
   onSelectApp: (app: App) => void
-  excludeAppIds: string[]
+  excludeAppIds: (number | string)[]
 }
 
 function AppSelectorModal({ isOpen, onClose, onSelectApp, excludeAppIds }: AppSelectorModalProps) {
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
   const { data: apps = [] } = useApps(workspaceId)
   const [searchQuery, setSearchQuery] = useState('')
 
+  const excludeSet = new Set(excludeAppIds.map(String))
   const availableApps = Array.isArray(apps)
     ? apps.filter((app: App) =>
-      !excludeAppIds.includes(app.app_id) &&
+      !excludeSet.has(String(app.app_id)) &&
       app.status === 'active' &&
       app.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
@@ -94,15 +95,15 @@ export function ZoneAppAssignment({
 }: ZoneAppAssignmentProps) {
   const [isAppSelectorOpen, setIsAppSelectorOpen] = useState(false)
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
   const { data: apps = [] } = useApps(workspaceId)
 
   // Generate a new zone app ID
   const generateZoneAppId = () => `zone_app_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 
   // Get app details by ID
-  const getAppDetails = (appId: string) => {
-    return Array.isArray(apps) ? apps.find((app: App) => app.app_id === appId) : null
+  const getAppDetails = (appId: number | string) => {
+    return Array.isArray(apps) ? apps.find((app: App) => String(app.app_id) === String(appId)) : null
   }
 
   // Add app to zone

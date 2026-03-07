@@ -19,6 +19,7 @@ export interface Account {
   max_workspaces: number
   max_storage_gb: number
   max_players: number
+  storage_used_bytes: number
   created_at: string
   updated_at?: string
 }

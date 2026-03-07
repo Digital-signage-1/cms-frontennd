@@ -1,11 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/services/api'
 
-export function useWorkspaceInvitations(workspaceId: string | undefined) {
+export function useWorkspaceInvitations(workspaceId: number | undefined) {
   return useQuery({
     queryKey: ['invitations', workspaceId],
     queryFn: () => api.invitations.listByWorkspace(workspaceId!),
-    enabled: !!workspaceId,
+    enabled: !!workspaceId && workspaceId > 0,
   })
 }
 
@@ -18,7 +18,7 @@ export function useSendInvitation() {
       email,
       role,
     }: {
-      workspaceId: string
+      workspaceId: number
       email: string
       role: string
     }) => api.workspaces.inviteMember(workspaceId, email, role),
@@ -36,8 +36,8 @@ export function useRevokeInvitation() {
       workspaceId,
       invitationId,
     }: {
-      workspaceId: string
-      invitationId: string
+      workspaceId: number
+      invitationId: number
     }) => api.invitations.revoke(workspaceId, invitationId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['invitations', variables.workspaceId] })
@@ -51,8 +51,8 @@ export function useResendInvitation() {
       workspaceId,
       invitationId,
     }: {
-      workspaceId: string
-      invitationId: string
+      workspaceId: number
+      invitationId: number
     }) => api.invitations.resend(workspaceId, invitationId),
   })
 }

@@ -11,6 +11,7 @@ import {
   createTemplatesEndpoints,
   createInvitationsEndpoints,
   createAnalyticsEndpoints,
+  createIntegrationsEndpoints,
 } from '@signage/api-client'
 import { refreshAccessToken } from './token-refresh'
 
@@ -36,4 +37,5 @@ export const api = {
   templates: createTemplatesEndpoints(apiClient),
   invitations: createInvitationsEndpoints(apiClient),
   analytics: createAnalyticsEndpoints(apiClient),
+  integrations: createIntegrationsEndpoints(apiClient),
 }

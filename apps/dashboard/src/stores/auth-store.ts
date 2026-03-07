@@ -54,6 +54,10 @@ export const useAuthStore = create<AuthStore>()(
     },
     {
       name: 'signage-auth',
+      version: 2,
+      migrate: (persisted: unknown) => {
+        return persisted
+      },
       partialize: (state) => ({
         user: state.user,
         account: state.account,
@@ -62,9 +66,7 @@ export const useAuthStore = create<AuthStore>()(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {
-        if (state) {
-          state.isLoading = false
-        }
+        if (state) state.isLoading = false
       },
     }
   )

@@ -4,7 +4,7 @@ import type { Schedule, ScheduleOverride, ScheduleCreateRequest } from '@signage
 
 export type { Schedule, ScheduleOverride }
 
-export function useSchedules(workspaceId: string | undefined) {
+export function useSchedules(workspaceId: number | string | undefined) {
   return useQuery({
     queryKey: ['schedules', workspaceId],
     queryFn: () => api.schedules.list(workspaceId!),
@@ -12,7 +12,7 @@ export function useSchedules(workspaceId: string | undefined) {
   })
 }
 
-export function useSchedule(workspaceId: string, scheduleId: string) {
+export function useSchedule(workspaceId: number | string, scheduleId: string) {
   return useQuery({
     queryKey: ['schedules', workspaceId, scheduleId],
     queryFn: () => api.schedules.get(workspaceId, scheduleId),
@@ -24,7 +24,7 @@ export function useCreateSchedule() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: string; data: ScheduleCreateRequest }) =>
+    mutationFn: ({ workspaceId, data }: { workspaceId: number | string; data: ScheduleCreateRequest }) =>
       api.schedules.create(workspaceId, data),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['schedules', variables.workspaceId] })
@@ -41,7 +41,7 @@ export function useUpdateSchedule() {
       scheduleId,
       data,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       scheduleId: string
       data: Partial<Schedule>
     }) => api.schedules.update(workspaceId, scheduleId, data),
@@ -56,7 +56,7 @@ export function useDeleteSchedule() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, scheduleId }: { workspaceId: string; scheduleId: string }) =>
+    mutationFn: ({ workspaceId, scheduleId }: { workspaceId: number | string; scheduleId: string }) =>
       api.schedules.delete(workspaceId, scheduleId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['schedules', variables.workspaceId] })
@@ -64,7 +64,7 @@ export function useDeleteSchedule() {
   })
 }
 
-export function useScheduleOverrides(workspaceId: string | undefined) {
+export function useScheduleOverrides(workspaceId: number | string | undefined) {
   return useQuery({
     queryKey: ['overrides', workspaceId],
     queryFn: () => api.schedules.listOverrides(workspaceId!),
@@ -72,7 +72,7 @@ export function useScheduleOverrides(workspaceId: string | undefined) {
   })
 }
 
-export function useUpcomingOverrides(workspaceId: string | undefined) {
+export function useUpcomingOverrides(workspaceId: number | string | undefined) {
   return useQuery({
     queryKey: ['overrides', workspaceId, 'upcoming'],
     queryFn: () => api.schedules.listUpcomingOverrides(workspaceId!),
@@ -88,7 +88,7 @@ export function useCreateOverride() {
       workspaceId,
       data,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       data: {
         name: string
         channel_id: string
@@ -108,7 +108,7 @@ export function useDeleteOverride() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, overrideId }: { workspaceId: string; overrideId: string }) =>
+    mutationFn: ({ workspaceId, overrideId }: { workspaceId: number | string; overrideId: string }) =>
       api.schedules.deleteOverride(workspaceId, overrideId),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['overrides', variables.workspaceId] })

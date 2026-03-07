@@ -15,7 +15,7 @@ export default function CreateChannelPage() {
   const router = useRouter()
   const { setBreadcrumbItems, clearBreadcrumbs } = useBreadcrumb()
   const workspace = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
 
   const [channelName, setChannelName] = useState('')
   const [channelDescription, setChannelDescription] = useState('')

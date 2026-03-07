@@ -58,7 +58,7 @@ interface PlayerDetailDrawerProps {
 
 export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProps) {
   const workspace   = useAuthStore((state) => state.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
 
   const { data: player, isLoading } = usePlayer(workspaceId, playerId || '')
   const { data: channels = [] }     = useChannels(workspaceId)

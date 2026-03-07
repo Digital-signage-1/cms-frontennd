@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/services/api'
-import type { CredentialConnectRequest, IntegrationUpdateRequest } from '@signage/types'
+import type { CredentialConnectRequest, IntegrationUpdateRequest, OAuthInitResponse } from '@signage/types'
 
 export function useIntegrationCatalog(category?: string) {
   return useQuery({
@@ -10,7 +10,7 @@ export function useIntegrationCatalog(category?: string) {
   })
 }
 
-export function useIntegrations(workspaceId: string, provider?: string) {
+export function useIntegrations(workspaceId: number | string, provider?: string) {
   return useQuery({
     queryKey: ['integrations', workspaceId, provider],
     queryFn: () => api.integrations.list(workspaceId, provider),
@@ -18,7 +18,7 @@ export function useIntegrations(workspaceId: string, provider?: string) {
   })
 }
 
-export function useIntegration(workspaceId: string, integrationId: string) {
+export function useIntegration(workspaceId: number | string, integrationId: string) {
   return useQuery({
     queryKey: ['integrations', workspaceId, integrationId],
     queryFn: () => api.integrations.get(workspaceId, integrationId),
@@ -27,8 +27,8 @@ export function useIntegration(workspaceId: string, integrationId: string) {
 }
 
 export function useIntegrationResources(
-  workspaceId: string,
-  integrationId: string,
+  workspaceId: number | string,
+  integrationId: number | string,
   resourceType?: string,
   enabled = true
 ) {
@@ -47,11 +47,11 @@ export function useInitiateOAuth() {
       provider,
       redirectUri,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       provider: string
       redirectUri: string
     }) => api.integrations.initiateOAuth(workspaceId, provider, redirectUri),
-    onSuccess: (data) => {
+    onSuccess: (data: OAuthInitResponse) => {
       window.location.href = data.auth_url
     },
   })
@@ -67,7 +67,7 @@ export function useOAuthCallback() {
       state,
       redirectUri,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       provider: string
       code: string
       state: string
@@ -91,7 +91,7 @@ export function useDisconnectIntegration() {
       workspaceId,
       integrationId,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       integrationId: string
     }) => api.integrations.disconnect(workspaceId, integrationId),
     onSuccess: (_, variables) => {
@@ -107,7 +107,7 @@ export function useConnectWithCredentials() {
       workspaceId,
       data,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       data: CredentialConnectRequest
     }) => api.integrations.connectWithCredentials(workspaceId, data),
     onSuccess: (_, variables) => {
@@ -123,7 +123,7 @@ export function useDeleteIntegration() {
       workspaceId,
       integrationId,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       integrationId: string
     }) => api.integrations.delete(workspaceId, integrationId),
     onSuccess: (_, variables) => {
@@ -140,7 +140,7 @@ export function useUpdateIntegration() {
       integrationId,
       data,
     }: {
-      workspaceId: string
+      workspaceId: number | string
       integrationId: string
       data: IntegrationUpdateRequest
     }) => api.integrations.update(workspaceId, integrationId, data),

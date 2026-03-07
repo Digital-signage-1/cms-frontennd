@@ -33,7 +33,7 @@ export default function AuthLayout({
 
   return (
     <div
-      className="dark relative min-h-screen flex items-center justify-center p-6"
+      className="dark relative min-h-screen flex"
       style={{
         backgroundColor: '#0D0D0D',
         '--color-primary': '#F5A624',
@@ -49,102 +49,103 @@ export default function AuthLayout({
         '--color-text-muted': '#6B7280',
       } as React.CSSProperties}
     >
-      {/* Grid Pattern Background */}
+      {/* Subtle grid pattern — full page */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           backgroundImage:
-            'linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px)',
+            'linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)',
           backgroundSize: '60px 60px',
         }}
       />
 
-      {/* Two-box layout */}
-      <div className="relative z-10 w-full max-w-7xl flex items-stretch gap-6">
-
-        {/* Left Box */}
-        <div
-          className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-10 rounded-2xl"
-          style={{ backgroundColor: '#161616', border: '1px solid #2A2A2A' }}
-        >
-          <div className="w-full max-w-sm">
-            {/* Logo */}
-            <div className="flex items-center gap-2.5 mb-10">
-              <div className="w-9 h-9 bg-[#F5A624] rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-black font-bold text-sm">S</span>
-              </div>
-              <span className="text-white font-semibold text-lg tracking-tight">SignageOS</span>
+      {/* ── Left Half — Branding (no card, transparent bg) ── */}
+      <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-12 xl:p-16">
+        <div className="relative z-10 w-full max-w-md">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5 mb-12">
+            <div className="w-10 h-10 bg-[#F5A624] rounded-xl flex items-center justify-center flex-shrink-0">
+              <span className="text-black font-bold text-base">S</span>
             </div>
+            <span className="text-white font-semibold text-xl tracking-tight">SignageOS</span>
+          </div>
 
-            {/* Heading */}
-            <h1
-              className="text-[3.2rem] leading-[1.12] font-light text-white mb-5"
-              style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
-            >
-              Digital Signage,
-              <br />
-              <span style={{ color: '#F5A624' }}>Beautifully</span> Simple
-            </h1>
-            <p className="text-[#6B7280] text-base leading-relaxed">
-              Manage screens, content, and players from
-              <br />
-              anywhere. Build displays that captivate.
+          {/* Heading */}
+          <h1
+            className="text-[2.8rem] xl:text-[3.5rem] leading-[1.08] font-light text-white mb-6"
+            style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+          >
+            Digital Signage,
+            <br />
+            <span style={{ color: '#F5A624' }}>Beautifully</span>
+            <br />
+            Simple
+          </h1>
+          <p className="text-[#7A7F88] text-base leading-relaxed max-w-sm">
+            Manage screens, content, and players from anywhere. Build displays that captivate.
+          </p>
+
+          {/* Stats row */}
+          <div className="flex gap-10 mt-12 mb-12">
+            {[
+              { value: '10K+', label: 'Active Screens' },
+              { value: '500+', label: 'Companies' },
+              { value: '99.9%', label: 'Uptime' },
+            ].map((stat) => (
+              <div key={stat.label}>
+                <div className="text-2xl font-bold text-white">{stat.value}</div>
+                <div className="text-[10px] text-[#6B7280] uppercase tracking-widest mt-1">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Testimonial */}
+          <div
+            className="rounded-xl p-5"
+            style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            <p className="text-[#9CA3AF] text-sm leading-relaxed italic">
+              &ldquo;SignageOS transformed how we manage 200+ screens. The setup is incredibly intuitive.&rdquo;
             </p>
-
-            {/* Stats */}
-            <div className="flex gap-12 mt-10 mb-10">
-              <div>
-                <div className="text-2xl font-bold text-white">10K+</div>
-                <div className="text-[10px] text-[#6B7280] uppercase tracking-widest mt-1">Active Screens</div>
+            <div className="flex items-center gap-3 mt-4">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style={{ backgroundColor: '#3B3B6D' }}>
+                JM
               </div>
               <div>
-                <div className="text-2xl font-bold text-white">500+</div>
-                <div className="text-[10px] text-[#6B7280] uppercase tracking-widest mt-1">Companies</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-white">99.9%</div>
-                <div className="text-[10px] text-[#6B7280] uppercase tracking-widest mt-1">Uptime</div>
-              </div>
-            </div>
-
-            {/* Testimonial Card */}
-            <div
-              className="rounded-xl p-5 border"
-              style={{ backgroundColor: '#1C1C1C', borderColor: '#252525' }}
-            >
-              <p className="text-[#C9CDD4] text-sm leading-relaxed">
-                &ldquo;SignageOS transformed how we manage 200+ screens. The setup is incredibly intuitive.&rdquo;
-              </p>
-              <div className="flex items-center gap-3 mt-4">
-                <div className="w-8 h-8 rounded-full bg-[#4C4C8A] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                  JM
-                </div>
-                <div>
-                  <div className="text-white text-sm font-medium">James Mitchell</div>
-                  <div className="text-[#6B7280] text-xs">Head of Operations, RetailCo</div>
-                </div>
+                <div className="text-white text-sm font-medium">James Mitchell</div>
+                <div className="text-[#6B7280] text-xs">Head of Operations, RetailCo</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Box – Form */}
+        {/* Decorative gradient glow behind left content */}
         <div
-          className="flex w-full lg:w-1/2 items-center justify-center p-10 rounded-2xl"
-          style={{ backgroundColor: '#141414', border: '1px solid #2A2A2A' }}
-        >
-          <div className="w-full max-w-[380px]">
-            {/* Logo – mobile only */}
-            <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-              <div className="w-9 h-9 bg-[#F5A624] rounded-lg flex items-center justify-center flex-shrink-0">
-                <span className="text-black font-bold text-sm">S</span>
-              </div>
-              <span className="text-white font-semibold text-lg tracking-tight">SignageOS</span>
-            </div>
-            {children}
-          </div>
-        </div>
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          style={{
+            width: 500,
+            height: 500,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(245,166,36,0.04) 0%, transparent 70%)',
+          }}
+        />
+      </div>
 
+      {/* ── Right Half — Form card ── */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12 relative z-10">
+        <div
+          className="w-full max-w-[420px] rounded-2xl p-8 sm:p-10"
+          style={{ backgroundColor: '#141414', border: '1px solid #1E1E1E' }}
+        >
+          {/* Logo – mobile only */}
+          <div className="flex items-center gap-2.5 mb-8 lg:hidden">
+            <div className="w-9 h-9 bg-[#F5A624] rounded-lg flex items-center justify-center flex-shrink-0">
+              <span className="text-black font-bold text-sm">S</span>
+            </div>
+            <span className="text-white font-semibold text-lg tracking-tight">SignageOS</span>
+          </div>
+          {children}
+        </div>
       </div>
     </div>
   )

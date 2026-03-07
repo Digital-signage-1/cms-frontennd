@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Sidebar, Header } from '@/components/layout'
 import { useAuthStore } from '@/stores/auth-store'
@@ -8,6 +8,7 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary'
 import { SidebarProvider, useSidebar } from '@/contexts/sidebar-context'
 import { BreadcrumbProvider, useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { CommandPalette } from '@/components/command-palette/CommandPalette'
+import { loadUserData } from '@/services/auth'
 
 const SIDEBAR_WIDTH_COLLAPSED = 56
 const SIDEBAR_WIDTH_EXPANDED = 240
@@ -15,8 +16,17 @@ const SIDEBAR_WIDTH_EXPANDED = 240
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const { isExpanded } = useSidebar()
   const { breadcrumbItems } = useBreadcrumb()
+  const [isMobile, setIsMobile] = useState(false)
 
-  const sidebarWidth = isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const update = () => setIsMobile(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+
+  const sidebarWidth = isMobile ? 0 : (isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED)
 
   return (
     <div className="dark min-h-screen bg-background">
@@ -46,12 +56,26 @@ export default function DashboardLayout({
   const router = useRouter()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const isLoading = useAuthStore((state) => state.isLoading)
+  const workspace = useAuthStore((state) => state.workspace)
+  const workspaces = useAuthStore((state) => state.workspaces)
+  const workspaceId = workspace?.id || (workspace as any)?.workspace_id || workspaces?.[0]?.id || (workspaces?.[0] as any)?.workspace_id || 0
+  const hasLoadedRef = useRef(false)
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/sign-in')
     }
   }, [isAuthenticated, isLoading, router])
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated && !workspaceId && !hasLoadedRef.current) {
+      hasLoadedRef.current = true
+      loadUserData()
+    }
+    if (workspaceId) {
+      hasLoadedRef.current = false
+    }
+  }, [isLoading, isAuthenticated, workspaceId])
 
   if (isLoading) {
     return (

@@ -301,7 +301,7 @@ type StatusFilter = 'all' | 'published' | 'draft'
 export default function ChannelsPage() {
   const router      = useRouter()
   const workspace   = useAuthStore((s) => s.workspace)
-  const workspaceId = workspace?.id ?? 0
+  const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
 
   const { data: channelsData = [], isLoading } = useChannels(workspaceId)
 
@@ -346,7 +346,7 @@ export default function ChannelsPage() {
   ]
 
   return (
-    <div className="p-5 space-y-5" style={{ backgroundColor: '#0D0D0D', minHeight: '100%' }}>
+    <div className="page-container space-y-4 sm:space-y-5" style={{ backgroundColor: '#0D0D0D', minHeight: '100%' }}>
 
       {/* ── Hero banner ───────────────────────────────────────── */}
       <motion.div
@@ -371,7 +371,7 @@ export default function ChannelsPage() {
         />
 
         {/* Title row */}
-        <div className="relative flex items-start justify-between px-7 pt-6 pb-4">
+        <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between responsive-hero pb-4 gap-3">
           <div>
             <p
               className="text-xs uppercase font-semibold mb-1.5"
@@ -379,7 +379,7 @@ export default function ChannelsPage() {
             >
               Layout Studio
             </p>
-            <h1 className="text-4xl font-bold leading-tight mb-1.5" style={{ color: '#FFFFFF' }}>
+            <h1 className="text-2xl sm:text-4xl font-bold leading-tight mb-1.5" style={{ color: '#FFFFFF' }}>
               Channels
             </h1>
             <p className="text-sm" style={{ color: '#6B7280' }}>
@@ -389,7 +389,7 @@ export default function ChannelsPage() {
 
           <Link href="/channels/new">
             <button
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 mt-1 transition-opacity hover:opacity-90"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 transition-opacity hover:opacity-90 touch-target self-start"
               style={{ backgroundColor: '#F5A624', color: '#000000' }}
             >
               <Plus className="h-4 w-4" />
@@ -399,7 +399,7 @@ export default function ChannelsPage() {
         </div>
 
         {/* Stat cards */}
-        <div className="relative flex items-stretch gap-3 px-7 pb-5">
+        <div className="relative grid grid-cols-2 sm:flex sm:items-stretch gap-3 px-4 sm:px-7 pb-5">
           {STAT_CARDS.map(({ label, value, color, iconType }) => (
             <div
               key={label}
@@ -444,15 +444,15 @@ export default function ChannelsPage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, delay: 0.08 }}
-        className="flex items-center justify-between gap-4"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
       >
         {/* Status filter tabs */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto scroll-x">
           {FILTER_TABS.map((tab) => (
             <button
               key={tab.value}
               onClick={() => setStatusFilter(tab.value)}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target"
               style={
                 statusFilter === tab.value
                   ? { backgroundColor: '#F5A624', color: '#000000' }

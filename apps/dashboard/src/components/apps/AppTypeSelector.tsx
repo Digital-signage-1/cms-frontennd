@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { FileImage, FileVideo, Globe, Code, Clock, Cloud, Layout, Youtube, FileText, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { Button, Skeleton } from '@/components/ui'
 import { api } from '@/services/api'
 import type { AppType } from '@signage/types'
@@ -33,19 +33,13 @@ const getCategoryInfo = (category: string) => {
   return categories[category] || { label: category, description: '' }
 }
 
-const getAppIcon = (typeId: string) => {
-  const iconMap: Record<string, any> = {
-    'image': FileImage,
-    'video': FileVideo,
-    'pdf': FileText,
-    'web': Globe,
-    'html': Code,
-    'clock': Clock,
-    'weather': Cloud,
-    'slideshow': Layout,
-    'youtube': Youtube,
-  }
-  return iconMap[typeId] || Sparkles
+const APP_TYPE_ICONS = new Set([
+  'youtube','image','video','pdf','slideshow','docx','web','html',
+  'clock','weather','social','countdown','qrcode','rss_feed','sheets',
+])
+function getAppTypeIconPath(typeId: string): string | null {
+  if (APP_TYPE_ICONS.has(typeId)) return `/icons/app-types/${typeId}.svg`
+  return null
 }
 
 export function AppTypeSelector({ onSelect }: AppTypeSelectorProps) {
@@ -161,7 +155,7 @@ export function AppTypeSelector({ onSelect }: AppTypeSelectorProps) {
 }
 
 function AppTypeCard({ appType, onSelect }: { appType: AppType; onSelect: (appType: AppType) => void }) {
-  const Icon = getAppIcon(appType.type)
+  const iconPath = getAppTypeIconPath(appType.type)
 
   return (
     <button
@@ -169,8 +163,14 @@ function AppTypeCard({ appType, onSelect }: { appType: AppType; onSelect: (appTy
       className="group relative p-6 bg-surface border border-border rounded-xl hover:border-primary/50 hover:shadow-md transition-all text-left flex flex-col h-full"
     >
       <div className="flex items-start gap-4 mb-4">
-        <div className="p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-          <Icon className="h-6 w-6 text-primary" />
+        <div className="rounded-lg group-hover:opacity-90 transition-opacity overflow-hidden" style={{ width: 48, height: 48, flexShrink: 0 }}>
+          {iconPath ? (
+            <img src={iconPath} alt={appType.name} style={{ width: 48, height: 48, objectFit: 'cover' }} />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-primary/10">
+              <Sparkles className="h-6 w-6 text-primary" />
+            </div>
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="font-semibold text-text-primary group-hover:text-primary transition-colors mb-1">

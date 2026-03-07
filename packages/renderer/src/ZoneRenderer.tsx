@@ -9,7 +9,7 @@ interface ZoneRendererProps {
   zone: ChannelZone
   apps: ZoneApp[]
   onError?: (error: Error) => void
-  onAppChange?: (appId: string) => void
+  onAppChange?: (appId: number | string) => void
   isPreview?: boolean
   transitionType?: TransitionType
   transitionDuration?: number
@@ -133,7 +133,7 @@ export function ZoneRenderer({
       >
         <div className="absolute inset-0">
           <ContentRenderer
-            appId={currentApp.app_id}
+            appId={String(currentApp.app_id)}
             app={(currentApp as any).app}
             onError={onError}
           />
@@ -141,7 +141,7 @@ export function ZoneRenderer({
         {nextApp && (
           <div className="absolute inset-0">
             <ContentRenderer
-              appId={nextApp.app_id}
+              appId={String(nextApp.app_id)}
               app={(nextApp as any).app}
               onError={onError}
             />

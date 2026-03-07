@@ -7,7 +7,7 @@ import { Button, Input } from '@/components/ui'
 import { StatusDot } from '@/components/ui/status-dot'
 import {
   ArrowLeft, Save, Upload, Play, Pause, Settings, Monitor,
-  Image, Video, Clock, Cloud, Globe, Code, LayoutGrid,
+  Image, Video, Clock, Cloud, Globe, Code, LayoutGrid, FileText,
   Plus, Layers, ChevronLeft, ChevronRight, X, Trash2
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
@@ -43,7 +43,7 @@ function ContentLibraryCard({
   isAdding: boolean
 }) {
   const iconMap: Record<string, any> = {
-    image: Image, video: Video, web: Globe, html: Code, clock: Clock, weather: Cloud,
+    image: Image, video: Video, web: Globe, html: Code, clock: Clock, weather: Cloud, youtube: Play, pdf: FileText,
   }
   const Icon = iconMap[app.template_type] || LayoutGrid
   const { data: contentItem } = useContentItem(String(workspaceId), app.content_id || '', { enabled: !!app.content_id })
@@ -224,7 +224,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await updateChannelMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
         data: { name: channelName },
       })
     } catch (error) {
@@ -237,7 +237,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await publishChannelMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
       })
     } catch (error) {
       console.error('Failed to publish channel:', error)
@@ -250,7 +250,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await createZoneMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
         data: {
           name: zoneConfig.name,
           x_percent: zoneConfig.x,
@@ -288,7 +288,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await addZoneAppMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
         zoneId: zoneIdForApi,
         data: {
           app_id: appId,
@@ -312,7 +312,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
     try {
       await createSlideMutation.mutateAsync({
         workspaceId,
-        channelId: channelData.id,
+        channelId: channelData.id!,
         data: {
           layout_type: template.id,
           duration_seconds: newSlideDuration,
@@ -600,35 +600,9 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                         </button>
                       )}
                     </div>
-                    {selectedSlideIndex === idx && editingSlideIndex === idx ? (
-                      <input
-                        type="number"
-                        min={1}
-                        max={300}
-                        value={editingDuration}
-                        onChange={e => setEditingDuration(e.target.value)}
-                        onBlur={() => handleSlideDurationSave(slide.id, editingDuration)}
-                        onKeyDown={e => { if (e.key === 'Enter') handleSlideDurationSave(slide.id, editingDuration) }}
-                        autoFocus
-                        className="w-10 h-4 text-[10px] text-center border border-primary rounded bg-surface px-0.5 focus:outline-none"
-                      />
-                    ) : (
-                      <button
-                        onClick={() => {
-                          if (selectedSlideIndex === idx) {
-                            setEditingSlideIndex(idx)
-                            setEditingDuration(String(slide.duration_seconds ?? 10))
-                          } else {
-                            setSelectedSlideIndex(idx)
-                            setSelectedZone(null)
-                          }
-                        }}
-                        className="text-[10px] text-text-muted hover:text-primary transition-colors"
-                        title="Click to edit duration"
-                      >
-                        {slide.duration_seconds ?? 10}s
-                      </button>
-                    )}
+                    <span className="text-[10px] text-text-muted">
+                      {slide.duration_seconds ?? 10}s
+                    </span>
                   </div>
                   <Button
                     size="sm"
@@ -660,6 +634,62 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
+
+            {/* Slide Duration Editor */}
+            {slides.length > 0 && slides[selectedSlideIndex] && (
+              <div className="flex items-center gap-3 ml-auto">
+                <Clock className="h-3.5 w-3.5 text-text-muted" />
+                <span className="text-xs text-text-muted">Duration:</span>
+                <div className="flex items-center gap-1">
+                  {[5, 10, 15, 30, 60].map(preset => (
+                    <button
+                      key={preset}
+                      onClick={() => {
+                        const slide = slides[selectedSlideIndex]
+                        if (slide) {
+                          updateSlideMutation.mutate({
+                            workspaceId,
+                            channelId,
+                            slideId: slide.id,
+                            data: { duration_seconds: preset },
+                          })
+                        }
+                      }}
+                      className={cn(
+                        'px-1.5 py-0.5 text-[10px] rounded transition-colors',
+                        (slides[selectedSlideIndex]?.duration_seconds ?? 10) === preset
+                          ? 'bg-primary text-white'
+                          : 'bg-surface-alt text-text-muted hover:text-text-primary hover:bg-border'
+                      )}
+                    >
+                      {preset}s
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="number"
+                  min={1}
+                  max={300}
+                  value={editingSlideIndex === selectedSlideIndex ? editingDuration : (slides[selectedSlideIndex]?.duration_seconds ?? 10)}
+                  onFocus={() => {
+                    setEditingSlideIndex(selectedSlideIndex)
+                    setEditingDuration(String(slides[selectedSlideIndex]?.duration_seconds ?? 10))
+                  }}
+                  onChange={e => setEditingDuration(e.target.value)}
+                  onBlur={() => {
+                    handleSlideDurationSave(slides[selectedSlideIndex].id, editingDuration)
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      handleSlideDurationSave(slides[selectedSlideIndex].id, editingDuration)
+                      ;(e.target as HTMLInputElement).blur()
+                    }
+                  }}
+                  className="w-14 h-6 text-xs text-center border border-border rounded bg-surface px-1 focus:outline-none focus:border-primary"
+                />
+                <span className="text-xs text-text-muted">sec</span>
+              </div>
+            )}
           </div>
 
           {/* Canvas Area */}
