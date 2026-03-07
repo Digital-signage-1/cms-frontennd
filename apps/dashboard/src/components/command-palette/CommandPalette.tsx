@@ -50,16 +50,17 @@ export function CommandPalette() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent hideClose className="!p-0 max-w-2xl overflow-hidden">
         {/* ── Search row ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px', height: 52, borderBottom: '1px solid #1E1E38' }}>
-          <Search className="h-4 w-4" style={{ color: '#6B7280', flexShrink: 0 }} />
+        <div className="border-b border-border" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px', height: 52 }}>
+          <Search className="h-4 w-4 text-text-muted" style={{ flexShrink: 0 }} />
           <input
             placeholder="Search or type a command..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             autoFocus
-            style={{ flex: 1, height: '100%', backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: 15, color: '#FFFFFF' }}
+            className="text-text-primary"
+            style={{ flex: 1, height: '100%', backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: 15 }}
           />
-          <kbd style={{ fontSize: 11, color: '#6B7280', backgroundColor: '#0D0D1E', border: '1px solid #2A2A40', borderRadius: 6, padding: '2px 6px', fontFamily: 'monospace', flexShrink: 0 }}>
+          <kbd className="text-text-muted bg-surface border border-border" style={{ fontSize: 11, borderRadius: 6, padding: '2px 6px', fontFamily: 'monospace', flexShrink: 0 }}>
             ESC
           </kbd>
         </div>
@@ -71,22 +72,23 @@ export function CommandPalette() {
             if (!items.length) return null
             return (
               <div key={category} style={{ marginBottom: 4 }}>
-                <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7280', padding: '6px 16px 4px' }}>
+                <p className="text-text-muted" style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', padding: '6px 16px 4px' }}>
                   {CATEGORY_LABEL[category]}
                 </p>
                 {items.map(cmd => (
                   <button
                     key={cmd.id}
                     onClick={() => { cmd.action(); setOpen(false) }}
+                    className="hover:bg-primary/5"
                     onMouseEnter={() => setActive(cmd.id)}
                     onMouseLeave={() => setActive(null)}
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 16px', cursor: 'pointer', border: 'none', textAlign: 'left', backgroundColor: active === cmd.id ? 'rgba(245,166,36,0.07)' : 'transparent', borderLeft: active === cmd.id ? '2px solid #F5A624' : '2px solid transparent', paddingLeft: 14, transition: 'all 0.1s' }}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 16px', cursor: 'pointer', border: 'none', textAlign: 'left', backgroundColor: active === cmd.id ? undefined : 'transparent', borderLeft: active === cmd.id ? '2px solid var(--color-primary)' : '2px solid transparent', paddingLeft: 14, transition: 'all 0.1s' }}
                   >
-                    <span style={{ fontSize: 14, color: active === cmd.id ? '#FFFFFF' : '#9CA3AF', fontWeight: active === cmd.id ? 500 : 400 }}>
+                    <span className={active === cmd.id ? 'text-text-primary font-medium' : 'text-text-secondary'} style={{ fontSize: 14 }}>
                       {cmd.label}
                     </span>
                     {cmd.shortcut && (
-                      <kbd style={{ fontSize: 11, color: '#6B7280', backgroundColor: '#0D0D1E', border: '1px solid #2A2A40', borderRadius: 6, padding: '2px 7px', fontFamily: 'monospace', flexShrink: 0 }}>
+                      <kbd className="text-text-muted bg-surface border border-border" style={{ fontSize: 11, borderRadius: 6, padding: '2px 7px', fontFamily: 'monospace', flexShrink: 0 }}>
                         {cmd.shortcut}
                       </kbd>
                     )}
@@ -98,17 +100,17 @@ export function CommandPalette() {
 
           {filtered.length === 0 && (
             <div style={{ padding: '32px 16px', textAlign: 'center' }}>
-              <p style={{ fontSize: 13, color: '#6B7280' }}>No commands found for &ldquo;{search}&rdquo;</p>
+              <p className="text-text-muted" style={{ fontSize: 13 }}>No commands found for &ldquo;{search}&rdquo;</p>
             </div>
           )}
         </div>
 
         {/* ── Footer hint ── */}
-        <div style={{ borderTop: '1px solid #1E1E38', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="border-t border-border" style={{ padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
           {[['↑↓', 'navigate'], ['↵', 'select'], ['esc', 'close']].map(([key, label]) => (
             <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <kbd style={{ fontSize: 10, color: '#6B7280', backgroundColor: '#0D0D1E', border: '1px solid #2A2A40', borderRadius: 5, padding: '1px 6px', fontFamily: 'monospace' }}>{key}</kbd>
-              <span style={{ fontSize: 11, color: '#6B7280' }}>{label}</span>
+              <kbd className="text-text-muted bg-surface border border-border" style={{ fontSize: 10, borderRadius: 5, padding: '1px 6px', fontFamily: 'monospace' }}>{key}</kbd>
+              <span className="text-text-muted" style={{ fontSize: 11 }}>{label}</span>
             </div>
           ))}
         </div>

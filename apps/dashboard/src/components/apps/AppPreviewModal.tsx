@@ -35,20 +35,20 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
 
           {/* Top bar — app name + controls */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '8px 14px',
-            backgroundColor: '#1A1A2E',
-            borderRadius: '12px 12px 0 0',
-            border: '1px solid #2A2A45',
-            borderBottom: 'none',
-            width: '100%',
-            boxSizing: 'border-box',
-          }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#FFFFFF', margin: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <div
+            className="bg-surface-elevated border border-border"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '8px 14px',
+              borderRadius: '12px 12px 0 0',
+              borderBottom: 'none',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}>
+            <p className="text-text-primary" style={{ fontSize: 13, fontWeight: 600, margin: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {app.name}
             </p>
-            <span style={{ fontSize: 11, color: '#6B7280', textTransform: 'capitalize', flexShrink: 0 }}>
+            <span className="text-text-muted" style={{ fontSize: 11, textTransform: 'capitalize', flexShrink: 0 }}>
               {app.template_type}
             </span>
 
@@ -56,16 +56,16 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
             <button
               onClick={() => setOrientation(isLandscape ? 'portrait' : 'landscape')}
               title={isLandscape ? 'Switch to portrait' : 'Switch to landscape'}
+              className="bg-surface-hover border border-border hover:bg-surface-elevated"
               style={{
                 width: 28, height: 28, borderRadius: 6,
-                backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid #2A2A45',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', flexShrink: 0,
               }}
             >
               {isLandscape
-                ? <Smartphone style={{ width: 14, height: 14, color: '#9CA3AF' }} />
-                : <Monitor style={{ width: 14, height: 14, color: '#9CA3AF' }} />
+                ? <Smartphone className="text-text-secondary" style={{ width: 14, height: 14 }} />
+                : <Monitor className="text-text-secondary" style={{ width: 14, height: 14 }} />
               }
             </button>
 
@@ -73,31 +73,32 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
             <button
               type="button"
               onClick={onClose}
+              className="bg-surface-hover border border-border hover:bg-surface-elevated"
               style={{
                 width: 28, height: 28, borderRadius: 6,
-                backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid #2A2A45',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', flexShrink: 0,
               }}
             >
-              <X style={{ width: 14, height: 14, color: '#9CA3AF' }} />
+              <X className="text-text-secondary" style={{ width: 14, height: 14 }} />
             </button>
           </div>
 
           {/* Screen — the "display" */}
-          <div style={{
-            backgroundColor: '#000',
-            border: '3px solid #2A2A45',
-            borderRadius: '0 0 4px 4px',
-            overflow: 'hidden',
-            aspectRatio: `${aspectW} / ${aspectH}`,
-            width: isLandscape ? 'min(80vw, 960px)' : undefined,
-            height: isLandscape ? undefined : 'min(75vh, 700px)',
-            maxHeight: '75vh',
-            maxWidth: '80vw',
-            position: 'relative',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
-          }}>
+          <div
+            className="border-[3px] border-border"
+            style={{
+              backgroundColor: '#000',
+              borderRadius: '0 0 4px 4px',
+              overflow: 'hidden',
+              aspectRatio: `${aspectW} / ${aspectH}`,
+              width: isLandscape ? 'min(80vw, 960px)' : undefined,
+              height: isLandscape ? undefined : 'min(75vh, 700px)',
+              maxHeight: '75vh',
+              maxWidth: '80vw',
+              position: 'relative',
+              boxShadow: '0 8px 40px rgba(0,0,0,0.25)',
+            }}>
             <div style={{ width: '100%', height: '100%', position: 'relative' }}>
               <ContentRenderer
                 appId={app.app_id}
@@ -109,19 +110,16 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
           </div>
 
           {/* Stand — small decorative element */}
-          <div style={{
+          <div className="bg-border" style={{
             width: 80,
             height: 6,
-            backgroundColor: '#2A2A45',
             borderRadius: '0 0 4px 4px',
             marginTop: 0,
           }} />
-          <div style={{
+          <div className="bg-surface-alt border border-border" style={{
             width: 40,
             height: 20,
-            backgroundColor: '#1E1E38',
             borderRadius: '0 0 6px 6px',
-            border: '1px solid #2A2A45',
             borderTop: 'none',
           }} />
         </div>

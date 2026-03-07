@@ -101,24 +101,18 @@ export function Sidebar() {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        'fixed left-0 top-0 z-40 flex h-screen flex-col border-r transition-all duration-300 ease-in-out',
+        'fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-sidebar-border transition-all duration-300 ease-in-out',
+        'bg-sidebar-bg',
         'md:translate-x-0',
         mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         actualExpanded ? 'w-[240px]' : 'md:w-[56px] w-[240px]'
       )}
-      style={{ backgroundColor: '#0D0D0D', borderColor: '#1C1C1C' }}
     >
       {/* Logo */}
-      <div
-        className="flex h-16 items-center px-4 transition-all"
-        style={{ borderBottom: '1px solid #1C1C1C' }}
-      >
+      <div className="flex h-16 items-center px-4 transition-all border-b border-sidebar-border">
         <Link href="/home" className="flex items-center gap-3 overflow-hidden flex-1" onClick={closeMobile}>
-          <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-            style={{ backgroundColor: '#F5A624' }}
-          >
-            <span className="text-base font-bold" style={{ color: '#000000' }}>S</span>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sidebar-accent">
+            <span className="text-base font-bold text-white">S</span>
           </div>
           <AnimatePresence>
             {(actualExpanded || mobileOpen) && (
@@ -129,8 +123,8 @@ export function Sidebar() {
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden"
               >
-                <p className="text-base font-bold text-white leading-none whitespace-nowrap">Studio</p>
-                <p className="text-xs whitespace-nowrap mt-0.5" style={{ color: '#6B7280' }}>{planLabel}</p>
+                <p className="text-base font-bold text-sidebar-text-active leading-none whitespace-nowrap">Studio</p>
+                <p className="text-xs whitespace-nowrap mt-0.5 text-sidebar-text">{planLabel}</p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -138,8 +132,7 @@ export function Sidebar() {
         {/* Mobile close button */}
         <button
           onClick={closeMobile}
-          className="md:hidden flex items-center justify-center h-8 w-8 rounded-lg ml-1 flex-shrink-0"
-          style={{ color: '#6B7280' }}
+          className="md:hidden flex items-center justify-center h-8 w-8 rounded-lg ml-1 flex-shrink-0 text-sidebar-text"
           aria-label="Close navigation menu"
         >
           <X className="h-4 w-4" />
@@ -162,29 +155,13 @@ export function Sidebar() {
               <div
                 className={cn(
                   'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all relative',
+                  isActive
+                    ? 'bg-sidebar-accent/10 text-sidebar-text-active'
+                    : 'text-sidebar-text hover:bg-sidebar-surface hover:text-white'
                 )}
-                style={{
-                  backgroundColor: isActive ? 'rgba(245,166,36,0.08)' : 'transparent',
-                  color: isActive ? '#F5A624' : '#6B7280',
-                }}
-                onMouseEnter={e => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLElement).style.backgroundColor = '#1C1C1C'
-                    ;(e.currentTarget as HTMLElement).style.color = '#FFFFFF'
-                  }
-                }}
-                onMouseLeave={e => {
-                  if (!isActive) {
-                    (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
-                    ;(e.currentTarget as HTMLElement).style.color = '#6B7280'
-                  }
-                }}
               >
                 {isActive && (
-                  <div
-                    className="absolute left-0 top-1 bottom-1 w-0.5 rounded-r-full"
-                    style={{ backgroundColor: '#F5A624' }}
-                  />
+                  <div className="absolute left-0 top-1 bottom-1 w-0.5 rounded-r-full bg-sidebar-accent" />
                 )}
                 <Icon className="h-4 w-4 shrink-0 transition-colors" />
                 <AnimatePresence>
@@ -201,10 +178,7 @@ export function Sidebar() {
                   )}
                 </AnimatePresence>
                 {(actualExpanded || mobileOpen) && item.badge !== undefined && (
-                  <span
-                    className="ml-auto text-xs font-semibold px-1.5 py-0.5 rounded-full leading-none"
-                    style={{ backgroundColor: '#F5A624', color: '#000000', minWidth: '18px', textAlign: 'center' }}
-                  >
+                  <span className="ml-auto text-xs font-semibold px-1.5 py-0.5 rounded-full leading-none bg-sidebar-accent text-white min-w-[18px] text-center">
                     {item.badge}
                   </span>
                 )}
@@ -215,7 +189,7 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom nav + user profile */}
-      <div className="px-2 pb-2" style={{ borderTop: '1px solid #1C1C1C' }}>
+      <div className="px-2 pb-2 border-t border-sidebar-border">
         <div className="space-y-0.5 py-3">
           {BOTTOM_NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href
@@ -228,23 +202,12 @@ export function Sidebar() {
                 onClick={closeMobile}
               >
                 <div
-                  className="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all"
-                  style={{
-                    backgroundColor: isActive ? 'rgba(245,166,36,0.08)' : 'transparent',
-                    color: isActive ? '#F5A624' : '#6B7280',
-                  }}
-                  onMouseEnter={e => {
-                    if (!isActive) {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = '#1C1C1C'
-                      ;(e.currentTarget as HTMLElement).style.color = '#FFFFFF'
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (!isActive) {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
-                      ;(e.currentTarget as HTMLElement).style.color = '#6B7280'
-                    }
-                  }}
+                  className={cn(
+                    'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all',
+                    isActive
+                      ? 'bg-sidebar-accent/10 text-sidebar-text-active'
+                      : 'text-sidebar-text hover:bg-sidebar-surface hover:text-white'
+                  )}
                 >
                   <Icon className="h-4 w-4 shrink-0 transition-colors" />
                   <AnimatePresence>
@@ -271,8 +234,7 @@ export function Sidebar() {
           variant="ghost"
           size="sm"
           onClick={toggle}
-          className="hidden md:flex w-full justify-center mb-3 h-8 rounded-lg"
-          style={{ color: '#6B7280' }}
+          className="hidden md:flex w-full justify-center mb-3 h-8 rounded-lg text-sidebar-text"
         >
           <motion.div
             animate={{ rotate: collapsed ? 180 : 0 }}
@@ -283,14 +245,8 @@ export function Sidebar() {
         </Button>
 
         {/* User profile */}
-        <div
-          className="flex items-center gap-3 rounded-lg px-2 py-2.5"
-          style={{ borderTop: '1px solid #1C1C1C' }}
-        >
-          <div
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
-            style={{ backgroundColor: '#4C4C8A' }}
-          >
+        <div className="flex items-center gap-3 rounded-lg px-2 py-2.5 border-t border-sidebar-border">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white bg-sidebar-accent">
             {userInitials}
           </div>
           <AnimatePresence>
@@ -302,10 +258,10 @@ export function Sidebar() {
                 transition={{ duration: 0.2 }}
                 className="overflow-hidden min-w-0 flex-1"
               >
-                <p className="text-sm font-medium text-white whitespace-nowrap truncate leading-none">
+                <p className="text-sm font-medium text-sidebar-text-active whitespace-nowrap truncate leading-none">
                   {userDisplayName}
                 </p>
-                <p className="text-xs whitespace-nowrap truncate mt-0.5" style={{ color: '#6B7280' }}>
+                <p className="text-xs whitespace-nowrap truncate mt-0.5 text-sidebar-text">
                   {userEmail}
                 </p>
               </motion.div>

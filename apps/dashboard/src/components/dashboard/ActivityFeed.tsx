@@ -32,7 +32,7 @@ export function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
   if (activities.length === 0) {
     return (
       <div className="py-8 text-center">
-        <p className="text-sm" style={{ color: '#6B7280' }}>No recent activity</p>
+        <p className="text-sm text-text-muted">No recent activity</p>
       </div>
     )
   }
@@ -57,12 +57,11 @@ export function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
 
             {/* Message + timestamp */}
             <div className="flex-1 min-w-0 flex items-start justify-between gap-3">
-              <p className="text-sm leading-snug" style={{ color: '#E5E7EB' }}>
+              <p className="text-sm leading-snug text-text-primary">
                 {activity.message}
               </p>
               <span
-                className="text-xs flex-shrink-0 mt-0.5"
-                style={{ color: '#6B7280' }}
+                className="text-xs flex-shrink-0 mt-0.5 text-text-muted"
               >
                 {formatTimeAgo(activity.timestamp)}
               </span>

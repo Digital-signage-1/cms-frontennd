@@ -37,28 +37,9 @@ interface ScheduleModalProps {
   workspaceId: number | string
 }
 
-// ── Shared input style ────────────────────────────────────────────────────────
-const inputStyle: React.CSSProperties = {
-  width: '100%',
-  height: 44,
-  backgroundColor: '#0D0D1E',
-  border: '1px solid #2A2A40',
-  borderRadius: 10,
-  padding: '0 12px',
-  fontSize: 13,
-  color: '#FFFFFF',
-  outline: 'none',
-  boxSizing: 'border-box',
-  colorScheme: 'dark' as any,
-}
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 13,
-  fontWeight: 600,
-  color: '#FFFFFF',
-  display: 'block',
-  marginBottom: 8,
-}
+// ── Shared Tailwind class strings ─────────────────────────────────────────────
+const inputClasses = 'w-full bg-surface border border-border rounded-[10px] px-3 text-[13px] text-text-primary outline-none focus:border-primary'
+const labelClasses = 'text-[13px] font-semibold text-text-primary block mb-2'
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: ScheduleModalProps) {
@@ -116,13 +97,6 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
 
   const summaryText = `${selectedDays.length} day${selectedDays.length !== 1 ? 's' : ''} · ${selectedChannelIds.length} channel${selectedChannelIds.length !== 1 ? 's' : ''} · ${PRIORITY_OPTIONS.find(p => p.id === priority)?.label} priority`
 
-  const focusAmber = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    e.currentTarget.style.borderColor = '#F5A624'
-  }
-  const blurDefault = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    e.currentTarget.style.borderColor = '#2A2A40'
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
@@ -130,18 +104,18 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
         className="!p-0 max-w-[480px] max-h-[90vh] flex flex-col overflow-hidden"
       >
         {/* ── Header ── */}
-        <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid #1E1E38', display: 'flex', alignItems: 'flex-start', gap: 14, flexShrink: 0 }}>
+        <div className="border-b border-border" style={{ padding: '20px 22px 16px', display: 'flex', alignItems: 'flex-start', gap: 14, flexShrink: 0 }}>
           {/* Calendar icon badge */}
-          <div style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(245,166,36,0.18)', border: '1px solid rgba(245,166,36,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Calendar className="h-5 w-5" style={{ color: '#F5A624' }} />
+          <div className="bg-primary/15 border border-primary/25" style={{ width: 48, height: 48, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Calendar className="h-5 w-5 text-primary" />
           </div>
 
           {/* Title + subtitle */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h2 style={{ fontSize: 21, fontWeight: 700, color: '#FFFFFF', margin: 0, lineHeight: 1.2 }}>
+            <h2 className="text-text-primary" style={{ fontSize: 21, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>
               {schedule ? 'Edit Schedule' : 'Create New Schedule'}
             </h2>
-            <p style={{ fontSize: 13, color: '#6B7280', margin: '4px 0 0' }}>
+            <p className="text-text-muted" style={{ fontSize: 13, margin: '4px 0 0' }}>
               Configure when your content should play
             </p>
           </div>
@@ -150,9 +124,10 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
           <button
             type="button"
             onClick={handleClose}
-            style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid #2A2A45', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+            className="bg-surface-hover border border-border hover:bg-surface-elevated"
+            style={{ width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
           >
-            <X className="h-4 w-4" style={{ color: '#9CA3AF' }} />
+            <X className="h-4 w-4 text-text-secondary" />
           </button>
         </div>
 
@@ -162,16 +137,15 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
 
             {/* ── Schedule Name ── */}
             <div>
-              <label style={labelStyle}>Schedule Name</label>
+              <label className={labelClasses}>Schedule Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="e.g., Business Hours, Weekend Display"
                 required
-                style={{ ...inputStyle, height: 48, fontSize: 14 }}
-                onFocus={focusAmber}
-                onBlur={blurDefault}
+                className={`${inputClasses} !text-sm`}
+                style={{ height: 48 }}
               />
             </div>
 
@@ -179,17 +153,16 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               {([['Start Time', startTime, setStartTime], ['End Time', endTime, setEndTime]] as const).map(([label, value, setter]) => (
                 <div key={label}>
-                  <label style={labelStyle}>{label}</label>
+                  <label className={labelClasses}>{label}</label>
                   <div style={{ position: 'relative' }}>
-                    <Clock className="h-4 w-4" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6B7280', pointerEvents: 'none', zIndex: 1 }} />
+                    <Clock className="h-4 w-4 text-text-muted" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 1 }} />
                     <input
                       type="time"
                       value={value}
                       onChange={e => setter(e.target.value)}
                       required
-                      style={{ ...inputStyle, height: 48, paddingLeft: 36, fontSize: 15, fontWeight: 600 }}
-                      onFocus={focusAmber}
-                      onBlur={blurDefault}
+                      className={inputClasses}
+                      style={{ height: 48, paddingLeft: 36, fontSize: 15, fontWeight: 600 }}
                     />
                   </div>
                 </div>
@@ -198,16 +171,16 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
 
             {/* ── Duration row ── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: -10 }}>
-              <Clock className="h-3.5 w-3.5" style={{ color: '#6B7280', flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: '#6B7280' }}>
-                Duration: <span style={{ color: '#F5A624', fontWeight: 700 }}>{duration.perDay}</span> per day · {duration.perWeek} / week
+              <Clock className="h-3.5 w-3.5 text-text-muted" style={{ flexShrink: 0 }} />
+              <span className="text-text-muted" style={{ fontSize: 12 }}>
+                Duration: <span className="text-primary font-bold">{duration.perDay}</span> per day · {duration.perWeek} / week
               </span>
             </div>
 
             {/* ── Days of Week ── */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <label style={{ ...labelStyle, marginBottom: 0 }}>Days of Week</label>
+                <label className={`${labelClasses} !mb-0`}>Days of Week</label>
                 <div style={{ display: 'flex', gap: 12 }}>
                   {[
                     ['Weekdays', () => setSelectedDays([0, 1, 2, 3, 4])],
@@ -218,7 +191,8 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                       key={label as string}
                       type="button"
                       onClick={fn as () => void}
-                      style={{ fontSize: 12, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                      className="text-text-secondary hover:text-text-primary"
+                      style={{ fontSize: 12, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                     >
                       {label as string}
                     </button>
@@ -233,7 +207,8 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                       key={day}
                       type="button"
                       onClick={() => toggleDay(idx)}
-                      style={{ height: 44, borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', backgroundColor: isSelected ? '#F5A624' : '#1A1A30', color: isSelected ? '#000000' : '#6B7280', transition: 'all 0.15s' }}
+                      className={isSelected ? 'bg-primary text-on-primary' : 'bg-surface-elevated text-text-muted hover:bg-surface-hover hover:text-text-primary'}
+                      style={{ height: 44, borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', transition: 'all 0.15s' }}
                     >
                       {day}
                     </button>
@@ -246,54 +221,51 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
               {/* Repeat */}
               <div>
-                <label style={labelStyle}>Repeat</label>
+                <label className={labelClasses}>Repeat</label>
                 <div style={{ position: 'relative' }}>
                   <select
                     value={repeat}
                     onChange={e => setRepeat(e.target.value)}
-                    style={{ ...inputStyle, appearance: 'none', paddingRight: 32, cursor: 'pointer' }}
-                    onFocus={focusAmber}
-                    onBlur={blurDefault}
+                    className={inputClasses}
+                    style={{ height: 44, appearance: 'none', paddingRight: 32, cursor: 'pointer' }}
                   >
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
                     <option value="monthly">Monthly</option>
                     <option value="never">Never</option>
                   </select>
-                  <ChevronDown className="h-3.5 w-3.5" style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: '#6B7280', pointerEvents: 'none' }} />
+                  <ChevronDown className="h-3.5 w-3.5 text-text-muted" style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                 </div>
               </div>
 
               {/* Start Date */}
               <div>
-                <label style={labelStyle}>Start Date</label>
+                <label className={labelClasses}>Start Date</label>
                 <input
                   type="date"
                   value={startDate}
                   onChange={e => setStartDate(e.target.value)}
-                  style={{ ...inputStyle, color: startDate ? '#FFFFFF' : '#6B7280' }}
-                  onFocus={focusAmber}
-                  onBlur={blurDefault}
+                  className={`${inputClasses} ${startDate ? 'text-text-primary' : 'text-text-muted'}`}
+                  style={{ height: 44 }}
                 />
               </div>
 
               {/* End Date */}
               <div>
-                <label style={labelStyle}>End Date</label>
+                <label className={labelClasses}>End Date</label>
                 <input
                   type="date"
                   value={endDate}
                   onChange={e => setEndDate(e.target.value)}
-                  style={{ ...inputStyle, color: endDate ? '#FFFFFF' : '#6B7280' }}
-                  onFocus={focusAmber}
-                  onBlur={blurDefault}
+                  className={`${inputClasses} ${endDate ? 'text-text-primary' : 'text-text-muted'}`}
+                  style={{ height: 44 }}
                 />
               </div>
             </div>
 
             {/* ── Priority ── */}
             <div>
-              <label style={labelStyle}>Priority</label>
+              <label className={labelClasses}>Priority</label>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                 {PRIORITY_OPTIONS.map(opt => {
                   const isSelected = priority === opt.id
@@ -302,15 +274,16 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                       key={opt.id}
                       type="button"
                       onClick={() => setPriority(opt.id)}
-                      style={{ padding: '12px 14px', borderRadius: 10, textAlign: 'left', cursor: 'pointer', border: isSelected ? '1px solid rgba(245,166,36,0.50)' : '1px solid #2A2A40', backgroundColor: isSelected ? 'rgba(245,166,36,0.10)' : '#0D0D1E', transition: 'all 0.15s' }}
+                      className={isSelected ? 'border border-primary/50 bg-primary/10' : 'border border-border bg-surface'}
+                      style={{ padding: '12px 14px', borderRadius: 10, textAlign: 'left', cursor: 'pointer', transition: 'all 0.15s' }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                        <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: isSelected ? '#F5A624' : '#6B7280', flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, fontWeight: isSelected ? 700 : 500, color: isSelected ? '#F5A624' : '#9CA3AF' }}>
+                        <div className={isSelected ? 'bg-primary' : 'bg-surface-alt'} style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0 }} />
+                        <span className={isSelected ? 'text-primary' : 'text-text-secondary'} style={{ fontSize: 13, fontWeight: isSelected ? 700 : 500 }}>
                           {opt.label}
                         </span>
                       </div>
-                      <p style={{ fontSize: 11, color: '#6B7280', margin: 0, lineHeight: 1.35 }}>{opt.desc}</p>
+                      <p className="text-text-muted" style={{ fontSize: 11, margin: 0, lineHeight: 1.35 }}>{opt.desc}</p>
                     </button>
                   )
                 })}
@@ -320,15 +293,15 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
             {/* ── Channels ── */}
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                <label style={{ ...labelStyle, marginBottom: 0 }}>Channels</label>
-                <span style={{ fontSize: 12, color: '#6B7280' }}>
+                <label className={`${labelClasses} !mb-0`}>Channels</label>
+                <span className="text-text-muted" style={{ fontSize: 12 }}>
                   {selectedChannelIds.length} of {channels.length} selected
                 </span>
               </div>
               <div style={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {channels.length === 0 ? (
                   <div style={{ padding: '16px', textAlign: 'center' }}>
-                    <p style={{ fontSize: 13, color: '#6B7280', margin: 0 }}>No channels available. Create channels first.</p>
+                    <p className="text-text-muted" style={{ fontSize: 13, margin: 0 }}>No channels available. Create channels first.</p>
                   </div>
                 ) : (
                   channels.map((ch: any) => {
@@ -339,16 +312,18 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                         key={ch.channel_id}
                         type="button"
                         onClick={() => toggleChannel(ch.channel_id)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, cursor: 'pointer', border: 'none', textAlign: 'left', backgroundColor: isChSelected ? 'rgba(245,166,36,0.08)' : '#0D0D1E', outline: isChSelected ? '1px solid rgba(245,166,36,0.30)' : '1px solid #1E1E38', transition: 'all 0.15s' }}
+                        className={isChSelected ? 'bg-primary/5 outline outline-1 outline-primary/30' : 'bg-surface outline outline-1 outline-border'}
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, cursor: 'pointer', border: 'none', textAlign: 'left', transition: 'all 0.15s' }}
                       >
                         {/* Channel TV icon */}
-                        <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#1A1A30', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <div style={{ width: 14, height: 10, borderRadius: 2, border: '1.5px solid #6B7280' }} />
+                        <div className="bg-surface-elevated" style={{ width: 32, height: 32, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <div className="border-[1.5px] border-text-muted" style={{ width: 14, height: 10, borderRadius: 2 }} />
                         </div>
-                        <span style={{ fontSize: 13, fontWeight: 500, color: '#FFFFFF', flex: 1 }}>{ch.name}</span>
-                        <span style={{ fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, color: isPublished ? '#34D399' : '#9CA3AF' }}>
+                        <span className="text-text-primary" style={{ fontSize: 13, fontWeight: 500, flex: 1 }}>{ch.name}</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, color: isPublished ? '#34D399' : undefined }}>
+                          {!isPublished && <span className="text-text-secondary" />}
                           <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: isPublished ? '#059669' : '#6B7280', display: 'inline-block', flexShrink: 0 }} />
-                          {isPublished ? 'Published' : ch.status || 'Draft'}
+                          <span className={isPublished ? '' : 'text-text-secondary'}>{isPublished ? 'Published' : ch.status || 'Draft'}</span>
                         </span>
                       </button>
                     )
@@ -360,13 +335,14 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
           </div>{/* end scroll area */}
 
           {/* ── Fixed Footer ── */}
-          <div style={{ borderTop: '1px solid #1E1E38', padding: '14px 22px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-            <span style={{ fontSize: 12, color: '#6B7280', flex: 1 }}>{summaryText}</span>
+          <div className="border-t border-border" style={{ padding: '14px 22px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <span className="text-text-muted" style={{ fontSize: 12, flex: 1 }}>{summaryText}</span>
 
             <button
               type="button"
               onClick={handleClose}
-              style={{ height: 44, padding: '0 20px', borderRadius: 10, backgroundColor: '#1A1A30', border: '1px solid #2A2A45', color: '#9CA3AF', fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}
+              className="bg-surface-elevated border border-border text-text-secondary hover:bg-surface-hover hover:text-text-primary"
+              style={{ height: 44, padding: '0 20px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}
             >
               Cancel
             </button>
@@ -374,7 +350,8 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
             <button
               type="submit"
               disabled={isPending}
-              style={{ height: 44, padding: '0 20px', borderRadius: 10, backgroundColor: '#F5A624', color: '#000000', fontSize: 13, fontWeight: 700, cursor: isPending ? 'not-allowed' : 'pointer', opacity: isPending ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, border: 'none', whiteSpace: 'nowrap' }}
+              className="bg-primary text-on-primary"
+              style={{ height: 44, padding: '0 20px', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: isPending ? 'not-allowed' : 'pointer', opacity: isPending ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, border: 'none', whiteSpace: 'nowrap' }}
             >
               {isPending ? (
                 <>

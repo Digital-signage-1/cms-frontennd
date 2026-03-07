@@ -68,16 +68,15 @@ function MetricCard({ label, value, change, dotColor = '#F5A624', progress }: Me
 
   return (
     <div
-      className="rounded-xl flex flex-col relative overflow-hidden"
-      style={{ backgroundColor: '#1C1C1C', border: '1px solid #242424' }}
+      className="rounded-xl flex flex-col relative overflow-hidden bg-surface border border-border"
     >
       {/* Top content area */}
       <div className="px-4 pt-4 pb-3 flex flex-col gap-3 flex-1">
         {/* Label + dot */}
         <div className="flex items-center justify-between">
           <span
-            className="text-xs uppercase font-semibold tracking-widest"
-            style={{ color: '#6B7280', letterSpacing: '0.1em' }}
+            className="text-xs uppercase font-semibold tracking-widest text-text-muted"
+            style={{ letterSpacing: '0.1em' }}
           >
             {label}
           </span>
@@ -91,11 +90,11 @@ function MetricCard({ label, value, change, dotColor = '#F5A624', progress }: Me
         </div>
 
         {/* Value */}
-        <p className="text-4xl font-bold leading-none tracking-tight" style={{ color: '#FFFFFF' }}>
+        <p className="text-4xl font-bold leading-none tracking-tight text-text-primary">
           {typeof value === 'string' && value.endsWith(' GB') ? (
             <>
               {value.slice(0, -3)}
-              <span className="text-2xl font-semibold ml-0.5" style={{ color: '#9CA3AF' }}>GB</span>
+              <span className="text-2xl font-semibold ml-0.5 text-text-secondary">GB</span>
             </>
           ) : value}
         </p>
@@ -113,7 +112,7 @@ function MetricCard({ label, value, change, dotColor = '#F5A624', progress }: Me
 
         {/* Progress bar (e.g. storage) */}
         {progress !== undefined && (
-          <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: '#2A2A2A' }}>
+          <div className="h-1 rounded-full overflow-hidden bg-border">
             <div
               className="h-full rounded-full"
               style={{ width: `${progress}%`, backgroundColor: dotColor }}

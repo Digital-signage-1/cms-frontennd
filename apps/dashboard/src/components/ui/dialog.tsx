@@ -44,8 +44,7 @@ const DialogContent = React.forwardRef<
         'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
         'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
         'rounded-2xl border p-6',
-        // ── Dark-theme defaults ──────────────────────────────────
-        'bg-[#13132B] border-[#2A2A45]',
+        'bg-surface-elevated border-border',
         className
       )}
       {...props}
@@ -57,9 +56,9 @@ const DialogContent = React.forwardRef<
         <DialogPrimitive.Close
           className={cn(
             'absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg transition-all',
-            'bg-white/5 border border-[#2A2A45] text-[#9CA3AF]',
-            'hover:bg-white/10 hover:text-white',
-            'focus:outline-none focus:ring-2 focus:ring-[#F5A624]/40',
+            'bg-surface-hover border border-border text-text-secondary',
+            'hover:bg-surface-alt hover:text-text-primary',
+            'focus:outline-none focus:ring-2 focus:ring-primary/40',
             'disabled:pointer-events-none',
           )}
         >
@@ -100,7 +99,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('text-lg font-semibold leading-none tracking-tight text-white', className)}
+    className={cn('text-lg font-semibold leading-none tracking-tight text-text-primary', className)}
     {...props}
   />
 ))
@@ -112,7 +111,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-[#6B7280]', className)}
+    className={cn('text-sm text-text-muted', className)}
     {...props}
   />
 ))

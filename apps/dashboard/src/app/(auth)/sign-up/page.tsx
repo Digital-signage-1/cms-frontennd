@@ -8,30 +8,6 @@ import { getErrorMessage } from '@/lib/errors'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Mail, Lock, User as UserIcon, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react'
 
-// ─── Design tokens (ui-design-system.md) ────────────────────────────────────
-const DS = {
-  inputBase: {
-    backgroundColor: '#1C1C1C',
-    border: '1px solid #2A2A2A',
-  },
-  btnPrimary: {
-    backgroundColor: '#F5A624',
-    color: '#000000',
-  },
-  btnSocial: {
-    backgroundColor: '#1C1C1C',
-    border: '1px solid #2A2A2A',
-  },
-  errorAlert: {
-    backgroundColor: 'rgba(220,38,38,0.10)',
-    border: '1px solid rgba(220,38,38,0.20)',
-  },
-  successAlert: {
-    backgroundColor: 'rgba(5,150,105,0.10)',
-    border: '1px solid rgba(5,150,105,0.20)',
-  },
-} as const
-
 type Step = 'signup' | 'confirm'
 
 // ─── Shared sub-components ────────────────────────────────────────────────────
@@ -67,8 +43,7 @@ function DsInput({
         required={required}
         autoComplete={autoComplete}
         maxLength={maxLength}
-        className={`w-full h-12 rounded-lg text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624] ${extraClass}`}
-        style={DS.inputBase}
+        className={`w-full h-12 rounded-lg text-sm text-text-primary placeholder:text-text-muted bg-input border border-input-border outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary ${extraClass}`}
       />
       {rightSlot}
     </div>
@@ -171,8 +146,7 @@ export default function SignUpPage() {
         <button
           type="button"
           onClick={() => { setStep('signup'); setError(''); setMessage('') }}
-          className="flex items-center gap-2 text-sm mb-6 transition-colors hover:opacity-80"
-          style={{ color: '#6B7280' }}
+          className="flex items-center gap-2 text-sm mb-6 text-text-muted transition-colors hover:text-text-secondary"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to sign up
@@ -180,16 +154,13 @@ export default function SignUpPage() {
 
         {/* Header */}
         <div className="mb-7">
-          <div
-            className="inline-flex items-center justify-center w-14 h-14 rounded-xl mb-5"
-            style={{ backgroundColor: 'rgba(245,166,36,0.12)' }}
-          >
-            <Mail className="h-7 w-7" style={{ color: '#F5A624' }} />
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl mb-5 bg-primary/10">
+            <Mail className="h-7 w-7 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Verify your email</h1>
-          <p className="text-[#9CA3AF] mt-1.5 text-sm">
+          <h1 className="text-3xl font-bold tracking-tight text-text-primary">Verify your email</h1>
+          <p className="text-text-secondary mt-1.5 text-sm">
             We sent a 6-digit code to{' '}
-            <span className="font-medium text-white">{email}</span>
+            <span className="font-medium text-text-primary">{email}</span>
           </p>
         </div>
 
@@ -199,11 +170,10 @@ export default function SignUpPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex items-start gap-3 rounded-xl p-4"
-              style={DS.errorAlert}
+              className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 p-4"
             >
-              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#DC2626' }} />
-              <p className="text-sm" style={{ color: '#DC2626' }}>{error}</p>
+              <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-red-600" />
+              <p className="text-sm text-red-600">{error}</p>
             </motion.div>
           )}
 
@@ -212,17 +182,16 @@ export default function SignUpPage() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex items-start gap-3 rounded-xl p-4"
-              style={DS.successAlert}
+              className="flex items-start gap-3 rounded-xl bg-emerald-50 border border-emerald-200 p-4"
             >
-              <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#059669' }} />
-              <p className="text-sm" style={{ color: '#059669' }}>{message}</p>
+              <CheckCircle2 className="h-5 w-5 flex-shrink-0 mt-0.5 text-emerald-600" />
+              <p className="text-sm text-emerald-600">{message}</p>
             </motion.div>
           )}
 
           {/* OTP Input */}
           <div className="space-y-1.5">
-            <label htmlFor="code" className="block text-sm font-medium text-white">
+            <label htmlFor="code" className="block text-sm font-medium text-text-primary">
               Verification code
             </label>
             <input
@@ -234,10 +203,9 @@ export default function SignUpPage() {
               required
               autoComplete="one-time-code"
               maxLength={6}
-              className="w-full h-14 rounded-lg text-2xl font-semibold text-white text-center tracking-[0.5em] placeholder:text-[#6B7280] placeholder:tracking-widest outline-none transition-colors focus:border-[#F5A624]"
-              style={DS.inputBase}
+              className="w-full h-14 rounded-lg text-2xl font-semibold text-text-primary text-center tracking-[0.5em] placeholder:text-text-muted placeholder:tracking-widest bg-input border border-input-border outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
             />
-            <p className="text-xs text-center" style={{ color: '#6B7280' }}>
+            <p className="text-xs text-center text-text-muted">
               Enter the 6-digit code from your email
             </p>
           </div>
@@ -246,8 +214,7 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-12 rounded-lg font-semibold text-sm transition-opacity disabled:opacity-60"
-            style={DS.btnPrimary}
+            className="w-full h-12 rounded-lg font-semibold text-sm bg-primary text-on-primary transition-opacity hover:opacity-90 disabled:opacity-60"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -265,8 +232,7 @@ export default function SignUpPage() {
               type="button"
               onClick={handleResendCode}
               disabled={resending}
-              className="text-sm font-medium transition-opacity hover:opacity-80 disabled:opacity-50"
-              style={{ color: '#F5A624' }}
+              className="text-sm font-medium text-primary transition-opacity hover:opacity-80 disabled:opacity-50"
             >
               {resending ? 'Sending...' : "Didn't receive a code? Resend"}
             </button>
@@ -285,8 +251,8 @@ export default function SignUpPage() {
     >
       {/* Header */}
       <div className="mb-7">
-        <h1 className="text-3xl font-bold tracking-tight text-white">Create an account</h1>
-        <p className="text-[#6B7280] mt-1.5 text-sm">
+        <h1 className="text-3xl font-bold tracking-tight text-text-primary">Create an account</h1>
+        <p className="text-text-muted mt-1.5 text-sm">
           Start your 14-day free trial, no credit card required
         </p>
       </div>
@@ -297,19 +263,18 @@ export default function SignUpPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-start gap-3 rounded-xl p-4"
-            style={DS.errorAlert}
+            className="flex items-start gap-3 rounded-xl bg-red-50 border border-red-200 p-4"
           >
-            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#DC2626' }} />
-            <p className="text-sm" style={{ color: '#DC2626' }}>{error}</p>
+            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5 text-red-600" />
+            <p className="text-sm text-red-600">{error}</p>
           </motion.div>
         )}
 
         {/* Full Name */}
         <div className="space-y-1.5">
-          <label htmlFor="name" className="block text-sm font-medium text-white">Full name</label>
+          <label htmlFor="name" className="block text-sm font-medium text-text-primary">Full name</label>
           <div className="relative">
-            <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
+            <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
             <input
               id="name"
               name="name"
@@ -317,17 +282,16 @@ export default function SignUpPage() {
               placeholder="John Doe"
               required
               autoComplete="name"
-              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624]"
-              style={DS.inputBase}
+              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted bg-input border border-input-border outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label htmlFor="email" className="block text-sm font-medium text-white">Email</label>
+          <label htmlFor="email" className="block text-sm font-medium text-text-primary">Email</label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
             <input
               id="email"
               name="email"
@@ -335,17 +299,16 @@ export default function SignUpPage() {
               placeholder="you@company.com"
               required
               autoComplete="email"
-              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624]"
-              style={DS.inputBase}
+              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted bg-input border border-input-border outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
 
         {/* Password */}
         <div className="space-y-1.5">
-          <label htmlFor="password" className="block text-sm font-medium text-white">Password</label>
+          <label htmlFor="password" className="block text-sm font-medium text-text-primary">Password</label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
             <input
               id="password"
               name="password"
@@ -353,28 +316,26 @@ export default function SignUpPage() {
               placeholder="••••••••"
               required
               autoComplete="new-password"
-              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624]"
-              style={DS.inputBase}
+              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm text-text-primary placeholder:text-text-muted bg-input border border-input-border outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity hover:opacity-80"
-              style={{ color: '#6B7280' }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted transition-colors hover:text-text-secondary"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-          <p className="text-xs" style={{ color: '#6B7280' }}>Must be at least 8 characters</p>
+          <p className="text-xs text-text-muted">Must be at least 8 characters</p>
         </div>
 
         {/* Confirm Password */}
         <div className="space-y-1.5">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-white">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-text-primary">
             Confirm password
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6B7280' }} />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
             <input
               id="confirmPassword"
               name="confirmPassword"
@@ -382,14 +343,12 @@ export default function SignUpPage() {
               placeholder="••••••••"
               required
               autoComplete="new-password"
-              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm text-white placeholder:text-[#6B7280] outline-none transition-colors focus:border-[#F5A624]"
-              style={DS.inputBase}
+              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm text-text-primary placeholder:text-text-muted bg-input border border-input-border outline-none transition-colors focus:border-primary focus:ring-1 focus:ring-primary"
             />
             <button
               type="button"
               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity hover:opacity-80"
-              style={{ color: '#6B7280' }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted transition-colors hover:text-text-secondary"
             >
               {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -400,8 +359,7 @@ export default function SignUpPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full h-12 rounded-lg font-semibold text-sm transition-opacity disabled:opacity-60 mt-1"
-          style={DS.btnPrimary}
+          className="w-full h-12 rounded-lg font-semibold text-sm bg-primary text-on-primary transition-opacity hover:opacity-90 disabled:opacity-60 mt-1"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
@@ -415,13 +373,13 @@ export default function SignUpPage() {
       </form>
 
       {/* Terms */}
-      <p className="mt-4 text-center text-xs" style={{ color: '#6B7280' }}>
+      <p className="mt-4 text-center text-xs text-text-muted">
         By signing up, you agree to our{' '}
-        <Link href="/terms" className="transition-opacity hover:opacity-80" style={{ color: '#F5A624' }}>
+        <Link href="/terms" className="text-primary transition-opacity hover:opacity-80">
           Terms of Service
         </Link>{' '}
         and{' '}
-        <Link href="/privacy" className="transition-opacity hover:opacity-80" style={{ color: '#F5A624' }}>
+        <Link href="/privacy" className="text-primary transition-opacity hover:opacity-80">
           Privacy Policy
         </Link>
       </p>
@@ -429,13 +387,10 @@ export default function SignUpPage() {
       {/* Divider */}
       <div className="relative my-7">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t" style={{ borderColor: '#2A2A2A' }} />
+          <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center">
-          <span
-            className="px-4 text-xs uppercase tracking-widest font-medium"
-            style={{ backgroundColor: '#141414', color: '#6B7280' }}
-          >
+          <span className="px-4 text-xs uppercase tracking-widest font-medium bg-surface text-text-muted">
             or
           </span>
         </div>
@@ -445,8 +400,7 @@ export default function SignUpPage() {
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
-          className="flex items-center justify-center gap-2.5 h-12 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-80"
-          style={DS.btnSocial}
+          className="flex items-center justify-center gap-2.5 h-12 rounded-lg text-sm font-medium text-text-primary bg-surface border border-border transition-colors hover:bg-surface-hover"
         >
           <svg className="h-4 w-4" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -458,8 +412,7 @@ export default function SignUpPage() {
         </button>
         <button
           type="button"
-          className="flex items-center justify-center gap-2.5 h-12 rounded-lg text-sm font-medium text-white transition-opacity hover:opacity-80"
-          style={DS.btnSocial}
+          className="flex items-center justify-center gap-2.5 h-12 rounded-lg text-sm font-medium text-text-primary bg-surface border border-border transition-colors hover:bg-surface-hover"
         >
           <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701" />
@@ -469,12 +422,11 @@ export default function SignUpPage() {
       </div>
 
       {/* Footer */}
-      <p className="mt-7 text-center text-sm" style={{ color: '#6B7280' }}>
+      <p className="mt-7 text-center text-sm text-text-muted">
         Already have an account?{' '}
         <Link
           href="/sign-in"
-          className="font-medium transition-opacity hover:opacity-80"
-          style={{ color: '#F5A624' }}
+          className="font-medium text-primary transition-opacity hover:opacity-80"
         >
           Sign in
         </Link>

@@ -293,21 +293,22 @@ export default function CreateAppPage() {
   }, [selectedType?.type_id])
 
   return (
-    <div style={{ backgroundColor: '#0D0D0D', height: 'calc(100vh - 3.5rem)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div className="bg-background" style={{ height: 'calc(100vh - 3.5rem)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
       {/* ── Sub-header ── */}
-      <div style={{ backgroundColor: '#141414', borderBottom: '1px solid #2A2A2A', padding: '0 20px', height: 52, display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
+      <div className="bg-surface-alt border-b border-border" style={{ padding: '0 20px', height: 52, display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
         {/* Back */}
         <button
           onClick={() => router.push('/apps')}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#9CA3AF', fontSize: 13, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid #2A2A2A', borderRadius: 8, padding: '5px 12px', cursor: 'pointer', flexShrink: 0 }}
+          className="text-text-secondary bg-surface-hover border border-border"
+          style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, borderRadius: 8, padding: '5px 12px', cursor: 'pointer', flexShrink: 0 }}
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Apps
         </button>
 
         {/* Title */}
-        <h1 style={{ color: '#FFFFFF', fontWeight: 600, fontSize: 15, flex: 1, margin: 0 }}>Create New App</h1>
+        <h1 className="text-text-primary" style={{ fontWeight: 600, fontSize: 15, flex: 1, margin: 0 }}>Create New App</h1>
 
         {/* Stepper */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -316,16 +317,16 @@ export default function CreateAppPage() {
             const isDone   = step > i
             return (
               <div key={label} style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 12px', borderRadius: 8, backgroundColor: isActive ? 'rgba(245,166,36,0.12)' : 'transparent' }}>
-                  <div style={{ width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, backgroundColor: isActive || isDone ? '#F5A624' : 'rgba(255,255,255,0.08)', color: isActive || isDone ? '#000' : '#6B7280', flexShrink: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 12px', borderRadius: 8 }} className={isActive ? 'bg-primary/10' : ''}>
+                  <div className={isActive || isDone ? 'bg-primary text-on-primary' : 'bg-surface-hover text-text-muted'} style={{ width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>
                     {i + 1}
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? '#F5A624' : isDone ? '#9CA3AF' : '#6B7280' }}>
+                  <span className={isActive ? 'text-primary' : isDone ? 'text-text-secondary' : 'text-text-muted'} style={{ fontSize: 13, fontWeight: isActive ? 600 : 400 }}>
                     {label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <ChevronRight className="h-4 w-4" style={{ color: '#2A2A2A', margin: '0 2px' }} />
+                  <ChevronRight className="h-4 w-4 text-border" style={{ margin: '0 2px' }} />
                 )}
               </div>
             )
@@ -337,8 +338,8 @@ export default function CreateAppPage() {
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
 
         {/* ── Left Sidebar ── */}
-        <div style={{ width: 200, flexShrink: 0, borderRight: '1px solid #2A2A2A', display: 'flex', flexDirection: 'column' }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#F5A624', padding: '16px 16px 8px' }}>
+        <div className="border-r border-border" style={{ width: 200, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+          <p className="text-primary" style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '16px 16px 8px' }}>
             App Types
           </p>
 
@@ -350,13 +351,14 @@ export default function CreateAppPage() {
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', paddingLeft: 14, cursor: 'pointer', border: 'none', textAlign: 'left', backgroundColor: isActive ? 'rgba(245,166,36,0.08)' : 'transparent', borderLeft: isActive ? '2px solid #F5A624' : '2px solid transparent' }}
+                  className={isActive ? 'bg-primary/10' : ''}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', paddingLeft: 14, cursor: 'pointer', border: 'none', textAlign: 'left', borderLeft: isActive ? '2px solid var(--color-primary)' : '2px solid transparent' }}
                 >
-                  <span style={{ fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? '#F5A624' : '#9CA3AF' }}>
+                  <span className={isActive ? 'text-primary' : 'text-text-secondary'} style={{ fontSize: 13, fontWeight: isActive ? 600 : 400 }}>
                     {cat.label}
                   </span>
                   {count > 0 && (
-                    <span style={{ fontSize: 11, color: isActive ? '#F5A624' : '#6B7280', backgroundColor: isActive ? 'rgba(245,166,36,0.15)' : 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '1px 7px' }}>
+                    <span className={isActive ? 'text-primary bg-primary/15' : 'text-text-muted bg-surface-hover'} style={{ fontSize: 11, borderRadius: 10, padding: '1px 7px' }}>
                       {count}
                     </span>
                   )}
@@ -366,28 +368,29 @@ export default function CreateAppPage() {
           </div>
 
           {/* Templates count */}
-          <div style={{ borderTop: '1px solid #2A2A2A', padding: '12px 16px' }}>
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6B7280', margin: '0 0 4px' }}>Templates</p>
-            <p style={{ fontSize: 22, fontWeight: 700, color: '#F5A624', lineHeight: 1, margin: '0 0 2px' }}>{templates.length}</p>
-            <p style={{ fontSize: 11, color: '#6B7280', margin: 0 }}>available</p>
+          <div className="border-t border-border" style={{ padding: '12px 16px' }}>
+            <p className="text-text-muted" style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', margin: '0 0 4px' }}>Templates</p>
+            <p className="text-primary" style={{ fontSize: 22, fontWeight: 700, lineHeight: 1, margin: '0 0 2px' }}>{templates.length}</p>
+            <p className="text-text-muted" style={{ fontSize: 11, margin: 0 }}>available</p>
           </div>
         </div>
 
         {/* ── Middle Panel ── */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* Search bar + view toggle */}
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid #2A2A2A', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div className="border-b border-border" style={{ padding: '12px 16px', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ position: 'relative', flex: 1 }}>
-              <Search className="h-3.5 w-3.5" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }} />
+              <Search className="h-3.5 w-3.5 text-text-muted" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
               <input
                 type="text"
                 placeholder="Search templates..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={{ width: '100%', height: 36, backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', borderRadius: 8, paddingLeft: 32, paddingRight: 12, fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
+                className="bg-surface border border-border text-text-primary"
+                style={{ width: '100%', height: 36, borderRadius: 8, paddingLeft: 32, paddingRight: 12, fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
               />
             </div>
-            <span style={{ fontSize: 12, color: '#6B7280', whiteSpace: 'nowrap' }}>{filtered.length} results</span>
+            <span className="text-text-muted" style={{ fontSize: 12, whiteSpace: 'nowrap' }}>{filtered.length} results</span>
             <div style={{ display: 'flex', gap: 4 }}>
               {([
                 { mode: 'grid' as const, Icon: Grid2X2 },
@@ -396,11 +399,9 @@ export default function CreateAppPage() {
                 <button
                   key={mode}
                   onClick={() => setTemplateViewMode(mode)}
+                  className={templateViewMode === mode ? 'bg-primary text-on-primary' : 'bg-surface border border-border text-text-muted'}
                   style={{
-                    width: 32, height: 32, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer',
-                    backgroundColor: templateViewMode === mode ? '#F5A624' : '#1C1C1C',
-                    color: templateViewMode === mode ? '#000' : '#6B7280',
-                    ...(templateViewMode !== mode ? { border: '1px solid #2A2A2A' } : {}),
+                    width: 32, height: 32, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
                   }}
                 >
                   <BtnIcon style={{ width: 15, height: 15 }} />
@@ -423,16 +424,14 @@ export default function CreateAppPage() {
                     <button
                       key={tpl.type_id}
                       onClick={() => handleSelectTemplate(tpl)}
+                      className={`hover:bg-surface-hover ${isSelected ? 'bg-primary/10' : 'bg-surface'}`}
                       style={{
                         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
                         padding: '14px 8px 12px', borderRadius: 10, cursor: 'pointer', border: 'none', textAlign: 'center',
-                        backgroundColor: isSelected ? 'rgba(245,166,36,0.10)' : '#1C1C1C',
-                        outline: isSelected ? '2px solid #F5A624' : '1px solid #2A2A2A',
+                        outline: isSelected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
                         outlineOffset: isSelected ? -2 : -1,
                         transition: 'all 0.15s ease',
                       }}
-                      onMouseOver={(e) => { if (!isSelected) e.currentTarget.style.backgroundColor = '#222' }}
-                      onMouseOut={(e) => { if (!isSelected) e.currentTarget.style.backgroundColor = '#1C1C1C' }}
                     >
                       <div style={{ width: 44, height: 44, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: iconPath ? 'transparent' : catStyle.bg, flexShrink: 0 }}>
                         {iconPath ? (
@@ -441,10 +440,10 @@ export default function CreateAppPage() {
                           <FallbackIcon style={{ width: 22, height: 22, color: catStyle.color }} />
                         )}
                       </div>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: isSelected ? '#F5A624' : '#FFFFFF', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
+                      <span className={isSelected ? 'text-primary' : 'text-text-primary'} style={{ fontSize: 11, fontWeight: 600, lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%' }}>
                         {tpl.name}
                       </span>
-                      <span style={{ fontSize: 10, color: '#6B7280', lineHeight: 1.3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', maxWidth: '100%' } as any}>
+                      <span className="text-text-muted" style={{ fontSize: 10, lineHeight: 1.3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', maxWidth: '100%' } as any}>
                         {tpl.description}
                       </span>
                     </button>
@@ -460,10 +459,10 @@ export default function CreateAppPage() {
                   return (
                     <div key={category}>
                       <div style={{ padding: '8px 16px 4px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#6B7280', whiteSpace: 'nowrap' }}>
+                        <span className="text-text-muted" style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                           {categories.find((c) => c.id === category)?.label ?? category}
                         </span>
-                        <div style={{ flex: 1, height: 1, backgroundColor: '#1C1C1C' }} />
+                        <div className="bg-surface" style={{ flex: 1, height: 1 }} />
                       </div>
                       {items.map((tpl) => {
                         const isSelected = selectedType?.type_id === tpl.type_id
@@ -474,7 +473,8 @@ export default function CreateAppPage() {
                           <button
                             key={tpl.type_id}
                             onClick={() => handleSelectTemplate(tpl)}
-                            style={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 16px', paddingLeft: 14, cursor: 'pointer', border: 'none', textAlign: 'left', backgroundColor: isSelected ? 'rgba(245,166,36,0.06)' : 'transparent', borderLeft: isSelected ? '2px solid #F5A624' : '2px solid transparent' }}
+                            className={isSelected ? 'bg-primary/5' : ''}
+                            style={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: 12, padding: '10px 16px', paddingLeft: 14, cursor: 'pointer', border: 'none', textAlign: 'left', borderLeft: isSelected ? '2px solid var(--color-primary)' : '2px solid transparent' }}
                           >
                             <div style={{ width: 40, height: 40, borderRadius: 8, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: iconPath ? 'transparent' : catStyle.bg }}>
                               {iconPath ? (
@@ -485,21 +485,21 @@ export default function CreateAppPage() {
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                                <span style={{ fontSize: 13, fontWeight: 600, color: isSelected ? '#F5A624' : '#FFFFFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                <span className={isSelected ? 'text-primary' : 'text-text-primary'} style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                   {tpl.name}
                                 </span>
                                 {tpl.popular && (
-                                  <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', backgroundColor: 'rgba(245,166,36,0.18)', color: '#F5A624', borderRadius: 4, padding: '1px 5px', flexShrink: 0 }}>
+                                  <span className="bg-primary/15 text-primary" style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', borderRadius: 4, padding: '1px 5px', flexShrink: 0 }}>
                                     Popular
                                   </span>
                                 )}
                               </div>
-                              <p style={{ fontSize: 11, color: '#6B7280', margin: 0, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' } as any}>
+                              <p className="text-text-muted" style={{ fontSize: 11, margin: 0, lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' } as any}>
                                 {tpl.description}
                               </p>
                             </div>
                             {isSelected && (
-                              <ChevronRight className="h-4 w-4" style={{ color: '#F5A624', flexShrink: 0, marginTop: 10 }} />
+                              <ChevronRight className="h-4 w-4 text-primary" style={{ flexShrink: 0, marginTop: 10 }} />
                             )}
                           </button>
                         )
@@ -512,22 +512,22 @@ export default function CreateAppPage() {
 
             {filtered.length === 0 && (
               <div style={{ padding: 40, textAlign: 'center' }}>
-                <p style={{ fontSize: 13, color: '#6B7280' }}>No templates match your search</p>
+                <p className="text-text-muted" style={{ fontSize: 13 }}>No templates match your search</p>
               </div>
             )}
           </div>
         </div>
 
         {/* ── Right Panel ── */}
-        <div style={{ width: 420, flexShrink: 0, borderLeft: '1px solid #2A2A2A', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <div className="border-l border-border" style={{ width: 420, flexShrink: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {!selectedType ? (
             /* Empty state */
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', border: '2px solid #2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ChevronRight className="h-5 w-5" style={{ color: '#6B7280' }} />
+              <div className="border-2 border-border" style={{ width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ChevronRight className="h-5 w-5 text-text-muted" />
               </div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#6B7280', textAlign: 'center', margin: 0 }}>Select a template</p>
-              <p style={{ fontSize: 12, color: '#6B7280', textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
+              <p className="text-text-muted" style={{ fontSize: 14, fontWeight: 600, textAlign: 'center', margin: 0 }}>Select a template</p>
+              <p className="text-text-muted" style={{ fontSize: 12, textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
                 Choose a template from the list to configure and deploy your app
               </p>
             </div>
@@ -535,7 +535,7 @@ export default function CreateAppPage() {
             /* Configure form */
             <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               {/* Panel header */}
-              <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid #2A2A2A', flexShrink: 0 }}>
+              <div className="border-b border-border" style={{ padding: '14px 16px 12px', flexShrink: 0 }}>
                 {(() => {
                   const iconPath2 = getAppTypeIconPath(selectedType.icon, selectedType.type_id)
                   const FallbackIcon2 = ICON_MAP[selectedType.icon] || ICON_MAP[selectedType.type_id] || Sparkles
@@ -550,8 +550,8 @@ export default function CreateAppPage() {
                         )}
                       </div>
                       <div style={{ minWidth: 0 }}>
-                        <p style={{ fontSize: 14, fontWeight: 700, color: '#FFFFFF', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedType.name}</p>
-                        <p style={{ fontSize: 11, color: '#6B7280', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedType.description}</p>
+                        <p className="text-text-primary" style={{ fontSize: 14, fontWeight: 700, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedType.name}</p>
+                        <p className="text-text-muted" style={{ fontSize: 11, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{selectedType.description}</p>
                       </div>
                     </div>
                   )
@@ -562,14 +562,14 @@ export default function CreateAppPage() {
               {isLoadingSchema ? (
                 <div style={{ flex: 1, padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {[1, 2, 3].map((i) => (
-                    <div key={i} style={{ height: 44, backgroundColor: '#1C1C1C', borderRadius: 8, opacity: 0.6 }} />
+                    <div key={i} className="bg-surface" style={{ height: 44, borderRadius: 8, opacity: 0.6 }} />
                   ))}
                 </div>
               ) : (
                 <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {/* App Name */}
                   <div>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', display: 'block', marginBottom: 6 }}>
+                    <label className="text-text-secondary" style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
                       App Name <span style={{ color: '#DC2626' }}>*</span>
                     </label>
                     <input
@@ -577,9 +577,10 @@ export default function CreateAppPage() {
                       value={formData.name}
                       onChange={(e) => handleChange('name', e.target.value)}
                       placeholder="e.g. Lobby Welcome Screen"
-                      style={{ width: '100%', height: 40, backgroundColor: '#111827', border: `1px solid ${errors.name ? '#DC2626' : '#1F2937'}`, borderRadius: 8, padding: '0 12px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = errors.name ? '#DC2626' : '#F5A624' }}
-                      onBlur={(e) => { e.currentTarget.style.borderColor = errors.name ? '#DC2626' : '#1F2937' }}
+                      className="bg-input border border-input-border text-text-primary focus:border-primary"
+                      style={{ width: '100%', height: 40, borderRadius: 8, padding: '0 12px', fontSize: 13, outline: 'none', boxSizing: 'border-box', borderColor: errors.name ? '#DC2626' : undefined }}
+                      onFocus={(e) => { if (!errors.name) e.currentTarget.style.borderColor = 'var(--color-primary)' }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = errors.name ? '#DC2626' : 'var(--color-input-border)' }}
                     />
                     {errors.name && (
                       <p style={{ fontSize: 11, color: '#DC2626', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -590,28 +591,30 @@ export default function CreateAppPage() {
 
                   {/* Description */}
                   <div>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', display: 'block', marginBottom: 6 }}>Description</label>
+                    <label className="text-text-secondary" style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>Description</label>
                     <textarea
                       value={formData.description}
                       onChange={(e) => handleChange('description', e.target.value)}
                       placeholder="Optional description..."
                       rows={3}
-                      style={{ width: '100%', backgroundColor: '#111827', border: '1px solid #1F2937', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#FFFFFF', outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
-                      onFocus={(e) => { e.currentTarget.style.borderColor = '#F5A624' }}
-                      onBlur={(e) => { e.currentTarget.style.borderColor = '#1F2937' }}
+                      className="bg-input border border-input-border text-text-primary focus:border-primary"
+                      style={{ width: '100%', borderRadius: 8, padding: '8px 12px', fontSize: 13, outline: 'none', resize: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }}
+                      onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-primary)' }}
+                      onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-input-border)' }}
                     />
                   </div>
 
                   {/* Content selector */}
                   {requiresContent && (
                     <div>
-                      <label style={{ fontSize: 12, fontWeight: 600, color: '#9CA3AF', display: 'block', marginBottom: 6 }}>
+                      <label className="text-text-secondary" style={{ fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
                         Select Content <span style={{ color: '#DC2626' }}>*</span>
                       </label>
                       <button
                         type="button"
                         onClick={() => { setContentSelectorField('content_id'); setContentSelectorOpen(true) }}
-                        style={{ width: '100%', height: 40, backgroundColor: '#111827', border: `1px solid ${errors.content_id ? '#DC2626' : '#1F2937'}`, borderRadius: 8, padding: '0 12px', fontSize: 13, color: formData.content_id ? '#FFFFFF' : '#6B7280', cursor: 'pointer', textAlign: 'left', boxSizing: 'border-box' }}
+                        className="bg-input border border-input-border"
+                        style={{ width: '100%', height: 40, borderRadius: 8, padding: '0 12px', fontSize: 13, color: formData.content_id ? 'var(--color-text-primary)' : 'var(--color-text-muted)', cursor: 'pointer', textAlign: 'left', boxSizing: 'border-box', borderColor: errors.content_id ? '#DC2626' : undefined }}
                       >
                         {formData.content_id
                           ? (selectedContentItem?.name ?? contentData?.items?.find((c: Content) => c.content_id === formData.content_id)?.name ?? formData.content_id)
@@ -653,11 +656,12 @@ export default function CreateAppPage() {
               )}
 
               {/* Footer buttons */}
-              <div style={{ borderTop: '1px solid #2A2A2A', padding: '12px 16px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="border-t border-border" style={{ padding: '12px 16px', flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <button
                   type="submit"
                   disabled={createAppMutation.isPending}
-                  style={{ width: '100%', height: 40, backgroundColor: '#F5A624', color: '#000000', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: createAppMutation.isPending ? 'not-allowed' : 'pointer', opacity: createAppMutation.isPending ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+                  className="bg-primary text-on-primary"
+                  style={{ width: '100%', height: 40, border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: createAppMutation.isPending ? 'not-allowed' : 'pointer', opacity: createAppMutation.isPending ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                 >
                   {createAppMutation.isPending ? (
                     <>
@@ -670,7 +674,8 @@ export default function CreateAppPage() {
                   type="button"
                   onClick={handleCancel}
                   disabled={createAppMutation.isPending}
-                  style={{ width: '100%', height: 36, backgroundColor: 'transparent', color: '#9CA3AF', border: '1px solid #2A2A2A', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}
+                  className="text-text-secondary border border-border"
+                  style={{ width: '100%', height: 36, backgroundColor: 'transparent', borderRadius: 8, fontSize: 13, cursor: 'pointer' }}
                 >
                   Cancel
                 </button>

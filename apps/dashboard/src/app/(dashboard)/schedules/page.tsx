@@ -27,6 +27,8 @@ const BLOCK_H   = 26  // px per schedule block
 const BLOCK_GAP = 4   // px gap between stacked blocks
 const ROW_PAD   = 6   // top + bottom padding within a row
 
+const OVERRIDE_INPUT_CLASSES = 'w-full h-9 bg-input border border-input-border rounded-lg px-2.5 text-[13px] text-text-primary outline-none focus:border-primary'
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function parseHour(t: string): number {
   const [h, m] = t.split(':').map(Number)
@@ -50,22 +52,16 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
   const currentHour = Math.floor(currentHourDecimal)
 
   return (
-    <div
-      className="rounded-xl overflow-hidden"
-      style={{ backgroundColor: '#0F1623', border: '1px solid #1F2937' }}
-    >
+    <div className="rounded-xl overflow-hidden bg-surface border border-border">
       <div className="overflow-x-auto">
         <div style={{ minWidth: `${60 + 24 * HOUR_W}px` }}>
 
           {/* ── Time header row ── */}
-          <div
-            className="flex sticky top-0 z-20"
-            style={{ backgroundColor: '#0F1623', borderBottom: '1px solid #1F2937' }}
-          >
+          <div className="flex sticky top-0 z-20 bg-surface border-b border-border">
             {/* DAY label */}
             <div
-              className="flex-shrink-0 flex items-center justify-center text-xs font-semibold tracking-widest uppercase"
-              style={{ width: 60, height: 40, color: '#6B7280', borderRight: '1px solid #1F2937' }}
+              className="flex-shrink-0 flex items-center justify-center text-xs font-semibold tracking-widest uppercase text-text-muted border-r border-border"
+              style={{ width: 60, height: 40 }}
             >
               DAY
             </div>
@@ -75,20 +71,19 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
               return (
                 <div
                   key={h}
-                  className="flex-shrink-0 flex items-end pb-1 pl-1.5 text-xs font-medium relative"
+                  className={`flex-shrink-0 flex items-end pb-1 pl-1.5 text-xs font-medium relative ${isCurrent ? 'text-primary' : 'text-text-muted'}`}
                   style={{
                     width: HOUR_W,
                     height: 40,
-                    color: isCurrent ? '#F5A624' : '#6B7280',
-                    borderRight: '1px solid rgba(31,41,55,0.6)',
+                    borderRight: '1px solid var(--color-border-subtle)',
                   }}
                 >
                   {h.toString().padStart(2, '0')}:00
                   {/* Current time tick mark */}
                   {isCurrent && (
                     <div
-                      className="absolute bottom-0 left-0 w-0.5"
-                      style={{ height: 6, backgroundColor: '#F5A624', left: (currentHourDecimal - h) * HOUR_W }}
+                      className="absolute bottom-0 w-0.5 bg-primary"
+                      style={{ height: 6, left: (currentHourDecimal - h) * HOUR_W }}
                     />
                   )}
                 </div>
@@ -105,21 +100,16 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
             return (
               <div
                 key={day}
-                className="flex relative"
+                className="flex relative border-b border-border"
                 style={{
                   height: rowHeight,
-                  borderBottom: '1px solid #1F2937',
-                  backgroundColor: isToday ? 'rgba(245,166,36,0.03)' : 'transparent',
+                  backgroundColor: isToday ? 'var(--color-primary-light)' : 'transparent',
                 }}
               >
                 {/* Day label */}
                 <div
-                  className="flex-shrink-0 flex items-center justify-center text-xs font-semibold"
-                  style={{
-                    width: 60,
-                    color: isToday ? '#F5A624' : '#6B7280',
-                    borderRight: '1px solid #1F2937',
-                  }}
+                  className={`flex-shrink-0 flex items-center justify-center text-xs font-semibold border-r border-border ${isToday ? 'text-primary' : 'text-text-muted'}`}
+                  style={{ width: 60 }}
                 >
                   {day}
                 </div>
@@ -134,22 +124,21 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
                       style={{
                         left: h * HOUR_W,
                         width: 1,
-                        backgroundColor: 'rgba(31,41,55,0.7)',
+                        backgroundColor: 'var(--color-border-subtle)',
                       }}
                     />
                   ))}
 
                   {/* Current time vertical line */}
                   <div
-                    className="absolute top-0 bottom-0 z-10 pointer-events-none"
+                    className="absolute top-0 bottom-0 z-10 pointer-events-none bg-primary"
                     style={{
                       left: currentHourDecimal * HOUR_W,
                       width: 2,
-                      backgroundColor: '#F5A624',
                     }}
                   />
 
-                  {/* Schedule blocks */}
+                  {/* Schedule blocks — data-driven colors kept as-is */}
                   {daySchedules.map((schedule, blockIdx) => {
                     if (!schedule.start_time || !schedule.end_time) return null
                     const startH = parseHour(schedule.start_time)
@@ -289,15 +278,14 @@ export default function SchedulesPage() {
   ] as const
 
   return (
-    <div style={{ backgroundColor: '#0D0D0D', minHeight: '100vh' }}>
+    <div className="min-h-screen">
 
       {/* ── Hero Banner ── */}
       <div className="page-container pt-4 sm:pt-5">
         <div
-          className="rounded-xl relative overflow-hidden"
+          className="rounded-xl relative overflow-hidden border border-primary/20"
           style={{
-            background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
-            border: '1px solid #2A3050',
+            background: 'linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-alt) 50%, var(--color-surface-hover) 100%)',
           }}
         >
           {/* Grid overlay */}
@@ -305,7 +293,7 @@ export default function SchedulesPage() {
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
-                'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+                'linear-gradient(var(--color-border-subtle) 1px, transparent 1px), linear-gradient(90deg, var(--color-border-subtle) 1px, transparent 1px)',
               backgroundSize: '40px 40px',
             }}
           />
@@ -314,21 +302,17 @@ export default function SchedulesPage() {
             {/* Top row: label + heading + button */}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
               <div>
-                <p
-                  className="text-xs font-semibold tracking-widest uppercase mb-2"
-                  style={{ color: '#F5A624' }}
-                >
+                <p className="text-xs font-semibold tracking-widest uppercase mb-2 text-primary">
                   Schedule Timeline
                 </p>
-                <h1 className="text-2xl sm:text-4xl font-bold text-white mb-2">Schedules</h1>
-                <p className="text-sm max-w-xl" style={{ color: '#6B7280' }}>
+                <h1 className="text-2xl sm:text-4xl font-bold text-text-primary mb-2">Schedules</h1>
+                <p className="text-sm max-w-xl text-text-muted">
                   Visualize and manage your content schedules. Automate playback across your display network.
                 </p>
               </div>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm flex-shrink-0 sm:mt-1 self-start touch-target"
-                style={{ backgroundColor: '#F5A624', color: '#000000' }}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm flex-shrink-0 sm:mt-1 self-start touch-target bg-primary text-on-primary"
               >
                 <Plus className="h-4 w-4" />
                 New Schedule
@@ -338,101 +322,56 @@ export default function SchedulesPage() {
             {/* Stat cards */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {/* Total Schedules */}
-              <div
-                className="rounded-xl p-4 flex items-center gap-3"
-                style={{
-                  backgroundColor: 'rgba(0,0,0,0.28)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
+              <div className="rounded-xl p-4 flex items-center gap-3 bg-surface border border-border">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0 bg-surface-hover">
                   📅
                 </div>
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#6B7280' }}>Total Schedules</p>
-                  <p className="text-xl font-bold" style={{ color: '#F5A624' }}>{stats.total}</p>
+                  <p className="text-xs mb-0.5 text-text-muted">Total Schedules</p>
+                  <p className="text-xl font-bold text-primary">{stats.total}</p>
                 </div>
               </div>
 
               {/* Active */}
-              <div
-                className="rounded-xl p-4 flex items-center gap-3"
-                style={{
-                  backgroundColor: 'rgba(0,0,0,0.28)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
+              <div className="rounded-xl p-4 flex items-center gap-3 bg-surface border border-border">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-surface-hover">
                   <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#22C55E' }} />
                 </div>
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#6B7280' }}>Active</p>
+                  <p className="text-xs mb-0.5 text-text-muted">Active</p>
                   <p className="text-xl font-bold" style={{ color: '#34D399' }}>{stats.active}</p>
                 </div>
               </div>
 
               {/* Paused */}
-              <div
-                className="rounded-xl p-4 flex items-center gap-3"
-                style={{
-                  backgroundColor: 'rgba(0,0,0,0.28)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
+              <div className="rounded-xl p-4 flex items-center gap-3 bg-surface border border-border">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0 bg-surface-hover">
                   ⏸
                 </div>
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#6B7280' }}>Paused</p>
-                  <p className="text-xl font-bold text-white">{stats.paused}</p>
+                  <p className="text-xs mb-0.5 text-text-muted">Paused</p>
+                  <p className="text-xl font-bold text-text-primary">{stats.paused}</p>
                 </div>
               </div>
 
               {/* Drafts */}
-              <div
-                className="rounded-xl p-4 flex items-center gap-3"
-                style={{
-                  backgroundColor: 'rgba(0,0,0,0.28)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
+              <div className="rounded-xl p-4 flex items-center gap-3 bg-surface border border-border">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0 bg-surface-hover">
                   📝
                 </div>
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#6B7280' }}>Drafts</p>
-                  <p className="text-xl font-bold text-white">{stats.drafts}</p>
+                  <p className="text-xs mb-0.5 text-text-muted">Drafts</p>
+                  <p className="text-xl font-bold text-text-primary">{stats.drafts}</p>
                 </div>
               </div>
 
               {/* Time Slots */}
-              <div
-                className="rounded-xl p-4 flex items-center gap-3"
-                style={{
-                  backgroundColor: 'rgba(0,0,0,0.28)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                }}
-              >
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
-                >
+              <div className="rounded-xl p-4 flex items-center gap-3 bg-surface border border-border">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0 bg-surface-hover">
                   ⏰
                 </div>
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#6B7280' }}>Time Slots</p>
+                  <p className="text-xs mb-0.5 text-text-muted">Time Slots</p>
                   <p className="text-xl font-bold" style={{ color: '#60A5FA' }}>{stats.timeSlots}</p>
                 </div>
               </div>
@@ -451,12 +390,11 @@ export default function SchedulesPage() {
               <button
                 key={key}
                 onClick={() => setFilter(key)}
-                className="px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target"
-                style={
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target ${
                   isActive
-                    ? { backgroundColor: '#F5A624', color: '#000000' }
-                    : { color: '#9CA3AF' }
-                }
+                    ? 'bg-primary text-on-primary'
+                    : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+                }`}
               >
                 {label}
               </button>
@@ -467,32 +405,23 @@ export default function SchedulesPage() {
         {/* Search + view toggle */}
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4"
-              style={{ color: '#6B7280' }}
-            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
             <input
               placeholder="Search schedules..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 text-sm rounded-lg outline-none w-52"
-              style={{
-                backgroundColor: '#1C1C1C',
-                border: '1px solid #2A2A2A',
-                color: '#FFFFFF',
-              }}
+              className="pl-9 pr-4 py-2 text-sm rounded-lg outline-none w-52 bg-surface border border-border text-text-primary focus:border-primary"
             />
           </div>
 
           {/* Calendar / timeline view */}
           <button
             onClick={() => setViewMode('timeline')}
-            className="p-2 rounded-lg transition-colors"
-            style={
+            className={`p-2 rounded-lg transition-colors ${
               viewMode === 'timeline'
-                ? { backgroundColor: '#F5A624', color: '#000000' }
-                : { backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#6B7280' }
-            }
+                ? 'bg-primary text-on-primary'
+                : 'bg-surface border border-border text-text-muted hover:bg-surface-hover'
+            }`}
           >
             <Calendar className="h-4 w-4" />
           </button>
@@ -500,12 +429,11 @@ export default function SchedulesPage() {
           {/* Grid view */}
           <button
             onClick={() => setViewMode('grid')}
-            className="p-2 rounded-lg transition-colors"
-            style={
+            className={`p-2 rounded-lg transition-colors ${
               viewMode === 'grid'
-                ? { backgroundColor: '#F5A624', color: '#000000' }
-                : { backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#6B7280' }
-            }
+                ? 'bg-primary text-on-primary'
+                : 'bg-surface border border-border text-text-muted hover:bg-surface-hover'
+            }`}
           >
             <Grid3X3 className="h-4 w-4" />
           </button>
@@ -523,7 +451,7 @@ export default function SchedulesPage() {
                   className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: pal.dot }}
                 />
-                <span className="text-xs" style={{ color: '#9CA3AF' }}>
+                <span className="text-xs text-text-secondary">
                   {s.name}
                 </span>
               </div>
@@ -535,10 +463,7 @@ export default function SchedulesPage() {
       {/* ── Main content ── */}
       <div className="page-container pb-5">
         {isLoading ? (
-          <div
-            className="rounded-xl animate-pulse"
-            style={{ height: 400, backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
-          />
+          <div className="rounded-xl animate-pulse bg-surface border border-border" style={{ height: 400 }} />
         ) : viewMode === 'timeline' ? (
           <GanttTimeline
             schedules={filteredSchedules}
@@ -549,11 +474,8 @@ export default function SchedulesPage() {
         ) : (
           /* Grid / card view */
           filteredSchedules.length === 0 ? (
-            <div
-              className="rounded-xl flex flex-col items-center justify-center py-16"
-              style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
-            >
-              <p className="text-sm" style={{ color: '#6B7280' }}>No schedules found</p>
+            <div className="rounded-xl flex flex-col items-center justify-center py-16 bg-surface border border-border">
+              <p className="text-sm text-text-muted">No schedules found</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -562,18 +484,17 @@ export default function SchedulesPage() {
                 return (
                   <div
                     key={s.schedule_id}
-                    className="rounded-xl p-4"
-                    style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+                    className="rounded-xl p-4 bg-surface border border-border"
                   >
                     <div className="flex items-center gap-3 mb-3">
                       <div
                         className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                         style={{ backgroundColor: pal.dot }}
                       />
-                      <p className="text-sm font-semibold text-white truncate">{s.name}</p>
+                      <p className="text-sm font-semibold text-text-primary truncate">{s.name}</p>
                     </div>
                     {s.start_time && s.end_time && (
-                      <p className="text-xs mb-2" style={{ color: '#6B7280' }}>
+                      <p className="text-xs mb-2 text-text-muted">
                         {s.start_time} – {s.end_time}
                       </p>
                     )}
@@ -599,19 +520,18 @@ export default function SchedulesPage() {
 
       {/* ── Overrides Panel ── */}
       <div className="px-5 pb-5">
-        <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}>
+        <div className="rounded-xl overflow-hidden bg-surface border border-border">
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #2A2A2A' }}>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <div>
-              <h2 className="text-base font-bold text-white">Schedule Overrides</h2>
-              <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+              <h2 className="text-base font-bold text-text-primary">Schedule Overrides</h2>
+              <p className="text-xs mt-0.5 text-text-muted">
                 Temporary overrides that take priority over regular schedules
               </p>
             </div>
             <button
               onClick={() => setShowOverrideForm(!showOverrideForm)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
-              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-on-primary"
             >
               {showOverrideForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               {showOverrideForm ? 'Cancel' : 'Add Override'}
@@ -620,25 +540,23 @@ export default function SchedulesPage() {
 
           {/* Inline form */}
           {showOverrideForm && (
-            <div className="px-5 py-4" style={{ borderBottom: '1px solid #2A2A2A', backgroundColor: 'rgba(245,166,36,0.03)' }}>
+            <div className="px-5 py-4 border-b border-border bg-primary/5">
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>Override Name *</label>
+                  <label className="text-[11px] text-text-muted block mb-1">Override Name *</label>
                   <input
                     value={overrideData.name}
                     onChange={(e) => setOverrideData({ ...overrideData, name: e.target.value })}
                     placeholder="e.g. Holiday Special"
-                    style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = '#2A2A2A')}
+                    className={OVERRIDE_INPUT_CLASSES}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>Channel *</label>
+                  <label className="text-[11px] text-text-muted block mb-1">Channel *</label>
                   <select
                     value={overrideData.channel_id}
                     onChange={(e) => setOverrideData({ ...overrideData, channel_id: e.target.value })}
-                    style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box', colorScheme: 'dark' as any }}
+                    className={OVERRIDE_INPUT_CLASSES}
                   >
                     <option value="">Select channel…</option>
                     {(channelsData as { channel_id: string; name: string }[]).map((ch) => (
@@ -647,11 +565,11 @@ export default function SchedulesPage() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>Type *</label>
+                  <label className="text-[11px] text-text-muted block mb-1">Type *</label>
                   <select
                     value={overrideData.type}
                     onChange={(e) => setOverrideData({ ...overrideData, type: e.target.value as 'emergency' | 'special' | 'maintenance' })}
-                    style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box', colorScheme: 'dark' as any }}
+                    className={OVERRIDE_INPUT_CLASSES}
                   >
                     <option value="emergency">Emergency</option>
                     <option value="special">Special</option>
@@ -659,46 +577,44 @@ export default function SchedulesPage() {
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>Start Date & Time *</label>
+                  <label className="text-[11px] text-text-muted block mb-1">Start Date & Time *</label>
                   <input
                     type="datetime-local"
                     value={overrideData.start_datetime}
                     onChange={(e) => setOverrideData({ ...overrideData, start_datetime: e.target.value })}
-                    style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box', colorScheme: 'dark' as any }}
+                    className={OVERRIDE_INPUT_CLASSES}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>End Date & Time *</label>
+                  <label className="text-[11px] text-text-muted block mb-1">End Date & Time *</label>
                   <input
                     type="datetime-local"
                     value={overrideData.end_datetime}
                     onChange={(e) => setOverrideData({ ...overrideData, end_datetime: e.target.value })}
-                    style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box', colorScheme: 'dark' as any }}
+                    className={OVERRIDE_INPUT_CLASSES}
                   />
                 </div>
               </div>
               <div className="mb-4">
-                <label style={{ fontSize: 11, color: '#6B7280', display: 'block', marginBottom: 4 }}>Reason (optional)</label>
+                <label className="text-[11px] text-text-muted block mb-1">Reason (optional)</label>
                 <input
                   value={overrideData.reason}
                   onChange={(e) => setOverrideData({ ...overrideData, reason: e.target.value })}
                   placeholder="e.g. Public holiday, special event..."
-                  style={{ width: '100%', height: 36, backgroundColor: '#111827', border: '1px solid #2A2A2A', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#FFFFFF', outline: 'none', boxSizing: 'border-box' }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#F5A624')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = '#2A2A2A')}
+                  className={OVERRIDE_INPUT_CLASSES}
                 />
               </div>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setShowOverrideForm(false)}
-                  style={{ height: 36, padding: '0 16px', borderRadius: 8, backgroundColor: '#2A2A2A', border: 'none', color: '#9CA3AF', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                  className="h-9 px-4 rounded-lg bg-surface-alt border-none text-text-secondary text-[13px] font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreateOverride}
                   disabled={!overrideData.name || !overrideData.channel_id || !overrideData.start_datetime || !overrideData.end_datetime || createOverrideMutation.isPending}
-                  style={{ height: 36, padding: '0 20px', borderRadius: 8, backgroundColor: '#F5A624', color: '#000000', fontSize: 13, fontWeight: 700, border: 'none', cursor: createOverrideMutation.isPending ? 'not-allowed' : 'pointer', opacity: (!overrideData.name || !overrideData.channel_id || !overrideData.start_datetime || !overrideData.end_datetime || createOverrideMutation.isPending) ? 0.6 : 1 }}
+                  className="h-9 px-5 rounded-lg bg-primary text-on-primary text-[13px] font-bold border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {createOverrideMutation.isPending ? 'Creating...' : 'Create Override'}
                 </button>
@@ -708,20 +624,20 @@ export default function SchedulesPage() {
 
           {/* Override list */}
           {overridesLoading ? (
-            <div className="py-8 text-center text-sm" style={{ color: '#6B7280' }}>Loading overrides…</div>
+            <div className="py-8 text-center text-sm text-text-muted">Loading overrides…</div>
           ) : (upcomingOverrides as any[]).length === 0 ? (
-            <div className="py-8 text-center text-sm" style={{ color: '#6B7280' }}>
+            <div className="py-8 text-center text-sm text-text-muted">
               No upcoming overrides scheduled
             </div>
           ) : (
-            <div className="divide-y" style={{ borderColor: '#2A2A2A' }}>
+            <div className="divide-y divide-border">
               {(upcomingOverrides as any[]).map((override: any) => (
                 <div key={override.override_id} className="flex items-center justify-between px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#F5A624', flexShrink: 0 }} />
+                    <div className="w-2.5 h-2.5 rounded-full flex-shrink-0 bg-primary" />
                     <div>
-                      <p className="text-sm font-semibold text-white">{override.name}</p>
-                      <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                      <p className="text-sm font-semibold text-text-primary">{override.name}</p>
+                      <p className="text-xs mt-0.5 text-text-muted">
                         {override.start_datetime ? new Date(override.start_datetime).toLocaleString() : '—'}
                         {' → '}
                         {override.end_datetime ? new Date(override.end_datetime).toLocaleString() : '—'}
@@ -732,9 +648,9 @@ export default function SchedulesPage() {
                   <button
                     onClick={() => deleteOverrideMutation.mutate({ workspaceId, overrideId: override.override_id })}
                     disabled={deleteOverrideMutation.isPending}
-                    style={{ display: 'flex', alignItems: 'center', gap: 6, height: 32, padding: '0 12px', borderRadius: 8, backgroundColor: 'rgba(220,38,38,0.10)', border: '1px solid rgba(220,38,38,0.20)', color: '#F87171', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
+                    className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-error/10 border border-error/20 text-error text-xs font-semibold cursor-pointer"
                   >
-                    <Trash2 style={{ width: 13, height: 13 }} />
+                    <Trash2 className="w-[13px] h-[13px]" />
                     Delete
                   </button>
                 </div>

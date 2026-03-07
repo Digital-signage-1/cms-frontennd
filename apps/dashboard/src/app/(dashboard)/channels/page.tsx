@@ -169,7 +169,6 @@ function StatusBadge({ status }: { status: string }) {
 // ── Channel card ───────────────────────────────────────────────────────────
 function ChannelCard({ channel }: { channel: any }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
 
   const zoneCount   = channel.zone_count ?? channel.zones?.length ?? 0
   const playerCount = channel.player_count ?? 0
@@ -181,26 +180,22 @@ function ChannelCard({ channel }: { channel: any }) {
 
   return (
     <motion.div
-      className="rounded-xl overflow-hidden cursor-pointer"
-      style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+      className="rounded-xl overflow-hidden cursor-pointer bg-surface border border-border group"
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       onClick={() => router.push(`/channels/${channel.id}/studio`)}
     >
       {/* ── Preview area ── */}
       <div
-        className="relative overflow-hidden"
-        style={{ height: '196px', backgroundColor: '#0E0E16' }}
+        className="relative overflow-hidden bg-surface-alt"
+        style={{ height: '196px' }}
       >
         {/* TV icon — top-left */}
         <div className="absolute top-3 left-3 z-10">
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+            className="w-7 h-7 rounded-lg flex items-center justify-center bg-surface border border-border"
           >
-            <Tv className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
+            <Tv className="h-3.5 w-3.5 text-text-muted" />
           </div>
         </div>
 
@@ -215,77 +210,68 @@ function ChannelCard({ channel }: { channel: any }) {
         </div>
 
         {/* Hover overlay with action buttons */}
-        <AnimatePresence>
-          {hovered && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="absolute inset-0 flex items-end p-3"
+        <div
+          className="absolute inset-0 flex items-end p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+          style={{
+            background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
+          }}
+        >
+          <div className="flex items-center gap-2 w-full">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                router.push(`/channels/${channel.id}/studio`)
+              }}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90 bg-primary text-on-primary"
+            >
+              Edit Layout
+            </button>
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-90"
               style={{
-                background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.14)',
+                color: '#FFFFFF',
               }}
             >
-              <div className="flex items-center gap-2 w-full">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    router.push(`/channels/${channel.id}/studio`)
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: '#F5A624', color: '#000000' }}
-                >
-                  Edit Layout
-                </button>
-                <button
-                  onClick={(e) => e.stopPropagation()}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-90"
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.14)',
-                    color: '#FFFFFF',
-                  }}
-                >
-                  Preview
-                </button>
-                <button
-                  onClick={(e) => e.stopPropagation()}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-90"
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.14)',
-                    color: '#FFFFFF',
-                  }}
-                >
-                  Duplicate
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              Preview
+            </button>
+            <button
+              onClick={(e) => e.stopPropagation()}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-90"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(255,255,255,0.14)',
+                color: '#FFFFFF',
+              }}
+            >
+              Duplicate
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* ── Info row ── */}
       <div className="px-4 pt-3 pb-3.5">
-        <h3 className="text-sm font-bold mb-1 truncate" style={{ color: '#FFFFFF' }}>
+        <h3 className="text-sm font-bold mb-1 truncate text-text-primary">
           {channel.name}
         </h3>
-        <p className="text-xs mb-2.5" style={{ color: '#6B7280' }}>
+        <p className="text-xs mb-2.5 text-text-muted">
           {w}×{h} · {orient}
         </p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
-              <LayoutGrid className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
-              <span className="text-xs" style={{ color: '#6B7280' }}>{zoneCount} zones</span>
+              <LayoutGrid className="h-3.5 w-3.5 text-text-muted" />
+              <span className="text-xs text-text-muted">{zoneCount} zones</span>
             </div>
             <div className="flex items-center gap-1">
-              <Monitor className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
-              <span className="text-xs" style={{ color: '#6B7280' }}>{playerCount}</span>
+              <Monitor className="h-3.5 w-3.5 text-text-muted" />
+              <span className="text-xs text-text-muted">{playerCount}</span>
             </div>
           </div>
-          <span className="text-xs" style={{ color: '#6B7280' }}>
+          <span className="text-xs text-text-muted">
             {formatDate(channel.updated_at)}
           </span>
         </div>
@@ -346,26 +332,22 @@ export default function ChannelsPage() {
   ]
 
   return (
-    <div className="page-container space-y-4 sm:space-y-5" style={{ backgroundColor: '#0D0D0D', minHeight: '100%' }}>
+    <div className="page-container space-y-4 sm:space-y-5" style={{ minHeight: '100%' }}>
 
       {/* ── Hero banner ───────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="relative overflow-hidden rounded-xl"
-        style={{
-          background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
-          border: '1px solid #2A3050',
-        }}
+        className="relative overflow-hidden rounded-xl bg-hero border border-hero-border"
       >
         {/* Grid overlay */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),' +
-              'linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
+              'linear-gradient(rgba(0,0,0,0.04) 1px,transparent 1px),' +
+              'linear-gradient(90deg,rgba(0,0,0,0.04) 1px,transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -374,23 +356,22 @@ export default function ChannelsPage() {
         <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between responsive-hero pb-4 gap-3">
           <div>
             <p
-              className="text-xs uppercase font-semibold mb-1.5"
-              style={{ color: '#F5A624', letterSpacing: '0.15em' }}
+              className="text-xs uppercase font-semibold mb-1.5 text-primary"
+              style={{ letterSpacing: '0.15em' }}
             >
               Layout Studio
             </p>
-            <h1 className="text-2xl sm:text-4xl font-bold leading-tight mb-1.5" style={{ color: '#FFFFFF' }}>
+            <h1 className="text-2xl sm:text-4xl font-bold leading-tight mb-1.5 text-text-primary">
               Channels
             </h1>
-            <p className="text-sm" style={{ color: '#6B7280' }}>
+            <p className="text-sm text-text-muted">
               Design and manage your screen layouts. Create zones, assign content, and deploy to players.
             </p>
           </div>
 
           <Link href="/channels/new">
             <button
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 transition-opacity hover:opacity-90 touch-target self-start"
-              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 transition-opacity hover:opacity-90 touch-target self-start bg-primary text-on-primary"
             >
               <Plus className="h-4 w-4" />
               Create Channel
@@ -403,11 +384,7 @@ export default function ChannelsPage() {
           {STAT_CARDS.map(({ label, value, color, iconType }) => (
             <div
               key={label}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl flex-1"
-              style={{
-                backgroundColor: 'rgba(0,0,0,0.28)',
-                border: '1px solid rgba(255,255,255,0.07)',
-              }}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl flex-1 bg-hero-card border border-hero-card-border"
             >
               {/* Icon */}
               <div
@@ -431,7 +408,7 @@ export default function ChannelsPage() {
               </div>
               {/* Label + value */}
               <div>
-                <p className="text-xs font-medium" style={{ color: '#6B7280' }}>{label}</p>
+                <p className="text-xs font-medium text-text-muted">{label}</p>
                 <p className="text-2xl font-bold leading-tight" style={{ color }}>{value}</p>
               </div>
             </div>
@@ -452,16 +429,11 @@ export default function ChannelsPage() {
             <button
               key={tab.value}
               onClick={() => setStatusFilter(tab.value)}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target"
-              style={
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target ${
                 statusFilter === tab.value
-                  ? { backgroundColor: '#F5A624', color: '#000000' }
-                  : {
-                      color: '#9CA3AF',
-                      backgroundColor: 'transparent',
-                      border: '1px solid #2A2A2A',
-                    }
-              }
+                  ? 'bg-primary text-on-primary'
+                  : 'text-text-secondary border border-border'
+              }`}
             >
               {tab.label}
             </button>
@@ -473,8 +445,7 @@ export default function ChannelsPage() {
           {/* Search */}
           <div className="relative">
             <Search
-              className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-              style={{ color: '#6B7280' }}
+              className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none text-text-muted"
             />
             <input
               placeholder="Search channels..."
@@ -482,30 +453,24 @@ export default function ChannelsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-48"
-              style={{
-                backgroundColor: '#1C1C1C',
-                border: `1px solid ${searchFocused ? '#F5A624' : '#2A2A2A'}`,
-                color: '#FFFFFF',
-              }}
+              className={`h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-48 bg-surface text-text-primary ${
+                searchFocused ? 'border border-primary' : 'border border-border'
+              }`}
             />
           </div>
 
           {/* View toggle */}
           <div
-            className="flex items-center rounded-lg overflow-hidden"
-            style={{ border: '1px solid #2A2A2A' }}
+            className="flex items-center rounded-lg overflow-hidden border border-border"
           >
             <button
-              className="p-2 transition-colors"
-              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+              className="p-2 transition-colors bg-primary text-on-primary"
               title="Grid view"
             >
               <LayoutGrid className="h-4 w-4" />
             </button>
             <button
-              className="p-2 transition-colors"
-              style={{ backgroundColor: '#1C1C1C', color: '#6B7280' }}
+              className="p-2 transition-colors bg-surface text-text-muted"
               title="List view"
             >
               <List className="h-4 w-4" />
@@ -514,8 +479,7 @@ export default function ChannelsPage() {
 
           {/* Sort */}
           <button
-            className="flex items-center gap-2 h-9 px-3 text-sm rounded-lg"
-            style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#9CA3AF' }}
+            className="flex items-center gap-2 h-9 px-3 text-sm rounded-lg bg-surface border border-border text-text-secondary"
           >
             Newest First
             <ChevronDown className="h-3.5 w-3.5" />
@@ -529,25 +493,24 @@ export default function ChannelsPage() {
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div
               key={i}
-              className="rounded-xl animate-pulse"
-              style={{ backgroundColor: '#1C1C1C', height: '280px' }}
+              className="rounded-xl animate-pulse bg-surface"
+              style={{ height: '280px' }}
             />
           ))}
         </div>
       ) : channels.length === 0 ? (
         /* Empty state — no channels yet */
         <div className="py-20 text-center">
-          <Layers className="h-10 w-10 mx-auto mb-3 opacity-25" style={{ color: '#6B7280' }} />
-          <p className="text-sm font-medium mb-1" style={{ color: '#9CA3AF' }}>
+          <Layers className="h-10 w-10 mx-auto mb-3 opacity-25 text-text-muted" />
+          <p className="text-sm font-medium mb-1 text-text-secondary">
             No channels yet
           </p>
-          <p className="text-xs mb-4" style={{ color: '#6B7280' }}>
+          <p className="text-xs mb-4 text-text-muted">
             Create your first channel to start designing screen layouts
           </p>
           <Link href="/channels/new">
             <button
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
-              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-on-primary"
             >
               <Plus className="h-4 w-4" />
               Create Channel
@@ -557,7 +520,7 @@ export default function ChannelsPage() {
       ) : filteredChannels.length === 0 ? (
         /* No results */
         <div className="py-16 text-center">
-          <p className="text-sm" style={{ color: '#6B7280' }}>
+          <p className="text-sm text-text-muted">
             No channels match your search
           </p>
         </div>

@@ -52,15 +52,15 @@ const BADGE: Record<string, { bg: string; color: string }> = {
 }
 
 const PREVIEW_BG: Record<string, string> = {
-  PNG:  'linear-gradient(145deg,#111827 0%,#1F2937 100%)',
-  JPG:  'linear-gradient(145deg,#111827 0%,#1F2937 100%)',
-  GIF:  'linear-gradient(145deg,#111827 0%,#1F2937 100%)',
-  WEBP: 'linear-gradient(145deg,#111827 0%,#1F2937 100%)',
-  PDF:  'linear-gradient(145deg,#1C1300 0%,#2D1F00 100%)',
-  MP4:  'linear-gradient(145deg,#001A18 0%,#0D2622 100%)',
-  PSD:  'linear-gradient(145deg,#1A0009 0%,#2A0012 100%)',
-  ZIP:  'linear-gradient(145deg,#111827 0%,#1F2937 100%)',
-  FILE: 'linear-gradient(145deg,#111827 0%,#1F2937 100%)',
+  PNG:  'linear-gradient(145deg,#EFF6FF 0%,#DBEAFE 100%)',
+  JPG:  'linear-gradient(145deg,#EFF6FF 0%,#DBEAFE 100%)',
+  GIF:  'linear-gradient(145deg,#EFF6FF 0%,#DBEAFE 100%)',
+  WEBP: 'linear-gradient(145deg,#EFF6FF 0%,#DBEAFE 100%)',
+  PDF:  'linear-gradient(145deg,#FFFBEB 0%,#FEF3C7 100%)',
+  MP4:  'linear-gradient(145deg,#ECFDF5 0%,#D1FAE5 100%)',
+  PSD:  'linear-gradient(145deg,#FFF1F2 0%,#FFE4E6 100%)',
+  ZIP:  'linear-gradient(145deg,#F1F5F9 0%,#E2E8F0 100%)',
+  FILE: 'linear-gradient(145deg,#F1F5F9 0%,#E2E8F0 100%)',
 }
 
 function timeAgo(dateStr?: string): string {
@@ -228,11 +228,11 @@ export default function ContentPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0D0D0D' }}>
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 mx-auto mb-4" style={{ color: '#DC2626' }} />
-          <h2 className="text-lg font-semibold mb-2" style={{ color: '#FFFFFF' }}>Failed to load content</h2>
-          <p className="text-sm" style={{ color: '#6B7280' }}>{error instanceof Error ? error.message : 'Unknown error'}</p>
+          <h2 className="text-lg font-semibold text-text-primary mb-2">Failed to load content</h2>
+          <p className="text-sm text-text-muted">{error instanceof Error ? error.message : 'Unknown error'}</p>
         </div>
       </div>
     )
@@ -241,26 +241,22 @@ export default function ContentPage() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="page-container space-y-4 sm:space-y-5" style={{ backgroundColor: '#0D0D0D', minHeight: '100%' }}>
+    <div className="page-container space-y-4 sm:space-y-5" style={{ minHeight: '100%' }}>
 
       {/* ── Hero banner ───────────────────────────────────────── */}
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="relative overflow-hidden rounded-xl"
-        style={{
-          background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
-          border: '1px solid #2A3050',
-        }}
+        className="relative overflow-hidden rounded-xl bg-hero border border-hero-border"
       >
         {/* Grid overlay */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),' +
-              'linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
+              'linear-gradient(rgba(0,0,0,0.04) 1px,transparent 1px),' +
+              'linear-gradient(90deg,rgba(0,0,0,0.04) 1px,transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -269,23 +265,22 @@ export default function ContentPage() {
         <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 responsive-hero pb-4">
           <div>
             <p
-              className="text-xs uppercase font-semibold mb-2"
-              style={{ color: '#F5A624', letterSpacing: '0.15em' }}
+              className="text-xs uppercase font-semibold text-primary mb-2"
+              style={{ letterSpacing: '0.15em' }}
             >
               Content Library
             </p>
-            <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1.5" style={{ color: '#FFFFFF' }}>
+            <h1 className="text-2xl sm:text-3xl font-bold leading-tight text-text-primary mb-1.5">
               Media Library
             </h1>
-            <p className="text-sm" style={{ color: '#6B7280' }}>
+            <p className="text-sm text-text-muted">
               Manage your content and folders. Upload, organize, and deploy media to your displays.
             </p>
           </div>
 
           <button
             onClick={() => document.getElementById('file-upload')?.click()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 transition-opacity hover:opacity-90 touch-target self-start"
-            style={{ backgroundColor: '#F5A624', color: '#000000' }}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 transition-opacity hover:opacity-90 touch-target self-start bg-primary text-on-primary"
           >
             <UploadCloud className="h-4 w-4" />
             Upload
@@ -306,21 +301,16 @@ export default function ContentPage() {
           ].map(({ label, value, Icon }) => (
             <div
               key={label}
-              className="flex items-center gap-3 px-3 sm:px-4 py-3 rounded-xl sm:flex-1"
-              style={{
-                backgroundColor: 'rgba(0,0,0,0.28)',
-                border: '1px solid rgba(255,255,255,0.07)',
-              }}
+              className="flex items-center gap-3 px-3 sm:px-4 py-3 rounded-xl sm:flex-1 bg-hero-card border border-hero-card-border"
             >
               <div
-                className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: 'rgba(255,255,255,0.07)' }}
+                className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center bg-surface-hover"
               >
-                <Icon className="h-4 w-4" style={{ color: '#6B7280' }} />
+                <Icon className="h-4 w-4 text-text-muted" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-medium" style={{ color: '#6B7280' }}>{label}</p>
-                <p className="text-base sm:text-lg font-bold leading-tight truncate" style={{ color: '#FFFFFF' }}>{value}</p>
+                <p className="text-xs font-medium text-text-muted">{label}</p>
+                <p className="text-base sm:text-lg font-bold leading-tight truncate text-text-primary">{value}</p>
               </div>
             </div>
           ))}
@@ -334,23 +324,22 @@ export default function ContentPage() {
             const progress = uploadProgress[fileId] || 0
             const fileName = fileId.split('-').slice(0, -2).join('-')
             return (
-              <div key={fileId} className="rounded-xl p-3" style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}>
+              <div key={fileId} className="rounded-xl p-3 bg-surface border border-border">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    {status === 'uploading' && <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" style={{ color: '#F5A624' }} />}
+                    {status === 'uploading' && <Loader2 className="h-4 w-4 animate-spin flex-shrink-0 text-primary" />}
                     {status === 'success'   && <CheckCircle2 className="h-4 w-4 flex-shrink-0" style={{ color: '#059669' }} />}
                     {status === 'error'     && <XCircle      className="h-4 w-4 flex-shrink-0" style={{ color: '#DC2626' }} />}
-                    <span className="text-sm font-medium truncate" style={{ color: '#FFFFFF' }}>{fileName}</span>
+                    <span className="text-sm font-medium truncate text-text-primary">{fileName}</span>
                   </div>
-                  <span className="text-xs ml-2 flex-shrink-0" style={{ color: '#6B7280' }}>
+                  <span className="text-xs ml-2 flex-shrink-0 text-text-muted">
                     {status === 'uploading' ? `${Math.round(progress)}%` : status === 'success' ? 'Complete' : 'Failed'}
                   </span>
                 </div>
                 {status === 'uploading' && (
-                  <div className="w-full rounded-full h-1 overflow-hidden" style={{ backgroundColor: '#2A2A2A' }}>
+                  <div className="w-full rounded-full h-1 overflow-hidden bg-border">
                     <motion.div
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: '#F5A624' }}
+                      className="h-full rounded-full bg-primary"
                       initial={{ width: 0 }}
                       animate={{ width: `${progress}%` }}
                       transition={{ duration: 0.3 }}
@@ -366,10 +355,10 @@ export default function ContentPage() {
       {/* ── Folders section ────────────────────────────────────── */}
       {(isLoading || foldersLoading) ? (
         <div className="space-y-3">
-          <div className="h-5 w-20 rounded animate-pulse" style={{ backgroundColor: '#1C1C1C' }} />
+          <div className="h-5 w-20 rounded animate-pulse bg-surface" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-20 rounded-xl animate-pulse" style={{ backgroundColor: '#1C1C1C' }} />
+              <div key={i} className="h-20 rounded-xl animate-pulse bg-surface" />
             ))}
           </div>
         </div>
@@ -382,11 +371,10 @@ export default function ContentPage() {
         >
           {/* Folders header */}
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold" style={{ color: '#FFFFFF' }}>Folders</h2>
+            <h2 className="text-base font-semibold text-text-primary">Folders</h2>
             <button
               onClick={() => { setParentFolderForNew(currentFolder); setIsCreatingFolder(true) }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-opacity hover:opacity-80"
-              style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#9CA3AF' }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-opacity hover:opacity-80 bg-surface border border-border text-text-secondary"
             >
               <Plus className="h-3.5 w-3.5" />
               New Folder
@@ -401,8 +389,7 @@ export default function ContentPage() {
                 <button
                   key={folder.folder_id}
                   onClick={() => setCurrentFolder(folder.folder_id)}
-                  className="flex items-center gap-4 px-4 py-4 rounded-xl text-left transition-all hover:opacity-90 w-full group"
-                  style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+                  className="flex items-center gap-4 px-4 py-4 rounded-xl text-left transition-all hover:opacity-90 w-full group bg-surface border border-border"
                 >
                   {/* Folder icon */}
                   <div
@@ -413,13 +400,13 @@ export default function ContentPage() {
                   </div>
                   {/* Name + count */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ color: '#FFFFFF' }}>{folder.name}</p>
-                    <p className="text-xs mt-0.5" style={{ color: '#6B7280' }}>
+                    <p className="text-sm font-semibold truncate text-text-primary">{folder.name}</p>
+                    <p className="text-xs mt-0.5 text-text-muted">
                       {(folder as any).content_count ?? 0} items
                     </p>
                   </div>
                   {/* Chevron */}
-                  <ChevronRight className="h-4 w-4 flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" style={{ color: '#6B7280' }} />
+                  <ChevronRight className="h-4 w-4 flex-shrink-0 opacity-50 group-hover:opacity-100 transition-opacity text-text-muted" />
                 </button>
               )
             })}
@@ -439,21 +426,19 @@ export default function ContentPage() {
 
           {/* Left: "Content" title + type filter tabs */}
           <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
-            <h2 className="text-base font-semibold" style={{ color: '#FFFFFF' }}>Content</h2>
+            <h2 className="text-base font-semibold text-text-primary">Content</h2>
             <div
-              className="flex items-center gap-1 p-1 rounded-lg"
-              style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+              className="flex items-center gap-1 p-1 rounded-lg bg-surface border border-border"
             >
               {(['all', 'image', 'video'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setTypeFilter(tab)}
-                  className="px-3 py-1.5 text-xs font-medium rounded-md transition-all touch-target"
-                  style={
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all touch-target ${
                     typeFilter === tab
-                      ? { backgroundColor: '#F5A624', color: '#000000' }
-                      : { color: '#9CA3AF' }
-                  }
+                      ? 'bg-primary text-on-primary'
+                      : 'text-text-secondary'
+                  }`}
                 >
                   {tab === 'all' ? 'All' : tab === 'image' ? 'Images' : 'Videos'}
                 </button>
@@ -466,15 +451,13 @@ export default function ContentPage() {
             {/* Search */}
             <div className="relative flex-1 sm:flex-none">
               <Search
-                className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-                style={{ color: '#6B7280' }}
+                className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none text-text-muted"
               />
               <input
                 placeholder="Search media..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-full sm:w-52"
-                style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#FFFFFF' }}
+                className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-full sm:w-52 bg-surface border border-border text-text-primary"
               />
             </div>
 
@@ -501,25 +484,24 @@ export default function ContentPage() {
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div
                 key={i}
-                className="rounded-xl animate-pulse"
-                style={{ backgroundColor: '#1C1C1C', aspectRatio: '3/4' }}
+                className="rounded-xl animate-pulse bg-surface"
+                style={{ aspectRatio: '3/4' }}
               />
             ))}
           </div>
         ) : filteredAssets.length === 0 && filteredFolders.length === 0 ? (
           <div className="py-20 text-center">
-            <UploadCloud className="h-10 w-10 mx-auto mb-3 opacity-30" style={{ color: '#6B7280' }} />
-            <p className="text-sm font-medium mb-1" style={{ color: '#9CA3AF' }}>
+            <UploadCloud className="h-10 w-10 mx-auto mb-3 opacity-30 text-text-muted" />
+            <p className="text-sm font-medium mb-1 text-text-secondary">
               {searchQuery ? 'No items match your search' : 'Your media library is empty'}
             </p>
-            <p className="text-xs mb-4" style={{ color: '#6B7280' }}>
+            <p className="text-xs mb-4 text-text-muted">
               {searchQuery ? 'Try a different search term' : 'Upload images, videos, PDFs and more to get started'}
             </p>
             {!searchQuery && (
               <button
                 onClick={() => document.getElementById('file-upload')?.click()}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
-                style={{ backgroundColor: '#F5A624', color: '#000000' }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-on-primary"
               >
                 <UploadCloud className="h-4 w-4" />
                 Upload Content
@@ -547,11 +529,9 @@ export default function ContentPage() {
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: idx * 0.03, duration: 0.2 }}
                     onClick={() => toggleAssetSelection(contentSelectId)}
-                    className="rounded-xl overflow-hidden cursor-pointer group"
-                    style={{
-                      backgroundColor: '#1C1C1C',
-                      border: `1px solid ${isSelected ? '#F5A624' : '#2A2A2A'}`,
-                    }}
+                    className={`rounded-xl overflow-hidden cursor-pointer group bg-surface ${
+                      isSelected ? 'border border-primary' : 'border border-border'
+                    }`}
                   >
                     {/* Preview area */}
                     <div
@@ -637,12 +617,12 @@ export default function ContentPage() {
                             />
                           )}
                           {!asset.thumbnail_url && (
-                            <FileText className="h-10 w-10 opacity-40" style={{ color: '#9CA3AF' }} />
+                            <FileText className="h-10 w-10 opacity-40 text-text-secondary" />
                           )}
                         </>
                       ) : (
                         <>
-                          <ImageIcon className="h-10 w-10 opacity-25" style={{ color: '#9CA3AF' }} />
+                          <ImageIcon className="h-10 w-10 opacity-25 text-text-secondary" />
                           {(asset.url || asset.thumbnail_url) && asset.content_type === 'image' && (
                             <img
                               src={asset.thumbnail_url || asset.url}
@@ -658,12 +638,11 @@ export default function ContentPage() {
                     {/* File info */}
                     <div className="px-3 py-2.5">
                       <p
-                        className="text-sm font-semibold truncate leading-tight"
-                        style={{ color: '#FFFFFF' }}
+                        className="text-sm font-semibold truncate leading-tight text-text-primary"
                       >
                         {asset.name}
                       </p>
-                      <p className="text-xs mt-1" style={{ color: '#6B7280' }}>
+                      <p className="text-xs mt-1 text-text-muted">
                         {formatBytes(asset.size_bytes || 0)}
                         {asset.created_at && <span> · {timeAgo(asset.created_at)}</span>}
                       </p>

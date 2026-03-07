@@ -41,17 +41,9 @@ function PlayerCard({
   return (
     <div
       onClick={onClick}
-      className="flex items-start gap-3 px-4 py-3.5 cursor-pointer transition-colors"
-      style={{
-        backgroundColor: isSelected ? 'rgba(245,166,36,0.07)' : 'transparent',
-        borderBottom: '1px solid #1E1E1E',
-      }}
-      onMouseEnter={(e) => {
-        if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = '#1E1E1E'
-      }}
-      onMouseLeave={(e) => {
-        if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
-      }}
+      className={`flex items-start gap-3 px-4 py-3.5 cursor-pointer transition-colors border-b border-border ${
+        isSelected ? 'bg-primary/5' : 'hover:bg-surface-hover'
+      }`}
     >
       {/* Monitor icon */}
       <div
@@ -64,7 +56,7 @@ function PlayerCard({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-0.5">
-          <p className="text-sm font-semibold truncate leading-tight" style={{ color: '#FFFFFF' }}>
+          <p className="text-sm font-semibold truncate leading-tight text-text-primary">
             {player.name}
           </p>
           {/* Status badge */}
@@ -79,7 +71,7 @@ function PlayerCard({
 
         {/* Platform */}
         {platform && (
-          <p className="text-xs capitalize mb-1" style={{ color: '#6B7280' }}>
+          <p className="text-xs capitalize mb-1 text-text-muted">
             {platform}
           </p>
         )}
@@ -87,8 +79,8 @@ function PlayerCard({
         {/* Pairing code */}
         {code && (
           <div className="flex items-center gap-1.5">
-            <span className="text-xs" style={{ color: '#6B7280' }}>Code:</span>
-            <code className="text-xs font-mono font-bold tracking-widest" style={{ color: '#F5A624' }}>
+            <span className="text-xs text-text-muted">Code:</span>
+            <code className="text-xs font-mono font-bold tracking-widest text-primary">
               {code}
             </code>
             <button
@@ -98,7 +90,7 @@ function PlayerCard({
               }}
               className="opacity-50 hover:opacity-100 transition-opacity"
             >
-              <Copy className="h-3 w-3" style={{ color: '#9CA3AF' }} />
+              <Copy className="h-3 w-3 text-text-secondary" />
             </button>
           </div>
         )}
@@ -162,7 +154,6 @@ export default function PlayersPage() {
     <div
       className="flex flex-col overflow-hidden"
       style={{
-        backgroundColor: '#0D0D0D',
         height: 'calc(100vh - 3.5rem)',
       }}
     >
@@ -172,19 +163,15 @@ export default function PlayersPage() {
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
-          className="relative overflow-hidden rounded-xl"
-          style={{
-            background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
-            border: '1px solid #2A3050',
-          }}
+          className="relative overflow-hidden rounded-xl bg-hero border border-hero-border"
         >
           {/* Grid overlay */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
-                'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),' +
-                'linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
+                'linear-gradient(rgba(0,0,0,0.04) 1px,transparent 1px),' +
+                'linear-gradient(90deg,rgba(0,0,0,0.04) 1px,transparent 1px)',
               backgroundSize: '40px 40px',
             }}
           />
@@ -193,23 +180,22 @@ export default function PlayersPage() {
           <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between responsive-hero pb-4 gap-3">
             <div>
               <p
-                className="text-xs uppercase font-semibold mb-1.5"
-                style={{ color: '#F5A624', letterSpacing: '0.15em' }}
+                className="text-xs uppercase font-semibold mb-1.5 text-primary"
+                style={{ letterSpacing: '0.15em' }}
               >
                 Control Center
               </p>
-              <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1" style={{ color: '#FFFFFF' }}>
+              <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1 text-text-primary">
                 Player Network
               </h1>
-              <p className="text-sm" style={{ color: '#6B7280' }}>
+              <p className="text-sm text-text-muted">
                 Monitor and manage your display network. Track status, deploy content, and configure devices.
               </p>
             </div>
 
             <button
               onClick={() => setIsRegistrationOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 self-start transition-opacity hover:opacity-90 touch-target"
-              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 self-start transition-opacity hover:opacity-90 touch-target bg-primary text-on-primary"
             >
               <Plus className="h-4 w-4" />
               Register Player
@@ -221,11 +207,7 @@ export default function PlayersPage() {
             {STAT_CARDS.map(({ label, value, color, iconType }) => (
               <div
                 key={label}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl flex-1"
-                style={{
-                  backgroundColor: 'rgba(0,0,0,0.28)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                }}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl flex-1 bg-hero-card border border-hero-card-border"
               >
                 {/* Icon */}
                 <div
@@ -243,7 +225,7 @@ export default function PlayersPage() {
                 </div>
                 {/* Label + value */}
                 <div>
-                  <p className="text-xs font-medium" style={{ color: '#6B7280' }}>{label}</p>
+                  <p className="text-xs font-medium text-text-muted">{label}</p>
                   <p className="text-2xl font-bold leading-tight" style={{ color }}>{value}</p>
                 </div>
               </div>
@@ -260,13 +242,11 @@ export default function PlayersPage() {
           initial={{ opacity: 0, x: -16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, delay: 0.08 }}
-          className="flex-1 flex flex-col overflow-hidden rounded-xl"
-          style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+          className="flex-1 flex flex-col overflow-hidden rounded-xl bg-surface border border-border"
         >
           {/* Filter toolbar */}
           <div
-            className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 gap-2 flex-shrink-0"
-            style={{ borderBottom: '1px solid #242424' }}
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 gap-2 flex-shrink-0 border-b border-border"
           >
             {/* Status filter tabs */}
             <div className="flex items-center gap-1 overflow-x-auto scroll-x">
@@ -274,12 +254,11 @@ export default function PlayersPage() {
                 <button
                   key={tab.value}
                   onClick={() => setStatusFilter(tab.value)}
-                  className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target"
-                  style={
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target ${
                     statusFilter === tab.value
-                      ? { backgroundColor: '#F5A624', color: '#000000' }
-                      : { color: '#9CA3AF' }
-                  }
+                      ? 'bg-primary text-on-primary'
+                      : 'text-text-secondary'
+                  }`}
                 >
                   {tab.label}
                 </button>
@@ -290,19 +269,13 @@ export default function PlayersPage() {
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Search
-                  className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-                  style={{ color: '#6B7280' }}
+                  className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none text-text-muted"
                 />
                 <input
                   placeholder="Search players..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-44"
-                  style={{
-                    backgroundColor: '#141414',
-                    border: '1px solid #2A2A2A',
-                    color: '#FFFFFF',
-                  }}
+                  className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-44 bg-surface-alt border border-border text-text-primary"
                 />
               </div>
 
@@ -310,13 +283,13 @@ export default function PlayersPage() {
           </div>
 
           {/* Player overview area */}
-          <div className="flex-1 relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#141414' }}>
+          <div className="flex-1 relative overflow-hidden flex items-center justify-center bg-surface-alt">
             <div className="text-center px-6">
-              <Monitor className="h-12 w-12 mx-auto mb-3 opacity-20" style={{ color: '#6B7280' }} />
-              <p className="text-sm font-medium mb-1" style={{ color: '#6B7280' }}>
+              <Monitor className="h-12 w-12 mx-auto mb-3 opacity-20 text-text-muted" />
+              <p className="text-sm font-medium mb-1 text-text-muted">
                 {filteredPlayers.length} player{filteredPlayers.length !== 1 ? 's' : ''} {statusFilter !== 'all' ? statusFilter : ''}
               </p>
-              <p className="text-xs" style={{ color: '#6B7280' }}>
+              <p className="text-xs text-text-muted">
                 Select a player from the list to view details
               </p>
             </div>
@@ -324,8 +297,7 @@ export default function PlayersPage() {
 
           {/* Legend */}
           <div
-            className="flex items-center gap-5 px-5 py-3 flex-shrink-0"
-            style={{ borderTop: '1px solid #242424' }}
+            className="flex items-center gap-5 px-5 py-3 flex-shrink-0 border-t border-border"
           >
             {[
               { label: 'Online',  color: '#059669' },
@@ -337,7 +309,7 @@ export default function PlayersPage() {
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: color }}
                 />
-                <span className="text-xs" style={{ color: '#6B7280' }}>{label}</span>
+                <span className="text-xs text-text-muted">{label}</span>
               </div>
             ))}
           </div>
@@ -348,21 +320,18 @@ export default function PlayersPage() {
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, delay: 0.12 }}
-          className="w-80 flex flex-col rounded-xl overflow-hidden flex-shrink-0"
-          style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+          className="w-80 flex flex-col rounded-xl overflow-hidden flex-shrink-0 bg-surface border border-border"
         >
           {/* Panel header */}
           <div
-            className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-            style={{ borderBottom: '1px solid #242424' }}
+            className="flex items-center justify-between px-5 py-4 flex-shrink-0 border-b border-border"
           >
             <div className="flex items-center gap-2.5">
-              <h2 className="text-sm font-semibold" style={{ color: '#FFFFFF' }}>
+              <h2 className="text-sm font-semibold text-text-primary">
                 Active Players
               </h2>
               <span
-                className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: 'rgba(245,166,36,0.15)', color: '#F5A624' }}
+                className="text-xs font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary"
               >
                 {totalPlayers}
               </span>
@@ -376,27 +345,24 @@ export default function PlayersPage() {
                 {[1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
-                    className="h-20 rounded-xl animate-pulse"
-                    style={{ backgroundColor: '#242424' }}
+                    className="h-20 rounded-xl animate-pulse bg-surface-elevated"
                   />
                 ))}
               </div>
             ) : players.length === 0 ? (
               <div className="py-12 px-4 text-center">
                 <Monitor
-                  className="h-10 w-10 mx-auto mb-3 opacity-25"
-                  style={{ color: '#6B7280' }}
+                  className="h-10 w-10 mx-auto mb-3 opacity-25 text-text-muted"
                 />
-                <p className="text-sm font-medium mb-1" style={{ color: '#9CA3AF' }}>
+                <p className="text-sm font-medium mb-1 text-text-secondary">
                   No players yet
                 </p>
-                <p className="text-xs mb-4" style={{ color: '#6B7280' }}>
+                <p className="text-xs mb-4 text-text-muted">
                   Open the player app on your display to get a pairing code
                 </p>
                 <button
                   onClick={() => setIsRegistrationOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold"
-                  style={{ backgroundColor: '#F5A624', color: '#000000' }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-primary text-on-primary"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Register Player
@@ -404,7 +370,7 @@ export default function PlayersPage() {
               </div>
             ) : filteredPlayers.length === 0 ? (
               <div className="py-12 px-4 text-center">
-                <p className="text-sm" style={{ color: '#6B7280' }}>
+                <p className="text-sm text-text-muted">
                   No players match "{searchQuery}"
                 </p>
               </div>

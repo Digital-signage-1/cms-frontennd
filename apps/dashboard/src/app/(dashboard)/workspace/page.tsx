@@ -560,28 +560,29 @@ export default function WorkspaceSettingsPage() {
       {/* Remove Member Confirmation Dialog */}
       <Dialog open={!!removeMemberTarget} onOpenChange={(open) => { if (!open) setRemoveMemberTarget(null) }}>
         <DialogContent hideClose className="!p-0 max-w-sm">
-          <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid #1E1E38', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <AlertTriangle className="h-5 w-5" style={{ color: '#F87171' }} />
+          <div className="flex items-start gap-3.5 border-b border-border" style={{ padding: '20px 22px 16px' }}>
+            <div className="w-11 h-11 rounded-[10px] bg-error/15 border border-error/25 flex items-center justify-center flex-shrink-0">
+              <AlertTriangle className="h-5 w-5 text-error" />
             </div>
             <div>
-              <h2 style={{ fontSize: 17, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Remove Member</h2>
-              <p style={{ fontSize: 13, color: '#6B7280', margin: '4px 0 0', lineHeight: 1.4 }}>
+              <h2 className="text-[17px] font-bold text-text-primary m-0">Remove Member</h2>
+              <p className="text-[13px] text-text-muted mt-1 leading-snug">
                 Remove <strong>{removeMemberTarget?.name || removeMemberTarget?.email || 'this member'}</strong> from the workspace? They will lose all access.
               </p>
             </div>
           </div>
-          <div style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+          <div className="flex justify-end gap-2.5" style={{ padding: '14px 22px' }}>
             <button
               onClick={() => setRemoveMemberTarget(null)}
-              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#1A1A30', border: '1px solid #2A2A45', color: '#9CA3AF', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              className="h-10 px-[18px] rounded-[10px] bg-surface-alt border border-border text-text-secondary text-[13px] font-semibold cursor-pointer"
             >
               Cancel
             </button>
             <button
               onClick={handleRemoveMember}
               disabled={removeMemberMutation.isPending}
-              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#DC2626', color: '#FFFFFF', fontSize: 13, fontWeight: 700, border: 'none', cursor: removeMemberMutation.isPending ? 'not-allowed' : 'pointer', opacity: removeMemberMutation.isPending ? 0.7 : 1 }}
+              className="h-10 px-[18px] rounded-[10px] bg-error text-on-primary text-[13px] font-bold border-none"
+              style={{ cursor: removeMemberMutation.isPending ? 'not-allowed' : 'pointer', opacity: removeMemberMutation.isPending ? 0.7 : 1 }}
             >
               {removeMemberMutation.isPending ? 'Removing...' : 'Remove Member'}
             </button>

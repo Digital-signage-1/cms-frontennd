@@ -124,7 +124,7 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
                   </div>
                   <div>
                     <p className="text-sm font-semibold" style={{ color: '#34D399' }}>Player paired successfully!</p>
-                    <p className="text-xs" style={{ color: '#6B7280' }}>Use the URL below to open this player in any browser or tab.</p>
+                    <p className="text-xs text-text-muted">Use the URL below to open this player in any browser or tab.</p>
                   </div>
                 </div>
 
@@ -134,16 +134,15 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
                     <input
                       readOnly
                       value={playerUrl || ''}
-                      className="flex-1 h-10 px-3 rounded-lg text-xs font-mono"
-                      style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#FFFFFF', outline: 'none' }}
+                      className="flex-1 h-10 px-3 rounded-lg text-xs font-mono bg-surface border border-border text-text-primary outline-none"
                       onClick={(e) => (e.target as HTMLInputElement).select()}
                     />
                     <button
                       onClick={handleCopyUrl}
-                      className="h-10 px-3 rounded-lg flex items-center gap-1.5 text-xs font-semibold"
-                      style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: copied ? '#34D399' : '#9CA3AF', cursor: 'pointer' }}
+                      className="h-10 px-3 rounded-lg flex items-center gap-1.5 text-xs font-semibold bg-surface border border-border"
+                      style={{ color: copied ? '#34D399' : undefined, cursor: 'pointer' }}
                     >
-                      <Copy className="h-3.5 w-3.5" />
+                      <Copy className={`h-3.5 w-3.5 ${!copied ? 'text-text-secondary' : ''}`} />
                       {copied ? 'Copied!' : 'Copy'}
                     </button>
                   </div>
@@ -154,8 +153,7 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
                     href={playerUrl || '#'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 h-10 rounded-lg flex items-center justify-center gap-2 text-sm font-semibold"
-                    style={{ backgroundColor: '#F5A624', color: '#000000' }}
+                    className="flex-1 h-10 rounded-lg flex items-center justify-center gap-2 text-sm font-semibold bg-primary text-on-primary"
                   >
                     <ExternalLink className="h-4 w-4" />
                     Open Player
@@ -209,23 +207,17 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
                     <select
                       value={pairingChannelId}
                       onChange={(e) => setPairingChannelId(e.target.value)}
+                      className={`w-full bg-surface border text-text-primary focus:border-primary ${errors.channel_id ? 'border-red-600' : 'border-border'}`}
                       style={{
-                        width: '100%',
                         height: 40,
                         marginTop: 4,
-                        backgroundColor: '#1C1C1C',
-                        border: `1px solid ${errors.channel_id ? '#DC2626' : '#2A2A2A'}`,
                         borderRadius: 8,
                         padding: '0 12px',
                         fontSize: 14,
-                        color: '#FFFFFF',
                         outline: 'none',
-                        colorScheme: 'dark' as any,
                         cursor: 'pointer',
                         boxSizing: 'border-box' as any,
                       }}
-                      onFocus={e => { e.currentTarget.style.borderColor = '#F5A624' }}
-                      onBlur={e => { e.currentTarget.style.borderColor = errors.channel_id ? '#DC2626' : '#2A2A2A' }}
                     >
                       <option value="">Select a channel</option>
                       {channels.map((ch: { channel_id: string; name: string }) => (

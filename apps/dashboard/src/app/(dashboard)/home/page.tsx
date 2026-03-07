@@ -122,54 +122,50 @@ export default function HomePage() {
   if (playersLoading || channelsLoading) {
     return (
       <div className="page-container space-y-5">
-        <div className="h-32 animate-pulse rounded-xl" style={{ backgroundColor: '#1C1C1C' }} />
+        <div className="h-32 animate-pulse rounded-xl bg-surface" />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-40 animate-pulse rounded-xl" style={{ backgroundColor: '#1C1C1C' }} />
+            <div key={i} className="h-40 animate-pulse rounded-xl bg-surface" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div className="lg:col-span-2 h-96 animate-pulse rounded-xl" style={{ backgroundColor: '#1C1C1C' }} />
-          <div className="h-96 animate-pulse rounded-xl" style={{ backgroundColor: '#1C1C1C' }} />
+          <div className="lg:col-span-2 h-96 animate-pulse rounded-xl bg-surface" />
+          <div className="h-96 animate-pulse rounded-xl bg-surface" />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="page-container space-y-4 sm:space-y-5" style={{ backgroundColor: '#0D0D0D', minHeight: '100%' }}>
+    <div className="page-container space-y-4 sm:space-y-5" style={{ minHeight: '100%' }}>
 
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="relative overflow-hidden rounded-xl responsive-hero flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-        style={{
-          background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
-          border: '1px solid #2A3050',
-        }}
+        className="relative overflow-hidden rounded-xl responsive-hero flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gradient-to-br from-blue-50 to-indigo-50 border border-border"
       >
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+              'linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />
 
         <div className="relative">
           <p
-            className="text-xs uppercase tracking-widest font-semibold mb-2"
-            style={{ color: '#F5A624', letterSpacing: '0.15em' }}
+            className="text-xs uppercase tracking-widest font-semibold mb-2 text-primary"
+            style={{ letterSpacing: '0.15em' }}
           >
             Dashboard
           </p>
-          <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1.5" style={{ color: '#FFFFFF' }}>
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1.5 text-text-primary">
             {greeting},{' '}
-            <span style={{ color: '#F5A624' }}>{userName}</span>
+            <span className="text-primary">{userName}</span>
           </h1>
-          <p className="text-sm" style={{ color: '#6B7280' }}>
+          <p className="text-sm text-text-muted">
             Your signage network is performing well. Here's what's happening.
           </p>
         </div>
@@ -182,7 +178,7 @@ export default function HomePage() {
             />
             <span className="text-xs font-medium" style={{ color: '#34D399' }}>All systems operational</span>
           </div>
-          <p className="text-xs mt-2" style={{ color: '#6B7280' }}>Synced 2m ago</p>
+          <p className="text-xs mt-2 text-text-muted">Synced 2m ago</p>
         </div>
       </motion.div>
 
@@ -201,12 +197,11 @@ export default function HomePage() {
         className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5"
       >
         <div
-          className="lg:col-span-2 rounded-xl overflow-hidden"
-          style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+          className="lg:col-span-2 rounded-xl overflow-hidden bg-surface border border-border"
         >
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #242424' }}>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <h2 className="text-sm font-semibold text-white">Player Network</h2>
+              <h2 className="text-sm font-semibold text-text-primary">Player Network</h2>
               <span
                 className="inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full"
                 style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#34D399', border: '1px solid rgba(5,150,105,0.2)' }}
@@ -215,10 +210,10 @@ export default function HomePage() {
                 {onlinePlayers}/{players.length} online
               </span>
             </div>
-            <span className="text-xs font-medium" style={{ color: '#6B7280' }}>Live</span>
+            <span className="text-xs font-medium text-text-muted">Live</span>
           </div>
 
-          <div className="h-72 flex items-center justify-center" style={{ backgroundColor: '#141414' }}>
+          <div className="h-72 flex items-center justify-center bg-input">
             <div className="grid grid-cols-2 gap-4 px-6 w-full max-w-xs">
               {[
                 { label: 'Online',  count: players.filter((p: any) => p.status === 'online').length,  color: '#059669' },
@@ -226,33 +221,32 @@ export default function HomePage() {
                 { label: 'Pending', count: players.filter((p: any) => p.status === 'pending').length, color: '#F5A624' },
                 { label: 'Total',   count: players.length,                                             color: '#6B7280' },
               ].map(({ label, count, color }) => (
-                <div key={label} className="flex flex-col items-center justify-center rounded-xl p-4" style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}>
+                <div key={label} className="flex flex-col items-center justify-center rounded-xl p-4 bg-surface border border-border">
                   <span className="text-2xl font-bold" style={{ color }}>{count}</span>
-                  <span className="text-xs mt-1" style={{ color: '#6B7280' }}>{label}</span>
+                  <span className="text-xs mt-1 text-text-muted">{label}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="flex items-center gap-5 px-5 py-3" style={{ borderTop: '1px solid #242424' }}>
+          <div className="flex items-center gap-5 px-5 py-3 border-t border-border">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#059669' }} />
-              <span className="text-xs" style={{ color: '#6B7280' }}>Online</span>
+              <span className="text-xs text-text-muted">Online</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#6B7280' }} />
-              <span className="text-xs" style={{ color: '#6B7280' }}>Offline</span>
+              <span className="text-xs text-text-muted">Offline</span>
             </div>
           </div>
         </div>
 
         <div
-          className="rounded-xl"
-          style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+          className="rounded-xl bg-surface border border-border"
         >
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #242424' }}>
-            <h2 className="text-sm font-semibold text-white">Recent Activity</h2>
-            <span className="text-xs font-medium" style={{ color: '#6B7280' }}>Last 5 events</span>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+            <h2 className="text-sm font-semibold text-text-primary">Recent Activity</h2>
+            <span className="text-xs font-medium text-text-muted">Last 5 events</span>
           </div>
 
           <div className="px-5 py-4">
