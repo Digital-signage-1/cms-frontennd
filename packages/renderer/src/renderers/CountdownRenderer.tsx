@@ -226,51 +226,56 @@ interface LayoutScale {
   boxRadius: string
 }
 
+/** CSS clamp() with vw-based fallback for older browsers that don't support clamp(). */
+function safeClamp(min: string, preferred: string, max: string): string {
+  return `clamp(${min}, ${preferred}, ${max})`
+}
+
 function resolveLayout(layout: CountdownConfig['layout']): LayoutScale {
   switch (layout) {
     case 'compact':
       return {
-        numberSize: 'clamp(1.5rem, 4vw, 3rem)',
-        labelSize: 'clamp(0.5rem, 1.2vw, 0.7rem)',
-        titleSize: 'clamp(0.8rem, 2vw, 1.2rem)',
-        subtitleSize: 'clamp(0.6rem, 1.5vw, 0.9rem)',
-        boxPaddingH: 'clamp(0.5rem, 1.5vw, 1rem)',
-        boxPaddingV: 'clamp(0.3rem, 1vw, 0.6rem)',
-        gap: 'clamp(0.3rem, 1vw, 0.6rem)',
+        numberSize: safeClamp('1.5rem', '4vw', '3rem'),
+        labelSize: safeClamp('0.5rem', '1.2vw', '0.7rem'),
+        titleSize: safeClamp('0.8rem', '2vw', '1.2rem'),
+        subtitleSize: safeClamp('0.6rem', '1.5vw', '0.9rem'),
+        boxPaddingH: safeClamp('0.5rem', '1.5vw', '1rem'),
+        boxPaddingV: safeClamp('0.3rem', '1vw', '0.6rem'),
+        gap: safeClamp('0.3rem', '1vw', '0.6rem'),
         boxRadius: '0.4rem',
       }
     case 'large':
       return {
-        numberSize: 'clamp(4rem, 12vw, 10rem)',
-        labelSize: 'clamp(0.8rem, 2vw, 1.2rem)',
-        titleSize: 'clamp(1.5rem, 4vw, 2.5rem)',
-        subtitleSize: 'clamp(1rem, 2.5vw, 1.5rem)',
-        boxPaddingH: 'clamp(1.5rem, 4vw, 3rem)',
-        boxPaddingV: 'clamp(1rem, 3vw, 2rem)',
-        gap: 'clamp(0.8rem, 2.5vw, 1.5rem)',
+        numberSize: safeClamp('4rem', '12vw', '10rem'),
+        labelSize: safeClamp('0.8rem', '2vw', '1.2rem'),
+        titleSize: safeClamp('1.5rem', '4vw', '2.5rem'),
+        subtitleSize: safeClamp('1rem', '2.5vw', '1.5rem'),
+        boxPaddingH: safeClamp('1.5rem', '4vw', '3rem'),
+        boxPaddingV: safeClamp('1rem', '3vw', '2rem'),
+        gap: safeClamp('0.8rem', '2.5vw', '1.5rem'),
         boxRadius: '1rem',
       }
     case 'minimal':
       return {
-        numberSize: 'clamp(2.5rem, 8vw, 6rem)',
-        labelSize: 'clamp(0.6rem, 1.5vw, 0.9rem)',
-        titleSize: 'clamp(1rem, 3vw, 1.8rem)',
-        subtitleSize: 'clamp(0.75rem, 2vw, 1.1rem)',
+        numberSize: safeClamp('2.5rem', '8vw', '6rem'),
+        labelSize: safeClamp('0.6rem', '1.5vw', '0.9rem'),
+        titleSize: safeClamp('1rem', '3vw', '1.8rem'),
+        subtitleSize: safeClamp('0.75rem', '2vw', '1.1rem'),
         boxPaddingH: '0',
         boxPaddingV: '0',
-        gap: 'clamp(0.8rem, 2.5vw, 1.5rem)',
+        gap: safeClamp('0.8rem', '2.5vw', '1.5rem'),
         boxRadius: '0',
       }
     case 'standard':
     default:
       return {
-        numberSize: 'clamp(2.5rem, 7vw, 5.5rem)',
-        labelSize: 'clamp(0.6rem, 1.5vw, 0.85rem)',
-        titleSize: 'clamp(1rem, 3vw, 1.8rem)',
-        subtitleSize: 'clamp(0.75rem, 2vw, 1.1rem)',
-        boxPaddingH: 'clamp(1rem, 3vw, 2rem)',
-        boxPaddingV: 'clamp(0.6rem, 2vw, 1.2rem)',
-        gap: 'clamp(0.5rem, 2vw, 1rem)',
+        numberSize: safeClamp('2.5rem', '7vw', '5.5rem'),
+        labelSize: safeClamp('0.6rem', '1.5vw', '0.85rem'),
+        titleSize: safeClamp('1rem', '3vw', '1.8rem'),
+        subtitleSize: safeClamp('0.75rem', '2vw', '1.1rem'),
+        boxPaddingH: safeClamp('1rem', '3vw', '2rem'),
+        boxPaddingV: safeClamp('0.6rem', '2vw', '1.2rem'),
+        gap: safeClamp('0.5rem', '2vw', '1rem'),
         boxRadius: '0.75rem',
       }
   }

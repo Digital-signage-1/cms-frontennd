@@ -107,6 +107,21 @@ function AnimatedText({ text, style }: { text: string; style?: CSSProperties }) 
 // Date formatting helpers
 // ---------------------------------------------------------------------------
 
+/** Safe formatToParts with fallback for older browsers (Chrome < 57). */
+function safeFormatToParts(
+  locale: string,
+  opts: Intl.DateTimeFormatOptions,
+  date: Date,
+): Intl.DateTimeFormatPart[] {
+  const formatter = new Intl.DateTimeFormat(locale, opts)
+  if (typeof formatter.formatToParts === 'function') {
+    return formatter.formatToParts(date)
+  }
+  // Fallback: parse the formatted string (less accurate but works on old browsers)
+  const formatted = formatter.format(date)
+  return [{ type: 'literal', value: formatted }]
+}
+
 function formatDateString(
   date: Date,
   dateFormat: ClockConfig['date_format'],
@@ -116,17 +131,20 @@ function formatDateString(
 
   switch (dateFormat) {
     case 'iso': {
-      // Build ISO string respecting timezone
       const opts: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         ...(tz && { timeZone: tz }),
       }
-      const parts = new Intl.DateTimeFormat('en-CA', opts).formatToParts(date)
+      const parts = safeFormatToParts('en-CA', opts, date)
       const y = parts.find((p) => p.type === 'year')?.value
       const m = parts.find((p) => p.type === 'month')?.value
       const d = parts.find((p) => p.type === 'day')?.value
+      // If formatToParts wasn't available, fall back to formatting directly
+      if (!y) {
+        return new Intl.DateTimeFormat('en-CA', opts).format(date)
+      }
       return `${y}-${m}-${d}`
     }
     case 'short': {
@@ -307,8 +325,13 @@ export function ClockRenderer({ config }: ClockRendererProps) {
       hour12: true,
       ...(tz && { timeZone: tz }),
     }
-    const parts = new Intl.DateTimeFormat('en-US', opts).formatToParts(time)
-    return parts.find((p) => p.type === 'dayPeriod')?.value?.toUpperCase() ?? null
+    const parts = safeFormatToParts('en-US', opts, time)
+    const dayPeriod = parts.find((p) => p.type === 'dayPeriod')?.value?.toUpperCase()
+    if (dayPeriod) return dayPeriod
+    // Fallback: extract AM/PM from formatted string
+    const formatted = time.toLocaleTimeString('en-US', opts)
+    const match = formatted.match(/\b(AM|PM)\b/i)
+    return match ? match[1].toUpperCase() : null
   }, [time, format, tz])
 
   // Date string
