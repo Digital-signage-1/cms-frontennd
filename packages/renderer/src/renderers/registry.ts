@@ -58,6 +58,7 @@ const registry: Record<string, ComponentType<RendererProps>> = {
   social: SocialMediaRenderer as ComponentType<RendererProps>,
   rss_feed: RSSFeedRenderer as ComponentType<RendererProps>,
   sheets: SheetRenderer as ComponentType<RendererProps>,
+  google_sheets: SheetRenderer as ComponentType<RendererProps>,
   audio: AudioRenderer as ComponentType<RendererProps>,
   maps: MapsRenderer as ComponentType<RendererProps>,
   iframe: IframeRenderer as ComponentType<RendererProps>,

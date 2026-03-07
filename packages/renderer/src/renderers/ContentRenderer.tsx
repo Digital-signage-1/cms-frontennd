@@ -12,6 +12,7 @@ const INTEGRATION_DATA_TYPES = new Set([
   'google_forms',
   'google_alerts',
   'sheets',
+  'google_sheets',
 ])
 
 interface ContentRendererProps {

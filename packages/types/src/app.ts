@@ -21,6 +21,7 @@ export type AppTemplateType =
   | 'google_maps'
   | 'looker_studio'
   | 'google_alerts'
+  | 'google_sheets'
 
 export interface App {
   id: number

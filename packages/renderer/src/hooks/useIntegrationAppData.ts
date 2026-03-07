@@ -11,6 +11,7 @@ const INTEGRATION_TYPE_MAP: Record<string, { configKey: string; resourceType: st
   google_forms: { configKey: 'form_id', resourceType: 'form' },
   google_alerts: { configKey: 'topic', resourceType: 'news' },
   sheets: { configKey: 'spreadsheet_id', resourceType: 'spreadsheet' },
+  google_sheets: { configKey: 'spreadsheet_id', resourceType: 'spreadsheet' },
 }
 
 /** Default refresh intervals per type (ms) */
@@ -20,6 +21,7 @@ const DEFAULT_REFRESH: Record<string, number> = {
   google_forms: 2 * 60 * 1000,
   google_alerts: 5 * 60 * 1000,
   sheets: 5 * 60 * 1000,
+  google_sheets: 5 * 60 * 1000,
 }
 
 export function useIntegrationAppData(
