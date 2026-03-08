@@ -13,16 +13,16 @@ import { useAuthStore } from '@/stores/auth-store'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { formatDate } from '@/lib/utils'
 
-// ── Zone color palette (dark, rich per-zone bg gradients) ──────────────────
+// ── Zone color palette (light pastel per-zone bg gradients) ────────────────
 const ZONE_COLORS = [
-  'linear-gradient(135deg,#1a0800 0%,#2d1200 100%)',  // warm dark brown
-  'linear-gradient(135deg,#08101e 0%,#10182e 100%)',  // dark navy
-  'linear-gradient(135deg,#0a1428 0%,#0e1c3a 100%)',  // dark blue
-  'linear-gradient(135deg,#0a1a08 0%,#102414 100%)',  // dark green
-  'linear-gradient(135deg,#14082a 0%,#1e103c 100%)',  // dark purple
-  'linear-gradient(135deg,#280a0a 0%,#3a1010 100%)',  // dark red
-  'linear-gradient(135deg,#1a1000 0%,#2c1c00 100%)',  // dark amber
-  'linear-gradient(135deg,#0a1a14 0%,#102820 100%)',  // dark teal
+  'linear-gradient(135deg,#FFF7ED 0%,#FFEDD5 100%)',  // warm light amber
+  'linear-gradient(135deg,#EFF8FF 0%,#DBEAFE 100%)',  // light navy blue
+  'linear-gradient(135deg,#EFF8FF 0%,#BFDBFE 100%)',  // light blue
+  'linear-gradient(135deg,#F0FDF4 0%,#DCFCE7 100%)',  // light green
+  'linear-gradient(135deg,#FAF5FF 0%,#EDE9FE 100%)',  // light purple
+  'linear-gradient(135deg,#FFF1F2 0%,#FFE4E6 100%)',  // light red
+  'linear-gradient(135deg,#FFFBEB 0%,#FEF3C7 100%)',  // light amber
+  'linear-gradient(135deg,#F0FDFA 0%,#CCFBF1 100%)',  // light teal
 ]
 
 // ── Default zone names per layout type ────────────────────────────────────
@@ -53,7 +53,7 @@ function Zone({
     >
       <span
         className="text-[7px] font-bold tracking-widest select-none"
-        style={{ color: 'rgba(255,255,255,0.35)' }}
+        style={{ color: 'rgba(8,145,178,0.45)' }}
       >
         {name}
       </span>
@@ -156,9 +156,9 @@ function StatusBadge({ status }: { status: string }) {
     return (
       <span
         className="flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full"
-        style={{ backgroundColor: 'rgba(245,166,36,0.18)', color: '#F5A624' }}
+        style={{ backgroundColor: 'rgba(8,145,178,0.12)', color: '#0891B2' }}
       >
-        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#F5A624' }} />
+        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#0891B2' }} />
         Draft
       </span>
     )
@@ -182,7 +182,7 @@ function ChannelCard({ channel }: { channel: any }) {
   return (
     <motion.div
       className="rounded-xl overflow-hidden cursor-pointer"
-      style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+      style={{ backgroundColor: '#FFFFFF', border: '1px solid #BAE6FD' }}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       onMouseEnter={() => setHovered(true)}
@@ -192,15 +192,15 @@ function ChannelCard({ channel }: { channel: any }) {
       {/* ── Preview area ── */}
       <div
         className="relative overflow-hidden"
-        style={{ height: '196px', backgroundColor: '#0E0E16' }}
+        style={{ height: '196px', backgroundColor: '#E0F2FE' }}
       >
         {/* TV icon — top-left */}
         <div className="absolute top-3 left-3 z-10">
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+            style={{ backgroundColor: '#FFFFFF', border: '1px solid #BAE6FD' }}
           >
-            <Tv className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
+            <Tv className="h-3.5 w-3.5" style={{ color: '#94A3B8' }} />
           </div>
         </div>
 
@@ -224,7 +224,7 @@ function ChannelCard({ channel }: { channel: any }) {
               transition={{ duration: 0.15 }}
               className="absolute inset-0 flex items-end p-3"
               style={{
-                background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)',
+                background: 'linear-gradient(to top, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.5) 60%, transparent 100%)',
               }}
             >
               <div className="flex items-center gap-2 w-full">
@@ -234,7 +234,7 @@ function ChannelCard({ channel }: { channel: any }) {
                     router.push(`/channels/${channel.id}/studio`)
                   }}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: '#F5A624', color: '#000000' }}
+                  style={{ backgroundColor: '#0891B2', color: '#FFFFFF' }}
                 >
                   Edit Layout
                 </button>
@@ -242,9 +242,9 @@ function ChannelCard({ channel }: { channel: any }) {
                   onClick={(e) => e.stopPropagation()}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-90"
                   style={{
-                    backgroundColor: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.14)',
-                    color: '#FFFFFF',
+                    backgroundColor: 'rgba(8,145,178,0.08)',
+                    border: '1px solid rgba(8,145,178,0.18)',
+                    color: '#0C1A2E',
                   }}
                 >
                   Preview
@@ -253,9 +253,9 @@ function ChannelCard({ channel }: { channel: any }) {
                   onClick={(e) => e.stopPropagation()}
                   className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-90"
                   style={{
-                    backgroundColor: 'rgba(255,255,255,0.08)',
-                    border: '1px solid rgba(255,255,255,0.14)',
-                    color: '#FFFFFF',
+                    backgroundColor: 'rgba(8,145,178,0.08)',
+                    border: '1px solid rgba(8,145,178,0.18)',
+                    color: '#0C1A2E',
                   }}
                 >
                   Duplicate
@@ -268,24 +268,24 @@ function ChannelCard({ channel }: { channel: any }) {
 
       {/* ── Info row ── */}
       <div className="px-4 pt-3 pb-3.5">
-        <h3 className="text-sm font-bold mb-1 truncate" style={{ color: '#FFFFFF' }}>
+        <h3 className="text-sm font-bold mb-1 truncate" style={{ color: '#0C1A2E' }}>
           {channel.name}
         </h3>
-        <p className="text-xs mb-2.5" style={{ color: '#6B7280' }}>
+        <p className="text-xs mb-2.5" style={{ color: '#334155' }}>
           {w}×{h} · {orient}
         </p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
-              <LayoutGrid className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
-              <span className="text-xs" style={{ color: '#6B7280' }}>{zoneCount} zones</span>
+              <LayoutGrid className="h-3.5 w-3.5" style={{ color: '#334155' }} />
+              <span className="text-xs" style={{ color: '#334155' }}>{zoneCount} zones</span>
             </div>
             <div className="flex items-center gap-1">
-              <Monitor className="h-3.5 w-3.5" style={{ color: '#6B7280' }} />
-              <span className="text-xs" style={{ color: '#6B7280' }}>{playerCount}</span>
+              <Monitor className="h-3.5 w-3.5" style={{ color: '#334155' }} />
+              <span className="text-xs" style={{ color: '#334155' }}>{playerCount}</span>
             </div>
           </div>
-          <span className="text-xs" style={{ color: '#6B7280' }}>
+          <span className="text-xs" style={{ color: '#334155' }}>
             {formatDate(channel.updated_at)}
           </span>
         </div>
@@ -332,7 +332,7 @@ export default function ChannelsPage() {
   const totalPlayers   = channels.reduce((sum: number, c: any) => sum + (c.player_count ?? 0), 0)
 
   const STAT_CARDS = [
-    { label: 'Total Channels',    value: totalChannels, color: '#F5A624', iconType: 'tv'      as const },
+    { label: 'Total Channels',    value: totalChannels, color: '#0891B2', iconType: 'tv'      as const },
     { label: 'Active',            value: activeCount,   color: '#059669', iconType: 'dot'     as const },
     { label: 'Drafts',            value: draftCount,    color: '#94A3B8', iconType: 'file'    as const },
     { label: 'Total Zones',       value: totalZones,    color: '#818CF8', iconType: 'zones'   as const },
@@ -346,7 +346,7 @@ export default function ChannelsPage() {
   ]
 
   return (
-    <div className="page-container space-y-4 sm:space-y-5" style={{ backgroundColor: '#0D0D0D', minHeight: '100%' }}>
+    <div className="page-container space-y-4 sm:space-y-5" style={{ backgroundColor: '#F0F9FF', minHeight: '100%' }}>
 
       {/* ── Hero banner ───────────────────────────────────────── */}
       <motion.div
@@ -355,8 +355,8 @@ export default function ChannelsPage() {
         transition={{ duration: 0.35 }}
         className="relative overflow-hidden rounded-xl"
         style={{
-          background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
-          border: '1px solid #2A3050',
+          background: 'linear-gradient(135deg, #EFF8FF 0%, #E0F2FE 50%, #BAE6FD 100%)',
+          border: '1px solid #BAE6FD',
         }}
       >
         {/* Grid overlay */}
@@ -364,8 +364,8 @@ export default function ChannelsPage() {
           className="absolute inset-0 pointer-events-none"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),' +
-              'linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
+              'linear-gradient(rgba(8,145,178,0.06) 1px,transparent 1px),' +
+              'linear-gradient(90deg,rgba(8,145,178,0.06) 1px,transparent 1px)',
             backgroundSize: '40px 40px',
           }}
         />
@@ -375,14 +375,14 @@ export default function ChannelsPage() {
           <div>
             <p
               className="text-xs uppercase font-semibold mb-1.5"
-              style={{ color: '#F5A624', letterSpacing: '0.15em' }}
+              style={{ color: '#0891B2', letterSpacing: '0.15em' }}
             >
               Layout Studio
             </p>
-            <h1 className="text-2xl sm:text-4xl font-bold leading-tight mb-1.5" style={{ color: '#FFFFFF' }}>
+            <h1 className="text-2xl sm:text-4xl font-bold leading-tight mb-1.5" style={{ color: '#0C1A2E' }}>
               Channels
             </h1>
-            <p className="text-sm" style={{ color: '#6B7280' }}>
+            <p className="text-sm" style={{ color: '#334155' }}>
               Design and manage your screen layouts. Create zones, assign content, and deploy to players.
             </p>
           </div>
@@ -390,7 +390,7 @@ export default function ChannelsPage() {
           <Link href="/channels/new">
             <button
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 transition-opacity hover:opacity-90 touch-target self-start"
-              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+              style={{ backgroundColor: '#0891B2', color: '#FFFFFF' }}
             >
               <Plus className="h-4 w-4" />
               Create Channel
@@ -405,8 +405,8 @@ export default function ChannelsPage() {
               key={label}
               className="flex items-center gap-3 px-4 py-3 rounded-xl flex-1"
               style={{
-                backgroundColor: 'rgba(0,0,0,0.28)',
-                border: '1px solid rgba(255,255,255,0.07)',
+                backgroundColor: 'rgba(255,255,255,0.75)',
+                border: '1px solid rgba(8,145,178,0.07)',
               }}
             >
               {/* Icon */}
@@ -431,7 +431,7 @@ export default function ChannelsPage() {
               </div>
               {/* Label + value */}
               <div>
-                <p className="text-xs font-medium" style={{ color: '#6B7280' }}>{label}</p>
+                <p className="text-xs font-medium" style={{ color: '#334155' }}>{label}</p>
                 <p className="text-2xl font-bold leading-tight" style={{ color }}>{value}</p>
               </div>
             </div>
@@ -455,11 +455,11 @@ export default function ChannelsPage() {
               className="px-4 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target"
               style={
                 statusFilter === tab.value
-                  ? { backgroundColor: '#F5A624', color: '#000000' }
+                  ? { backgroundColor: '#0891B2', color: '#FFFFFF' }
                   : {
-                      color: '#9CA3AF',
+                      color: '#334155',
                       backgroundColor: 'transparent',
-                      border: '1px solid #2A2A2A',
+                      border: '1px solid #BAE6FD',
                     }
               }
             >
@@ -474,7 +474,7 @@ export default function ChannelsPage() {
           <div className="relative">
             <Search
               className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-              style={{ color: '#6B7280' }}
+              style={{ color: '#94A3B8' }}
             />
             <input
               placeholder="Search channels..."
@@ -484,9 +484,9 @@ export default function ChannelsPage() {
               onBlur={() => setSearchFocused(false)}
               className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-48"
               style={{
-                backgroundColor: '#1C1C1C',
-                border: `1px solid ${searchFocused ? '#F5A624' : '#2A2A2A'}`,
-                color: '#FFFFFF',
+                backgroundColor: '#FFFFFF',
+                border: `1px solid ${searchFocused ? '#0891B2' : '#BAE6FD'}`,
+                color: '#0C1A2E',
               }}
             />
           </div>
@@ -494,18 +494,18 @@ export default function ChannelsPage() {
           {/* View toggle */}
           <div
             className="flex items-center rounded-lg overflow-hidden"
-            style={{ border: '1px solid #2A2A2A' }}
+            style={{ border: '1px solid #BAE6FD' }}
           >
             <button
               className="p-2 transition-colors"
-              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+              style={{ backgroundColor: '#0891B2', color: '#FFFFFF' }}
               title="Grid view"
             >
               <LayoutGrid className="h-4 w-4" />
             </button>
             <button
               className="p-2 transition-colors"
-              style={{ backgroundColor: '#1C1C1C', color: '#6B7280' }}
+              style={{ backgroundColor: '#FFFFFF', color: '#94A3B8' }}
               title="List view"
             >
               <List className="h-4 w-4" />
@@ -515,7 +515,7 @@ export default function ChannelsPage() {
           {/* Sort */}
           <button
             className="flex items-center gap-2 h-9 px-3 text-sm rounded-lg"
-            style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A', color: '#9CA3AF' }}
+            style={{ backgroundColor: '#FFFFFF', border: '1px solid #BAE6FD', color: '#334155' }}
           >
             Newest First
             <ChevronDown className="h-3.5 w-3.5" />
@@ -530,24 +530,24 @@ export default function ChannelsPage() {
             <div
               key={i}
               className="rounded-xl animate-pulse"
-              style={{ backgroundColor: '#1C1C1C', height: '280px' }}
+              style={{ backgroundColor: '#FFFFFF', height: '280px' }}
             />
           ))}
         </div>
       ) : channels.length === 0 ? (
         /* Empty state — no channels yet */
         <div className="py-20 text-center">
-          <Layers className="h-10 w-10 mx-auto mb-3 opacity-25" style={{ color: '#6B7280' }} />
-          <p className="text-sm font-medium mb-1" style={{ color: '#9CA3AF' }}>
+          <Layers className="h-10 w-10 mx-auto mb-3 opacity-25" style={{ color: '#94A3B8' }} />
+          <p className="text-sm font-medium mb-1" style={{ color: '#334155' }}>
             No channels yet
           </p>
-          <p className="text-xs mb-4" style={{ color: '#6B7280' }}>
+          <p className="text-xs mb-4" style={{ color: '#334155' }}>
             Create your first channel to start designing screen layouts
           </p>
           <Link href="/channels/new">
             <button
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
-              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+              style={{ backgroundColor: '#0891B2', color: '#FFFFFF' }}
             >
               <Plus className="h-4 w-4" />
               Create Channel
@@ -557,7 +557,7 @@ export default function ChannelsPage() {
       ) : filteredChannels.length === 0 ? (
         /* No results */
         <div className="py-16 text-center">
-          <p className="text-sm" style={{ color: '#6B7280' }}>
+          <p className="text-sm" style={{ color: '#334155' }}>
             No channels match your search
           </p>
         </div>

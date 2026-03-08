@@ -29,7 +29,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const sidebarWidth = isMobile ? 0 : (isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED)
 
   return (
-    <div className="dark min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <CommandPalette />
       <Sidebar />
       <div

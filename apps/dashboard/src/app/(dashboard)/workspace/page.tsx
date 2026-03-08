@@ -574,7 +574,7 @@ export default function WorkspaceSettingsPage() {
           <div style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
             <button
               onClick={() => setRemoveMemberTarget(null)}
-              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#1A1A30', border: '1px solid #2A2A45', color: '#9CA3AF', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#E0F2FE', border: '1px solid #BAE6FD', color: '#334155', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >
               Cancel
             </button>
