@@ -80,7 +80,7 @@ export default function DashboardLayout({
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-[#bae6fd] border-t-primary rounded-full animate-spin" />
       </div>
     )
   }

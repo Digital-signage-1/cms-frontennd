@@ -18,9 +18,9 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const INPUT_STYLE = {
-  backgroundColor: '#E8F4FB',
-  border: '1px solid #BAE6FD',
-  color: '#0C1A2E',
+  backgroundColor: '#e0f2fe',
+  border: '1px solid #bae6fd',
+  color: '#0c4a6e',
   borderRadius: 8,
   height: 40,
   padding: '0 12px',
@@ -30,13 +30,13 @@ const INPUT_STYLE = {
 }
 const INPUT_READONLY_STYLE = {
   ...INPUT_STYLE,
-  color: '#94A3B8',
+  color: '#6b7280',
   cursor: 'default',
 }
-const LABEL_STYLE = { color: '#334155', fontSize: 12, marginBottom: 4, display: 'block' as const }
+const LABEL_STYLE = { color: '#0369a1', fontSize: 12, marginBottom: 4, display: 'block' as const }
 const SECTION_CARD = {
   backgroundColor: '#FFFFFF',
-  border: '1px solid #BAE6FD',
+  border: '1px solid #bae6fd',
   borderRadius: 12,
   padding: '20px 24px',
   marginBottom: 16,
@@ -59,22 +59,22 @@ function SectionHeader({ Icon, title, subtitle, danger = false }: {
   return (
     <div
       className="flex items-center gap-3 pb-4 mb-5"
-      style={{ borderBottom: '1px solid #BAE6FD' }}
+      style={{ borderBottom: '1px solid #bae6fd' }}
     >
       <div
         className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
         style={{
-          backgroundColor: danger ? 'rgba(220,38,38,0.12)' : 'rgba(8,145,178,0.10)',
+          backgroundColor: danger ? 'rgba(220,38,38,0.12)' : 'rgba(14,165,233,0.10)',
         }}
       >
         <Icon
           className="h-4 w-4"
-          style={{ color: danger ? '#F87171' : '#0891B2' }}
+          style={{ color: danger ? '#F87171' : '#0ea5e9' }}
         />
       </div>
       <div>
-        <h2 className="text-sm font-bold" style={{ color: '#0C1A2E' }}>{title}</h2>
-        <p className="text-xs" style={{ color: '#334155' }}>{subtitle}</p>
+        <h2 className="text-sm font-bold" style={{ color: '#0c4a6e' }}>{title}</h2>
+        <p className="text-xs" style={{ color: '#0369a1' }}>{subtitle}</p>
       </div>
     </div>
   )
@@ -83,12 +83,12 @@ function SectionHeader({ Icon, title, subtitle, danger = false }: {
 // ── Save Changes button ───────────────────────────────────────────────────────
 function SaveBtn({ onClick, saving }: { onClick: () => void; saving?: boolean }) {
   return (
-    <div className="flex justify-end mt-5 pt-4" style={{ borderTop: '1px solid #BAE6FD' }}>
+    <div className="flex justify-end mt-5 pt-4" style={{ borderTop: '1px solid #bae6fd' }}>
       <button
         onClick={onClick}
         disabled={saving}
         className="px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
-        style={{ backgroundColor: '#0891B2', color: '#FFFFFF', opacity: saving ? 0.6 : 1 }}
+        style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF', opacity: saving ? 0.6 : 1 }}
       >
         {saving ? 'Saving…' : 'Save Changes'}
       </button>
@@ -104,16 +104,16 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
       className="relative flex-shrink-0 transition-colors"
       style={{
         width: 40, height: 22, borderRadius: 11,
-        backgroundColor: value ? '#0891B2' : '#BAE6FD',
+        backgroundColor: value ? '#0ea5e9' : '#bae6fd',
         border: '1px solid',
-        borderColor: value ? '#0891B2' : '#94A3B8',
+        borderColor: value ? '#0ea5e9' : '#6b7280',
       }}
     >
       <span
         className="absolute top-0.5 transition-transform"
         style={{
           left: value ? 20 : 2, width: 16, height: 16,
-          borderRadius: 8, backgroundColor: value ? '#FFFFFF' : '#94A3B8',
+          borderRadius: 8, backgroundColor: value ? '#FFFFFF' : '#6b7280',
         }}
       />
     </button>
@@ -259,31 +259,31 @@ export default function SettingsPage() {
   }
 
   return (
-    <div style={{ backgroundColor: '#F0F9FF', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
 
       {/* ── Slim hero banner ── */}
       <div className="page-container pt-4 sm:pt-5">
         <div
           className="rounded-xl relative overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, #EFF8FF 0%, #E0F2FE 50%, #BAE6FD 100%)',
-            border: '1px solid #BAE6FD',
+            background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
+            border: '1px solid #bae6fd',
           }}
         >
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
-                'linear-gradient(rgba(8,145,178,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(8,145,178,0.06) 1px, transparent 1px)',
+                'linear-gradient(rgba(14,165,233,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.06) 1px, transparent 1px)',
               backgroundSize: '40px 40px',
             }}
           />
           <div className="relative z-10 responsive-hero">
-            <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: '#0891B2' }}>
+            <p className="text-xs font-semibold tracking-widest uppercase mb-2" style={{ color: '#0ea5e9' }}>
               Settings
             </p>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: '#0C1A2E' }}>Account Settings</h1>
-            <p className="text-sm" style={{ color: '#334155' }}>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1" style={{ color: '#0c4a6e' }}>Account Settings</h1>
+            <p className="text-sm" style={{ color: '#0369a1' }}>
               Manage your account preferences, security, notifications, and team.
             </p>
           </div>
@@ -291,7 +291,7 @@ export default function SettingsPage() {
       </div>
 
       {/* ── Mobile tab nav (horizontal scroll) ── */}
-      <div className="md:hidden scroll-x px-3 py-3" style={{ borderBottom: '1px solid #E0F2FE' }}>
+      <div className="md:hidden scroll-x px-3 py-3" style={{ borderBottom: '1px solid #e0f2fe' }}>
         <div className="flex gap-1 w-max">
           {NAV.map(({ key, label, Icon }) => {
             const isActive = activeTab === key
@@ -302,8 +302,8 @@ export default function SettingsPage() {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap flex-shrink-0 touch-target"
                 style={
                   isActive
-                    ? { backgroundColor: 'rgba(8,145,178,0.10)', color: '#0891B2', border: '1px solid rgba(8,145,178,0.3)' }
-                    : { color: '#334155', border: '1px solid transparent' }
+                    ? { backgroundColor: 'rgba(14,165,233,0.10)', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.3)' }
+                    : { color: '#0369a1', border: '1px solid transparent' }
                 }
               >
                 <Icon className="h-4 w-4" />
@@ -320,7 +320,7 @@ export default function SettingsPage() {
         {/* ── Left sidebar nav – desktop only ── */}
         <div
           className="hidden md:block flex-shrink-0 rounded-xl overflow-hidden"
-          style={{ width: 160, backgroundColor: '#FFFFFF', border: '1px solid #BAE6FD' }}
+          style={{ width: 160, backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
         >
           {NAV.map(({ key, label, Icon }) => {
             const isActive = activeTab === key
@@ -332,12 +332,12 @@ export default function SettingsPage() {
                 style={
                   isActive
                     ? {
-                        color: '#0891B2',
-                        backgroundColor: 'rgba(8,145,178,0.08)',
-                        borderLeft: '2px solid #0891B2',
+                        color: '#0ea5e9',
+                        backgroundColor: 'rgba(14,165,233,0.08)',
+                        borderLeft: '2px solid #0ea5e9',
                       }
                     : {
-                        color: '#334155',
+                        color: '#0369a1',
                         borderLeft: '2px solid transparent',
                       }
                 }
@@ -364,11 +364,11 @@ export default function SettingsPage() {
                   <div className="flex flex-row sm:flex-col items-center gap-4 sm:gap-2 flex-shrink-0">
                     <div
                       className="w-20 h-20 rounded-xl flex items-center justify-center text-2xl font-bold"
-                      style={{ backgroundColor: '#0891B2', color: '#FFFFFF' }}
+                      style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
                     >
                       {initials}
                     </div>
-                    <button className="text-xs font-medium" style={{ color: '#0891B2' }}>
+                    <button className="text-xs font-medium" style={{ color: '#0ea5e9' }}>
                       Change
                     </button>
                   </div>
@@ -383,8 +383,8 @@ export default function SettingsPage() {
                           style={INPUT_STYLE}
                           value={profile.firstName}
                           onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
-                          onFocus={(e) => (e.currentTarget.style.borderColor = '#0891B2')}
-                          onBlur={(e)  => (e.currentTarget.style.borderColor = '#BAE6FD')}
+                          onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                          onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                         />
                       </div>
                       <div>
@@ -393,8 +393,8 @@ export default function SettingsPage() {
                           style={INPUT_STYLE}
                           value={profile.lastName}
                           onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
-                          onFocus={(e) => (e.currentTarget.style.borderColor = '#0891B2')}
-                          onBlur={(e)  => (e.currentTarget.style.borderColor = '#BAE6FD')}
+                          onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                          onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                         />
                       </div>
                     </div>
@@ -408,8 +408,8 @@ export default function SettingsPage() {
                           type="email"
                           value={profile.email}
                           onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                          onFocus={(e) => (e.currentTarget.style.borderColor = '#0891B2')}
-                          onBlur={(e)  => (e.currentTarget.style.borderColor = '#BAE6FD')}
+                          onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                          onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                         />
                         {/* Verified badge */}
                         <div
@@ -431,10 +431,10 @@ export default function SettingsPage() {
                         style={INPUT_STYLE}
                         value={profile.displayName}
                         onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0891B2')}
-                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#BAE6FD')}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                       />
-                      <p className="text-xs mt-1.5" style={{ color: '#334155' }}>
+                      <p className="text-xs mt-1.5" style={{ color: '#0369a1' }}>
                         This is how your name appears to team members.
                       </p>
                     </div>
@@ -457,8 +457,8 @@ export default function SettingsPage() {
                         style={INPUT_STYLE}
                         value={org.name}
                         onChange={(e) => setOrg({ ...org, name: e.target.value })}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0891B2')}
-                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#BAE6FD')}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                       />
                     </div>
                     <div>
@@ -467,8 +467,8 @@ export default function SettingsPage() {
                         style={INPUT_STYLE}
                         value={org.timezone}
                         onChange={(e) => setOrg({ ...org, timezone: e.target.value })}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0891B2')}
-                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#BAE6FD')}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                       />
                     </div>
                   </div>
@@ -481,7 +481,7 @@ export default function SettingsPage() {
                       value={orgId}
                       readOnly
                     />
-                    <p className="text-xs mt-1.5" style={{ color: '#334155' }}>
+                    <p className="text-xs mt-1.5" style={{ color: '#0369a1' }}>
                       Used for API integrations
                     </p>
                   </div>
@@ -499,7 +499,7 @@ export default function SettingsPage() {
                     <p className="text-sm font-semibold mb-1" style={{ color: '#DC2626' }}>
                       Delete Account
                     </p>
-                    <p className="text-xs" style={{ color: '#334155' }}>
+                    <p className="text-xs" style={{ color: '#0369a1' }}>
                       Permanently delete your account and all associated data
                     </p>
                   </div>
@@ -545,7 +545,7 @@ export default function SettingsPage() {
                   <div className="space-y-4">
                     <div>
                       <label style={LABEL_STYLE}>Account Email</label>
-                      <input style={{ ...INPUT_STYLE, color: '#94A3B8', cursor: 'default' }} value={email} readOnly />
+                      <input style={{ ...INPUT_STYLE, color: '#6b7280', cursor: 'default' }} value={email} readOnly />
                     </div>
                     <div>
                       <label style={LABEL_STYLE}>New Password</label>
@@ -555,10 +555,10 @@ export default function SettingsPage() {
                         placeholder="••••••••"
                         value={pwForm.newPassword}
                         onChange={(e) => setPwForm({ ...pwForm, newPassword: e.target.value })}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0891B2')}
-                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#BAE6FD')}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                       />
-                      <p className="text-xs mt-1.5" style={{ color: '#334155' }}>Must be at least 8 characters</p>
+                      <p className="text-xs mt-1.5" style={{ color: '#0369a1' }}>Must be at least 8 characters</p>
                     </div>
                     <div>
                       <label style={LABEL_STYLE}>Confirm New Password</label>
@@ -568,16 +568,16 @@ export default function SettingsPage() {
                         placeholder="••••••••"
                         value={pwForm.confirm}
                         onChange={(e) => setPwForm({ ...pwForm, confirm: e.target.value })}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0891B2')}
-                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#BAE6FD')}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                       />
                     </div>
-                    <div className="flex justify-end pt-4 mt-4" style={{ borderTop: '1px solid #BAE6FD' }}>
+                    <div className="flex justify-end pt-4 mt-4" style={{ borderTop: '1px solid #bae6fd' }}>
                       <button
                         onClick={handleSendPasswordCode}
                         disabled={pwSaving}
                         className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-colors"
-                        style={{ backgroundColor: '#0891B2', color: '#FFFFFF', opacity: pwSaving ? 0.6 : 1 }}
+                        style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF', opacity: pwSaving ? 0.6 : 1 }}
                       >
                         <Mail className="h-4 w-4" />
                         {pwSaving ? 'Sending…' : 'Send Verification Code'}
@@ -593,18 +593,18 @@ export default function SettingsPage() {
                         placeholder="Enter the code from your email"
                         value={pwCode}
                         onChange={(e) => setPwCode(e.target.value)}
-                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0891B2')}
-                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#BAE6FD')}
+                        onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                        onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                       />
-                      <p className="text-xs mt-1.5" style={{ color: '#334155' }}>
-                        Check your inbox at <span style={{ color: '#0891B2' }}>{email}</span>
+                      <p className="text-xs mt-1.5" style={{ color: '#0369a1' }}>
+                        Check your inbox at <span style={{ color: '#0ea5e9' }}>{email}</span>
                       </p>
                     </div>
-                    <div className="flex justify-between pt-4 mt-4" style={{ borderTop: '1px solid #BAE6FD' }}>
+                    <div className="flex justify-between pt-4 mt-4" style={{ borderTop: '1px solid #bae6fd' }}>
                       <button
                         onClick={() => { setPwStep('form'); setPwMessage(null) }}
                         className="px-4 py-2 rounded-lg text-sm font-medium"
-                        style={{ backgroundColor: '#E0F2FE', color: '#334155', border: '1px solid #BAE6FD' }}
+                        style={{ backgroundColor: '#e0f2fe', color: '#0369a1', border: '1px solid #bae6fd' }}
                       >
                         Back
                       </button>
@@ -612,7 +612,7 @@ export default function SettingsPage() {
                         onClick={handleConfirmPassword}
                         disabled={pwSaving || !pwCode}
                         className="px-5 py-2 rounded-lg text-sm font-semibold"
-                        style={{ backgroundColor: '#0891B2', color: '#FFFFFF', opacity: pwSaving || !pwCode ? 0.6 : 1 }}
+                        style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF', opacity: pwSaving || !pwCode ? 0.6 : 1 }}
                       >
                         {pwSaving ? 'Applying…' : 'Apply Change'}
                       </button>
@@ -630,8 +630,8 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-3">
                     <CheckCircle2 className="h-5 w-5 flex-shrink-0" style={{ color: '#34D399' }} />
                     <div>
-                      <p className="text-sm font-medium" style={{ color: '#0C1A2E' }}>2FA is enabled</p>
-                      <p className="text-xs mt-0.5" style={{ color: '#334155' }}>Your account is protected with 2FA</p>
+                      <p className="text-sm font-medium" style={{ color: '#0c4a6e' }}>2FA is enabled</p>
+                      <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>Your account is protected with 2FA</p>
                     </div>
                   </div>
                 </div>
@@ -658,11 +658,11 @@ export default function SettingsPage() {
                     <div
                       key={key}
                       className="flex items-center justify-between p-4 rounded-lg"
-                      style={{ backgroundColor: '#E8F4FB', border: '1px solid #BAE6FD' }}
+                      style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd' }}
                     >
                       <div>
-                        <p className="text-sm font-medium" style={{ color: '#0C1A2E' }}>{title}</p>
-                        <p className="text-xs mt-0.5" style={{ color: '#334155' }}>{subtitle}</p>
+                        <p className="text-sm font-medium" style={{ color: '#0c4a6e' }}>{title}</p>
+                        <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>{subtitle}</p>
                       </div>
                       <Toggle value={notif[key]} onChange={(v) => setNotif({ ...notif, [key]: v })} />
                     </div>
@@ -681,23 +681,23 @@ export default function SettingsPage() {
               <div
                 className="p-5 rounded-xl mb-5"
                 style={{
-                  backgroundColor: 'rgba(8,145,178,0.06)',
-                  border: '1px solid rgba(8,145,178,0.2)',
+                  backgroundColor: 'rgba(14,165,233,0.06)',
+                  border: '1px solid rgba(14,165,233,0.2)',
                 }}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-xl font-bold" style={{ color: '#0C1A2E' }}>Free Plan</h3>
-                    <p className="text-sm mt-0.5" style={{ color: '#334155' }}>Perfect for getting started</p>
+                    <h3 className="text-xl font-bold" style={{ color: '#0c4a6e' }}>Free Plan</h3>
+                    <p className="text-sm mt-0.5" style={{ color: '#0369a1' }}>Perfect for getting started</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-3xl font-bold" style={{ color: '#0891B2' }}>$0</p>
-                    <p className="text-xs" style={{ color: '#334155' }}>per month</p>
+                    <p className="text-3xl font-bold" style={{ color: '#0ea5e9' }}>$0</p>
+                    <p className="text-xs" style={{ color: '#0369a1' }}>per month</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 mb-5">
                   {['Up to 5 screens', '1GB storage', 'Basic templates', 'Email support'].map((f) => (
-                    <div key={f} className="flex items-center gap-2 text-sm" style={{ color: '#334155' }}>
+                    <div key={f} className="flex items-center gap-2 text-sm" style={{ color: '#0369a1' }}>
                       <CheckCircle2 className="h-4 w-4 flex-shrink-0" style={{ color: '#34D399' }} />
                       {f}
                     </div>
@@ -705,7 +705,7 @@ export default function SettingsPage() {
                 </div>
                 <button
                   className="w-full py-2.5 rounded-lg text-sm font-semibold"
-                  style={{ backgroundColor: '#0891B2', color: '#FFFFFF' }}
+                  style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
                 >
                   Upgrade Plan
                 </button>
@@ -728,8 +728,8 @@ export default function SettingsPage() {
                       placeholder="colleague@example.com"
                       value={inviteForm.email}
                       onChange={(e) => setInviteForm({ ...inviteForm, email: e.target.value })}
-                      onFocus={(e) => (e.currentTarget.style.borderColor = '#0891B2')}
-                      onBlur={(e)  => (e.currentTarget.style.borderColor = '#BAE6FD')}
+                      onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
+                      onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                     />
                   </div>
                   <div style={{ width: 140 }}>
@@ -750,12 +750,12 @@ export default function SettingsPage() {
                   <p className="text-xs mt-2" style={{ color: '#F87171' }}>{inviteError}</p>
                 )}
 
-                <div className="flex justify-end mt-5 pt-4" style={{ borderTop: '1px solid #BAE6FD' }}>
+                <div className="flex justify-end mt-5 pt-4" style={{ borderTop: '1px solid #bae6fd' }}>
                   <button
                     onClick={handleInvite}
                     disabled={sendInvitationMutation.isPending}
                     className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold"
-                    style={{ backgroundColor: '#0891B2', color: '#FFFFFF', opacity: sendInvitationMutation.isPending ? 0.6 : 1 }}
+                    style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF', opacity: sendInvitationMutation.isPending ? 0.6 : 1 }}
                   >
                     <Mail className="h-4 w-4" />
                     {sendInvitationMutation.isPending ? 'Sending…' : 'Send Invitation'}
@@ -767,19 +767,19 @@ export default function SettingsPage() {
                 <SectionHeader Icon={Users} title="Team Members" subtitle="Current members of this workspace" />
 
                 {members.length === 0 ? (
-                  <p className="text-sm py-4 text-center" style={{ color: '#334155' }}>No members found</p>
+                  <p className="text-sm py-4 text-center" style={{ color: '#0369a1' }}>No members found</p>
                 ) : (
                   <div className="space-y-2">
                     {members.map((m: any, i: number) => (
                       <div
                         key={m.cognito_sub || i}
                         className="flex items-center justify-between px-4 py-3 rounded-lg"
-                        style={{ backgroundColor: '#E8F4FB', border: '1px solid #BAE6FD' }}
+                        style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd' }}
                       >
                         <div>
-                          <p className="text-sm font-medium" style={{ color: '#0C1A2E' }}>{m.email || m.cognito_sub}</p>
+                          <p className="text-sm font-medium" style={{ color: '#0c4a6e' }}>{m.email || m.cognito_sub}</p>
                           {m.joined_at && (
-                            <p className="text-xs mt-0.5" style={{ color: '#334155' }}>
+                            <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
                               Joined {new Date(m.joined_at).toLocaleDateString()}
                             </p>
                           )}
@@ -787,9 +787,9 @@ export default function SettingsPage() {
                         <span
                           className="text-xs font-semibold px-2.5 py-1 rounded-full capitalize"
                           style={{
-                            backgroundColor: 'rgba(8,145,178,0.10)',
-                            color: '#0891B2',
-                            border: '1px solid rgba(8,145,178,0.25)',
+                            backgroundColor: 'rgba(14,165,233,0.10)',
+                            color: '#0ea5e9',
+                            border: '1px solid rgba(14,165,233,0.25)',
                           }}
                         >
                           {m.role}
@@ -809,11 +809,11 @@ export default function SettingsPage() {
                       <div
                         key={inv.invitation_id || i}
                         className="flex items-center justify-between px-4 py-3 rounded-lg"
-                        style={{ backgroundColor: '#E8F4FB', border: '1px solid #BAE6FD' }}
+                        style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd' }}
                       >
                         <div>
-                          <p className="text-sm font-medium" style={{ color: '#0C1A2E' }}>{inv.email}</p>
-                          <p className="text-xs mt-0.5" style={{ color: '#334155' }}>
+                          <p className="text-sm font-medium" style={{ color: '#0c4a6e' }}>{inv.email}</p>
+                          <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
                             Role: {inv.role} · Expires {new Date(inv.expires_at).toLocaleDateString()}
                           </p>
                         </div>
@@ -844,13 +844,13 @@ export default function SettingsPage() {
       {/* ── Delete Account Confirmation Dialog ── */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent hideClose className="!p-0 max-w-sm">
-          <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid #BAE6FD', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+          <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid #bae6fd', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
             <div style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <AlertTriangle className="h-5 w-5" style={{ color: '#F87171' }} />
             </div>
             <div>
-              <h2 style={{ fontSize: 17, fontWeight: 700, color: '#0C1A2E', margin: 0 }}>Delete Account</h2>
-              <p style={{ fontSize: 13, color: '#334155', margin: '4px 0 0', lineHeight: 1.4 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 700, color: '#0c4a6e', margin: 0 }}>Delete Account</h2>
+              <p style={{ fontSize: 13, color: '#0369a1', margin: '4px 0 0', lineHeight: 1.4 }}>
                 This will permanently delete your account and all associated data. This action cannot be undone.
               </p>
             </div>
@@ -858,7 +858,7 @@ export default function SettingsPage() {
           <div style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
             <button
               onClick={() => setShowDeleteDialog(false)}
-              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#E0F2FE', border: '1px solid #BAE6FD', color: '#334155', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#0369a1', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >
               Cancel
             </button>

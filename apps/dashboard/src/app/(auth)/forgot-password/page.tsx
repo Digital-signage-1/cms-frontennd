@@ -5,15 +5,15 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, CheckCircle2, Mail } from 'lucide-react'
 
-// ─── Design tokens — Broadcast Cyan Theme ────────────────────────────────────
+// ─── Design tokens — Ocean Breeze Theme ──────────────────────────────────────
 const DS = {
   inputBase: {
-    backgroundColor: '#E8F4FB',
-    border: '1px solid #BAE6FD',
-    color: '#0C1A2E',
+    backgroundColor: '#e0f2fe',
+    border: '1px solid #bae6fd',
+    color: '#0c4a6e',
   },
   btnPrimary: {
-    background: 'linear-gradient(135deg, #0891B2, #0284C7)',
+    background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)',
     color: '#FFFFFF',
   },
   errorAlert: {
@@ -56,10 +56,10 @@ export default function ForgotPasswordPage() {
           <CheckCircle2 className="h-8 w-8" style={{ color: '#059669' }} />
         </div>
 
-        <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: '#0C1A2E' }}>
+        <h1 className="text-3xl font-bold tracking-tight mb-2" style={{ color: '#0c4a6e' }}>
           Check your email
         </h1>
-        <p className="text-sm mb-8" style={{ color: '#334155' }}>
+        <p className="text-sm mb-8" style={{ color: '#0369a1' }}>
           We&apos;ve sent a password reset link to your email address. It may take a few minutes to arrive.
         </p>
 
@@ -67,12 +67,12 @@ export default function ForgotPasswordPage() {
           href="/sign-in"
           className="flex items-center justify-center gap-2 w-full h-12 rounded-lg text-sm font-medium transition-all"
           style={{
-            backgroundColor: '#E8F4FB',
-            border: '1px solid #BAE6FD',
-            color: '#1A1917',
+            backgroundColor: '#e0f2fe',
+            border: '1px solid #bae6fd',
+            color: '#0c4a6e',
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#DBEAFE' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#E8F4FB' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#7dd3fc' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd' }}
         >
           <ArrowLeft className="h-4 w-4" />
           Back to sign in
@@ -90,9 +90,9 @@ export default function ForgotPasswordPage() {
       <Link
         href="/sign-in"
         className="inline-flex items-center gap-2 text-sm mb-7 transition-colors"
-        style={{ color: '#334155' }}
-        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#1A1917' }}
-        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#78716C' }}
+        style={{ color: '#0369a1' }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0c4a6e' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#0369a1' }}
       >
         <ArrowLeft className="h-4 w-4" />
         Back to sign in
@@ -101,12 +101,12 @@ export default function ForgotPasswordPage() {
       <div className="mb-7">
         <div
           className="inline-flex items-center justify-center w-14 h-14 rounded-xl mb-5"
-          style={{ backgroundColor: 'rgba(8,145,178,0.08)' }}
+          style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
         >
-          <Mail className="h-7 w-7" style={{ color: '#0891B2' }} />
+          <Mail className="h-7 w-7" style={{ color: '#0ea5e9' }} />
         </div>
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: '#0C1A2E' }}>Reset password</h1>
-        <p className="text-sm mt-1.5" style={{ color: '#334155' }}>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: '#0c4a6e' }}>Reset password</h1>
+        <p className="text-sm mt-1.5" style={{ color: '#0369a1' }}>
           Enter your email and we&apos;ll send you a link to reset your password.
         </p>
       </div>
@@ -124,11 +124,11 @@ export default function ForgotPasswordPage() {
         )}
 
         <div className="space-y-1.5">
-          <label htmlFor="email" className="block text-sm font-medium" style={{ color: '#0C1A2E' }}>
+          <label htmlFor="email" className="block text-sm font-medium" style={{ color: '#0c4a6e' }}>
             Email
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#94A3B8' }} />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6b7280' }} />
             <input
               id="email"
               name="email"
@@ -138,8 +138,8 @@ export default function ForgotPasswordPage() {
               autoComplete="email"
               className="w-full h-12 rounded-lg pl-10 pr-4 text-sm outline-none transition-all"
               style={DS.inputBase}
-              onFocus={e => { e.currentTarget.style.borderColor = '#0891B2'; e.currentTarget.style.backgroundColor = '#FFFFFF' }}
-              onBlur={e => { e.currentTarget.style.borderColor = '#BAE6FD'; e.currentTarget.style.backgroundColor = '#E8F4FB' }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.backgroundColor = '#FFFFFF' }}
+              onBlur={e => { e.currentTarget.style.borderColor = '#bae6fd'; e.currentTarget.style.backgroundColor = '#e0f2fe' }}
             />
           </div>
         </div>
@@ -149,7 +149,7 @@ export default function ForgotPasswordPage() {
           disabled={loading}
           className="w-full h-12 rounded-lg font-semibold text-sm text-white transition-all disabled:opacity-60 active:scale-[0.98]"
           style={DS.btnPrimary}
-          onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(8,145,178,0.35)' }}
+          onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(14,165,233,0.35)' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
         >
           {loading ? (
@@ -163,14 +163,14 @@ export default function ForgotPasswordPage() {
         </button>
       </form>
 
-      <p className="mt-7 text-center text-sm" style={{ color: '#334155' }}>
+      <p className="mt-7 text-center text-sm" style={{ color: '#0369a1' }}>
         Remember your password?{' '}
         <Link
           href="/sign-in"
           className="font-semibold transition-colors"
-          style={{ color: '#0891B2' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0E7490' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#0891B2' }}
+          style={{ color: '#0ea5e9' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0284c7' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#0ea5e9' }}
         >
           Sign in
         </Link>

@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  /* ========== Broadcast Cyan Design System ========== */
+  /* ========== Ocean Breeze Design System ========== */
+  /* A sky-blue / cyan theme inspired by ocean waves and clear horizons */
 
   /* Typography */
   --font-sans: var(--font-inter, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
@@ -19,9 +20,10 @@
 
   /* Radius */
   --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-2xl: 20px;
 
   /* Animation Timing */
   --duration-fast: 150ms;
@@ -53,50 +55,50 @@
 }
 
 :root {
-  /* ========== Broadcast Cyan — Digital Signage Theme ========== */
-  /* Inspired by screen glow, display technology, broadcasting signals */
+  /* ========== Ocean Breeze — Sky-Blue / Cyan Light Theme ========== */
+  /* Inspired by clear skies, ocean waves, and coastal horizons */
 
-  /* Backgrounds — cool sky-blue tint, like an ambient display glow */
-  --color-background: #F0F9FF;
-  --color-surface: #FFFFFF;
-  --color-surface-alt: #E8F4FB;
-  --color-surface-elevated: #FFFFFF;
-  --color-surface-hover: #DBEAFE;
+  /* Backgrounds — soft sky-blue tint */
+  --color-background: #f0f9ff;
+  --color-surface: #ffffff;
+  --color-surface-alt: #e0f2fe;
+  --color-surface-elevated: #ffffff;
+  --color-surface-hover: #e0f2fe;
 
-  /* Borders — crisp sky-blue */
-  --color-border: #BAE6FD;
-  --color-border-subtle: #E0F2FE;
+  /* Borders — soft sky-blue */
+  --color-border: #bae6fd;
+  --color-border-subtle: #e0f2fe;
 
-  /* Text — deep navy for high contrast on light */
-  --color-text-primary: #0C1A2E;
-  --color-text-secondary: #334155;
-  --color-text-muted: #94A3B8;
+  /* Text — deep ocean blue for high contrast */
+  --color-text-primary: #0c4a6e;
+  --color-text-secondary: #0369a1;
+  --color-text-muted: #6b7280;
 
-  /* Brand — Cyan / Sky Blue (screens, displays, signals) */
-  --color-primary: #0891B2;
-  --color-primary-hover: #0E7490;
-  --color-primary-light: rgba(8, 145, 178, 0.08);
-  --color-primary-ring: rgba(8, 145, 178, 0.25);
+  /* Brand — Sky Blue / Cyan (ocean palette) */
+  --color-primary: #0ea5e9;
+  --color-primary-hover: #0284c7;
+  --color-primary-light: rgba(14, 165, 233, 0.08);
+  --color-primary-ring: rgba(14, 165, 233, 0.25);
 
-  /* Secondary — Sky Blue */
-  --color-secondary: #0284C7;
-  --color-secondary-hover: #0369A1;
-  --color-secondary-light: rgba(2, 132, 199, 0.08);
+  /* Secondary — Cyan */
+  --color-secondary: #06B6D4;
+  --color-secondary-hover: #0891B2;
+  --color-secondary-light: rgba(6, 182, 212, 0.08);
 
   /* Semantic */
-  --color-success: #059669;
-  --color-success-light: rgba(5, 150, 105, 0.08);
-  --color-warning: #D97706;
-  --color-warning-light: rgba(217, 119, 6, 0.08);
-  --color-error: #DC2626;
-  --color-error-light: rgba(220, 38, 38, 0.08);
+  --color-success: #10b981;
+  --color-success-light: rgba(16, 185, 129, 0.08);
+  --color-warning: #f59e0b;
+  --color-warning-light: rgba(245, 158, 11, 0.08);
+  --color-error: #ef4444;
+  --color-error-light: rgba(239, 68, 68, 0.08);
 
-  /* Shadows — cyan-tinted for brand cohesion */
-  --shadow-xs:       0 1px 2px rgba(8, 145, 178, 0.06);
-  --shadow-subtle:   0 1px 3px rgba(8, 145, 178, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-medium:   0 4px 8px -2px rgba(8, 145, 178, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
-  --shadow-elevated: 0 12px 24px -6px rgba(8, 145, 178, 0.14), 0 4px 8px -2px rgba(0, 0, 0, 0.06);
-  --shadow-dialog:   0 24px 48px -12px rgba(8, 145, 178, 0.18), 0 8px 16px -4px rgba(0, 0, 0, 0.08);
+  /* Shadows — blue-tinted for brand cohesion */
+  --shadow-xs:       0 1px 2px rgba(14, 165, 233, 0.06);
+  --shadow-subtle:   0 1px 3px rgba(14, 165, 233, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-medium:   0 4px 8px -2px rgba(14, 165, 233, 0.12), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+  --shadow-elevated: 0 12px 24px -6px rgba(14, 165, 233, 0.14), 0 4px 8px -2px rgba(0, 0, 0, 0.06);
+  --shadow-dialog:   0 24px 48px -12px rgba(14, 165, 233, 0.18), 0 8px 16px -4px rgba(0, 0, 0, 0.08);
 
   /* Glassmorphism */
   --glass-light: rgba(255, 255, 255, 0.72);
@@ -106,35 +108,35 @@
 
 .dark {
   /* ========== Dark Mode — kept for future toggle ========== */
-  --color-background: #0D0D0D;
-  --color-surface: #1C1C1C;
-  --color-surface-alt: #161616;
-  --color-surface-elevated: #222222;
-  --color-surface-hover: #2A2A2A;
-  --color-border: #2A2A2A;
-  --color-border-subtle: #252525;
+  --color-background: #0D0D1E;
+  --color-surface: #1C1C2E;
+  --color-surface-alt: #161628;
+  --color-surface-elevated: #222238;
+  --color-surface-hover: #2A2A42;
+  --color-border: #2A2A45;
+  --color-border-subtle: #252540;
   --color-text-primary: #FFFFFF;
   --color-text-secondary: #9CA3AF;
   --color-text-muted: #6B7280;
-  --color-primary: #0891B2;
-  --color-primary-hover: #0E7490;
-  --color-primary-light: rgba(8, 145, 178, 0.12);
-  --color-primary-ring: rgba(8, 145, 178, 0.30);
-  --color-secondary: #0284C7;
-  --color-secondary-hover: #0369A1;
-  --color-secondary-light: rgba(2, 132, 199, 0.15);
-  --color-success: #059669;
-  --color-success-light: rgba(5, 150, 105, 0.15);
-  --color-warning: #D97706;
-  --color-warning-light: rgba(217, 119, 6, 0.15);
-  --color-error: #DC2626;
-  --color-error-light: rgba(220, 38, 38, 0.15);
+  --color-primary: #0ea5e9;
+  --color-primary-hover: #0284c7;
+  --color-primary-light: rgba(14, 165, 233, 0.15);
+  --color-primary-ring: rgba(14, 165, 233, 0.30);
+  --color-secondary: #06B6D4;
+  --color-secondary-hover: #0891B2;
+  --color-secondary-light: rgba(6, 182, 212, 0.15);
+  --color-success: #10b981;
+  --color-success-light: rgba(16, 185, 129, 0.15);
+  --color-warning: #f59e0b;
+  --color-warning-light: rgba(245, 158, 11, 0.15);
+  --color-error: #ef4444;
+  --color-error-light: rgba(239, 68, 68, 0.15);
   --shadow-xs:      0 0 0 1px rgba(255, 255, 255, 0.04);
   --shadow-subtle:  0 0 0 1px rgba(255, 255, 255, 0.06);
   --shadow-medium:  0 0 0 1px rgba(255, 255, 255, 0.08);
   --shadow-elevated: 0 0 0 1px rgba(255, 255, 255, 0.10);
-  --glass-light: rgba(28, 28, 28, 0.72);
-  --glass-heavy: rgba(13, 13, 13, 0.92);
+  --glass-light: rgba(28, 28, 46, 0.72);
+  --glass-heavy: rgba(13, 13, 30, 0.92);
 }
 
 @layer base {
@@ -197,7 +199,7 @@
     background: var(--glass-light);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--color-border);
+    border: 1px solid rgba(255, 255, 255, 0.6);
   }
 
   .glass-heavy {
@@ -219,18 +221,18 @@
   }
   .card-hover:hover {
     box-shadow: var(--shadow-elevated);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
 
   /* ── Primary button micro-interaction ── */
   .btn-primary {
-    background: linear-gradient(135deg, #0891B2, #0284C7);
+    background: #0ea5e9;
     color: #ffffff;
     transition: background 200ms ease, transform 150ms ease, box-shadow 200ms ease;
   }
   .btn-primary:hover {
-    background: linear-gradient(135deg, #0E7490, #0369A1);
-    box-shadow: 0 4px 14px rgba(8, 145, 178, 0.40);
+    background: #0284c7;
+    box-shadow: 0 4px 16px rgba(14, 165, 233, 0.35);
   }
   .btn-primary:active {
     transform: scale(0.97);
@@ -240,6 +242,15 @@
   .focus-ring {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
+  }
+
+  /* ── Ocean Breeze gradient backgrounds ── */
+  .bg-aurora {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
+  }
+
+  .bg-aurora-vibrant {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 40%, #a5f3fc 100%);
   }
 }
 
@@ -376,9 +387,14 @@
     to   { opacity: 1; transform: translateX(0); }
   }
 
-  @keyframes signal-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(8, 145, 178, 0.4); }
-    50%       { box-shadow: 0 0 0 8px rgba(8, 145, 178, 0); }
+  @keyframes ocean-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }
+    50%       { box-shadow: 0 0 0 8px rgba(14, 165, 233, 0); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
   }
 
   .animate-fade-in      { animation: fade-in      300ms var(--ease-enter) both; }
@@ -386,7 +402,8 @@
   .animate-fade-in-down { animation: fade-in-down 250ms var(--ease-enter) both; }
   .animate-scale-in     { animation: scale-in     250ms var(--ease-spring) both; }
   .animate-slide-right  { animation: slide-in-right 300ms var(--ease-enter) both; }
-  .animate-signal-pulse { animation: signal-pulse 2s ease-in-out infinite; }
+  .animate-aurora-pulse { animation: ocean-pulse 2s ease-in-out infinite; }
+  .animate-float        { animation: float 3s ease-in-out infinite; }
 
   /* ── Grid background ── */
   .bg-grid-pattern {
@@ -398,18 +415,29 @@
 
   /* ── Gradient accent text ── */
   .text-gradient-primary {
-    background: linear-gradient(135deg, #0891B2, #0284C7);
+    background: linear-gradient(135deg, #0ea5e9, #06B6D4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   /* ── Soft gradient backgrounds ── */
-  .bg-gradient-cyan {
-    background: linear-gradient(135deg, #EFF8FF 0%, #E0F2FE 50%, #BAE6FD 100%);
+  .bg-gradient-aurora {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
   }
 
   .bg-gradient-page {
-    background: linear-gradient(180deg, #F0F9FF 0%, #F8FCFF 100%);
+    background: linear-gradient(180deg, #f0f9ff 0%, #f0f9ff 100%);
+  }
+
+  .bg-gradient-aurora-vibrant {
+    background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 40%, #a5f3fc 100%);
+  }
+
+  /* ── Dot grid pattern for auth ── */
+  .bg-dot-pattern {
+    background-image: radial-gradient(circle, #7dd3fc 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.4;
   }
 }

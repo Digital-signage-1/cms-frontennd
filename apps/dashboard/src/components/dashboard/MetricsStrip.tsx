@@ -53,7 +53,7 @@ function Sparkline({ color, uid }: { color: string; uid: string }) {
   )
 }
 
-function MetricCard({ label, value, change, dotColor = '#0891B2', progress }: MetricCardProps) {
+function MetricCard({ label, value, change, dotColor = '#0ea5e9', progress }: MetricCardProps) {
   const uid = useId().replace(/:/g, '-')
   const sparkId = `spark-${uid}`
 
@@ -71,8 +71,8 @@ function MetricCard({ label, value, change, dotColor = '#0891B2', progress }: Me
       className="rounded-xl flex flex-col relative overflow-hidden transition-all duration-200 cursor-default"
       style={{
         backgroundColor: '#FFFFFF',
-        border: '1px solid #BAE6FD',
-        boxShadow: '0 1px 3px rgba(8,145,178,0.06)',
+        border: '1px solid #bae6fd',
+        boxShadow: '0 1px 3px rgba(14,165,233,0.06)',
       }}
       onMouseEnter={e => {
         (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)'
@@ -89,7 +89,7 @@ function MetricCard({ label, value, change, dotColor = '#0891B2', progress }: Me
         <div className="flex items-center justify-between">
           <span
             className="text-xs uppercase font-semibold tracking-widest"
-            style={{ color: '#94A3B8', letterSpacing: '0.1em' }}
+            style={{ color: '#6b7280', letterSpacing: '0.1em' }}
           >
             {label}
           </span>
@@ -103,11 +103,11 @@ function MetricCard({ label, value, change, dotColor = '#0891B2', progress }: Me
         </div>
 
         {/* Value */}
-        <p className="text-4xl font-bold leading-none tracking-tight" style={{ color: '#0C1A2E' }}>
+        <p className="text-4xl font-bold leading-none tracking-tight" style={{ color: '#0c4a6e' }}>
           {typeof value === 'string' && value.endsWith(' GB') ? (
             <>
               {value.slice(0, -3)}
-              <span className="text-2xl font-semibold ml-0.5" style={{ color: '#94A3B8' }}>GB</span>
+              <span className="text-2xl font-semibold ml-0.5" style={{ color: '#6b7280' }}>GB</span>
             </>
           ) : value}
         </p>
@@ -125,7 +125,7 @@ function MetricCard({ label, value, change, dotColor = '#0891B2', progress }: Me
 
         {/* Progress bar */}
         {progress !== undefined && (
-          <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#E8F4FB' }}>
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#e0f2fe' }}>
             <div
               className="h-full rounded-full transition-all duration-500"
               style={{ width: `${progress}%`, backgroundColor: dotColor }}

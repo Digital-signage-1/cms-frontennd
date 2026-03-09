@@ -40,8 +40,8 @@ export default function SignInPage() {
     >
       {/* Header */}
       <div className="mb-7">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: '#0C1A2E' }}>Welcome back</h1>
-        <p className="mt-1.5 text-sm" style={{ color: '#334155' }}>Sign in to your account to continue</p>
+        <h1 className="text-3xl font-bold tracking-tight" style={{ color: '#0c4a6e' }}>Welcome back</h1>
+        <p className="mt-1.5 text-sm" style={{ color: '#0369a1' }}>Sign in to your account to continue</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -59,11 +59,11 @@ export default function SignInPage() {
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label htmlFor="email" className="block text-sm font-medium" style={{ color: '#0C1A2E' }}>
+          <label htmlFor="email" className="block text-sm font-medium" style={{ color: '#0c4a6e' }}>
             Email
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#94A3B8' }} />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6b7280' }} />
             <input
               id="email"
               name="email"
@@ -71,14 +71,14 @@ export default function SignInPage() {
               placeholder="you@company.com"
               required
               autoComplete="email"
-              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm outline-none transition-all focus:shadow-[0_0_0_3px_rgba(8,145,178,0.12)]"
+              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm outline-none transition-all focus:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
               style={{
-                backgroundColor: '#E8F4FB',
-                border: '1px solid #BAE6FD',
-                color: '#1A1917',
+                backgroundColor: '#e0f2fe',
+                border: '1px solid #bae6fd',
+                color: '#0c4a6e',
               }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#0891B2'; e.currentTarget.style.backgroundColor = '#FFFFFF' }}
-              onBlur={e => { e.currentTarget.style.borderColor = '#BAE6FD'; e.currentTarget.style.backgroundColor = '#E8F4FB' }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.backgroundColor = '#FFFFFF' }}
+              onBlur={e => { e.currentTarget.style.borderColor = '#bae6fd'; e.currentTarget.style.backgroundColor = '#e0f2fe' }}
             />
           </div>
         </div>
@@ -86,21 +86,21 @@ export default function SignInPage() {
         {/* Password */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label htmlFor="password" className="block text-sm font-medium" style={{ color: '#0C1A2E' }}>
+            <label htmlFor="password" className="block text-sm font-medium" style={{ color: '#0c4a6e' }}>
               Password
             </label>
             <Link
               href="/forgot-password"
               className="text-sm font-medium transition-colors"
-              style={{ color: '#0891B2' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0E7490' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#0891B2' }}
+              style={{ color: '#0ea5e9' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0284c7' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#0ea5e9' }}
             >
               Forgot?
             </Link>
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#94A3B8' }} />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6b7280' }} />
             <input
               id="password"
               name="password"
@@ -108,22 +108,22 @@ export default function SignInPage() {
               placeholder="••••••••••"
               required
               autoComplete="current-password"
-              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm outline-none transition-all focus:shadow-[0_0_0_3px_rgba(8,145,178,0.12)]"
+              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm outline-none transition-all focus:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
               style={{
-                backgroundColor: '#E8F4FB',
-                border: '1px solid #BAE6FD',
-                color: '#1A1917',
+                backgroundColor: '#e0f2fe',
+                border: '1px solid #bae6fd',
+                color: '#0c4a6e',
               }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#0891B2'; e.currentTarget.style.backgroundColor = '#FFFFFF' }}
-              onBlur={e => { e.currentTarget.style.borderColor = '#BAE6FD'; e.currentTarget.style.backgroundColor = '#E8F4FB' }}
+              onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.backgroundColor = '#FFFFFF' }}
+              onBlur={e => { e.currentTarget.style.borderColor = '#bae6fd'; e.currentTarget.style.backgroundColor = '#e0f2fe' }}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-              style={{ color: '#94A3B8' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0369A1' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#94A3B8' }}
+              style={{ color: '#6b7280' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0891B2' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#6b7280' }}
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -135,8 +135,8 @@ export default function SignInPage() {
           type="submit"
           disabled={loading}
           className="w-full h-12 rounded-lg font-semibold text-sm text-white transition-all disabled:opacity-60 mt-1 active:scale-[0.98]"
-          style={{ background: 'linear-gradient(135deg, #0891B2, #0284C7)' }}
-          onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(8,145,178,0.35)' }}
+          style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }}
+          onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(14,165,233,0.35)' }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
         >
           {loading ? (
@@ -156,12 +156,12 @@ export default function SignInPage() {
       {/* Divider */}
       <div className="relative my-7">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t" style={{ borderColor: '#BAE6FD' }} />
+          <div className="w-full border-t" style={{ borderColor: '#bae6fd' }} />
         </div>
         <div className="relative flex justify-center">
           <span
             className="px-4 text-xs uppercase tracking-widest font-medium"
-            style={{ backgroundColor: '#FFFFFF', color: '#94A3B8' }}
+            style={{ backgroundColor: '#FFFFFF', color: '#6b7280' }}
           >
             or
           </span>
@@ -173,9 +173,9 @@ export default function SignInPage() {
         <button
           type="button"
           className="flex items-center justify-center gap-2.5 h-12 rounded-lg text-sm font-medium transition-all"
-          style={{ backgroundColor: '#E8F4FB', border: '1px solid #BAE6FD', color: '#0C1A2E' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#DBEAFE'; (e.currentTarget as HTMLElement).style.borderColor = '#7DD3FC' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#E8F4FB'; (e.currentTarget as HTMLElement).style.borderColor = '#BAE6FD' }}
+          style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#0c4a6e' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.borderColor = '#7dd3fc' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd' }}
         >
           <svg className="h-4 w-4" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -188,11 +188,11 @@ export default function SignInPage() {
         <button
           type="button"
           className="flex items-center justify-center gap-2.5 h-12 rounded-lg text-sm font-medium transition-all"
-          style={{ backgroundColor: '#E8F4FB', border: '1px solid #BAE6FD', color: '#0C1A2E' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#DBEAFE'; (e.currentTarget as HTMLElement).style.borderColor = '#7DD3FC' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#E8F4FB'; (e.currentTarget as HTMLElement).style.borderColor = '#BAE6FD' }}
+          style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#0c4a6e' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.borderColor = '#7dd3fc' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd' }}
         >
-          <svg className="h-4 w-4" fill="#0C1A2E" viewBox="0 0 24 24">
+          <svg className="h-4 w-4" fill="#0c4a6e" viewBox="0 0 24 24">
             <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701" />
           </svg>
           Apple
@@ -200,14 +200,14 @@ export default function SignInPage() {
       </div>
 
       {/* Sign Up Link */}
-      <p className="mt-7 text-center text-sm" style={{ color: '#334155' }}>
+      <p className="mt-7 text-center text-sm" style={{ color: '#0369a1' }}>
         Don&apos;t have an account?{' '}
         <Link
           href="/sign-up"
           className="font-semibold transition-colors"
-          style={{ color: '#0891B2' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0E7490' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#0891B2' }}
+          style={{ color: '#0ea5e9' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0284c7' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#0ea5e9' }}
         >
           Sign up
         </Link>

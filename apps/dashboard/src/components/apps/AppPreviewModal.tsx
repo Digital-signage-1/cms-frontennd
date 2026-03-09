@@ -38,17 +38,18 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
             padding: '8px 14px',
-            backgroundColor: '#1A1A2E',
+            backgroundColor: '#FFFFFF',
             borderRadius: '12px 12px 0 0',
-            border: '1px solid #2A2A45',
+            border: '1px solid #bae6fd',
             borderBottom: 'none',
             width: '100%',
             boxSizing: 'border-box',
+            boxShadow: '0 -4px 16px rgba(14,165,233,0.08)',
           }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#FFFFFF', margin: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#0c4a6e', margin: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {app.name}
             </p>
-            <span style={{ fontSize: 11, color: '#6B7280', textTransform: 'capitalize', flexShrink: 0 }}>
+            <span style={{ fontSize: 11, color: '#6b7280', textTransform: 'capitalize', flexShrink: 0 }}>
               {app.template_type}
             </span>
 
@@ -58,14 +59,14 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
               title={isLandscape ? 'Switch to portrait' : 'Switch to landscape'}
               style={{
                 width: 28, height: 28, borderRadius: 6,
-                backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid #2A2A45',
+                backgroundColor: '#e0f2fe', border: '1px solid #bae6fd',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', flexShrink: 0,
               }}
             >
               {isLandscape
-                ? <Smartphone style={{ width: 14, height: 14, color: '#9CA3AF' }} />
-                : <Monitor style={{ width: 14, height: 14, color: '#9CA3AF' }} />
+                ? <Smartphone style={{ width: 14, height: 14, color: '#0369a1' }} />
+                : <Monitor style={{ width: 14, height: 14, color: '#0369a1' }} />
               }
             </button>
 
@@ -75,19 +76,19 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
               onClick={onClose}
               style={{
                 width: 28, height: 28, borderRadius: 6,
-                backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid #2A2A45',
+                backgroundColor: '#e0f2fe', border: '1px solid #bae6fd',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', flexShrink: 0,
               }}
             >
-              <X style={{ width: 14, height: 14, color: '#9CA3AF' }} />
+              <X style={{ width: 14, height: 14, color: '#0369a1' }} />
             </button>
           </div>
 
           {/* Screen — the "display" */}
           <div style={{
             backgroundColor: '#000',
-            border: '3px solid #2A2A45',
+            border: '3px solid #bae6fd',
             borderRadius: '0 0 4px 4px',
             overflow: 'hidden',
             aspectRatio: `${aspectW} / ${aspectH}`,
@@ -96,7 +97,7 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
             maxHeight: '75vh',
             maxWidth: '80vw',
             position: 'relative',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.5)',
+            boxShadow: '0 8px 40px rgba(14,165,233,0.15)',
           }}>
             <div style={{ width: '100%', height: '100%', position: 'relative' }}>
               <ContentRenderer
@@ -112,16 +113,16 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
           <div style={{
             width: 80,
             height: 6,
-            backgroundColor: '#2A2A45',
+            backgroundColor: '#bae6fd',
             borderRadius: '0 0 4px 4px',
             marginTop: 0,
           }} />
           <div style={{
             width: 40,
             height: 20,
-            backgroundColor: '#1E1E38',
+            backgroundColor: '#e0f2fe',
             borderRadius: '0 0 6px 6px',
-            border: '1px solid #2A2A45',
+            border: '1px solid #bae6fd',
             borderTop: 'none',
           }} />
         </div>
