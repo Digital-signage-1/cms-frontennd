@@ -36,7 +36,7 @@ function Sparkline({ color, uid }: { color: string; uid: string }) {
     >
       <defs>
         <linearGradient id={uid} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+          <stop offset="0%" stopColor={color} stopOpacity="0.20" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
@@ -45,7 +45,7 @@ function Sparkline({ color, uid }: { color: string; uid: string }) {
         points={linePoints}
         fill="none"
         stroke={color}
-        strokeWidth="2"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -53,23 +53,35 @@ function Sparkline({ color, uid }: { color: string; uid: string }) {
   )
 }
 
-function MetricCard({ label, value, change, dotColor = '#F5A624', progress }: MetricCardProps) {
+function MetricCard({ label, value, change, dotColor = '#0ea5e9', progress }: MetricCardProps) {
   const uid = useId().replace(/:/g, '-')
   const sparkId = `spark-${uid}`
 
   const trendColor =
-    change?.trend === 'up' ? '#34D399' : change?.trend === 'down' ? '#F87171' : dotColor
+    change?.trend === 'up' ? '#059669' : change?.trend === 'down' ? '#DC2626' : dotColor
   const trendBg =
     change?.trend === 'up'
-      ? 'rgba(52,211,153,0.12)'
+      ? 'rgba(5,150,105,0.08)'
       : change?.trend === 'down'
-      ? 'rgba(248,113,113,0.12)'
-      : `${dotColor}20`
+      ? 'rgba(220,38,38,0.08)'
+      : `${dotColor}15`
 
   return (
     <div
-      className="rounded-xl flex flex-col relative overflow-hidden"
-      style={{ backgroundColor: '#1C1C1C', border: '1px solid #242424' }}
+      className="rounded-xl flex flex-col relative overflow-hidden transition-all duration-200 cursor-default"
+      style={{
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #bae6fd',
+        boxShadow: '0 1px 3px rgba(14,165,233,0.06)',
+      }}
+      onMouseEnter={e => {
+        (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04)'
+        ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)'
+      }}
+      onMouseLeave={e => {
+        (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'
+        ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
+      }}
     >
       {/* Top content area */}
       <div className="px-4 pt-4 pb-3 flex flex-col gap-3 flex-1">
@@ -77,7 +89,7 @@ function MetricCard({ label, value, change, dotColor = '#F5A624', progress }: Me
         <div className="flex items-center justify-between">
           <span
             className="text-xs uppercase font-semibold tracking-widest"
-            style={{ color: '#6B7280', letterSpacing: '0.1em' }}
+            style={{ color: '#6b7280', letterSpacing: '0.1em' }}
           >
             {label}
           </span>
@@ -85,17 +97,17 @@ function MetricCard({ label, value, change, dotColor = '#F5A624', progress }: Me
             className="w-2.5 h-2.5 rounded-full flex-shrink-0"
             style={{
               backgroundColor: dotColor,
-              boxShadow: `0 0 8px ${dotColor}70`,
+              boxShadow: `0 0 6px ${dotColor}50`,
             }}
           />
         </div>
 
         {/* Value */}
-        <p className="text-4xl font-bold leading-none tracking-tight" style={{ color: '#FFFFFF' }}>
+        <p className="text-4xl font-bold leading-none tracking-tight" style={{ color: '#0c4a6e' }}>
           {typeof value === 'string' && value.endsWith(' GB') ? (
             <>
               {value.slice(0, -3)}
-              <span className="text-2xl font-semibold ml-0.5" style={{ color: '#9CA3AF' }}>GB</span>
+              <span className="text-2xl font-semibold ml-0.5" style={{ color: '#6b7280' }}>GB</span>
             </>
           ) : value}
         </p>
@@ -111,11 +123,11 @@ function MetricCard({ label, value, change, dotColor = '#F5A624', progress }: Me
           </span>
         )}
 
-        {/* Progress bar (e.g. storage) */}
+        {/* Progress bar */}
         {progress !== undefined && (
-          <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: '#2A2A2A' }}>
+          <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: '#e0f2fe' }}>
             <div
-              className="h-full rounded-full"
+              className="h-full rounded-full transition-all duration-500"
               style={{ width: `${progress}%`, backgroundColor: dotColor }}
             />
           </div>

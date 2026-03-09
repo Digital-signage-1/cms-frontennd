@@ -35,9 +35,9 @@ const topics = [
     label: 'Content & Media',
     description: 'Upload, organize, and manage your content',
     articles: 24,
-    color: 'text-violet-400',
-    bg: 'bg-violet-400/10',
-    border: 'border-violet-400/20',
+    color: 'text-sky-500',
+    bg: 'bg-sky-500/10',
+    border: 'border-sky-500/20',
   },
   {
     icon: Clock,

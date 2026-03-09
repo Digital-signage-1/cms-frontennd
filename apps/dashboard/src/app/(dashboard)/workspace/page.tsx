@@ -560,13 +560,13 @@ export default function WorkspaceSettingsPage() {
       {/* Remove Member Confirmation Dialog */}
       <Dialog open={!!removeMemberTarget} onOpenChange={(open) => { if (!open) setRemoveMemberTarget(null) }}>
         <DialogContent hideClose className="!p-0 max-w-sm">
-          <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid #1E1E38', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+          <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid #bae6fd', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
             <div style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <AlertTriangle className="h-5 w-5" style={{ color: '#F87171' }} />
+              <AlertTriangle className="h-5 w-5" style={{ color: '#DC2626' }} />
             </div>
             <div>
-              <h2 style={{ fontSize: 17, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Remove Member</h2>
-              <p style={{ fontSize: 13, color: '#6B7280', margin: '4px 0 0', lineHeight: 1.4 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 700, color: '#0c4a6e', margin: 0 }}>Remove Member</h2>
+              <p style={{ fontSize: 13, color: '#0369a1', margin: '4px 0 0', lineHeight: 1.4 }}>
                 Remove <strong>{removeMemberTarget?.name || removeMemberTarget?.email || 'this member'}</strong> from the workspace? They will lose all access.
               </p>
             </div>
@@ -574,7 +574,7 @@ export default function WorkspaceSettingsPage() {
           <div style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
             <button
               onClick={() => setRemoveMemberTarget(null)}
-              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#1A1A30', border: '1px solid #2A2A45', color: '#9CA3AF', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#0369a1', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >
               Cancel
             </button>
