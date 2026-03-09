@@ -6,14 +6,14 @@ import { useRouter } from 'next/navigation'
 import { Button, Input } from '@/components/ui'
 import { StatusDot } from '@/components/ui/status-dot'
 import {
-  ArrowLeft, Save, Upload, Play, Pause, Settings, Monitor,
+  ArrowLeft, Save, Upload, Play, Pause, Settings,
   Image, Video, Clock, Cloud, Globe, Code, LayoutGrid, FileText,
-  Plus, Layers, ChevronLeft, ChevronRight, X, Trash2
+  Plus, Layers, ChevronLeft, ChevronRight, X, GripVertical
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import {
   useChannel, useChannelManifest, useUpdateChannel, usePublishChannel,
-  useAddZoneApp, useCreateZone, useChannelZones, useCreateSlide, useUpdateSlide, useDeleteSlide
+  useAddZoneApp, useCreateZone, useDeleteZone, useCreateSlide, useUpdateSlide, useDeleteSlide
 } from '@/hooks/queries/useChannels'
 import { useApps } from '@/hooks/queries'
 import { useContentItem } from '@/hooks/queries/useContent'
@@ -24,6 +24,7 @@ import { getAllLayoutTemplates, type LayoutTemplate } from '@/lib/layout-templat
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 
 const layoutTemplates = getAllLayoutTemplates()
 
@@ -34,6 +35,7 @@ function ContentLibraryCard({
   zoneName,
   onAddToZone,
   isAdding,
+  onDragStateChange,
 }: {
   app: any
   workspaceId: number | string
@@ -41,7 +43,9 @@ function ContentLibraryCard({
   zoneName?: string
   onAddToZone: () => void
   isAdding: boolean
+  onDragStateChange?: (isDragging: boolean) => void
 }) {
+  const [isDragging, setIsDragging] = useState(false)
   const iconMap: Record<string, any> = {
     image: Image, video: Video, web: Globe, html: Code, clock: Clock, weather: Cloud, youtube: Play, pdf: FileText,
   }
@@ -57,13 +61,40 @@ function ContentLibraryCard({
       preview_url: previewUrl || app.preview_url,
     }))
     e.dataTransfer.effectAllowed = 'copy'
+
+    // Custom drag image
+    const dragEl = e.currentTarget.cloneNode(true) as HTMLElement
+    dragEl.style.width = '220px'
+    dragEl.style.opacity = '0.9'
+    dragEl.style.transform = 'rotate(2deg)'
+    dragEl.style.position = 'absolute'
+    dragEl.style.top = '-9999px'
+    dragEl.style.borderColor = '#0ea5e9'
+    dragEl.style.boxShadow = '0 8px 25px rgba(14,165,233,0.3)'
+    document.body.appendChild(dragEl)
+    e.dataTransfer.setDragImage(dragEl, 110, 30)
+    setTimeout(() => document.body.removeChild(dragEl), 0)
+
+    setIsDragging(true)
+    onDragStateChange?.(true)
+  }
+
+  const handleDragEnd = () => {
+    setIsDragging(false)
+    onDragStateChange?.(false)
   }
 
   return (
     <div
       draggable
       onDragStart={handleDragStart}
-      className="w-full group border border-border rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all cursor-grab active:cursor-grabbing"
+      onDragEnd={handleDragEnd}
+      className={cn(
+        "w-full group border rounded-lg transition-all",
+        isDragging
+          ? "border-primary bg-primary/5 opacity-50 scale-[0.97] shadow-none"
+          : "border-border hover:border-primary/50 hover:bg-primary/5 hover:shadow-sm cursor-grab active:cursor-grabbing"
+      )}
     >
       <button
         type="button"
@@ -72,12 +103,16 @@ function ContentLibraryCard({
         disabled={!selectedZone || isAdding}
       >
         <div className="flex items-center gap-3 p-3">
-          <div className="w-14 h-14 flex-shrink-0 rounded-lg overflow-hidden bg-surface border border-border">
+          {/* Drag grip handle */}
+          <div className="flex-shrink-0 text-text-muted/40 group-hover:text-text-muted/70 transition-colors">
+            <GripVertical className="h-4 w-4" />
+          </div>
+          <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-surface border border-border">
             {previewUrl ? (
               <img src={previewUrl} alt={app.name} className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                <Icon className="h-6 w-6 text-primary" />
+                <Icon className="h-5 w-5 text-primary" />
               </div>
             )}
           </div>
@@ -85,7 +120,9 @@ function ContentLibraryCard({
             <p className="font-medium text-text-primary text-sm truncate">{app.name}</p>
             <p className="text-xs text-text-muted capitalize">{app.template_type}</p>
             {selectedZone && zoneName && (
-              <p className="text-xs text-primary mt-0.5">Click to add to {zoneName}</p>
+              <p className="text-xs text-primary mt-0.5 truncate">
+                Click to add to <span className="font-medium">{zoneName}</span>
+              </p>
             )}
           </div>
         </div>
@@ -95,6 +132,7 @@ function ContentLibraryCard({
 }
 
 interface Zone {
+  id?: number
   zone_id: string
   name: string
   x_percent: number
@@ -129,6 +167,10 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const [editingDuration, setEditingDuration] = useState<string>('')
   const [editingSlideIndex, setEditingSlideIndex] = useState<number | null>(null)
   const [newSlideDuration, setNewSlideDuration] = useState(10)
+  const [deleteSlideConfirm, setDeleteSlideConfirm] = useState<{ idx: number; slideId: number } | null>(null)
+  const [isDraggingContent, setIsDraggingContent] = useState(false)
+  const [isCreatingZone, setIsCreatingZone] = useState(false)
+  const [deleteZoneConfirm, setDeleteZoneConfirm] = useState<{ zoneId: string; zoneName: string } | null>(null)
 
   const channelIdNum = parseInt(resolvedParams.id, 10)
   const { data: channelData, isLoading: channelLoading } = useChannel(workspaceId, channelIdNum)
@@ -139,6 +181,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const publishChannelMutation = usePublishChannel()
   const addZoneAppMutation = useAddZoneApp()
   const createZoneMutation = useCreateZone()
+  const deleteZoneMutation = useDeleteZone()
   const createSlideMutation = useCreateSlide()
   const updateSlideMutation = useUpdateSlide()
   const deleteSlideMutation = useDeleteSlide()
@@ -274,22 +317,46 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
 
   const handleZoneDelete = async (zoneId: string) => {
     if (!workspaceId || !channelData) return
-    // TODO: Implement zone delete API call
-    console.log('Zone delete:', zoneId)
+    const apiId = resolveZoneApiId(zoneId)
+    if (apiId == null) {
+      console.error('Cannot delete zone: no ID found for', zoneId)
+      return
+    }
+    try {
+      await deleteZoneMutation.mutateAsync({
+        workspaceId,
+        channelId: channelData.id!,
+        zoneId: apiId,
+      })
+      if (selectedZone === zoneId) setSelectedZone(null)
+    } catch (error) {
+      console.error('Failed to delete zone:', error)
+    }
+  }
+
+  /** Resolve the zone identifier for API calls. Prefers numeric `id`, falls back to string `zone_id`. */
+  const resolveZoneApiId = (zoneId: string): number | string | null => {
+    const zone = zones.find(z => z.zone_id === zoneId || String(z.id) === zoneId)
+    if (!zone) return null
+    // If the zone has a numeric id from the DB, use it; otherwise use the string zone_id
+    if (zone.id != null && zone.id > 0) return zone.id
+    return zone.zone_id
   }
 
   const addAppToZone = async (zoneId: string, app: any) => {
     if (!workspaceId || !channelData) return
     const appId = app.id ?? app.app_id
     if (appId == null || appId === '') return
-    const zone = zones.find((z: any) => z.zone_id === zoneId || (z as any).id === parseInt(zoneId, 10))
-    const zoneIdForApi = zone ? (zone as any).zone_id ?? (zone as any).id : zoneId
-    if (zoneIdForApi == null || zoneIdForApi === '') return
+    const apiZoneId = resolveZoneApiId(zoneId)
+    if (apiZoneId == null) {
+      console.error('Cannot add app: no zone ID found for', zoneId)
+      return
+    }
     try {
       await addZoneAppMutation.mutateAsync({
         workspaceId,
         channelId: channelData.id!,
-        zoneId: zoneIdForApi,
+        zoneId: apiZoneId,
         data: {
           app_id: appId,
           duration_seconds: 30,
@@ -464,8 +531,15 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                   <div className="mb-4">
                     <h3 className="text-sm font-semibold text-text-primary mb-2">Content Library</h3>
                     <p className="text-xs text-text-muted">
-                      Drag content onto zones or click to add to selected zone
+                      {isDraggingContent
+                        ? 'Now drop it onto a zone on the canvas →'
+                        : 'Drag content onto zones or click to add to selected zone'}
                     </p>
+                    {isDraggingContent && (
+                      <div className="mt-2 h-1 w-full bg-primary/20 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary rounded-full animate-pulse w-full" />
+                      </div>
+                    )}
                   </div>
 
                   {appsLoading ? (
@@ -501,6 +575,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                           zoneName={zones.find(z => z.zone_id === selectedZone)?.name}
                           onAddToZone={() => selectedZone && addAppToZone(selectedZone, app)}
                           isAdding={addZoneAppMutation.isPending}
+                          onDragStateChange={setIsDraggingContent}
                         />
                       ))}
                     </div>
@@ -542,9 +617,21 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
         {/* Center - Canvas */}
         <div className="flex-1 flex flex-col">
           <ZoneToolbar
-            onAddZone={() => {}}
+            onAddZone={() => setIsCreatingZone(prev => !prev)}
             onToggleGrid={() => setShowGrid(!showGrid)}
             showGrid={showGrid}
+            isCreatingZone={isCreatingZone}
+            selectedZone={selectedZone}
+            onDeleteZone={() => {
+              if (!selectedZone) return
+              const zone = zones.find(z => z.zone_id === selectedZone)
+              setDeleteZoneConfirm({ zoneId: selectedZone, zoneName: zone?.name || 'this zone' })
+            }}
+            onDuplicateZone={() => {
+              // TODO: Implement zone duplication
+              if (selectedZone) console.log('Duplicate zone:', selectedZone)
+            }}
+            isDeletingZone={deleteZoneMutation.isPending}
           />
 
           <div className="px-4 py-2 border-b border-border bg-surface flex items-center gap-2">
@@ -586,11 +673,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
-                            if (!confirm(`Delete slide ${idx + 1}?`)) return
-                            deleteSlideMutation.mutate(
-                              { workspaceId, channelId, slideId: slide.id },
-                              { onSuccess: () => setSelectedSlideIndex(Math.max(0, idx - 1)) }
-                            )
+                            setDeleteSlideConfirm({ idx, slideId: slide.id })
                           }}
                           disabled={deleteSlideMutation.isPending}
                           className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-error text-white flex items-center justify-center hover:bg-red-600 transition-colors"
@@ -734,9 +817,12 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                   onZoneCreate={handleZoneCreate}
                   onZoneUpdate={handleZoneUpdate}
                   onZoneDelete={handleZoneDelete}
-                  onZoneDuplicate={(zoneId) => {}}
+                  onZoneDuplicate={() => {}}
                   onZoneDrop={handleZoneDrop}
                   showGrid={showGrid}
+                  isDraggingContent={isDraggingContent}
+                  isCreatingZone={isCreatingZone}
+                  onCreatingZoneChange={setIsCreatingZone}
                 />
               </div>
             </motion.div>
@@ -744,6 +830,37 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={!!deleteSlideConfirm}
+        onOpenChange={(open) => { if (!open) setDeleteSlideConfirm(null) }}
+        title="Delete Slide"
+        description={`Delete slide ${deleteSlideConfirm ? deleteSlideConfirm.idx + 1 : ''}? This cannot be undone.`}
+        confirmText="Delete"
+        onConfirm={() => {
+          if (deleteSlideConfirm) {
+            deleteSlideMutation.mutate(
+              { workspaceId, channelId, slideId: deleteSlideConfirm.slideId },
+              { onSuccess: () => setSelectedSlideIndex(Math.max(0, deleteSlideConfirm.idx - 1)) }
+            )
+          }
+          setDeleteSlideConfirm(null)
+        }}
+      />
+
+      <ConfirmDialog
+        open={!!deleteZoneConfirm}
+        onOpenChange={(open) => { if (!open) setDeleteZoneConfirm(null) }}
+        title="Delete Zone"
+        description={`Delete "${deleteZoneConfirm?.zoneName}"? All content assigned to this zone will be removed. This cannot be undone.`}
+        confirmText="Delete"
+        onConfirm={() => {
+          if (deleteZoneConfirm) {
+            handleZoneDelete(deleteZoneConfirm.zoneId)
+          }
+          setDeleteZoneConfirm(null)
+        }}
+      />
 
       <Dialog open={showAddSlideModal} onOpenChange={setShowAddSlideModal}>
         <DialogContent className="max-w-3xl">
@@ -793,12 +910,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
 
       <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
         <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-          <div className="flex items-center justify-between gap-4">
-            <DialogTitle className="text-lg font-semibold">Preview</DialogTitle>
-            <Button variant="ghost" size="icon" onClick={() => setShowPreviewModal(false)}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-lg font-semibold">Preview</DialogTitle>
           {manifestData?.slides?.length ? (
             <>
               <div className="flex flex-col gap-1">

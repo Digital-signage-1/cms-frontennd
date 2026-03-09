@@ -9,6 +9,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/stores/auth-store'
 import { useApps, useDeleteApp } from '@/hooks/queries/useApps'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { formatDate } from '@/lib/utils'
 import { AppPreviewModal } from '@/components/apps/AppPreviewModal'
@@ -200,6 +201,7 @@ export default function AppsPage() {
   const [viewMode,       setViewMode]       = useState<'grid' | 'list'>('grid')
   const [listThumbFailed, setListThumbFailed] = useState<Set<string>>(new Set())
   const [previewApp,     setPreviewApp]     = useState<SignageApp | null>(null)
+  const [deleteTarget,   setDeleteTarget]   = useState<SignageApp | null>(null)
 
   useEffect(() => {
     setBreadcrumbItems([{ label: 'Apps' }])
@@ -230,13 +232,18 @@ export default function AppsPage() {
     })
   }, [appList, statusFilter, categoryFilter, searchQuery])
 
-  const handleDelete = async (app: SignageApp) => {
-    if (!confirm(`Delete "${app.name}"?`)) return
+  const handleDelete = (app: SignageApp) => {
+    setDeleteTarget(app)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return
     try {
-      await deleteAppMutation.mutateAsync({ workspaceId, appId: app.id })
+      await deleteAppMutation.mutateAsync({ workspaceId, appId: deleteTarget.id })
     } catch (err) {
       console.error('Failed to delete app:', err)
     }
+    setDeleteTarget(null)
   }
 
   if (error) {
@@ -548,6 +555,16 @@ export default function AppsPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null) }}
+        title="Delete App"
+        description={`Delete "${deleteTarget?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        onConfirm={confirmDelete}
+        loading={deleteAppMutation.isPending}
+      />
 
       {/* Preview Modal */}
       {previewApp && (

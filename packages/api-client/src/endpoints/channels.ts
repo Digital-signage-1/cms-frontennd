@@ -53,7 +53,7 @@ export function createChannelsEndpoints(client: ApiClient) {
     updateZone: (workspaceId: number, channelId: number, zoneId: number, data: Partial<ChannelZone>) =>
       client.patch<ChannelZone>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/${zoneId}`, data),
     
-    deleteZone: (workspaceId: number, channelId: number, zoneId: number) =>
+    deleteZone: (workspaceId: number, channelId: number, zoneId: number | string) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/zones/${zoneId}`),
     
     listZoneApps: (workspaceId: number, channelId: number, zoneId: number) =>

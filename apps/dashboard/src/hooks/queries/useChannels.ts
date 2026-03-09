@@ -195,6 +195,27 @@ export function useCreateZone() {
   })
 }
 
+export function useDeleteZone() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      channelId,
+      zoneId,
+    }: {
+      workspaceId: number
+      channelId: number
+      zoneId: number | string
+    }) => api.channels.deleteZone(workspaceId, channelId, zoneId),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'zones'] })
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId, variables.channelId, 'manifest'] })
+    },
+  })
+}
+
 export function useAddZoneApp() {
   const queryClient = useQueryClient()
 

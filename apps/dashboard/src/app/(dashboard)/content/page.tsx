@@ -16,6 +16,7 @@ import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { formatBytes } from '@/lib/utils'
 import { CreateFolderModal } from '@/components/content/CreateFolderModal'
 import { uploadFileToS3 } from '@/lib/upload'
+import { toast } from '@/hooks/use-toast'
 import type { Folder as FolderType } from '@signage/types'
 
 // ── Design tokens ──────────────────────────────────────────────────────────
@@ -173,7 +174,7 @@ export default function ContentPage() {
     const w = store.workspace
     const ws = store.workspaces
     const currentWorkspaceId = w?.id || (w as any)?.workspace_id || ws?.[0]?.id || (ws?.[0] as any)?.workspace_id || workspaceId
-    if (!currentWorkspaceId) return alert('No workspace found. Please refresh and try again.')
+    if (!currentWorkspaceId) return toast.error('No workspace found. Please refresh and try again.')
     for (const file of Array.from(files)) {
       const fileId = `${file.name}-${file.size}-${Date.now()}`
       try {
@@ -188,7 +189,7 @@ export default function ContentPage() {
         }, 2000)
       } catch (err) {
         setUploadStatus((p) => ({ ...p, [fileId]: 'error' }))
-        alert(`Upload failed: ${err instanceof Error ? err.message : 'Try again'}`)
+        toast.error(`Upload failed: ${err instanceof Error ? err.message : 'Try again'}`)
         setTimeout(() => {
           setUploadStatus((p) => { const n = { ...p }; delete n[fileId]; return n })
           setUploadProgress((p) => { const n = { ...p }; delete n[fileId]; return n })
@@ -198,19 +199,19 @@ export default function ContentPage() {
   }
 
   const handleDelete = async (ids: string[]) => {
-    if (!workspaceId) return alert('Please select a workspace before deleting.')
+    if (!workspaceId) return toast.error('Please select a workspace before deleting.')
     const folderIds = ids.filter((id) => id.startsWith('folder:')).map((id) => id.replace('folder:', ''))
     const contentIds = ids.filter((id) => id.startsWith('content:')).map((id) => id.replace('content:', ''))
     for (const folderId of folderIds) {
       try {
         await deleteFolderMutation.mutateAsync({ workspaceId, folderId })
         if (currentFolder === folderId) setCurrentFolder(null)
-      } catch (err) { alert(`Delete folder failed: ${err instanceof Error ? err.message : 'Try again'}`) }
+      } catch (err) { toast.error(`Delete folder failed: ${err instanceof Error ? err.message : 'Try again'}`) }
     }
     for (const contentId of contentIds) {
       try {
         await deleteMutation.mutateAsync({ workspaceId, contentId })
-      } catch (err) { alert(`Delete content failed: ${err instanceof Error ? err.message : 'Try again'}`) }
+      } catch (err) { toast.error(`Delete content failed: ${err instanceof Error ? err.message : 'Try again'}`) }
     }
     setSelectedAssets([])
   }
