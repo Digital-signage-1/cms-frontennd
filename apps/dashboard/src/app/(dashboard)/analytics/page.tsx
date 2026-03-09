@@ -176,20 +176,26 @@ export default function AnalyticsPage() {
             }}
           />
 
-          <div className="relative z-10 responsive-hero pb-5">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-3">
-              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#0ea5e9' }}>
-                Analytics
-              </p>
+          <div className="relative z-10 responsive-hero pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
+              <div>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-0.5" style={{ color: '#0ea5e9' }}>
+                  Analytics
+                </p>
+                <h1 className="text-lg sm:text-xl font-bold" style={{ color: '#0c4a6e' }}>Performance Metrics</h1>
+                <p className="text-xs mt-0.5 max-w-2xl" style={{ color: '#0369a1' }}>
+                  Track audience engagement, content performance, and device health across your display network.
+                </p>
+              </div>
 
-              <div className="flex items-center gap-1 overflow-x-auto scroll-x pb-1 sm:pb-0 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-1 overflow-x-auto scroll-x flex-wrap sm:flex-nowrap flex-shrink-0">
                 {TIME_PERIODS.map((t) => {
                   const isActive = timePeriod === t
                   return (
                     <button
                       key={t}
                       onClick={() => setTimePeriod(t)}
-                      className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all flex-shrink-0 touch-target"
+                      className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex-shrink-0 touch-target"
                       style={
                         isActive
                           ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
@@ -207,34 +213,29 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            <h1 className="text-2xl sm:text-4xl font-bold mb-2" style={{ color: '#0c4a6e' }}>Performance Metrics</h1>
-            <p className="text-sm mb-4 sm:mb-6 max-w-2xl" style={{ color: '#0369a1' }}>
-              Track audience engagement, content performance, and device health across your display network.
-            </p>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
               {KPI_CARDS.map(({ label, value, change, valueColor, iconColor, iconBg, Icon }) => (
                 <div
                   key={label}
-                  className="rounded-xl p-5"
+                  className="rounded-lg px-3 py-2.5"
                   style={{
                     backgroundColor: 'rgba(255,255,255,0.75)',
                     border: '1px solid rgba(14,165,233,0.07)',
                   }}
                 >
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-1.5">
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                      className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
                       style={{ backgroundColor: iconBg }}
                     >
-                      <Icon className="h-4 w-4" style={{ color: iconColor }} />
+                      <Icon className="h-3.5 w-3.5" style={{ color: iconColor }} />
                     </div>
-                    <span className="text-sm" style={{ color: '#0369a1' }}>{label}</span>
+                    <span className="text-xs" style={{ color: '#0369a1' }}>{label}</span>
                   </div>
-                  <p className="text-3xl font-bold tracking-tight" style={{ color: valueColor }}>
+                  <p className="text-xl font-bold tracking-tight" style={{ color: valueColor }}>
                     {value}
                   </p>
-                  <p className="text-xs mt-2" style={{ color: '#0369a1' }}>
+                  <p className="text-[10px] mt-1" style={{ color: '#0369a1' }}>
                     {change}
                   </p>
                 </div>

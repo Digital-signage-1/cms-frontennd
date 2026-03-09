@@ -413,6 +413,8 @@ Dark mode CSS variables are kept in the `.dark` class in `globals.css` for poten
 
 | Date | Change | Files |
 |---|---|---|
+| 2026-03-09 | **Fixed header layout** — Restructured dashboard layout: outer wrapper `h-screen flex flex-col overflow-hidden`, main content `flex-1 overflow-y-auto`. Header no longer `sticky` — stays fixed at top naturally because only `<main>` scrolls. Sidebar logo `h-16` → `h-14` to match header. Pages using `calc(100vh - 3.5rem)` updated to `height: 100%`. | layout.tsx, header.tsx, sidebar.tsx, players/page, apps/create/page |
+| 2026-03-09 | **Compact hero banners** — Reduced hero/header section size across all dashboard pages. Title: `text-lg/xl` (was `text-2xl/4xl`). Label: `text-[10px]` (was `text-xs`). Description: `text-xs` (was `text-sm`). Stat cards: smaller padding (`px-3 py-2`), smaller icons (`w-7 h-7`), smaller values (`text-sm`). Responsive-hero padding reduced to `clamp(0.625rem,1.5vw,0.875rem)`. | globals.css, home/page, content/page, channels/page, schedules/page, players/page, analytics/page |
 | 2026-03-09 | **Ocean Breeze complete redesign** — Replaced Aurora Mist violet theme with Ocean Breeze sky-blue theme across entire application. New palette: Background `#f0f9ff` (soft sky), Primary `#0ea5e9` (sky blue), Secondary `#06B6D4` (cyan), Brand gradient `linear-gradient(135deg, #0ea5e9, #06b6d4)`, Border `#bae6fd`, Text `#0c4a6e`. Blue-tinted shadows. Updated globals.css, all auth pages, sidebar, header, all dashboard pages, all modals/drawers/components, command palette. | All UI files |
 | 2026-03-08 | Aurora Mist complete redesign — violet-cyan theme | All UI files |
 | 2026-03-01 | Dashboard light studio theme conversion (partial) | Multiple |

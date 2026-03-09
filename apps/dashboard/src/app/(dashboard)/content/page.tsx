@@ -266,25 +266,29 @@ export default function ContentPage() {
         />
 
         {/* Title row */}
-        <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 responsive-hero pb-4">
-          <div>
-            <p
-              className="text-xs uppercase font-semibold mb-2"
-              style={{ color: '#0ea5e9', letterSpacing: '0.15em' }}
-            >
-              Content Library
-            </p>
-            <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1.5" style={{ color: '#0c4a6e' }}>
-              Media Library
-            </h1>
-            <p className="text-sm" style={{ color: '#0369a1' }}>
-              Manage your content and folders. Upload, organize, and deploy media to your displays.
-            </p>
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 responsive-hero pb-2">
+          <div className="flex items-center gap-3">
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <p
+                  className="text-[10px] uppercase font-semibold"
+                  style={{ color: '#0ea5e9', letterSpacing: '0.15em' }}
+                >
+                  Content Library
+                </p>
+              </div>
+              <h1 className="text-lg sm:text-xl font-bold leading-tight" style={{ color: '#0c4a6e' }}>
+                Media Library
+              </h1>
+              <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
+                Manage your content and folders. Upload, organize, and deploy media to your displays.
+              </p>
+            </div>
           </div>
 
           <button
             onClick={() => document.getElementById('file-upload')?.click()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 transition-opacity hover:opacity-90 touch-target self-start"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold flex-shrink-0 transition-opacity hover:opacity-90 touch-target self-start sm:self-center"
             style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
           >
             <UploadCloud className="h-4 w-4" />
@@ -297,7 +301,7 @@ export default function ContentPage() {
         </div>
 
         {/* Stat cards */}
-        <div className="relative grid grid-cols-2 sm:flex sm:items-stretch gap-3 px-4 sm:px-7 pb-5">
+        <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-2 px-3 sm:px-5 pb-3">
           {[
             { label: 'Total Files',   value: totalFiles.toString(),   Icon: FileText   },
             { label: 'Storage Used',  value: formatBytes(storageUsed), Icon: HardDrive  },
@@ -306,21 +310,21 @@ export default function ContentPage() {
           ].map(({ label, value, Icon }) => (
             <div
               key={label}
-              className="flex items-center gap-3 px-3 sm:px-4 py-3 rounded-xl sm:flex-1"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-lg"
               style={{
                 backgroundColor: 'rgba(255,255,255,0.75)',
                 border: '1px solid rgba(14,165,233,0.07)',
               }}
             >
               <div
-                className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+                className="flex-shrink-0 w-7 h-7 rounded-md flex items-center justify-center"
                 style={{ backgroundColor: 'rgba(14,165,233,0.07)' }}
               >
-                <Icon className="h-4 w-4" style={{ color: '#6b7280' }} />
+                <Icon className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-medium" style={{ color: '#0369a1' }}>{label}</p>
-                <p className="text-base sm:text-lg font-bold leading-tight truncate" style={{ color: '#0c4a6e' }}>{value}</p>
+                <p className="text-[10px] font-medium leading-tight" style={{ color: '#0369a1' }}>{label}</p>
+                <p className="text-sm font-bold leading-tight truncate" style={{ color: '#0c4a6e' }}>{value}</p>
               </div>
             </div>
           ))}

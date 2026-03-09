@@ -162,7 +162,7 @@ export default function HomePage() {
 
         <div className="relative">
           <p
-            className="text-xs uppercase tracking-widest font-semibold mb-2"
+            className="text-[10px] uppercase tracking-widest font-semibold mb-0.5"
             style={{
               background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)',
               WebkitBackgroundClip: 'text',
@@ -173,7 +173,7 @@ export default function HomePage() {
           >
             Dashboard
           </p>
-          <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1.5" style={{ color: '#0c4a6e' }}>
+          <h1 className="text-lg sm:text-xl font-bold leading-tight" style={{ color: '#0c4a6e' }}>
             {greeting},{' '}
             <span
               style={{
@@ -186,7 +186,7 @@ export default function HomePage() {
               {userName}
             </span>
           </h1>
-          <p className="text-sm" style={{ color: '#0369a1' }}>
+          <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
             Your signage network is performing well. Here&apos;s what&apos;s happening.
           </p>
         </div>

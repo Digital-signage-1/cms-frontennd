@@ -55,7 +55,7 @@ export function Header({ breadcrumbItems }: HeaderProps) {
 
   return (
     <header
-      className="sticky top-0 z-30 flex h-14 items-center justify-between px-3 sm:px-6"
+      className="z-30 flex h-14 items-center justify-between px-3 sm:px-6 flex-shrink-0"
       style={{
         backgroundColor: '#FFFFFF',
         borderBottom: '1px solid #bae6fd',

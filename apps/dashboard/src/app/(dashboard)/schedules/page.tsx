@@ -310,24 +310,24 @@ export default function SchedulesPage() {
             }}
           />
 
-          <div className="relative z-10 responsive-hero pb-5">
+          <div className="relative z-10 responsive-hero pb-3">
             {/* Top row: label + heading + button */}
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2.5">
               <div>
                 <p
-                  className="text-xs font-semibold tracking-widest uppercase mb-2"
+                  className="text-[10px] font-semibold tracking-widest uppercase mb-0.5"
                   style={{ color: '#0ea5e9' }}
                 >
                   Schedule Timeline
                 </p>
-                <h1 className="text-2xl sm:text-4xl font-bold mb-2" style={{ color: '#0c4a6e' }}>Schedules</h1>
-                <p className="text-sm max-w-xl" style={{ color: '#0369a1' }}>
+                <h1 className="text-lg sm:text-xl font-bold" style={{ color: '#0c4a6e' }}>Schedules</h1>
+                <p className="text-xs mt-0.5 max-w-xl" style={{ color: '#0369a1' }}>
                   Visualize and manage your content schedules. Automate playback across your display network.
                 </p>
               </div>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm flex-shrink-0 sm:mt-1 self-start touch-target"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm flex-shrink-0 self-start sm:self-center touch-target"
                 style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
               >
                 <Plus className="h-4 w-4" />
@@ -336,104 +336,104 @@ export default function SchedulesPage() {
             </div>
 
             {/* Stat cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
               {/* Total Schedules */}
               <div
-                className="rounded-xl p-4 flex items-center gap-3"
+                className="rounded-lg px-3 py-2 flex items-center gap-2.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
                   border: '1px solid rgba(14,165,233,0.07)',
                 }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
+                  className="w-7 h-7 rounded-md flex items-center justify-center text-sm flex-shrink-0"
                   style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
                 >
                   📅
                 </div>
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#0369a1' }}>Total Schedules</p>
-                  <p className="text-xl font-bold" style={{ color: '#0ea5e9' }}>{stats.total}</p>
+                  <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>Total Schedules</p>
+                  <p className="text-sm font-bold" style={{ color: '#0ea5e9' }}>{stats.total}</p>
                 </div>
               </div>
 
               {/* Active */}
               <div
-                className="rounded-xl p-4 flex items-center gap-3"
+                className="rounded-lg px-3 py-2 flex items-center gap-2.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
                   border: '1px solid rgba(14,165,233,0.07)',
                 }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                  className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
                 >
-                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#22C55E' }} />
+                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#22C55E' }} />
                 </div>
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#0369a1' }}>Active</p>
-                  <p className="text-xl font-bold" style={{ color: '#34D399' }}>{stats.active}</p>
+                  <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>Active</p>
+                  <p className="text-sm font-bold" style={{ color: '#34D399' }}>{stats.active}</p>
                 </div>
               </div>
 
               {/* Paused */}
               <div
-                className="rounded-xl p-4 flex items-center gap-3"
+                className="rounded-lg px-3 py-2 flex items-center gap-2.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
                   border: '1px solid rgba(14,165,233,0.07)',
                 }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
+                  className="w-7 h-7 rounded-md flex items-center justify-center text-sm flex-shrink-0"
                   style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
                 >
                   ⏸
                 </div>
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#0369a1' }}>Paused</p>
-                  <p className="text-xl font-bold" style={{ color: '#0c4a6e' }}>{stats.paused}</p>
+                  <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>Paused</p>
+                  <p className="text-sm font-bold" style={{ color: '#0c4a6e' }}>{stats.paused}</p>
                 </div>
               </div>
 
               {/* Drafts */}
               <div
-                className="rounded-xl p-4 flex items-center gap-3"
+                className="rounded-lg px-3 py-2 flex items-center gap-2.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
                   border: '1px solid rgba(14,165,233,0.07)',
                 }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
+                  className="w-7 h-7 rounded-md flex items-center justify-center text-sm flex-shrink-0"
                   style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
                 >
                   📝
                 </div>
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#0369a1' }}>Drafts</p>
-                  <p className="text-xl font-bold" style={{ color: '#0c4a6e' }}>{stats.drafts}</p>
+                  <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>Drafts</p>
+                  <p className="text-sm font-bold" style={{ color: '#0c4a6e' }}>{stats.drafts}</p>
                 </div>
               </div>
 
               {/* Time Slots */}
               <div
-                className="rounded-xl p-4 flex items-center gap-3"
+                className="rounded-lg px-3 py-2 flex items-center gap-2.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
                   border: '1px solid rgba(14,165,233,0.07)',
                 }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-xl flex-shrink-0"
+                  className="w-7 h-7 rounded-md flex items-center justify-center text-sm flex-shrink-0"
                   style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
                 >
                   ⏰
                 </div>
                 <div>
-                  <p className="text-xs mb-0.5" style={{ color: '#0369a1' }}>Time Slots</p>
-                  <p className="text-xl font-bold" style={{ color: '#0ea5e9' }}>{stats.timeSlots}</p>
+                  <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>Time Slots</p>
+                  <p className="text-sm font-bold" style={{ color: '#0ea5e9' }}>{stats.timeSlots}</p>
                 </div>
               </div>
             </div>

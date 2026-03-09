@@ -282,7 +282,7 @@ export default function CreateAppPage() {
   }, [selectedType?.type_id])
 
   return (
-    <div style={{ backgroundColor: '#f0f9ff', height: 'calc(100vh - 3.5rem)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div style={{ backgroundColor: '#f0f9ff', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
       {/* ── Sub-header ── */}
       <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #bae6fd', padding: '0 20px', height: 52, display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>

@@ -113,7 +113,7 @@ export function Sidebar() {
       >
         {/* Logo */}
         <div
-          className="flex h-16 items-center px-4 transition-all"
+          className="flex h-14 items-center px-4 transition-all"
           style={{ borderBottom: '1px solid #e0f2fe' }}
         >
           <Link href="/home" className="flex items-center gap-3 overflow-hidden flex-1" onClick={closeMobile}>
