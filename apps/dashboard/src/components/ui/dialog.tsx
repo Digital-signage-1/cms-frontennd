@@ -44,8 +44,8 @@ const DialogContent = React.forwardRef<
         'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
         'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
         'rounded-2xl border p-6',
-        // ── Dark-theme defaults ──────────────────────────────────
-        'bg-[#13132B] border-[#2A2A45]',
+        // ── Aurora Mist light-theme defaults ─────────────────────
+        'bg-white border-[#bae6fd] shadow-[0_24px_48px_-12px_rgba(14,165,233,0.18),0_8px_16px_-4px_rgba(0,0,0,0.06)]',
         className
       )}
       {...props}
@@ -57,9 +57,9 @@ const DialogContent = React.forwardRef<
         <DialogPrimitive.Close
           className={cn(
             'absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-lg transition-all',
-            'bg-white/5 border border-[#2A2A45] text-[#9CA3AF]',
-            'hover:bg-white/10 hover:text-white',
-            'focus:outline-none focus:ring-2 focus:ring-[#F5A624]/40',
+            'bg-[#e0f2fe] border border-[#bae6fd] text-[#6b7280]',
+            'hover:bg-[#e0f2fe] hover:text-[#0c4a6e]',
+            'focus:outline-none focus:ring-2 focus:ring-[#0ea5e9]/20',
             'disabled:pointer-events-none',
           )}
         >
@@ -100,7 +100,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn('text-lg font-semibold leading-none tracking-tight text-white', className)}
+    className={cn('text-lg font-semibold leading-none tracking-tight text-[#0c4a6e]', className)}
     {...props}
   />
 ))
@@ -112,7 +112,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-sm text-[#6B7280]', className)}
+    className={cn('text-sm text-[#0369a1]', className)}
     {...props}
   />
 ))

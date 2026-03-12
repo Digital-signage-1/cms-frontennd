@@ -12,6 +12,7 @@ import {
   Image, Video, Clock, Cloud, Globe, Code, LayoutGrid, GripVertical
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { toast } from '@/hooks/use-toast'
 import { useAuthStore } from '@/stores/auth-store'
 import { useChannel, useChannelManifest, useUpdateChannel, usePublishChannel, useAddZoneApp } from '@/hooks/queries/useChannels'
 import { useApps } from '@/hooks/queries'
@@ -140,7 +141,7 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
     } catch (error) {
       console.error('Failed to add app to zone:', error)
       // Show user-friendly error message
-      alert('Failed to add app to zone. Please try again.')
+      toast.error('Failed to add app to zone. Please try again.')
     }
   }
 

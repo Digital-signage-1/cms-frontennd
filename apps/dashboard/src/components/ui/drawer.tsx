@@ -68,29 +68,29 @@ export function Drawer({ isOpen, onClose, children, title, description, width = 
             exit="exit"
             className={cn(
               'fixed top-0 right-0 h-full z-50 flex flex-col shadow-2xl',
-              'bg-[#13132B] border-l border-[#2A2A45]',
+              'bg-white border-l border-[#bae6fd] shadow-[-8px_0_32px_rgba(14,165,233,0.10)]',
               widthClasses[width],
               className
             )}
           >
             {(title || description) && (
-              <div className="flex-shrink-0 px-6 py-4 border-b border-[#1E1E38]">
+              <div className="flex-shrink-0 px-6 py-4 border-b border-[#e0f2fe]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     {title && (
-                      <h2 className="text-lg font-semibold text-white mb-0.5">{title}</h2>
+                      <h2 className="text-lg font-semibold mb-0.5" style={{ color: '#0c4a6e' }}>{title}</h2>
                     )}
                     {description && (
-                      <p className="text-sm" style={{ color: '#6B7280' }}>{description}</p>
+                      <p className="text-sm" style={{ color: '#0369a1' }}>{description}</p>
                     )}
                   </div>
                   <button
                     onClick={onClose}
                     aria-label="Close drawer"
                     className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-all"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid #2A2A45', color: '#9CA3AF' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(255,255,255,0.12)'; (e.currentTarget as HTMLButtonElement).style.color = '#FFFFFF' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(255,255,255,0.07)'; (e.currentTarget as HTMLButtonElement).style.color = '#9CA3AF' }}
+                    style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#6b7280' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLButtonElement).style.color = '#0c4a6e' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLButtonElement).style.color = '#6b7280' }}
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -109,7 +109,7 @@ export function Drawer({ isOpen, onClose, children, title, description, width = 
 
 export function DrawerHeader({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('flex-shrink-0 px-6 py-4 border-b border-[#1E1E38]', className)}>
+    <div className={cn('flex-shrink-0 px-6 py-4 border-b border-[#e0f2fe]', className)}>
       {children}
     </div>
   )
@@ -125,7 +125,7 @@ export function DrawerContent({ children, className }: { children: ReactNode; cl
 
 export function DrawerFooter({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('flex-shrink-0 px-6 py-4 border-t border-[#1E1E38]', className)}>
+    <div className={cn('flex-shrink-0 px-6 py-4 border-t border-[#e0f2fe]', className)}>
       {children}
     </div>
   )

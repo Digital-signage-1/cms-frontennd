@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Folder, FolderPlus, FolderOpen, ChevronRight, ChevronDown, MoreHorizontal, Trash2, Edit } from 'lucide-react'
-import { Button } from '@/components/ui'
+import { Button, ConfirmDialog } from '@/components/ui'
 import type { Folder as FolderType } from '@signage/types'
 
 interface FolderTreeProps {
@@ -24,6 +24,7 @@ export function FolderTree({
 }: FolderTreeProps) {
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [contextMenu, setContextMenu] = useState<{ folderId: string; x: number; y: number } | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
 
   const toggleFolder = (folderId: string) => {
     setExpandedFolders(prev => {
@@ -174,6 +175,18 @@ export function FolderTree({
         </div>
       )}
 
+      <ConfirmDialog
+        open={!!deleteConfirm}
+        onOpenChange={(open) => { if (!open) setDeleteConfirm(null) }}
+        title="Delete Folder"
+        description="This will permanently delete this folder and all its contents."
+        confirmText="Delete"
+        onConfirm={() => {
+          if (deleteConfirm) onDeleteFolder(deleteConfirm)
+          setDeleteConfirm(null)
+        }}
+      />
+
       {contextMenu && (
         <>
           <div 
@@ -208,9 +221,7 @@ export function FolderTree({
             )}
             <button
               onClick={() => {
-                if (confirm('Delete this folder and all its contents?')) {
-                  onDeleteFolder(contextMenu.folderId)
-                }
+                setDeleteConfirm(contextMenu.folderId)
                 closeContextMenu()
               }}
               className="w-full px-3 py-2 text-sm text-left hover:bg-error/10 text-error flex items-center gap-2"

@@ -29,18 +29,18 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const sidebarWidth = isMobile ? 0 : (isExpanded ? SIDEBAR_WIDTH_EXPANDED : SIDEBAR_WIDTH_COLLAPSED)
 
   return (
-    <div className="dark min-h-screen bg-background">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       <CommandPalette />
       <Sidebar />
       <div
-        className="transition-all duration-300"
-        style={{ 
+        className="flex flex-col flex-1 min-h-0 transition-all duration-300"
+        style={{
           marginLeft: `${sidebarWidth}px`,
           width: `calc(100% - ${sidebarWidth}px)`
         }}
       >
         <Header breadcrumbItems={breadcrumbItems} />
-        <main className="min-h-[calc(100vh-3.5rem)]">
+        <main className="flex-1 overflow-y-auto">
           {children}
         </main>
       </div>
@@ -80,7 +80,7 @@ export default function DashboardLayout({
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="w-12 h-12 border-4 border-gray-300 border-t-primary rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-[#bae6fd] border-t-primary rounded-full animate-spin" />
       </div>
     )
   }

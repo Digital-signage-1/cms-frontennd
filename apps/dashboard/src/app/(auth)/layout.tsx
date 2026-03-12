@@ -21,8 +21,11 @@ export default function AuthLayout({
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#0D0D0D' }}>
-        <div className="w-12 h-12 border-4 border-[#333] border-t-[#F5A624] rounded-full animate-spin" />
+      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#f0f9ff' }}>
+        <div
+          className="w-10 h-10 rounded-full animate-spin"
+          style={{ border: '3px solid #bae6fd', borderTopColor: '#0ea5e9' }}
+        />
       </div>
     )
   }
@@ -33,55 +36,65 @@ export default function AuthLayout({
 
   return (
     <div
-      className="dark relative min-h-screen flex"
-      style={{
-        backgroundColor: '#0D0D0D',
-        '--color-primary': '#F5A624',
-        '--color-primary-hover': '#E09410',
-        '--color-background': '#141414',
-        '--color-surface': '#1C1C1C',
-        '--color-surface-alt': '#222222',
-        '--color-surface-hover': '#2A2A2A',
-        '--color-border': '#2A2A2A',
-        '--color-border-subtle': '#222222',
-        '--color-text-primary': '#FFFFFF',
-        '--color-text-secondary': '#9CA3AF',
-        '--color-text-muted': '#6B7280',
-      } as React.CSSProperties}
+      className="relative min-h-screen flex"
+      style={{ backgroundColor: '#f0f9ff' }}
     >
-      {/* Subtle grid pattern — full page */}
+      {/* Subtle dot grid pattern */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage:
-            'linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
+          backgroundImage: 'radial-gradient(circle, #7dd3fc 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+          opacity: 0.4,
         }}
       />
 
-      {/* ── Left Half — Branding (no card, transparent bg) ── */}
+      {/* ── Left Half — Branding ── */}
       <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-12 xl:p-16">
+        {/* Gradient wash */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(135deg, rgba(14,165,233,0.06) 0%, rgba(6,182,212,0.03) 50%, rgba(14,165,233,0.01) 100%)',
+          }}
+        />
+
         <div className="relative z-10 w-full max-w-md">
           {/* Logo */}
           <div className="flex items-center gap-2.5 mb-12">
-            <div className="w-10 h-10 bg-[#F5A624] rounded-xl flex items-center justify-center flex-shrink-0">
-              <span className="text-black font-bold text-base">S</span>
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }}
+            >
+              <span className="text-white font-bold text-base">S</span>
             </div>
-            <span className="text-white font-semibold text-xl tracking-tight">SignageOS</span>
+            <span className="font-semibold text-xl tracking-tight" style={{ color: '#0c4a6e' }}>
+              SignageOS
+            </span>
           </div>
 
           {/* Heading */}
           <h1
-            className="text-[2.8rem] xl:text-[3.5rem] leading-[1.08] font-light text-white mb-6"
-            style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
+            className="text-[2.8rem] xl:text-[3.5rem] leading-[1.08] font-light mb-6"
+            style={{ fontFamily: 'Georgia, "Times New Roman", serif', color: '#0c4a6e' }}
           >
             Digital Signage,
             <br />
-            <span style={{ color: '#F5A624' }}>Beautifully</span>
+            <span
+              style={{
+                background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              Beautifully
+            </span>
             <br />
             Simple
           </h1>
-          <p className="text-[#7A7F88] text-base leading-relaxed max-w-sm">
+          <p className="text-base leading-relaxed max-w-sm" style={{ color: '#0369a1' }}>
             Manage screens, content, and players from anywhere. Build displays that captivate.
           </p>
 
@@ -93,40 +106,53 @@ export default function AuthLayout({
               { value: '99.9%', label: 'Uptime' },
             ].map((stat) => (
               <div key={stat.label}>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-[10px] text-[#6B7280] uppercase tracking-widest mt-1">{stat.label}</div>
+                <div className="text-2xl font-bold" style={{ color: '#0c4a6e' }}>
+                  {stat.value}
+                </div>
+                <div className="text-[10px] uppercase tracking-widest mt-1" style={{ color: '#6b7280' }}>
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Testimonial */}
+          {/* Testimonial — glass card */}
           <div
-            className="rounded-xl p-5"
-            style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+            className="rounded-2xl p-5"
+            style={{
+              background: 'rgba(255, 255, 255, 0.72)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255, 255, 255, 0.9)',
+              boxShadow: '0 4px 16px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04)',
+            }}
           >
-            <p className="text-[#9CA3AF] text-sm leading-relaxed italic">
+            <p className="text-sm leading-relaxed italic" style={{ color: '#0369a1' }}>
               &ldquo;SignageOS transformed how we manage 200+ screens. The setup is incredibly intuitive.&rdquo;
             </p>
             <div className="flex items-center gap-3 mt-4">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0" style={{ backgroundColor: '#3B3B6D' }}>
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }}
+              >
                 JM
               </div>
               <div>
-                <div className="text-white text-sm font-medium">James Mitchell</div>
-                <div className="text-[#6B7280] text-xs">Head of Operations, RetailCo</div>
+                <div className="text-sm font-medium" style={{ color: '#0c4a6e' }}>James Mitchell</div>
+                <div className="text-xs" style={{ color: '#6b7280' }}>Head of Operations, RetailCo</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Decorative gradient glow behind left content */}
+        {/* Decorative glow */}
         <div
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
           style={{
             width: 500,
             height: 500,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(245,166,36,0.04) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(14,165,233,0.07) 0%, transparent 70%)',
           }}
         />
       </div>
@@ -135,14 +161,23 @@ export default function AuthLayout({
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 lg:p-12 relative z-10">
         <div
           className="w-full max-w-[420px] rounded-2xl p-8 sm:p-10"
-          style={{ backgroundColor: '#141414', border: '1px solid #1E1E1E' }}
+          style={{
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #bae6fd',
+            boxShadow: '0 8px 32px rgba(14,165,233,0.08), 0 2px 8px rgba(0,0,0,0.04)',
+          }}
         >
           {/* Logo – mobile only */}
           <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-            <div className="w-9 h-9 bg-[#F5A624] rounded-lg flex items-center justify-center flex-shrink-0">
-              <span className="text-black font-bold text-sm">S</span>
+            <div
+              className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }}
+            >
+              <span className="text-white font-bold text-sm">S</span>
             </div>
-            <span className="text-white font-semibold text-lg tracking-tight">SignageOS</span>
+            <span className="font-semibold text-lg tracking-tight" style={{ color: '#0c4a6e' }}>
+              SignageOS
+            </span>
           </div>
           {children}
         </div>

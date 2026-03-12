@@ -44,6 +44,8 @@ export { Timeline, TimelineItem } from './timeline'
 export { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs'
 export { EmptyState } from './empty-state'
 export { StatusDot } from './status-dot'
+export { ConfirmDialog } from './confirm-dialog'
+export { Toaster } from './toaster'
 export {
   Drawer,
   DrawerContent,

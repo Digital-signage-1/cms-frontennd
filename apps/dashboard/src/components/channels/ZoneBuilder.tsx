@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { Button } from '@/components/ui'
-import { Plus, Grid, Move, RotateCcw, RotateCw, Trash2, Copy, Settings, Image, Video, Globe, Code, Clock, Cloud, Play, FileText, LayoutGrid } from 'lucide-react'
+import { Plus, Grid, Move, RotateCcw, Trash2, Copy, Image, Video, Globe, Code, Clock, Cloud, Play, FileText, LayoutGrid } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -32,6 +32,10 @@ interface ZoneBuilderProps {
   onZoneDrop?: (zoneId: string, app: { id?: number; app_id?: string; name?: string; preview_url?: string }) => void
   showGrid?: boolean
   readonly?: boolean
+  isDraggingContent?: boolean
+  /** Externally controlled zone creation mode */
+  isCreatingZone?: boolean
+  onCreatingZoneChange?: (creating: boolean) => void
 }
 
 export function ZoneBuilder({
@@ -44,12 +48,34 @@ export function ZoneBuilder({
   onZoneDuplicate,
   onZoneDrop,
   showGrid = true,
-  readonly = false
+  readonly = false,
+  isDraggingContent = false,
+  isCreatingZone: externalIsCreating,
+  onCreatingZoneChange,
 }: ZoneBuilderProps) {
   const canvasRef = useRef<HTMLDivElement>(null)
-  const [isCreating, setIsCreating] = useState(false)
+  const [internalIsCreating, setInternalIsCreating] = useState(false)
   const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null)
   const [newZone, setNewZone] = useState<{ x: number; y: number; width: number; height: number } | null>(null)
+  const [dragOverZoneId, setDragOverZoneId] = useState<string | null>(null)
+  const [recentDropZoneId, setRecentDropZoneId] = useState<string | null>(null)
+
+  // Use external creation state if provided, otherwise internal
+  const isCreating = externalIsCreating ?? internalIsCreating
+  const setIsCreating = useCallback((value: boolean) => {
+    if (onCreatingZoneChange) {
+      onCreatingZoneChange(value)
+    } else {
+      setInternalIsCreating(value)
+    }
+  }, [onCreatingZoneChange])
+
+  // Sync internal state when external prop changes
+  useEffect(() => {
+    if (externalIsCreating !== undefined) {
+      setInternalIsCreating(externalIsCreating)
+    }
+  }, [externalIsCreating])
 
   const getZoneColor = (index: number, isSelected: boolean) => {
     const colors = [
@@ -101,7 +127,7 @@ export function ZoneBuilder({
       setDragStart(null)
       setNewZone(null)
     }
-  }, [readonly, isCreating, dragStart, zones.length, onZoneCreate])
+  }, [readonly, isCreating, dragStart, zones.length, onZoneCreate, setIsCreating])
 
   const handleCanvasMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isCreating || !dragStart || readonly) return
@@ -120,76 +146,49 @@ export function ZoneBuilder({
     })
   }, [isCreating, dragStart, readonly])
 
-  const startZoneCreation = () => {
-    setIsCreating(true)
-    setDragStart(null)
-    setNewZone(null)
-  }
+  const handleZoneDragOver = useCallback((e: React.DragEvent, zoneId: string) => {
+    if (!onZoneDrop) return
+    e.preventDefault()
+    e.stopPropagation()
+    e.dataTransfer.dropEffect = 'copy'
+    setDragOverZoneId(zoneId)
+  }, [onZoneDrop])
 
-  const cancelZoneCreation = () => {
-    setIsCreating(false)
-    setDragStart(null)
-    setNewZone(null)
-  }
+  const handleZoneDragLeave = useCallback((e: React.DragEvent) => {
+    if (!onZoneDrop) return
+    const related = e.relatedTarget as HTMLElement | null
+    if (related && e.currentTarget.contains(related)) return
+    setDragOverZoneId(null)
+  }, [onZoneDrop])
+
+  const handleZoneDrop = useCallback((e: React.DragEvent, zoneId: string) => {
+    if (!onZoneDrop) return
+    e.preventDefault()
+    e.stopPropagation()
+    setDragOverZoneId(null)
+    try {
+      const data = e.dataTransfer.getData('application/json')
+      if (data) {
+        const app = JSON.parse(data) as { id?: number; app_id?: string; name?: string; preview_url?: string }
+        onZoneDrop(zoneId, app)
+        setRecentDropZoneId(zoneId)
+        setTimeout(() => setRecentDropZoneId(null), 1200)
+      }
+    } catch (_) {}
+  }, [onZoneDrop])
+
+  const handleCanvasDragOver = useCallback((e: React.DragEvent) => {
+    if (!onZoneDrop) return
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+  }, [onZoneDrop])
+
+  const handleCanvasDragLeave = useCallback(() => {
+    setDragOverZoneId(null)
+  }, [])
 
   return (
     <div className="relative w-full h-full">
-      {/* Canvas Tools */}
-      {!readonly && (
-        <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
-          <Button
-            size="sm"
-            variant={isCreating ? "default" : "outline"}
-            onClick={isCreating ? cancelZoneCreation : startZoneCreation}
-            className="gap-2 bg-surface/90 backdrop-blur-sm"
-          >
-            {isCreating ? (
-              <>
-                <RotateCcw className="h-3 w-3" />
-                Cancel
-              </>
-            ) : (
-              <>
-                <Plus className="h-3 w-3" />
-                Add Zone
-              </>
-            )}
-          </Button>
-
-          <Button
-            size="sm"
-            variant="outline"
-            className="gap-2 bg-surface/90 backdrop-blur-sm"
-            title="Toggle grid"
-          >
-            <Grid className="h-3 w-3" />
-          </Button>
-
-          {selectedZone && (
-            <div className="flex items-center gap-1">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onZoneDuplicate?.(selectedZone)}
-                className="bg-surface/90 backdrop-blur-sm"
-                title="Duplicate zone"
-              >
-                <Copy className="h-3 w-3" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onZoneDelete(selectedZone)}
-                className="bg-surface/90 backdrop-blur-sm text-error hover:text-error"
-                title="Delete zone"
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Grid Overlay */}
       {showGrid && (
         <div className="absolute inset-0 pointer-events-none">
@@ -208,12 +207,24 @@ export function ZoneBuilder({
       <div
         ref={canvasRef}
         className={cn(
-          "relative w-full h-full bg-white rounded-lg border-2 border-border overflow-hidden",
-          isCreating ? "cursor-crosshair" : "cursor-default"
+          "relative w-full h-full bg-white rounded-lg border-2 overflow-hidden transition-colors duration-200",
+          isCreating ? "cursor-crosshair border-primary/50" : "border-border",
+          isDraggingContent && "border-primary/40 bg-primary/[0.02]"
         )}
         onClick={handleCanvasClick}
         onMouseMove={handleCanvasMouseMove}
+        onDragOver={handleCanvasDragOver}
+        onDragLeave={handleCanvasDragLeave}
       >
+        {/* Global drag indicator overlay */}
+        {isDraggingContent && zones.length > 0 && !dragOverZoneId && (
+          <div className="absolute inset-0 z-10 pointer-events-none flex items-end justify-center pb-6">
+            <div className="bg-primary/90 text-white text-xs font-medium px-4 py-2 rounded-full shadow-lg backdrop-blur-sm animate-bounce">
+              Drop onto a zone below
+            </div>
+          </div>
+        )}
+
         {/* Creation Preview */}
         {newZone && isCreating && (
           <div
@@ -235,121 +246,159 @@ export function ZoneBuilder({
 
         {/* Existing Zones */}
         <AnimatePresence>
-          {zones.map((zone, index) => (
-            <motion.div
-              key={zone.zone_id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className={cn(
-                "absolute border-2 transition-all group cursor-pointer",
-                getZoneColor(index, selectedZone === zone.zone_id),
-                readonly && "cursor-default",
-                onZoneDrop && "border-dashed"
-              )}
-              style={{
-                left: `${zone.x}%`,
-                top: `${zone.y}%`,
-                width: `${zone.width}%`,
-                height: `${zone.height}%`,
-                zIndex: zone.z_index
-              }}
-              onClick={(e) => {
-                e.stopPropagation()
-                onZoneSelect(zone.zone_id)
-              }}
-              onDragOver={onZoneDrop ? (e) => { e.preventDefault(); e.currentTarget.classList.add('ring-2', 'ring-primary', 'bg-primary/5') } : undefined}
-              onDragLeave={onZoneDrop ? (e) => { e.currentTarget.classList.remove('ring-2', 'ring-primary', 'bg-primary/5') } : undefined}
-              onDrop={onZoneDrop ? (e) => {
-                e.preventDefault()
-                e.currentTarget.classList.remove('ring-2', 'ring-primary', 'bg-primary/5')
-                try {
-                  const data = e.dataTransfer.getData('application/json')
-                  if (data) {
-                    const app = JSON.parse(data) as { id?: number; app_id?: string; name?: string; preview_url?: string }
-                    onZoneDrop(zone.zone_id, app)
-                  }
-                } catch (_) {}
-              } : undefined}
-            >
-              <div className="w-full h-full flex flex-col items-center justify-center p-2 overflow-hidden">
-                <p className="font-semibold text-xs text-center text-text-primary mb-1 truncate w-full">
-                  {zone.name}
-                </p>
+          {zones.map((zone, index) => {
+            const isSelected = selectedZone === zone.zone_id
+            const isDragOver = dragOverZoneId === zone.zone_id
+            const isRecentDrop = recentDropZoneId === zone.zone_id
+            const isDropTarget = isDraggingContent && onZoneDrop
 
-                {zone.apps && zone.apps.length > 0 ? (
-                  <div className="flex-1 w-full min-h-0 flex flex-col items-center justify-center gap-1">
-                    {zone.apps.slice(0, 2).map((zoneApp: any, appIndex: number) => {
-                      const thumbUrl = zoneApp.app?.thumbnail_url || zoneApp.app?.preview_url || zoneApp.app?.content_url
-                      const appIconMap: Record<string, any> = {
-                        image: Image, video: Video, web: Globe, html: Code,
-                        clock: Clock, weather: Cloud, youtube: Play, pdf: FileText,
-                      }
-                      const AppIcon = appIconMap[zoneApp.app?.template_type] || LayoutGrid
-                      return (
-                        <div key={appIndex} className="w-full flex-1 min-h-0 rounded overflow-hidden bg-surface/80 border border-border/50 flex items-center justify-center">
-                          {thumbUrl ? (
-                            <img
-                              src={thumbUrl}
-                              alt={zoneApp.app?.name || 'Content'}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none'
-                                const fallback = e.currentTarget.nextElementSibling as HTMLElement
-                                if (fallback) fallback.style.display = 'flex'
-                              }}
-                            />
-                          ) : null}
-                          <div
-                            className="flex flex-col items-center justify-center gap-1 px-1"
-                            style={{ display: thumbUrl ? 'none' : 'flex' }}
-                          >
-                            <AppIcon className="h-5 w-5 text-text-muted" />
-                            <span className="text-xs text-text-primary truncate max-w-full">
-                              {zoneApp.app?.name || 'App'}
-                            </span>
+            return (
+              <motion.div
+                key={zone.zone_id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className={cn(
+                  "absolute border-2 transition-all duration-200 group",
+                  readonly ? "cursor-default" : "cursor-pointer",
+                  getZoneColor(index, isSelected),
+                  isDropTarget && !isDragOver && !isRecentDrop &&
+                    'border-dashed border-primary/60 animate-pulse',
+                  isDragOver &&
+                    '!border-solid !border-primary !bg-primary/15 ring-2 ring-primary/40 ring-offset-1 ring-offset-white shadow-[0_0_20px_rgba(14,165,233,0.25)] scale-[1.01]',
+                  isRecentDrop &&
+                    '!border-success !bg-success/15 ring-2 ring-success/40',
+                )}
+                style={{
+                  left: `${zone.x}%`,
+                  top: `${zone.y}%`,
+                  width: `${zone.width}%`,
+                  height: `${zone.height}%`,
+                  zIndex: isDragOver ? 50 : zone.z_index,
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onZoneSelect(zone.zone_id)
+                }}
+                onDragOver={(e) => handleZoneDragOver(e, zone.zone_id)}
+                onDragLeave={handleZoneDragLeave}
+                onDrop={(e) => handleZoneDrop(e, zone.zone_id)}
+              >
+                <div className="w-full h-full flex flex-col items-center justify-center p-2 overflow-hidden relative">
+                  {/* Zone name label */}
+                  <p className={cn(
+                    "font-semibold text-xs text-center mb-1 truncate w-full transition-colors",
+                    isDragOver ? "text-primary" : "text-text-primary",
+                    isRecentDrop && "text-success",
+                  )}>
+                    {zone.name}
+                  </p>
+
+                  {/* Drop-over overlay content */}
+                  {isDragOver ? (
+                    <div className="flex-1 w-full flex flex-col items-center justify-center gap-2">
+                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                        <Plus className="h-5 w-5 text-primary" />
+                      </div>
+                      <span className="text-xs font-medium text-primary">Release to add</span>
+                    </div>
+                  ) : isRecentDrop ? (
+                    <div className="flex-1 w-full flex flex-col items-center justify-center gap-2">
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="w-10 h-10 rounded-full bg-success/20 flex items-center justify-center"
+                      >
+                        <svg className="h-5 w-5 text-success" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      </motion.div>
+                      <span className="text-xs font-medium text-success">Added!</span>
+                    </div>
+                  ) : zone.apps && zone.apps.length > 0 ? (
+                    <div className="flex-1 w-full min-h-0 flex flex-col items-center justify-center gap-1">
+                      {zone.apps.slice(0, 2).map((zoneApp: any, appIndex: number) => {
+                        const thumbUrl = zoneApp.app?.thumbnail_url || zoneApp.app?.preview_url || zoneApp.app?.content_url
+                        const appIconMap: Record<string, any> = {
+                          image: Image, video: Video, web: Globe, html: Code,
+                          clock: Clock, weather: Cloud, youtube: Play, pdf: FileText,
+                        }
+                        const AppIcon = appIconMap[zoneApp.app?.template_type] || LayoutGrid
+                        return (
+                          <div key={appIndex} className="w-full flex-1 min-h-0 rounded overflow-hidden bg-surface/80 border border-border/50 flex items-center justify-center">
+                            {thumbUrl ? (
+                              <img
+                                src={thumbUrl}
+                                alt={zoneApp.app?.name || 'Content'}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = 'none'
+                                  const fallback = e.currentTarget.nextElementSibling as HTMLElement
+                                  if (fallback) fallback.style.display = 'flex'
+                                }}
+                              />
+                            ) : null}
+                            <div
+                              className="flex flex-col items-center justify-center gap-1 px-1"
+                              style={{ display: thumbUrl ? 'none' : 'flex' }}
+                            >
+                              <AppIcon className="h-5 w-5 text-text-muted" />
+                              <span className="text-xs text-text-primary truncate max-w-full">
+                                {zoneApp.app?.name || 'App'}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      )
-                    })}
-                    {zone.apps.length > 2 && (
-                      <div className="text-xs text-text-muted">+{zone.apps.length - 2}</div>
-                    )}
+                        )
+                      })}
+                      {zone.apps.length > 2 && (
+                        <div className="text-xs text-text-muted">+{zone.apps.length - 2}</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className={cn(
+                      "flex-1 flex flex-col items-center justify-center text-xs text-center gap-1.5 transition-colors",
+                      isDropTarget ? "text-primary" : "text-text-muted"
+                    )}>
+                      <div className={cn(
+                        "w-10 h-10 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors",
+                        isDropTarget ? "border-primary/50" : "border-current opacity-40"
+                      )}>
+                        <Plus className={cn("h-4 w-4", isDropTarget ? "text-primary" : "opacity-60")} />
+                      </div>
+                      <span className="font-medium">
+                        {isDropTarget ? 'Drop here' : 'Drop content here'}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="text-xs text-text-muted mt-1 opacity-60 shrink-0">
+                    {Math.round(zone.width)}% × {Math.round(zone.height)}%
                   </div>
-                ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center text-xs text-text-muted text-center">
-                    <div className="w-8 h-8 border-2 border-dashed border-current rounded mx-auto mb-1 opacity-50 flex items-center justify-center" />
-                    Drop content here
-                  </div>
+                </div>
+
+                {/* Resize Handles (when selected and not readonly) */}
+                {isSelected && !readonly && (
+                  <>
+                    <div className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-primary rounded-full cursor-nw-resize border-2 border-white shadow-sm" />
+                    <div className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-primary rounded-full cursor-ne-resize border-2 border-white shadow-sm" />
+                    <div className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-primary rounded-full cursor-sw-resize border-2 border-white shadow-sm" />
+                    <div className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-primary rounded-full cursor-se-resize border-2 border-white shadow-sm" />
+                    <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full cursor-n-resize border-2 border-white shadow-sm" />
+                    <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full cursor-s-resize border-2 border-white shadow-sm" />
+                    <div className="absolute -left-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full cursor-w-resize border-2 border-white shadow-sm" />
+                    <div className="absolute -right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full cursor-e-resize border-2 border-white shadow-sm" />
+                  </>
                 )}
 
-                <div className="text-xs text-text-muted mt-1 opacity-60 shrink-0">
-                  {Math.round(zone.width)}% × {Math.round(zone.height)}%
-                </div>
-              </div>
-
-              {/* Resize Handles (when selected and not readonly) */}
-              {selectedZone === zone.zone_id && !readonly && (
-                <>
-                  <div className="absolute -top-1 -left-1 w-2 h-2 bg-primary rounded-full cursor-nw-resize" />
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-primary rounded-full cursor-ne-resize" />
-                  <div className="absolute -bottom-1 -left-1 w-2 h-2 bg-primary rounded-full cursor-sw-resize" />
-                  <div className="absolute -bottom-1 -right-1 w-2 h-2 bg-primary rounded-full cursor-se-resize" />
-                  <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rounded-full cursor-n-resize" />
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary rounded-full cursor-s-resize" />
-                  <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary rounded-full cursor-w-resize" />
-                  <div className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary rounded-full cursor-e-resize" />
-                </>
-              )}
-
-              {/* Move Handle */}
-              {selectedZone === zone.zone_id && !readonly && (
-                <div className="absolute top-1 right-1 w-5 h-5 bg-primary/80 rounded cursor-move flex items-center justify-center">
-                  <Move className="h-3 w-3 text-white" />
-                </div>
-              )}
-            </motion.div>
-          ))}
+                {/* Move Handle */}
+                {isSelected && !readonly && (
+                  <div className="absolute top-1 right-1 w-5 h-5 bg-primary/80 rounded cursor-move flex items-center justify-center">
+                    <Move className="h-3 w-3 text-white" />
+                  </div>
+                )}
+              </motion.div>
+            )
+          })}
         </AnimatePresence>
 
         {/* Creation Instructions */}
@@ -357,7 +406,7 @@ export function ZoneBuilder({
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="bg-surface/90 backdrop-blur-sm border border-border rounded-lg p-4 text-center">
               <p className="text-sm font-medium text-text-primary mb-1">Creating New Zone</p>
-              <p className="text-xs text-text-muted">Click and drag to define zone boundaries</p>
+              <p className="text-xs text-text-muted">Click to place first corner, then click again to set size</p>
             </div>
           </div>
         )}
@@ -371,18 +420,8 @@ export function ZoneBuilder({
               </div>
               <p className="text-lg font-medium text-text-primary mb-2">Start Building Your Layout</p>
               <p className="text-sm text-text-muted mb-6 max-w-sm">
-                Create zones by clicking "Add Zone" and drawing on the canvas, or choose from templates
+                Create zones by clicking "Add Zone" in the toolbar above and drawing on the canvas, or choose from templates
               </p>
-              <div className="flex items-center gap-3 justify-center">
-                <Button onClick={startZoneCreation} className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add Zone
-                </Button>
-                <Button variant="outline" className="gap-2">
-                  <Grid className="h-4 w-4" />
-                  Templates
-                </Button>
-              </div>
             </div>
           </div>
         )}
@@ -410,28 +449,44 @@ export function ZoneBuilder({
 interface ZoneToolbarProps {
   onAddZone: () => void
   onToggleGrid: () => void
-  onUndo?: () => void
-  onRedo?: () => void
   showGrid: boolean
-  canUndo?: boolean
-  canRedo?: boolean
+  isCreatingZone?: boolean
+  selectedZone?: string | null
+  onDeleteZone?: () => void
+  onDuplicateZone?: () => void
+  isDeletingZone?: boolean
 }
 
 export function ZoneToolbar({
   onAddZone,
   onToggleGrid,
-  onUndo,
-  onRedo,
   showGrid,
-  canUndo = false,
-  canRedo = false
+  isCreatingZone = false,
+  selectedZone,
+  onDeleteZone,
+  onDuplicateZone,
+  isDeletingZone = false,
 }: ZoneToolbarProps) {
   return (
     <div className="flex items-center gap-2 p-3 bg-surface border-b border-border">
       <div className="flex items-center gap-1">
-        <Button size="sm" onClick={onAddZone} className="gap-2">
-          <Plus className="h-3 w-3" />
-          Add Zone
+        <Button
+          size="sm"
+          variant={isCreatingZone ? "default" : "outline"}
+          onClick={onAddZone}
+          className="gap-2"
+        >
+          {isCreatingZone ? (
+            <>
+              <RotateCcw className="h-3 w-3" />
+              Cancel
+            </>
+          ) : (
+            <>
+              <Plus className="h-3 w-3" />
+              Add Zone
+            </>
+          )}
         </Button>
 
         <Button
@@ -445,29 +500,38 @@ export function ZoneToolbar({
         </Button>
       </div>
 
-      <div className="w-px h-4 bg-border mx-2" />
-
-      <div className="flex items-center gap-1">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onUndo}
-          disabled={!canUndo}
-          title="Undo"
-        >
-          <RotateCcw className="h-3 w-3" />
-        </Button>
-
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={onRedo}
-          disabled={!canRedo}
-          title="Redo"
-        >
-          <RotateCw className="h-3 w-3" />
-        </Button>
-      </div>
+      {selectedZone && (
+        <>
+          <div className="w-px h-4 bg-border mx-1" />
+          <div className="flex items-center gap-1">
+            {onDuplicateZone && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={onDuplicateZone}
+                className="gap-1.5"
+                title="Duplicate zone"
+              >
+                <Copy className="h-3 w-3" />
+                Duplicate
+              </Button>
+            )}
+            {onDeleteZone && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={onDeleteZone}
+                disabled={isDeletingZone}
+                className="gap-1.5 text-error hover:text-error hover:bg-error/5 hover:border-error/30"
+                title="Delete zone"
+              >
+                <Trash2 className="h-3 w-3" />
+                {isDeletingZone ? 'Deleting...' : 'Delete'}
+              </Button>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }

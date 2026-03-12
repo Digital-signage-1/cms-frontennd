@@ -18,7 +18,7 @@ type StatusKey = 'online' | 'offline' | 'pending'
 const STATUS: Record<StatusKey, { dot: string; text: string; bg: string; label: string }> = {
   online:  { dot: '#059669', text: '#34D399', bg: 'rgba(5,150,105,0.15)',   label: 'Online'  },
   offline: { dot: '#DC2626', text: '#F87171', bg: 'rgba(220,38,38,0.15)',   label: 'Offline' },
-  pending: { dot: '#F5A624', text: '#F5A624', bg: 'rgba(245,166,36,0.15)', label: 'Pending' },
+  pending: { dot: '#D97706', text: '#D97706', bg: 'rgba(245,166,36,0.15)', label: 'Pending' },
 }
 
 type StatusFilter = 'all' | StatusKey
@@ -43,11 +43,11 @@ function PlayerCard({
       onClick={onClick}
       className="flex items-start gap-3 px-4 py-3.5 cursor-pointer transition-colors"
       style={{
-        backgroundColor: isSelected ? 'rgba(245,166,36,0.07)' : 'transparent',
-        borderBottom: '1px solid #1E1E1E',
+        backgroundColor: isSelected ? 'rgba(14,165,233,0.07)' : 'transparent',
+        borderBottom: '1px solid #bae6fd',
       }}
       onMouseEnter={(e) => {
-        if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = '#1E1E1E'
+        if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'
       }}
       onMouseLeave={(e) => {
         if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
@@ -64,7 +64,7 @@ function PlayerCard({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-0.5">
-          <p className="text-sm font-semibold truncate leading-tight" style={{ color: '#FFFFFF' }}>
+          <p className="text-sm font-semibold truncate leading-tight" style={{ color: '#0c4a6e' }}>
             {player.name}
           </p>
           {/* Status badge */}
@@ -79,7 +79,7 @@ function PlayerCard({
 
         {/* Platform */}
         {platform && (
-          <p className="text-xs capitalize mb-1" style={{ color: '#6B7280' }}>
+          <p className="text-xs capitalize mb-1" style={{ color: '#0369a1' }}>
             {platform}
           </p>
         )}
@@ -87,8 +87,8 @@ function PlayerCard({
         {/* Pairing code */}
         {code && (
           <div className="flex items-center gap-1.5">
-            <span className="text-xs" style={{ color: '#6B7280' }}>Code:</span>
-            <code className="text-xs font-mono font-bold tracking-widest" style={{ color: '#F5A624' }}>
+            <span className="text-xs" style={{ color: '#0369a1' }}>Code:</span>
+            <code className="text-xs font-mono font-bold tracking-widest" style={{ color: '#0ea5e9' }}>
               {code}
             </code>
             <button
@@ -98,7 +98,7 @@ function PlayerCard({
               }}
               className="opacity-50 hover:opacity-100 transition-opacity"
             >
-              <Copy className="h-3 w-3" style={{ color: '#9CA3AF' }} />
+              <Copy className="h-3 w-3" style={{ color: '#6b7280' }} />
             </button>
           </div>
         )}
@@ -143,12 +143,12 @@ export default function PlayersPage() {
     {
       label: 'Total Players',
       value: totalPlayers,
-      color: '#F5A624',
+      color: '#0ea5e9',
       iconType: 'monitor' as const,
     },
     { label: 'Online',  value: onlineCount,  color: '#059669', iconType: 'dot' as const },
     { label: 'Offline', value: offlineCount, color: '#DC2626', iconType: 'dot' as const },
-    { label: 'Pending', value: pendingCount, color: '#F5A624', iconType: 'dot' as const },
+    { label: 'Pending', value: pendingCount, color: '#D97706', iconType: 'dot' as const },
   ]
 
   const FILTER_TABS: { label: string; value: StatusFilter }[] = [
@@ -162,8 +162,8 @@ export default function PlayersPage() {
     <div
       className="flex flex-col overflow-hidden"
       style={{
-        backgroundColor: '#0D0D0D',
-        height: 'calc(100vh - 3.5rem)',
+        backgroundColor: '#f0f9ff',
+        height: '100%',
       }}
     >
       {/* ── Hero banner ─────────────────────────────────────────── */}
@@ -174,8 +174,8 @@ export default function PlayersPage() {
           transition={{ duration: 0.35 }}
           className="relative overflow-hidden rounded-xl"
           style={{
-            background: 'linear-gradient(135deg, #1B1B35 0%, #162040 50%, #0F2044 100%)',
-            border: '1px solid #2A3050',
+            background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
+            border: '1px solid #bae6fd',
           }}
         >
           {/* Grid overlay */}
@@ -183,33 +183,33 @@ export default function PlayersPage() {
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
-                'linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),' +
-                'linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)',
+                'linear-gradient(rgba(14,165,233,0.06) 1px,transparent 1px),' +
+                'linear-gradient(90deg,rgba(14,165,233,0.06) 1px,transparent 1px)',
               backgroundSize: '40px 40px',
             }}
           />
 
           {/* Title row */}
-          <div className="relative flex flex-col sm:flex-row sm:items-start sm:justify-between responsive-hero pb-4 gap-3">
+          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between responsive-hero pb-2 gap-2">
             <div>
               <p
-                className="text-xs uppercase font-semibold mb-1.5"
-                style={{ color: '#F5A624', letterSpacing: '0.15em' }}
+                className="text-[10px] uppercase font-semibold mb-0.5"
+                style={{ color: '#0ea5e9', letterSpacing: '0.15em' }}
               >
                 Control Center
               </p>
-              <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1" style={{ color: '#FFFFFF' }}>
+              <h1 className="text-lg sm:text-xl font-bold leading-tight" style={{ color: '#0c4a6e' }}>
                 Player Network
               </h1>
-              <p className="text-sm" style={{ color: '#6B7280' }}>
+              <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
                 Monitor and manage your display network. Track status, deploy content, and configure devices.
               </p>
             </div>
 
             <button
               onClick={() => setIsRegistrationOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold flex-shrink-0 sm:mt-1 self-start transition-opacity hover:opacity-90 touch-target"
-              style={{ backgroundColor: '#F5A624', color: '#000000' }}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold flex-shrink-0 self-start sm:self-center transition-opacity hover:opacity-90 touch-target"
+              style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
             >
               <Plus className="h-4 w-4" />
               Register Player
@@ -217,34 +217,34 @@ export default function PlayersPage() {
           </div>
 
           {/* Stat cards */}
-          <div className="relative grid grid-cols-2 sm:flex sm:items-stretch gap-3 px-4 sm:px-7 pb-5">
+          <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-2 px-3 sm:px-5 pb-3">
             {STAT_CARDS.map(({ label, value, color, iconType }) => (
               <div
                 key={label}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl flex-1"
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg"
                 style={{
-                  backgroundColor: 'rgba(0,0,0,0.28)',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  backgroundColor: 'rgba(255,255,255,0.75)',
+                  border: '1px solid rgba(14,165,233,0.07)',
                 }}
               >
                 {/* Icon */}
                 <div
-                  className="flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center"
+                  className="flex-shrink-0 w-7 h-7 rounded-md flex items-center justify-center"
                   style={{ backgroundColor: `${color}18` }}
                 >
                   {iconType === 'monitor' ? (
-                    <Monitor className="h-4 w-4" style={{ color }} />
+                    <Monitor className="h-3.5 w-3.5" style={{ color }} />
                   ) : (
                     <span
-                      className="w-3.5 h-3.5 rounded-full block"
+                      className="w-3 h-3 rounded-full block"
                       style={{ backgroundColor: color, boxShadow: `0 0 6px ${color}80` }}
                     />
                   )}
                 </div>
                 {/* Label + value */}
                 <div>
-                  <p className="text-xs font-medium" style={{ color: '#6B7280' }}>{label}</p>
-                  <p className="text-2xl font-bold leading-tight" style={{ color }}>{value}</p>
+                  <p className="text-[10px] font-medium leading-tight" style={{ color: '#0369a1' }}>{label}</p>
+                  <p className="text-sm font-bold leading-tight" style={{ color }}>{value}</p>
                 </div>
               </div>
             ))}
@@ -261,12 +261,12 @@ export default function PlayersPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, delay: 0.08 }}
           className="flex-1 flex flex-col overflow-hidden rounded-xl"
-          style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+          style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
         >
           {/* Filter toolbar */}
           <div
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 gap-2 flex-shrink-0"
-            style={{ borderBottom: '1px solid #242424' }}
+            style={{ borderBottom: '1px solid #bae6fd' }}
           >
             {/* Status filter tabs */}
             <div className="flex items-center gap-1 overflow-x-auto scroll-x">
@@ -277,8 +277,8 @@ export default function PlayersPage() {
                   className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target"
                   style={
                     statusFilter === tab.value
-                      ? { backgroundColor: '#F5A624', color: '#000000' }
-                      : { color: '#9CA3AF' }
+                      ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
+                      : { color: '#0369a1' }
                   }
                 >
                   {tab.label}
@@ -291,7 +291,7 @@ export default function PlayersPage() {
               <div className="relative">
                 <Search
                   className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-                  style={{ color: '#6B7280' }}
+                  style={{ color: '#6b7280' }}
                 />
                 <input
                   placeholder="Search players..."
@@ -299,9 +299,9 @@ export default function PlayersPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-44"
                   style={{
-                    backgroundColor: '#141414',
-                    border: '1px solid #2A2A2A',
-                    color: '#FFFFFF',
+                    backgroundColor: '#f0f9ff',
+                    border: '1px solid #bae6fd',
+                    color: '#0c4a6e',
                   }}
                 />
               </div>
@@ -310,13 +310,13 @@ export default function PlayersPage() {
           </div>
 
           {/* Player overview area */}
-          <div className="flex-1 relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#141414' }}>
+          <div className="flex-1 relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#f0f9ff' }}>
             <div className="text-center px-6">
-              <Monitor className="h-12 w-12 mx-auto mb-3 opacity-20" style={{ color: '#6B7280' }} />
-              <p className="text-sm font-medium mb-1" style={{ color: '#6B7280' }}>
+              <Monitor className="h-12 w-12 mx-auto mb-3 opacity-20" style={{ color: '#6b7280' }} />
+              <p className="text-sm font-medium mb-1" style={{ color: '#0369a1' }}>
                 {filteredPlayers.length} player{filteredPlayers.length !== 1 ? 's' : ''} {statusFilter !== 'all' ? statusFilter : ''}
               </p>
-              <p className="text-xs" style={{ color: '#6B7280' }}>
+              <p className="text-xs" style={{ color: '#0369a1' }}>
                 Select a player from the list to view details
               </p>
             </div>
@@ -325,19 +325,19 @@ export default function PlayersPage() {
           {/* Legend */}
           <div
             className="flex items-center gap-5 px-5 py-3 flex-shrink-0"
-            style={{ borderTop: '1px solid #242424' }}
+            style={{ borderTop: '1px solid #bae6fd' }}
           >
             {[
               { label: 'Online',  color: '#059669' },
               { label: 'Offline', color: '#DC2626' },
-              { label: 'Pending', color: '#F5A624' },
+              { label: 'Pending', color: '#D97706' },
             ].map(({ label, color }) => (
               <div key={label} className="flex items-center gap-2">
                 <span
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: color }}
                 />
-                <span className="text-xs" style={{ color: '#6B7280' }}>{label}</span>
+                <span className="text-xs" style={{ color: '#0369a1' }}>{label}</span>
               </div>
             ))}
           </div>
@@ -349,20 +349,20 @@ export default function PlayersPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, delay: 0.12 }}
           className="w-80 flex flex-col rounded-xl overflow-hidden flex-shrink-0"
-          style={{ backgroundColor: '#1C1C1C', border: '1px solid #2A2A2A' }}
+          style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
         >
           {/* Panel header */}
           <div
             className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-            style={{ borderBottom: '1px solid #242424' }}
+            style={{ borderBottom: '1px solid #bae6fd' }}
           >
             <div className="flex items-center gap-2.5">
-              <h2 className="text-sm font-semibold" style={{ color: '#FFFFFF' }}>
+              <h2 className="text-sm font-semibold" style={{ color: '#0c4a6e' }}>
                 Active Players
               </h2>
               <span
                 className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: 'rgba(245,166,36,0.15)', color: '#F5A624' }}
+                style={{ backgroundColor: 'rgba(14,165,233,0.12)', color: '#0ea5e9' }}
               >
                 {totalPlayers}
               </span>
@@ -377,7 +377,7 @@ export default function PlayersPage() {
                   <div
                     key={i}
                     className="h-20 rounded-xl animate-pulse"
-                    style={{ backgroundColor: '#242424' }}
+                    style={{ backgroundColor: '#e0f2fe' }}
                   />
                 ))}
               </div>
@@ -385,18 +385,18 @@ export default function PlayersPage() {
               <div className="py-12 px-4 text-center">
                 <Monitor
                   className="h-10 w-10 mx-auto mb-3 opacity-25"
-                  style={{ color: '#6B7280' }}
+                  style={{ color: '#6b7280' }}
                 />
-                <p className="text-sm font-medium mb-1" style={{ color: '#9CA3AF' }}>
+                <p className="text-sm font-medium mb-1" style={{ color: '#0369a1' }}>
                   No players yet
                 </p>
-                <p className="text-xs mb-4" style={{ color: '#6B7280' }}>
+                <p className="text-xs mb-4" style={{ color: '#0369a1' }}>
                   Open the player app on your display to get a pairing code
                 </p>
                 <button
                   onClick={() => setIsRegistrationOpen(true)}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold"
-                  style={{ backgroundColor: '#F5A624', color: '#000000' }}
+                  style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Register Player
@@ -404,7 +404,7 @@ export default function PlayersPage() {
               </div>
             ) : filteredPlayers.length === 0 ? (
               <div className="py-12 px-4 text-center">
-                <p className="text-sm" style={{ color: '#6B7280' }}>
+                <p className="text-sm" style={{ color: '#0369a1' }}>
                   No players match "{searchQuery}"
                 </p>
               </div>

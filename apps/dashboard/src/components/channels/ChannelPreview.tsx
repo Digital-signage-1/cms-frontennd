@@ -28,7 +28,7 @@ const deviceFrames: DeviceFrame[] = [
   { id: 'mobile',  name: 'Mobile',   icon: Smartphone, previewWidth: '200px', aspectClass: 'aspect-[9/19]' },
 ]
 
-const ZONE_BG = ['#1A1A2E', '#162040', '#0F2044', '#1C1A2E', '#1A2520', '#1A1520', '#1C1015', '#0D1A2A']
+const ZONE_BG = ['#E8E6FF', '#E0EAFF', '#DDEEFF', '#EDE8FF', '#E0F0E8', '#E8E0F0', '#F0E0E8', '#E0E8F0']
 
 export function ChannelPreview({ children, channelManifest, workspaceId, isOpen = false, onOpenChange }: ChannelPreviewProps) {
   const [selectedDevice, setSelectedDevice] = useState<DeviceFrame>(deviceFrames[0])
@@ -80,27 +80,27 @@ export function ChannelPreview({ children, channelManifest, workspaceId, isOpen 
           width: `${zone.width_percent}%`, height: `${zone.height_percent}%`,
           zIndex: zone.z_index || 1,
           backgroundColor: ZONE_BG[i % ZONE_BG.length],
-          border: '1px solid rgba(245,166,36,0.20)',
+          border: '1px solid rgba(14,165,233,0.20)',
           borderRadius: 4,
         }}
       >
         <div style={{ textAlign: 'center', padding: 8 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, color: '#F5A624', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, color: '#0ea5e9', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 4px' }}>
             {zone.name}
           </p>
           {zone.apps?.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {zone.apps.slice(0, 2).map((app: any, idx: number) => (
-                <div key={idx} style={{ fontSize: 9, backgroundColor: 'rgba(255,255,255,0.08)', borderRadius: 4, padding: '2px 6px', color: '#9CA3AF' }}>
+                <div key={idx} style={{ fontSize: 9, backgroundColor: 'rgba(14,165,233,0.08)', borderRadius: 4, padding: '2px 6px', color: '#0369a1' }}>
                   {app.app?.name || 'Unknown App'}
                 </div>
               ))}
               {zone.apps.length > 2 && (
-                <p style={{ fontSize: 9, color: '#6B7280', margin: 0 }}>+{zone.apps.length - 2} more</p>
+                <p style={{ fontSize: 9, color: '#6b7280', margin: 0 }}>+{zone.apps.length - 2} more</p>
               )}
             </div>
           ) : (
-            <p style={{ fontSize: 9, color: '#6B7280', margin: 0 }}>Empty</p>
+            <p style={{ fontSize: 9, color: '#6b7280', margin: 0 }}>Empty</p>
           )}
         </div>
       </div>
@@ -112,10 +112,10 @@ export function ChannelPreview({ children, channelManifest, workspaceId, isOpen 
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent hideClose className="!p-0 max-w-6xl overflow-hidden flex flex-col" style={{ height: '82vh' }}>
           {/* Header */}
-          <div style={{ padding: '14px 20px', borderBottom: '1px solid #1E1E38', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid #bae6fd', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
             <div>
-              <p style={{ fontSize: 15, fontWeight: 700, color: '#FFFFFF', margin: 0 }}>Channel Preview</p>
-              <p style={{ fontSize: 12, color: '#6B7280', margin: '2px 0 0' }}>
+              <p style={{ fontSize: 15, fontWeight: 700, color: '#0c4a6e', margin: 0 }}>Channel Preview</p>
+              <p style={{ fontSize: 12, color: '#0369a1', margin: '2px 0 0' }}>
                 {channelManifest?.name || 'Preview your channel layout'}
               </p>
             </div>
@@ -130,7 +130,7 @@ export function ChannelPreview({ children, channelManifest, workspaceId, isOpen 
                     <button
                       key={frame.id}
                       onClick={() => setSelectedDevice(frame)}
-                      style={{ display: 'flex', alignItems: 'center', gap: 6, height: 34, padding: '0 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: isActive ? '1px solid rgba(245,166,36,0.50)' : '1px solid #2A2A40', backgroundColor: isActive ? 'rgba(245,166,36,0.12)' : '#0D0D1E', color: isActive ? '#F5A624' : '#9CA3AF', transition: 'all 0.15s' }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, height: 34, padding: '0 12px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: isActive ? '1px solid rgba(14,165,233,0.50)' : '1px solid #bae6fd', backgroundColor: isActive ? 'rgba(14,165,233,0.08)' : '#FFFFFF', color: isActive ? '#0ea5e9' : '#6b7280', transition: 'all 0.15s' }}
                     >
                       <Icon className="h-3.5 w-3.5" />
                       <span className="hidden sm:inline">{frame.name}</span>
@@ -140,15 +140,15 @@ export function ChannelPreview({ children, channelManifest, workspaceId, isOpen 
               </div>
               <button
                 onClick={() => onOpenChange(false)}
-                style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.07)', border: '1px solid #2A2A45', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
               >
-                <X className="h-4 w-4" style={{ color: '#9CA3AF' }} />
+                <X className="h-4 w-4" style={{ color: '#6b7280' }} />
               </button>
             </div>
           </div>
 
           {/* Canvas */}
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32, backgroundColor: '#0A0A1A', overflow: 'auto' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32, backgroundColor: '#f0f9ff', overflow: 'auto' }}>
             <motion.div
               key={selectedDevice.id}
               initial={{ opacity: 0, scale: 0.92 }}
@@ -157,7 +157,7 @@ export function ChannelPreview({ children, channelManifest, workspaceId, isOpen 
             >
               <div
                 className={selectedDevice.aspectClass}
-                style={{ width: selectedDevice.previewWidth, maxWidth: '100%', backgroundColor: '#141420', border: '1px solid #2A2A45', borderRadius: 10, overflow: 'hidden', boxShadow: '0 0 60px rgba(0,0,0,0.6)', position: 'relative' }}
+                style={{ width: selectedDevice.previewWidth, maxWidth: '100%', backgroundColor: '#FFFFFF', border: '1px solid #bae6fd', borderRadius: 10, overflow: 'hidden', boxShadow: '0 0 60px rgba(14,165,233,0.10)', position: 'relative' }}
               >
                 {manifestWithAuth?.slides?.length ? (
                   <div style={{ position: 'absolute', inset: 0 }}>
@@ -176,13 +176,13 @@ export function ChannelPreview({ children, channelManifest, workspaceId, isOpen 
                     {renderZones()}
                     {!channelManifest?.zones && (
                       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <p style={{ fontSize: 13, color: '#6B7280' }}>No zones configured</p>
+                        <p style={{ fontSize: 13, color: '#6b7280' }}>No zones configured</p>
                       </div>
                     )}
                   </>
                 )}
               </div>
-              <p style={{ textAlign: 'center', fontSize: 11, color: '#6B7280', marginTop: 10 }}>{selectedDevice.name}</p>
+              <p style={{ textAlign: 'center', fontSize: 11, color: '#6b7280', marginTop: 10 }}>{selectedDevice.name}</p>
             </motion.div>
           </div>
         </DialogContent>
@@ -200,7 +200,7 @@ export function ChannelPreviewButton({ channelManifest, workspaceId, disabled = 
       <button
         disabled={disabled}
         onClick={() => setIsOpen(true)}
-        style={{ display: 'flex', alignItems: 'center', gap: 6, height: 36, padding: '0 14px', borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid #2A2A45', color: '#9CA3AF', fontSize: 13, fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}
+        style={{ display: 'flex', alignItems: 'center', gap: 6, height: 36, padding: '0 14px', borderRadius: 8, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#0369a1', fontSize: 13, fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1 }}
       >
         <Play className="h-3.5 w-3.5" />
         Preview
