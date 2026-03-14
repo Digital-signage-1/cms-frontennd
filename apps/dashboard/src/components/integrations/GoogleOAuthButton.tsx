@@ -75,7 +75,15 @@ export function GoogleOAuthButton({
           />
         </svg>
       )}
-      {label || (provider === 'google_sheets' ? 'Connect Google Sheets' : 'Connect Google Drive')}
+      {label || {
+        google_sheets: 'Connect Google Sheets',
+        google_drive: 'Connect Google Drive',
+        google_slides: 'Connect Google Slides',
+        google_calendar: 'Connect Google Calendar',
+        google_docs: 'Connect Google Docs',
+        google_photos: 'Connect Google Photos',
+        google_forms: 'Connect Google Forms',
+      }[provider] || 'Connect Google Account'}
     </Button>
   )
 }

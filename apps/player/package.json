@@ -12,6 +12,8 @@
   "dependencies": {
     "@signage/renderer": "workspace:*",
     "@signage/types": "workspace:*",
+    "abortcontroller-polyfill": "^1.7.8",
+    "core-js": "^3.48.0",
     "dexie": "^4.0.10",
     "hls.js": "^1.5.18",
     "react": "^19.0.0",
@@ -22,12 +24,19 @@
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-legacy": "^6.1.1",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
+    "postcss-preset-env": "^11.2.0",
     "tailwindcss": "^3.4.17",
+    "terser": "^5.46.0",
     "typescript": "^5.7.2",
     "vite": "^6.0.6",
     "vite-plugin-pwa": "^0.21.1"
+  },
+  "browserslist": {
+    "production": ["chrome >= 38"],
+    "development": ["last 1 chrome version"]
   }
 }

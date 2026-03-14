@@ -47,6 +47,19 @@ export { StatusDot } from './status-dot'
 export { ConfirmDialog } from './confirm-dialog'
 export { Toaster } from './toaster'
 export {
+  Select,
+  SelectRoot,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+  type SelectOption,
+  type SelectProps,
+} from './select'
+export {
   Drawer,
   DrawerContent,
   DrawerHeader,

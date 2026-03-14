@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { ContentRenderer } from '@signage/renderer'
+import { ContentRenderer, IntegrationDataProvider } from '@signage/renderer'
 import type { App } from '@signage/types'
 import { X, Monitor, Smartphone } from 'lucide-react'
+import { useDashboardIntegrationFetcher } from '@/hooks/useDashboardIntegrationFetcher'
 
 interface AppPreviewModalProps {
   isOpen: boolean
@@ -16,6 +17,7 @@ interface AppPreviewModalProps {
 
 export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: AppPreviewModalProps) {
   const [orientation, setOrientation] = useState<'landscape' | 'portrait'>('landscape')
+  const integrationFetcher = useDashboardIntegrationFetcher()
 
   const appWithUrl = useMemo(() => {
     const resolvedUrl = contentUrl || app.preview_url
@@ -100,12 +102,14 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
             boxShadow: '0 8px 40px rgba(14,165,233,0.15)',
           }}>
             <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-              <ContentRenderer
-                appId={app.app_id}
-                app={appWithUrl}
-                onError={(error) => console.error('Preview render error:', error)}
-                onLoad={() => {}}
-              />
+              <IntegrationDataProvider value={integrationFetcher}>
+                <ContentRenderer
+                  appId={app.app_id}
+                  app={appWithUrl}
+                  onError={(error) => console.error('Preview render error:', error)}
+                  onLoad={() => {}}
+                />
+              </IntegrationDataProvider>
             </div>
           </div>
 

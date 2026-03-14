@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Select } from '@/components/ui/select'
 import { Calendar, Clock, X, Plus, ChevronDown } from 'lucide-react'
 import { useChannels, useCreateSchedule, useUpdateSchedule } from '@/hooks/queries'
 
@@ -247,19 +248,16 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
               <div>
                 <label style={labelStyle}>Repeat</label>
                 <div style={{ position: 'relative' }}>
-                  <select
+                  <Select
                     value={repeat}
-                    onChange={e => setRepeat(e.target.value)}
-                    style={{ ...inputStyle, appearance: 'none', paddingRight: 32, cursor: 'pointer' }}
-                    onFocus={focusPrimary}
-                    onBlur={blurDefault}
-                  >
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="never">Never</option>
-                  </select>
-                  <ChevronDown className="h-3.5 w-3.5" style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none' }} />
+                    onValueChange={(val) => setRepeat(val)}
+                    options={[
+                      { value: 'daily', label: 'Daily' },
+                      { value: 'weekly', label: 'Weekly' },
+                      { value: 'monthly', label: 'Monthly' },
+                      { value: 'never', label: 'Never' },
+                    ]}
+                  />
                 </div>
               </div>
 

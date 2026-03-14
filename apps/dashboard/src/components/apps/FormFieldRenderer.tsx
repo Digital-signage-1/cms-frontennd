@@ -1,7 +1,14 @@
 'use client'
 
-import { Input, Label } from '@/components/ui'
-import { AlertCircle } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Input, Label, Select } from '@/components/ui'
+import { AlertCircle, Loader2, Link as LinkIcon } from 'lucide-react'
+import { GoogleResourcePicker } from '@/components/integrations/GoogleResourcePicker'
+import { GoogleOAuthButton } from '@/components/integrations/GoogleOAuthButton'
+import { PowerBIResourcePicker } from '@/components/integrations/PowerBIResourcePicker'
+import { PowerBIResourceMultiPicker } from '@/components/integrations/PowerBIResourceMultiPicker'
+import { MicrosoftOAuthButton } from '@/components/integrations/MicrosoftOAuthButton'
+import { useIntegrations } from '@/hooks/queries/useIntegrations'
 
 interface ValidationRule {
   min?: number
@@ -21,6 +28,10 @@ interface FormField {
   placeholder?: string
   default_value?: any
   validation?: ValidationRule
+  provider?: string
+  resource_type?: string
+  allow_manual?: boolean
+  [key: string]: any
 }
 
 interface FormFieldRendererProps {
@@ -29,14 +40,18 @@ interface FormFieldRendererProps {
   onChange: (value: any) => void
   error?: string
   onContentSelect?: (contentId: string) => void
+  formData?: Record<string, any>
+  workspaceId?: string | number
 }
 
-export function FormFieldRenderer({ 
-  field, 
-  value, 
-  onChange, 
+export function FormFieldRenderer({
+  field,
+  value,
+  onChange,
   error,
-  onContentSelect 
+  onContentSelect,
+  formData,
+  workspaceId,
 }: FormFieldRendererProps) {
   const fieldValue = value !== undefined && value !== null ? value : (field.default_value ?? '')
 
@@ -109,21 +124,14 @@ export function FormFieldRenderer({
       case 'select':
         const options = field.validation?.options || []
         return (
-          <select
+          <Select
             id={field.name}
-            value={fieldValue}
-            onChange={(e) => onChange(e.target.value)}
-            className={`w-full px-3 py-2 bg-surface border rounded-lg focus:outline-none focus:border-primary ${
-              error ? 'border-error' : 'border-border'
-            }`}
-          >
-            <option value="">Select {field.label}...</option>
-            {options.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            value={fieldValue || undefined}
+            onValueChange={(val) => onChange(val)}
+            options={options.map((opt) => ({ value: opt.value, label: opt.label }))}
+            placeholder={`Select ${field.label}...`}
+            error={!!error}
+          />
         )
 
       case 'color':
@@ -239,6 +247,42 @@ export function FormFieldRenderer({
           </div>
         )
 
+      case 'integration_selector':
+        return (
+          <IntegrationSelectorField
+            provider={field.provider || ''}
+            workspaceId={workspaceId}
+            value={fieldValue}
+            onChange={onChange}
+            error={error}
+          />
+        )
+
+      case 'resource_picker':
+        return (
+          <ResourcePickerField
+            field={field}
+            value={fieldValue}
+            onChange={onChange}
+            integrationId={formData?.integration_id}
+            workspaceId={workspaceId}
+            error={error}
+            formData={formData}
+          />
+        )
+
+      case 'resource_multi_picker':
+        return (
+          <ResourceMultiPickerField
+            field={field}
+            value={fieldValue}
+            onChange={onChange}
+            integrationId={formData?.integration_id}
+            workspaceId={workspaceId}
+            formData={formData}
+          />
+        )
+
       default:
         return (
           <Input
@@ -283,5 +327,244 @@ export function FormFieldRenderer({
         </div>
       )}
     </div>
+  )
+}
+
+
+// --- Sub-components for integration fields ---
+
+function IntegrationSelectorField({
+  provider,
+  workspaceId,
+  value,
+  onChange,
+  error,
+}: {
+  provider: string
+  workspaceId?: string | number
+  value: any
+  onChange: (value: any) => void
+  error?: string
+}) {
+  const isGoogle = provider.startsWith('google')
+  const isPowerBI = provider === 'powerbi'
+  // Normalize provider for backend query: google_sheets/google_calendar → google
+  const queryProvider = isGoogle ? 'google' : provider
+  const { data, isLoading } = useIntegrations(workspaceId ?? '', queryProvider)
+
+  const allIntegrations = data?.integrations ?? (Array.isArray(data) ? data : [])
+  // Backend filters by provider — only filter active status client-side
+  const integrations = allIntegrations.filter((i: any) => i.status === 'active')
+
+  // Deduplicate by display_name (one entry per account)
+  const displayOptions = useMemo(() => {
+    const seen = new Map<string, { id: string; label: string }>()
+    for (const i of integrations) {
+      const key = i.display_name || i.provider
+      if (!seen.has(key)) {
+        seen.set(key, { id: i.integration_id || i.id, label: key })
+      }
+    }
+    return Array.from(seen.values())
+  }, [integrations])
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2 py-3">
+        <Loader2 className="h-4 w-4 animate-spin text-text-muted" />
+        <span className="text-sm text-text-muted">Loading accounts...</span>
+      </div>
+    )
+  }
+
+  if (displayOptions.length === 0) {
+    const providerLabel = isPowerBI ? 'Microsoft' : isGoogle ? 'Google' : provider
+    return (
+      <div className="flex flex-col gap-3 rounded-xl border border-dashed border-border p-4 text-center">
+        <p className="text-sm text-text-muted">
+          No {providerLabel} account connected. Connect one first from the Integrations page.
+        </p>
+        {workspaceId && isPowerBI && (
+          <MicrosoftOAuthButton
+            workspaceId={workspaceId}
+            provider="powerbi"
+            size="sm"
+          />
+        )}
+        {workspaceId && isGoogle && (
+          <GoogleOAuthButton
+            workspaceId={workspaceId}
+            provider="google_sheets"
+            size="sm"
+          />
+        )}
+      </div>
+    )
+  }
+
+  const selectLabel = isPowerBI ? 'Select a Microsoft account...' : isGoogle ? 'Select a Google account...' : 'Select an account...'
+
+  return (
+    <Select
+      value={value || undefined}
+      onValueChange={(val) => onChange(val)}
+      options={displayOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
+      placeholder={selectLabel}
+      error={!!error}
+    />
+  )
+}
+
+function ResourcePickerField({
+  field,
+  value,
+  onChange,
+  integrationId,
+  workspaceId,
+  error,
+  formData,
+}: {
+  field: FormField
+  value: any
+  onChange: (value: any) => void
+  integrationId?: string | number
+  workspaceId?: string | number
+  error?: string
+  formData?: Record<string, any>
+}) {
+  const [manualMode, setManualMode] = useState(false)
+  const isPowerBI = field.provider === 'powerbi'
+
+  // Check depends_on: if this field depends on another and that field is empty, show disabled state
+  const dependsOnField = field.depends_on
+  const dependsOnValue = dependsOnField ? formData?.[dependsOnField] : undefined
+  const isDependencyMissing = dependsOnField && !dependsOnValue
+
+  if (!integrationId) {
+    return (
+      <div className="rounded-lg border border-border bg-surface-alt/30 px-3 py-3">
+        <p className="text-sm text-text-muted">
+          Select {isPowerBI ? 'a Microsoft account' : 'a Google account'} first
+        </p>
+      </div>
+    )
+  }
+
+  if (isDependencyMissing) {
+    // Find a human-readable label for the dependency field
+    const depLabel = dependsOnField.replace(/_/g, ' ').replace(/\bid\b/g, '').trim() || dependsOnField
+    return (
+      <div className="rounded-lg border border-border bg-surface-alt/30 px-3 py-3">
+        <p className="text-sm text-text-muted">Select a {depLabel} first</p>
+      </div>
+    )
+  }
+
+  if (manualMode) {
+    return (
+      <div className="space-y-2">
+        <Input
+          type="text"
+          value={value || ''}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={field.placeholder || `Enter ${field.label} ID or URL`}
+          className={error ? 'border-error' : ''}
+        />
+        <button
+          type="button"
+          onClick={() => setManualMode(false)}
+          className="text-xs text-primary hover:underline flex items-center gap-1"
+        >
+          Browse resources instead
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-2">
+      {isPowerBI ? (
+        <PowerBIResourcePicker
+          workspaceId={workspaceId ?? ''}
+          integrationId={integrationId}
+          resourceType={field.resource_type || 'workspace'}
+          onSelect={(resourceId) => onChange(resourceId)}
+          selectedId={value}
+          powerbiWorkspaceId={dependsOnValue as string | undefined}
+        />
+      ) : (
+        <GoogleResourcePicker
+          workspaceId={workspaceId ?? ''}
+          provider={field.provider || ''}
+          integrationId={integrationId}
+          resourceType={field.resource_type || 'file'}
+          onSelect={(resourceId) => onChange(resourceId)}
+          selectedId={value}
+        />
+      )}
+      {field.allow_manual && (
+        <button
+          type="button"
+          onClick={() => setManualMode(true)}
+          className="text-xs text-primary hover:underline flex items-center gap-1"
+        >
+          <LinkIcon className="h-3 w-3" />
+          Enter ID manually
+        </button>
+      )}
+    </div>
+  )
+}
+
+function ResourceMultiPickerField({
+  field,
+  value,
+  onChange,
+  integrationId,
+  workspaceId,
+  formData,
+}: {
+  field: FormField
+  value: any
+  onChange: (value: any) => void
+  integrationId?: string | number
+  workspaceId?: string | number
+  formData?: Record<string, any>
+}) {
+  // Resolve dependencies: the field depends_on a single field (e.g. "report_id")
+  // but we also need workspace_id for the API call
+  const dependsOnField = field.depends_on
+  const dependsOnValue = dependsOnField ? formData?.[dependsOnField] : undefined
+  const isDependencyMissing = dependsOnField && !dependsOnValue
+
+  if (!integrationId) {
+    return (
+      <div className="rounded-lg border border-border bg-surface-alt/30 px-3 py-3">
+        <p className="text-sm text-text-muted">Select a Microsoft account first</p>
+      </div>
+    )
+  }
+
+  if (isDependencyMissing) {
+    const depLabel = (dependsOnField ?? '').replace(/_/g, ' ').replace(/\bid\b/g, '').trim() || dependsOnField
+    return (
+      <div className="rounded-lg border border-border bg-surface-alt/30 px-3 py-3">
+        <p className="text-sm text-text-muted">Select a {depLabel} first</p>
+      </div>
+    )
+  }
+
+  const selectedIds = Array.isArray(value) ? value : []
+
+  return (
+    <PowerBIResourceMultiPicker
+      workspaceId={workspaceId ?? ''}
+      integrationId={integrationId}
+      resourceType={field.resource_type || 'page'}
+      onSelect={(ids) => onChange(ids)}
+      selectedIds={selectedIds}
+      powerbiWorkspaceId={formData?.workspace_id as string | undefined}
+      powerbiReportId={dependsOnValue as string | undefined}
+    />
   )
 }

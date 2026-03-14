@@ -13,6 +13,19 @@ export type AppTemplateType =
   | 'social'
   | 'sheets'
   | 'rss_feed'
+  | 'google_slides'
+  | 'google_calendar'
+  | 'google_docs'
+  | 'google_photos'
+  | 'google_forms'
+  | 'google_maps'
+  | 'looker_studio'
+  | 'google_alerts'
+  | 'google_sheets'
+  | 'powerbi_report'
+  | 'powerbi_realtime_report'
+  | 'powerbi_dashboard'
+  | 'powerbi_url'
 
 export interface App {
   id: number
@@ -194,6 +207,119 @@ export interface SheetAppConfig extends AppConfig {
   text_color?: string
 }
 
+export interface GoogleSlidesAppConfig extends AppConfig {
+  presentation_id: string
+  auto_advance?: boolean
+  delay_ms?: number
+  loop?: boolean
+  start_slide?: number
+}
+
+export interface GoogleCalendarAppConfig extends AppConfig {
+  calendar_id: string
+  display_mode?: 'agenda' | 'day' | 'week' | 'month' | 'meeting_room'
+  show_description?: boolean
+  show_location?: boolean
+  show_attendees?: boolean
+  auto_scroll?: boolean
+  room_name?: string
+  refresh_interval?: number
+  theme?: 'dark' | 'light' | 'google'
+}
+
+export interface GoogleDocsAppConfig extends AppConfig {
+  document_id: string
+  auto_scroll?: boolean
+  scroll_speed?: 'slow' | 'medium' | 'fast'
+  zoom_level?: number
+}
+
+export interface GooglePhotosAppConfig extends AppConfig {
+  album_id: string
+  transition?: 'fade' | 'slide' | 'zoom' | 'none'
+  duration_seconds?: number
+  shuffle?: boolean
+  fit_mode?: 'cover' | 'contain'
+  show_caption?: boolean
+  refresh_interval?: number
+}
+
+export interface GoogleFormsAppConfig extends AppConfig {
+  form_id: string
+  display_mode?: 'summary_charts' | 'live_responses' | 'single_question'
+  chart_type?: 'bar' | 'pie' | 'donut'
+  show_question_text?: boolean
+  refresh_interval?: number
+  theme?: 'dark' | 'light' | 'google'
+}
+
+export interface GoogleMapsAppConfig extends AppConfig {
+  location: string
+  zoom?: number
+  map_type?: 'roadmap' | 'satellite' | 'terrain' | 'hybrid'
+  show_traffic?: boolean
+}
+
+export interface LookerStudioAppConfig extends AppConfig {
+  report_url: string
+  page_number?: number
+  auto_refresh?: boolean
+  refresh_interval?: number
+}
+
+export interface GoogleAlertsAppConfig extends AppConfig {
+  topic: string
+  language?: string
+  region?: string
+  max_items?: number
+  display_mode?: 'ticker' | 'cards' | 'list'
+  show_source?: boolean
+  refresh_interval?: number
+  theme?: 'dark' | 'light'
+}
+
+export interface PowerBIReportAppConfig extends AppConfig {
+  integration_id: string
+  workspace_id: string
+  report_id: string
+  selected_pages?: string[]
+  page_duration?: number
+  theme?: 'dark' | 'light'
+  refresh_interval?: number
+  _data?: {
+    screenshot_urls: string[]
+    captured_at?: string
+    page_count?: number
+    capture_error?: string
+  }
+}
+
+export interface PowerBIRealtimeReportAppConfig extends AppConfig {
+  integration_id: string
+  workspace_id: string
+  report_id: string
+  show_filter_pane?: boolean
+  show_nav_pane?: boolean
+  auto_rotate_pages?: boolean
+  page_duration?: number
+  theme?: 'dark' | 'light'
+  refresh_interval?: number
+}
+
+export interface PowerBIDashboardAppConfig extends AppConfig {
+  integration_id: string
+  workspace_id: string
+  dashboard_id: string
+  theme?: 'dark' | 'light'
+  refresh_interval?: number
+}
+
+export interface PowerBIURLAppConfig extends AppConfig {
+  embed_url: string
+  theme?: 'dark' | 'light'
+  refresh_interval?: number
+}
+
 // Backend dynamic app type metadata
 export interface AppTypeMetadata {
   type_id: string
@@ -211,7 +337,7 @@ export interface AppTypeMetadata {
 export interface FormField {
   name: string
   label: string
-  type: 'file_upload' | 'text' | 'textarea' | 'number' | 'select' | 'multi_select' | 'checkbox' | 'color' | 'url' | 'email' | 'date' | 'time' | 'range'
+  type: 'file_upload' | 'text' | 'textarea' | 'number' | 'select' | 'multi_select' | 'checkbox' | 'color' | 'url' | 'email' | 'date' | 'time' | 'range' | 'integration_selector' | 'resource_picker' | 'resource_multi_picker'
   required?: boolean
   description?: string
   placeholder?: string

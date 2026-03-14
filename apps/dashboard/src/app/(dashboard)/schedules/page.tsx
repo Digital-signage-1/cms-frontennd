@@ -8,6 +8,7 @@ import {
 } from '@/hooks/queries'
 import { useAuthStore } from '@/stores/auth-store'
 import { ScheduleModal } from '@/components/schedules/ScheduleModal'
+import { Select } from '@/components/ui/select'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
@@ -635,28 +636,26 @@ export default function SchedulesPage() {
                 </div>
                 <div>
                   <label style={{ fontSize: 11, color: '#0369a1', display: 'block', marginBottom: 4 }}>Channel *</label>
-                  <select
-                    value={overrideData.channel_id}
-                    onChange={(e) => setOverrideData({ ...overrideData, channel_id: e.target.value })}
-                    style={{ width: '100%', height: 36, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#0c4a6e', outline: 'none', boxSizing: 'border-box' }}
-                  >
-                    <option value="">Select channel…</option>
-                    {(channelsData as { channel_id: string; name: string }[]).map((ch) => (
-                      <option key={ch.channel_id} value={ch.channel_id}>{ch.name}</option>
-                    ))}
-                  </select>
+                  <Select
+                    value={overrideData.channel_id || undefined}
+                    onValueChange={(val) => setOverrideData({ ...overrideData, channel_id: val })}
+                    placeholder="Select channel…"
+                    options={(channelsData as { channel_id: string; name: string }[]).map((ch) => ({
+                      value: ch.channel_id, label: ch.name,
+                    }))}
+                  />
                 </div>
                 <div>
                   <label style={{ fontSize: 11, color: '#0369a1', display: 'block', marginBottom: 4 }}>Type *</label>
-                  <select
+                  <Select
                     value={overrideData.type}
-                    onChange={(e) => setOverrideData({ ...overrideData, type: e.target.value as 'emergency' | 'special' | 'maintenance' })}
-                    style={{ width: '100%', height: 36, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#0c4a6e', outline: 'none', boxSizing: 'border-box' }}
-                  >
-                    <option value="emergency">Emergency</option>
-                    <option value="special">Special</option>
-                    <option value="maintenance">Maintenance</option>
-                  </select>
+                    onValueChange={(val) => setOverrideData({ ...overrideData, type: val as 'emergency' | 'special' | 'maintenance' })}
+                    options={[
+                      { value: 'emergency', label: 'Emergency' },
+                      { value: 'special', label: 'Special' },
+                      { value: 'maintenance', label: 'Maintenance' },
+                    ]}
+                  />
                 </div>
                 <div>
                   <label style={{ fontSize: 11, color: '#0369a1', display: 'block', marginBottom: 4 }}>Start Date & Time *</label>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input, Label } from '@/components/ui'
+import { Input, Label, Select } from '@/components/ui'
 import { Save, Eye, Play, Layout, Layers, Settings } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ZoneEditor } from './ZoneEditor'
@@ -165,17 +165,18 @@ export function ChannelDesigner({
 
               <div>
                 <Label htmlFor="transition-type">Transition Type</Label>
-                <select
+                <Select
                   id="transition-type"
                   value={channel.transition_type || 'fade'}
-                  onChange={(e) => onChannelUpdate({ transition_type: e.target.value as any })}
-                  className="w-full px-3 py-2 mt-1 bg-background border border-border rounded-lg focus:outline-none focus:border-primary"
-                >
-                  <option value="none">None</option>
-                  <option value="fade">Fade</option>
-                  <option value="slide">Slide</option>
-                  <option value="zoom">Zoom</option>
-                </select>
+                  onValueChange={(val) => onChannelUpdate({ transition_type: val as any })}
+                  options={[
+                    { value: 'none', label: 'None' },
+                    { value: 'fade', label: 'Fade' },
+                    { value: 'slide', label: 'Slide' },
+                    { value: 'zoom', label: 'Zoom' },
+                  ]}
+                  className="mt-1"
+                />
               </div>
 
               <div>

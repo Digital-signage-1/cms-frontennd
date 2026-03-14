@@ -20,6 +20,8 @@ interface FormField {
   placeholder?: string
   default_value?: any
   validation?: any
+  depends_on?: string
+  [key: string]: any
 }
 
 interface AppConfigFormProps {
@@ -52,7 +54,18 @@ export function AppConfigForm({ appType, workspaceId, onBack, onSuccess, onCance
   const defaultConfig = schemaData?.default_config || {}
 
   const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData(prev => {
+      const updated = { ...prev, [field]: value }
+      // Clear any fields that depend on the changed field
+      if (schema?.fields) {
+        for (const f of schema.fields as FormField[]) {
+          if (f.depends_on === field) {
+            updated[f.name] = ''
+          }
+        }
+      }
+      return updated
+    })
     if (errors[field]) {
       setErrors(prev => {
         const newErrors = { ...prev }
@@ -119,6 +132,7 @@ export function AppConfigForm({ appType, workspaceId, onBack, onSuccess, onCance
           name: formData.name,
           description: formData.description || undefined,
           content_id: formData.content_id,
+          integration_id: formData.integration_id || undefined,
           config,
         }
       })
@@ -234,6 +248,8 @@ export function AppConfigForm({ appType, workspaceId, onBack, onSuccess, onCance
                   setContentSelectorField(fieldName)
                   setContentSelectorOpen(true)
                 }}
+                formData={formData}
+                workspaceId={workspaceId}
               />
             )
           })}

@@ -48,7 +48,8 @@ export function createIntegrationsEndpoints(client: ApiClient) {
       workspaceId: number | string,
       integrationId: number | string,
       resourceType?: string,
-      sync?: boolean
+      sync?: boolean,
+      extraParams?: Record<string, string>
     ) =>
       client.get<IntegrationResource[]>(
         `/api/v1/workspaces/${workspaceId}/integrations/${integrationId}/resources`,
@@ -56,8 +57,20 @@ export function createIntegrationsEndpoints(client: ApiClient) {
           params: {
             ...(resourceType ? { resource_type: resourceType } : {}),
             ...(sync ? { sync: true } : {}),
+            ...(extraParams || {}),
           },
         }
+      ),
+
+    getData: (
+      workspaceId: number | string,
+      integrationId: number | string,
+      resourceId: string,
+      resourceType: string = 'default'
+    ) =>
+      client.get<Record<string, unknown>>(
+        `/api/v1/workspaces/${workspaceId}/integrations/${integrationId}/data`,
+        { params: { resource_id: resourceId, resource_type: resourceType } }
       ),
 
     initiateOAuth: (workspaceId: number | string, provider: string, redirectUri: string) =>

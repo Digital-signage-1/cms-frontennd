@@ -22,7 +22,12 @@ const PROVIDER_ICONS: Record<string, React.ReactNode> = {
     </svg>
   ),
   powerbi: (
-    <div className="flex h-6 w-6 items-center justify-center rounded bg-yellow-500 text-white font-bold text-[9px]">PBI</div>
+    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+      <rect width="24" height="24" rx="4" fill="#F2C811" />
+      <rect x="7" y="12" width="3" height="6" rx="0.5" fill="white" />
+      <rect x="11" y="8" width="3" height="10" rx="0.5" fill="white" />
+      <rect x="15" y="5" width="3" height="13" rx="0.5" fill="white" />
+    </svg>
   ),
   tableau: (
     <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-600 text-white font-bold text-[9px]">TAB</div>

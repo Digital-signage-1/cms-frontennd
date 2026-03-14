@@ -1,5 +1,6 @@
-import { useEffect, useState, useRef } from 'react'
-import { ChannelRenderer } from '@signage/renderer'
+import { useEffect, useState, useRef, useMemo } from 'react'
+import { ChannelRenderer, IntegrationDataProvider } from '@signage/renderer'
+import type { IntegrationDataFetcher } from '@signage/renderer'
 import type { PlayerConfig, ChannelManifest } from '@signage/types'
 import { PlayerEngine } from '../core/PlayerEngine'
 import { useDeviceManager } from '../context'
@@ -41,6 +42,17 @@ export function PlaybackScreen({ config }: PlaybackScreenProps) {
     }
   }, [config.channel, deviceManager])
 
+  const integrationFetcher = useMemo<IntegrationDataFetcher | null>(() => {
+    const engine = engineRef.current
+    if (!engine) return null
+    return {
+      startFetch: (integrationId, resourceId, resourceType, refreshIntervalMs, onData) =>
+        engine.startIntegrationDataFetch(integrationId, resourceId, resourceType, refreshIntervalMs, onData),
+      stopFetch: (integrationId, resourceId, resourceType, onData) =>
+        engine.stopIntegrationDataFetch(integrationId, resourceId, resourceType, onData),
+    }
+  }, [manifest]) // re-create when manifest loads (engine is ready)
+
   if (loading) {
     return (
       <div className="flex h-full w-full items-center justify-center bg-black">
@@ -64,16 +76,18 @@ export function PlaybackScreen({ config }: PlaybackScreenProps) {
   }
 
   return (
-    <div className="h-full w-full bg-black">
-      <ChannelRenderer
-        manifest={manifest}
-        onError={(zoneId, error) => {
-          console.error(`Zone ${zoneId} error:`, error)
-        }}
-        onAppChange={(zoneId, appId) => {
-          console.log(`Zone ${zoneId} now showing app ${appId}`)
-        }}
-      />
-    </div>
+    <IntegrationDataProvider value={integrationFetcher}>
+      <div className="h-full w-full bg-black">
+        <ChannelRenderer
+          manifest={manifest}
+          onError={(zoneId, error) => {
+            console.error(`Zone ${zoneId} error:`, error)
+          }}
+          onAppChange={(zoneId, appId) => {
+            console.log(`Zone ${zoneId} now showing app ${appId}`)
+          }}
+        />
+      </div>
+    </IntegrationDataProvider>
   )
 }

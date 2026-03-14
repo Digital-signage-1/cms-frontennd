@@ -4,6 +4,7 @@ import { DeviceManager } from './DeviceManager'
 const API_BASE_URL = (import.meta.env?.VITE_API_URL as string) || 'http://localhost:8080/api/v1'
 const HEARTBEAT_INTERVAL = 30000
 const COMMANDS_POLL_INTERVAL = 10000
+const DEFAULT_DATA_FETCH_INTERVAL = 5 * 60 * 1000 // 5 minutes
 
 function getDeviceInfo(): Record<string, unknown> {
   if (typeof window === 'undefined') return {}
@@ -23,12 +24,22 @@ interface PendingCommand {
   status?: string
 }
 
+interface IntegrationDataCache {
+  [key: string]: {
+    data: Record<string, unknown>
+    fetchedAt: number
+    interval: ReturnType<typeof setInterval> | null
+  }
+}
+
 export class PlayerEngine {
   private deviceManager: DeviceManager
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null
   private commandsPollInterval: ReturnType<typeof setInterval> | null = null
   private currentManifest: ChannelManifest | null = null
   private startTime: number = Date.now()
+  private integrationDataCache: IntegrationDataCache = {}
+  private integrationDataListeners: Map<string, Set<(data: Record<string, unknown>) => void>> = new Map()
 
   constructor(deviceManager: DeviceManager) {
     this.deviceManager = deviceManager
@@ -159,6 +170,7 @@ export class PlayerEngine {
       clearInterval(this.commandsPollInterval)
       this.commandsPollInterval = null
     }
+    this.stopAllIntegrationDataFetches()
   }
 
   private async sendHeartbeat(): Promise<void> {
@@ -277,6 +289,144 @@ export class PlayerEngine {
     for (const cmd of commands) {
       await this.executeCommand(cmd)
     }
+  }
+
+  /**
+   * Fetch integration data for an app that uses api_fetch processing.
+   * Called by renderers to get live data (calendar events, sheet data, photos, etc.)
+   */
+  async fetchIntegrationData(
+    integrationId: string | number,
+    resourceId: string,
+    resourceType: string = 'default',
+  ): Promise<Record<string, unknown> | null> {
+    const playerId = this.deviceManager.getPlayerId()
+    const deviceToken = this.deviceManager.getDeviceToken()
+    if (!playerId || !deviceToken) return null
+
+    const cacheKey = `${integrationId}:${resourceId}:${resourceType}`
+
+    try {
+      const params = new URLSearchParams({
+        integration_id: String(integrationId),
+        resource_id: resourceId,
+        resource_type: resourceType,
+      })
+      const response = await fetch(
+        `${API_BASE_URL}/players/${playerId}/integration-data?${params}`,
+        { headers: { 'X-Device-Token': deviceToken } },
+      )
+      if (!response.ok) return null
+      const json = await response.json()
+      const data = json.data ?? json
+
+      this.integrationDataCache[cacheKey] = {
+        data,
+        fetchedAt: Date.now(),
+        interval: this.integrationDataCache[cacheKey]?.interval ?? null,
+      }
+
+      // Notify listeners
+      const listeners = this.integrationDataListeners.get(cacheKey)
+      if (listeners) {
+        listeners.forEach((cb) => cb(data))
+      }
+
+      return data
+    } catch (err) {
+      console.error('Failed to fetch integration data:', err)
+      return this.integrationDataCache[cacheKey]?.data ?? null
+    }
+  }
+
+  /**
+   * Start periodic data fetching for an integration-backed app.
+   * Returns the initial data and sets up a refresh interval.
+   */
+  async startIntegrationDataFetch(
+    integrationId: string | number,
+    resourceId: string,
+    resourceType: string = 'default',
+    refreshIntervalMs?: number,
+    onData?: (data: Record<string, unknown>) => void,
+  ): Promise<Record<string, unknown> | null> {
+    const cacheKey = `${integrationId}:${resourceId}:${resourceType}`
+    const interval = refreshIntervalMs || DEFAULT_DATA_FETCH_INTERVAL
+
+    // Register listener
+    if (onData) {
+      if (!this.integrationDataListeners.has(cacheKey)) {
+        this.integrationDataListeners.set(cacheKey, new Set())
+      }
+      this.integrationDataListeners.get(cacheKey)!.add(onData)
+    }
+
+    // Return cached data if fresh enough
+    const cached = this.integrationDataCache[cacheKey]
+    if (cached && Date.now() - cached.fetchedAt < interval) {
+      if (onData) onData(cached.data)
+      // Ensure interval is running
+      if (!cached.interval) {
+        cached.interval = setInterval(() => {
+          this.fetchIntegrationData(integrationId, resourceId, resourceType)
+        }, interval)
+      }
+      return cached.data
+    }
+
+    // Fetch immediately
+    const data = await this.fetchIntegrationData(integrationId, resourceId, resourceType)
+
+    // Set up periodic refresh
+    const existing = this.integrationDataCache[cacheKey]
+    if (existing && !existing.interval) {
+      existing.interval = setInterval(() => {
+        this.fetchIntegrationData(integrationId, resourceId, resourceType)
+      }, interval)
+    }
+
+    return data
+  }
+
+  /**
+   * Stop periodic data fetching for a specific integration resource.
+   */
+  stopIntegrationDataFetch(
+    integrationId: string | number,
+    resourceId: string,
+    resourceType: string = 'default',
+    onData?: (data: Record<string, unknown>) => void,
+  ): void {
+    const cacheKey = `${integrationId}:${resourceId}:${resourceType}`
+
+    // Remove listener
+    if (onData) {
+      this.integrationDataListeners.get(cacheKey)?.delete(onData)
+    }
+
+    // If no more listeners, stop the interval
+    const listeners = this.integrationDataListeners.get(cacheKey)
+    if (!listeners || listeners.size === 0) {
+      const cached = this.integrationDataCache[cacheKey]
+      if (cached?.interval) {
+        clearInterval(cached.interval)
+        cached.interval = null
+      }
+    }
+  }
+
+  /**
+   * Stop all integration data polling (called on cleanup).
+   */
+  private stopAllIntegrationDataFetches(): void {
+    for (const [key, cached] of Object.entries(this.integrationDataCache)) {
+      if (cached.interval) {
+        clearInterval(cached.interval)
+        cached.interval = null
+      }
+    }
+    this.integrationDataListeners.clear()
+    this.integrationDataCache = {}
   }
 
   getUptime(): number {

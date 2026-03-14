@@ -61,6 +61,15 @@ const FALLBACK_TEMPLATES: AppType[] = [
   { type_id: 'social', name: 'Social Media Embed', description: 'Display a live social media feed on screen', category: 'integrations', icon: 'social', popular: false, tags: ['social', 'twitter', 'feed'] },
   { type_id: 'sheets', name: 'Spreadsheet / Sheet', description: 'Display Google Sheets or CSV/Excel files as tables', category: 'widgets', icon: 'sheets', popular: false, tags: ['excel', 'data', 'table'] },
   { type_id: 'stock', name: 'Stock Ticker', description: 'Live stock prices and market indices ticker tape', category: 'widgets', icon: 'stock', popular: false, tags: ['stocks', 'finance', 'market'] },
+  // Google Integrations
+  { type_id: 'google_slides', name: 'Google Slides', description: 'Display presentations from Google Slides', category: 'integrations', icon: 'google-slides', popular: false, tags: ['google', 'slides', 'presentation'] },
+  { type_id: 'google_calendar', name: 'Google Calendar', description: 'Display meeting room schedules and event calendars', category: 'integrations', icon: 'google-calendar', popular: false, tags: ['google', 'calendar', 'events'] },
+  { type_id: 'google_docs', name: 'Google Docs', description: 'Display documents and policies from Google Docs', category: 'integrations', icon: 'google-docs', popular: false, tags: ['google', 'docs', 'document'] },
+  { type_id: 'google_photos', name: 'Google Photos', description: 'Display photo albums and galleries as slideshows', category: 'integrations', icon: 'google-photos', popular: false, tags: ['google', 'photos', 'album'] },
+  { type_id: 'google_forms', name: 'Google Forms', description: 'Display live poll results and survey visualizations', category: 'integrations', icon: 'google-forms', popular: false, tags: ['google', 'forms', 'survey'] },
+  { type_id: 'google_maps', name: 'Google Maps (API)', description: 'Display maps with traffic and custom markers', category: 'integrations', icon: 'google-maps', popular: false, tags: ['google', 'maps', 'location'] },
+  { type_id: 'looker_studio', name: 'Looker Studio', description: 'Display business dashboards and analytics reports', category: 'integrations', icon: 'looker-studio', popular: false, tags: ['google', 'looker', 'analytics'] },
+  { type_id: 'google_alerts', name: 'Google News / Alerts', description: 'Display trending topics and curated news feeds', category: 'integrations', icon: 'google-alerts', popular: false, tags: ['google', 'news', 'alerts'] },
 ]
 
 const CATEGORY_ORDER = ['custom', 'embed', 'media', 'widgets', 'integrations']
@@ -88,12 +97,14 @@ function getCategoriesFromTemplates(templates: AppType[]): { id: string; label: 
 const APP_TYPE_ICONS = new Set([
   'youtube','image','video','pdf','slideshow','docx','web','html',
   'clock','weather','social','countdown','qrcode','rss_feed','sheets',
+  'google-slides','google-calendar','google-docs','google-photos',
+  'google-forms','google-maps','looker-studio','google-alerts',
 ])
 const ICON_ALIAS: Record<string, string> = {
-  react: 'html', 'qr-code': 'qrcode', qr: 'qrcode',
+  react: 'html', 'qr-code': 'qrcode', qr: 'qrcode', spreadsheet: 'sheets',
   slides: 'slideshow', picture_as_pdf: 'pdf', photo: 'image',
   view_carousel: 'slideshow', play_circle: 'video', 'cloud-sun': 'weather',
-  rss: 'rss_feed', iframe: 'web', maps: 'web', table: 'sheets', spreadsheet: 'sheets',
+  rss: 'rss_feed', iframe: 'web', maps: 'web', table: 'sheets',
 }
 function getAppTypeIconPath(icon: string, typeId: string): string | null {
   const key = ICON_ALIAS[icon] || icon
@@ -623,6 +634,8 @@ export default function CreateAppPage() {
                         onChange={(value) => handleChange(field.name, value)}
                         error={errors[field.name]}
                         onContentSelect={(fieldName) => { setContentSelectorField(fieldName); setContentSelectorOpen(true) }}
+                        formData={formData}
+                        workspaceId={workspaceId}
                       />
                     )
                   })}

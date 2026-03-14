@@ -21,9 +21,30 @@ import { AudioRenderer } from './AudioRenderer'
 import { MapsRenderer } from './MapsRenderer'
 import { IframeRenderer } from './IframeRenderer'
 import { StockRenderer } from './StockRenderer'
+import { GoogleSlidesRenderer } from './GoogleSlidesRenderer'
+import { GoogleCalendarRenderer } from './GoogleCalendarRenderer'
+import { GoogleDocsRenderer } from './GoogleDocsRenderer'
+import { GooglePhotosRenderer } from './GooglePhotosRenderer'
+import { GoogleFormsRenderer } from './GoogleFormsRenderer'
+import { GoogleMapsRenderer } from './GoogleMapsRenderer'
+import { LookerStudioRenderer } from './LookerStudioRenderer'
+import { GoogleAlertsRenderer } from './GoogleAlertsRenderer'
+import { PowerBIURLRenderer } from './PowerBIURLRenderer'
 
 const PDFRenderer = lazy(() =>
   import('./PDFRenderer').then(mod => ({ default: mod.PDFRenderer }))
+)
+
+const PowerBIReportRenderer = lazy(() =>
+  import('./PowerBIReportRenderer').then(mod => ({ default: mod.PowerBIReportRenderer }))
+)
+
+const PowerBIRealtimeReportRenderer = lazy(() =>
+  import('./PowerBIRealtimeReportRenderer').then(mod => ({ default: mod.PowerBIRealtimeReportRenderer }))
+)
+
+const PowerBIDashboardRenderer = lazy(() =>
+  import('./PowerBIDashboardRenderer').then(mod => ({ default: mod.PowerBIDashboardRenderer }))
 )
 
 export interface RendererProps {
@@ -50,10 +71,23 @@ const registry: Record<string, ComponentType<RendererProps>> = {
   social: SocialMediaRenderer as ComponentType<RendererProps>,
   rss_feed: RSSFeedRenderer as ComponentType<RendererProps>,
   sheets: SheetRenderer as ComponentType<RendererProps>,
+  google_sheets: SheetRenderer as ComponentType<RendererProps>,
   audio: AudioRenderer as ComponentType<RendererProps>,
   maps: MapsRenderer as ComponentType<RendererProps>,
   iframe: IframeRenderer as ComponentType<RendererProps>,
   stock: StockRenderer as ComponentType<RendererProps>,
+  google_slides: GoogleSlidesRenderer as ComponentType<RendererProps>,
+  google_calendar: GoogleCalendarRenderer as ComponentType<RendererProps>,
+  google_docs: GoogleDocsRenderer as ComponentType<RendererProps>,
+  google_photos: GooglePhotosRenderer as ComponentType<RendererProps>,
+  google_forms: GoogleFormsRenderer as ComponentType<RendererProps>,
+  google_maps: GoogleMapsRenderer as ComponentType<RendererProps>,
+  looker_studio: LookerStudioRenderer as ComponentType<RendererProps>,
+  google_alerts: GoogleAlertsRenderer as ComponentType<RendererProps>,
+  powerbi_report: PowerBIReportRenderer as unknown as ComponentType<RendererProps>,
+  powerbi_realtime_report: PowerBIRealtimeReportRenderer as unknown as ComponentType<RendererProps>,
+  powerbi_dashboard: PowerBIDashboardRenderer as unknown as ComponentType<RendererProps>,
+  powerbi_url: PowerBIURLRenderer as ComponentType<RendererProps>,
 }
 
 export function getRenderer(type: string): ComponentType<RendererProps> | null {

@@ -15,6 +15,7 @@ import {
 } from '@/hooks/queries'
 import { api } from '@/services/api'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Select } from '@/components/ui/select'
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 const INPUT_STYLE = {
@@ -734,15 +735,15 @@ export default function SettingsPage() {
                   </div>
                   <div style={{ width: 140 }}>
                     <label style={LABEL_STYLE}>Role</label>
-                    <select
+                    <Select
                       value={inviteForm.role}
-                      onChange={(e) => setInviteForm({ ...inviteForm, role: e.target.value })}
-                      style={{ ...INPUT_STYLE, width: '100%', cursor: 'pointer' }}
-                    >
-                      <option value="viewer">Viewer</option>
-                      <option value="editor">Editor</option>
-                      <option value="admin">Admin</option>
-                    </select>
+                      onValueChange={(val) => setInviteForm({ ...inviteForm, role: val })}
+                      options={[
+                        { value: 'viewer', label: 'Viewer' },
+                        { value: 'editor', label: 'Editor' },
+                        { value: 'admin', label: 'Admin' },
+                      ]}
+                    />
                   </div>
                 </div>
 

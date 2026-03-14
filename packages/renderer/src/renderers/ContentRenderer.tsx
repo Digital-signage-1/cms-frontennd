@@ -1,8 +1,10 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState, useMemo } from 'react'
 import type { App } from '@signage/types'
 import { getRenderer } from './registry'
+import { useIntegrationAppData } from '../hooks/useIntegrationAppData'
+import { INTEGRATION_DATA_TYPE_SET } from '../config/integrationTypes'
 
 interface ContentRendererProps {
   appId: string
@@ -32,7 +34,28 @@ export function ContentRenderer({
     setError(null)
   }, [app, appId])
 
-  if (loading) {
+  const needsIntegrationData =
+    !!appData &&
+    !!appData.config?.integration_id &&
+    INTEGRATION_DATA_TYPE_SET.has(appData.template_type)
+
+  const { data: integrationData, loading: integrationLoading } =
+    useIntegrationAppData(
+      needsIntegrationData ? appData!.template_type : '',
+      needsIntegrationData ? (appData!.config as Record<string, unknown>) : {},
+      needsIntegrationData ? appId : undefined,
+    )
+
+  const mergedConfig = useMemo(() => {
+    if (!appData) return null
+    const base = appData.config as Record<string, any>
+    if (needsIntegrationData && integrationData) {
+      return { ...base, _data: integrationData }
+    }
+    return base
+  }, [appData, needsIntegrationData, integrationData])
+
+  if (loading || (needsIntegrationData && integrationLoading && !integrationData)) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-black">
         <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -67,7 +90,7 @@ export function ContentRenderer({
         </div>
       }>
         <Renderer
-          config={appData.config as Record<string, any>}
+          config={mergedConfig!}
           contentUrl={contentUrl}
           onError={onError}
           onLoad={onLoad}
