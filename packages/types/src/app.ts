@@ -23,6 +23,7 @@ export type AppTemplateType =
   | 'google_alerts'
   | 'google_sheets'
   | 'powerbi_report'
+  | 'powerbi_realtime_report'
   | 'powerbi_dashboard'
   | 'powerbi_url'
 
@@ -281,6 +282,22 @@ export interface PowerBIReportAppConfig extends AppConfig {
   integration_id: string
   workspace_id: string
   report_id: string
+  selected_pages?: string[]
+  page_duration?: number
+  theme?: 'dark' | 'light'
+  refresh_interval?: number
+  _data?: {
+    screenshot_urls: string[]
+    captured_at?: string
+    page_count?: number
+    capture_error?: string
+  }
+}
+
+export interface PowerBIRealtimeReportAppConfig extends AppConfig {
+  integration_id: string
+  workspace_id: string
+  report_id: string
   show_filter_pane?: boolean
   show_nav_pane?: boolean
   auto_rotate_pages?: boolean
@@ -320,7 +337,7 @@ export interface AppTypeMetadata {
 export interface FormField {
   name: string
   label: string
-  type: 'file_upload' | 'text' | 'textarea' | 'number' | 'select' | 'multi_select' | 'checkbox' | 'color' | 'url' | 'email' | 'date' | 'time' | 'range'
+  type: 'file_upload' | 'text' | 'textarea' | 'number' | 'select' | 'multi_select' | 'checkbox' | 'color' | 'url' | 'email' | 'date' | 'time' | 'range' | 'integration_selector' | 'resource_picker' | 'resource_multi_picker'
   required?: boolean
   description?: string
   placeholder?: string

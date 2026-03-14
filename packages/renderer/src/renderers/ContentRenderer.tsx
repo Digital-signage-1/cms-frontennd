@@ -4,18 +4,7 @@ import { Suspense, useEffect, useState, useMemo } from 'react'
 import type { App } from '@signage/types'
 import { getRenderer } from './registry'
 import { useIntegrationAppData } from '../hooks/useIntegrationAppData'
-
-/** Template types that need live data fetching (not iframe-based). */
-const INTEGRATION_DATA_TYPES = new Set([
-  'google_calendar',
-  'google_photos',
-  'google_forms',
-  'google_alerts',
-  'sheets',
-  'google_sheets',
-  'powerbi_report',
-  'powerbi_dashboard',
-])
+import { INTEGRATION_DATA_TYPE_SET } from '../config/integrationTypes'
 
 interface ContentRendererProps {
   appId: string
@@ -48,12 +37,13 @@ export function ContentRenderer({
   const needsIntegrationData =
     !!appData &&
     !!appData.config?.integration_id &&
-    INTEGRATION_DATA_TYPES.has(appData.template_type)
+    INTEGRATION_DATA_TYPE_SET.has(appData.template_type)
 
   const { data: integrationData, loading: integrationLoading } =
     useIntegrationAppData(
       needsIntegrationData ? appData!.template_type : '',
       needsIntegrationData ? (appData!.config as Record<string, unknown>) : {},
+      needsIntegrationData ? appId : undefined,
     )
 
   const mergedConfig = useMemo(() => {

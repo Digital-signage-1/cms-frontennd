@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input, Label } from '@/components/ui'
+import { Input, Label, Select } from '@/components/ui'
 import { GlassCard } from '@/components/ui/glass-card'
 import { Plus, X, AlertCircle, Check, Copy, ExternalLink } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -206,31 +206,16 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
 
                   <div>
                     <Label>Channel</Label>
-                    <select
-                      value={pairingChannelId}
-                      onChange={(e) => setPairingChannelId(e.target.value)}
-                      style={{
-                        width: '100%',
-                        height: 40,
-                        marginTop: 4,
-                        backgroundColor: '#e0f2fe',
-                        border: `1px solid ${errors.channel_id ? '#DC2626' : '#bae6fd'}`,
-                        borderRadius: 8,
-                        padding: '0 12px',
-                        fontSize: 14,
-                        color: '#0c4a6e',
-                        outline: 'none',
-                        cursor: 'pointer',
-                        boxSizing: 'border-box' as any,
-                      }}
-                      onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9' }}
-                      onBlur={e => { e.currentTarget.style.borderColor = errors.channel_id ? '#DC2626' : '#bae6fd' }}
-                    >
-                      <option value="">Select a channel</option>
-                      {channels.map((ch: { channel_id: string; name: string }) => (
-                        <option key={ch.channel_id} value={ch.channel_id}>{ch.name}</option>
-                      ))}
-                    </select>
+                    <Select
+                      value={pairingChannelId || undefined}
+                      onValueChange={(val) => setPairingChannelId(val)}
+                      placeholder="Select a channel"
+                      error={!!errors.channel_id}
+                      className="mt-1"
+                      options={channels.map((ch: { channel_id: string; name: string }) => ({
+                        value: ch.channel_id, label: ch.name,
+                      }))}
+                    />
                     {errors.channel_id && (
                       <p className="text-sm text-error mt-1 flex items-center gap-1">
                         <AlertCircle className="h-3 w-3" />

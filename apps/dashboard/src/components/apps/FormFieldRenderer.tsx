@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Input, Label } from '@/components/ui'
+import { Input, Label, Select } from '@/components/ui'
 import { AlertCircle, Loader2, Link as LinkIcon } from 'lucide-react'
 import { GoogleResourcePicker } from '@/components/integrations/GoogleResourcePicker'
 import { GoogleOAuthButton } from '@/components/integrations/GoogleOAuthButton'
 import { PowerBIResourcePicker } from '@/components/integrations/PowerBIResourcePicker'
+import { PowerBIResourceMultiPicker } from '@/components/integrations/PowerBIResourceMultiPicker'
 import { MicrosoftOAuthButton } from '@/components/integrations/MicrosoftOAuthButton'
 import { useIntegrations } from '@/hooks/queries/useIntegrations'
 
@@ -123,21 +124,14 @@ export function FormFieldRenderer({
       case 'select':
         const options = field.validation?.options || []
         return (
-          <select
+          <Select
             id={field.name}
-            value={fieldValue}
-            onChange={(e) => onChange(e.target.value)}
-            className={`w-full px-3 py-2 bg-surface border rounded-lg focus:outline-none focus:border-primary ${
-              error ? 'border-error' : 'border-border'
-            }`}
-          >
-            <option value="">Select {field.label}...</option>
-            {options.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+            value={fieldValue || undefined}
+            onValueChange={(val) => onChange(val)}
+            options={options.map((opt) => ({ value: opt.value, label: opt.label }))}
+            placeholder={`Select ${field.label}...`}
+            error={!!error}
+          />
         )
 
       case 'color':
@@ -277,6 +271,18 @@ export function FormFieldRenderer({
           />
         )
 
+      case 'resource_multi_picker':
+        return (
+          <ResourceMultiPickerField
+            field={field}
+            value={fieldValue}
+            onChange={onChange}
+            integrationId={formData?.integration_id}
+            workspaceId={workspaceId}
+            formData={formData}
+          />
+        )
+
       default:
         return (
           <Input
@@ -399,20 +405,13 @@ function IntegrationSelectorField({
   const selectLabel = isPowerBI ? 'Select a Microsoft account...' : isGoogle ? 'Select a Google account...' : 'Select an account...'
 
   return (
-    <select
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-      className={`w-full px-3 py-2 bg-surface border rounded-lg focus:outline-none focus:border-primary ${
-        error ? 'border-error' : 'border-border'
-      }`}
-    >
-      <option value="">{selectLabel}</option>
-      {displayOptions.map((opt) => (
-        <option key={opt.id} value={opt.id}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+    <Select
+      value={value || undefined}
+      onValueChange={(val) => onChange(val)}
+      options={displayOptions.map((opt) => ({ value: opt.id, label: opt.label }))}
+      placeholder={selectLabel}
+      error={!!error}
+    />
   )
 }
 
@@ -514,5 +513,58 @@ function ResourcePickerField({
         </button>
       )}
     </div>
+  )
+}
+
+function ResourceMultiPickerField({
+  field,
+  value,
+  onChange,
+  integrationId,
+  workspaceId,
+  formData,
+}: {
+  field: FormField
+  value: any
+  onChange: (value: any) => void
+  integrationId?: string | number
+  workspaceId?: string | number
+  formData?: Record<string, any>
+}) {
+  // Resolve dependencies: the field depends_on a single field (e.g. "report_id")
+  // but we also need workspace_id for the API call
+  const dependsOnField = field.depends_on
+  const dependsOnValue = dependsOnField ? formData?.[dependsOnField] : undefined
+  const isDependencyMissing = dependsOnField && !dependsOnValue
+
+  if (!integrationId) {
+    return (
+      <div className="rounded-lg border border-border bg-surface-alt/30 px-3 py-3">
+        <p className="text-sm text-text-muted">Select a Microsoft account first</p>
+      </div>
+    )
+  }
+
+  if (isDependencyMissing) {
+    const depLabel = (dependsOnField ?? '').replace(/_/g, ' ').replace(/\bid\b/g, '').trim() || dependsOnField
+    return (
+      <div className="rounded-lg border border-border bg-surface-alt/30 px-3 py-3">
+        <p className="text-sm text-text-muted">Select a {depLabel} first</p>
+      </div>
+    )
+  }
+
+  const selectedIds = Array.isArray(value) ? value : []
+
+  return (
+    <PowerBIResourceMultiPicker
+      workspaceId={workspaceId ?? ''}
+      integrationId={integrationId}
+      resourceType={field.resource_type || 'page'}
+      onSelect={(ids) => onChange(ids)}
+      selectedIds={selectedIds}
+      powerbiWorkspaceId={formData?.workspace_id as string | undefined}
+      powerbiReportId={dependsOnValue as string | undefined}
+    />
   )
 }

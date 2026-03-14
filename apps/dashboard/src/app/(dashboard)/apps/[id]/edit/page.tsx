@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { Button, Input, Label, Skeleton } from '@/components/ui'
+import { Button, Input, Label, Select, Skeleton } from '@/components/ui'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { FormFieldRenderer } from '@/components/apps/FormFieldRenderer'
 import { ContentSelector } from '@/components/apps/ContentSelector'
@@ -397,16 +397,16 @@ export default function EditAppPage() {
                   <Label htmlFor="status" className="text-xs font-medium text-text-primary mb-1.5 block">
                     Status
                   </Label>
-                  <select
+                  <Select
                     id="status"
                     value={formData.status || 'draft'}
-                    onChange={(e) => handleChange('status', e.target.value)}
-                    className="w-full px-3 py-2.5 text-sm bg-surface-alt border border-border rounded-lg focus:outline-none focus:border-primary focus:bg-surface focus:ring-[3px] focus:ring-[rgba(14,165,233,0.15)] text-text-primary transition-all"
-                  >
-                    <option value="active">Active</option>
-                    <option value="draft">Draft</option>
-                    <option value="archived">Archived</option>
-                  </select>
+                    onValueChange={(val) => handleChange('status', val)}
+                    options={[
+                      { value: 'active', label: 'Active' },
+                      { value: 'draft', label: 'Draft' },
+                      { value: 'archived', label: 'Archived' },
+                    ]}
+                  />
                   <p className="text-[11px] text-text-muted mt-1.5">
                     Active apps can be added to channels and played on screens
                   </p>

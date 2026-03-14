@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button, Input, Label } from '@/components/ui'
+import { Button, Input, Label, Select } from '@/components/ui'
 import { DataTable } from '@/components/ui/data-table'
 import { StatusDot } from '@/components/ui/status-dot'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
@@ -122,18 +122,19 @@ export default function WorkspaceSettingsPage() {
           {(member.role === 'admin' || member.role === 'owner') && (
             <Shield className="h-3 w-3 text-primary" />
           )}
-          <select
+          <Select
             value={member.role}
-            onChange={(e) => handleRoleChange(member, e.target.value)}
+            onValueChange={(val) => handleRoleChange(member, val)}
             disabled={updateRoleMutation.isPending}
-            className="px-2 py-1 rounded-md bg-surface-alt text-text-primary text-sm border border-border focus:outline-none focus:ring-1 focus:ring-primary/30 capitalize"
-          >
-            <option value="owner">Owner</option>
-            <option value="admin">Admin</option>
-            <option value="editor">Editor</option>
-            <option value="viewer">Viewer</option>
-            <option value="member">Member</option>
-          </select>
+            options={[
+              { value: 'owner', label: 'Owner' },
+              { value: 'admin', label: 'Admin' },
+              { value: 'editor', label: 'Editor' },
+              { value: 'viewer', label: 'Viewer' },
+              { value: 'member', label: 'Member' },
+            ]}
+            className="h-8 text-sm capitalize"
+          />
         </div>
       ),
     },
@@ -452,16 +453,17 @@ export default function WorkspaceSettingsPage() {
                       className="pl-10"
                     />
                   </div>
-                  <select
+                  <Select
                     value={inviteRole}
-                    onChange={(e) => setInviteRole(e.target.value)}
-                    className="px-4 py-2 rounded-lg border border-border bg-background text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                  >
-                    <option value="member">Member</option>
-                    <option value="editor">Editor</option>
-                    <option value="admin">Admin</option>
-                    <option value="viewer">Viewer</option>
-                  </select>
+                    onValueChange={(val) => setInviteRole(val)}
+                    options={[
+                      { value: 'member', label: 'Member' },
+                      { value: 'editor', label: 'Editor' },
+                      { value: 'admin', label: 'Admin' },
+                      { value: 'viewer', label: 'Viewer' },
+                    ]}
+                    className="w-[130px]"
+                  />
                   <Button
                     onClick={handleInvite}
                     disabled={!inviteEmail || sendInviteMutation.isPending}

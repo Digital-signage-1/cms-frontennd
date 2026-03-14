@@ -39,6 +39,10 @@ const PowerBIReportRenderer = lazy(() =>
   import('./PowerBIReportRenderer').then(mod => ({ default: mod.PowerBIReportRenderer }))
 )
 
+const PowerBIRealtimeReportRenderer = lazy(() =>
+  import('./PowerBIRealtimeReportRenderer').then(mod => ({ default: mod.PowerBIRealtimeReportRenderer }))
+)
+
 const PowerBIDashboardRenderer = lazy(() =>
   import('./PowerBIDashboardRenderer').then(mod => ({ default: mod.PowerBIDashboardRenderer }))
 )
@@ -81,6 +85,7 @@ const registry: Record<string, ComponentType<RendererProps>> = {
   looker_studio: LookerStudioRenderer as ComponentType<RendererProps>,
   google_alerts: GoogleAlertsRenderer as ComponentType<RendererProps>,
   powerbi_report: PowerBIReportRenderer as unknown as ComponentType<RendererProps>,
+  powerbi_realtime_report: PowerBIRealtimeReportRenderer as unknown as ComponentType<RendererProps>,
   powerbi_dashboard: PowerBIDashboardRenderer as unknown as ComponentType<RendererProps>,
   powerbi_url: PowerBIURLRenderer as ComponentType<RendererProps>,
 }

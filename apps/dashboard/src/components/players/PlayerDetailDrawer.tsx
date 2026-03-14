@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Drawer, DrawerContent, DrawerFooter } from '@/components/ui/drawer'
+import { Select } from '@/components/ui/select'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import {
   usePlayer, useAssignChannel, useUpdatePlayer, useDeletePlayer,
@@ -208,17 +209,18 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                         <Tv className="h-4 w-4" style={{ color: '#6b7280' }} />
                         <label style={{ ...labelStyle, marginBottom: 0, fontSize: 13, fontWeight: 600, color: '#0c4a6e' }}>Channel</label>
                       </div>
-                      <select
-                        value={typedPlayer.channel_id || ''}
-                        onChange={e => handleChannelChange(e.target.value)}
+                      <Select
+                        value={typedPlayer.channel_id || undefined}
+                        onValueChange={(val) => handleChannelChange(val)}
                         disabled={assignChannelMutation.isPending}
-                        style={{ width: '100%', height: 40, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 8, padding: '0 12px', fontSize: 13, color: '#0c4a6e', outline: 'none', cursor: 'pointer', appearance: 'none', boxSizing: 'border-box' }}
-                      >
-                        <option value="">No channel</option>
-                        {(channels as { channel_id: string; name: string }[]).map(ch => (
-                          <option key={ch.channel_id} value={ch.channel_id}>{ch.name}</option>
-                        ))}
-                      </select>
+                        placeholder="No channel"
+                        options={[
+                          { value: '', label: 'No channel' },
+                          ...(channels as { channel_id: string; name: string }[]).map(ch => ({
+                            value: ch.channel_id, label: ch.name,
+                          })),
+                        ]}
+                      />
                       {assignChannelMutation.isPending && (
                         <p style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>Updating channel...</p>
                       )}

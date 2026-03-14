@@ -1,36 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useIntegrationDataFetcher } from '../IntegrationDataContext'
-
-/**
- * Maps template_type → { configKey for resource ID, API resource_type }
- * Only types that need live data fetching (not iframe-based types).
- */
-const INTEGRATION_TYPE_MAP: Record<string, { configKey: string; resourceType: string; compositeKey?: string }> = {
-  google_calendar: { configKey: 'calendar_id', resourceType: 'calendar' },
-  google_photos: { configKey: 'album_id', resourceType: 'album' },
-  google_forms: { configKey: 'form_id', resourceType: 'form' },
-  google_alerts: { configKey: 'topic', resourceType: 'news' },
-  sheets: { configKey: 'spreadsheet_id', resourceType: 'spreadsheet' },
-  google_sheets: { configKey: 'spreadsheet_id', resourceType: 'spreadsheet' },
-  powerbi_report: { configKey: 'report_id', resourceType: 'report', compositeKey: 'workspace_id' },
-  powerbi_dashboard: { configKey: 'dashboard_id', resourceType: 'dashboard', compositeKey: 'workspace_id' },
-}
-
-/** Default refresh intervals per type (ms) */
-const DEFAULT_REFRESH: Record<string, number> = {
-  google_calendar: 5 * 60 * 1000,
-  google_photos: 10 * 60 * 1000,
-  google_forms: 2 * 60 * 1000,
-  google_alerts: 5 * 60 * 1000,
-  sheets: 5 * 60 * 1000,
-  google_sheets: 5 * 60 * 1000,
-  powerbi_report: 30 * 60 * 1000,
-  powerbi_dashboard: 30 * 60 * 1000,
-}
+import { INTEGRATION_TYPES } from '../config/integrationTypes'
 
 export function useIntegrationAppData(
   templateType: string,
   config: Record<string, unknown>,
+  appId?: string,
 ): { data: Record<string, unknown> | null; loading: boolean; error: string | null } {
   const fetcher = useIntegrationDataFetcher()
   const [data, setData] = useState<Record<string, unknown> | null>(null)
@@ -39,7 +14,7 @@ export function useIntegrationAppData(
   const onDataRef = useRef<((d: Record<string, unknown>) => void) | undefined>(undefined)
 
   const integrationId = config.integration_id as string | undefined
-  const mapping = INTEGRATION_TYPE_MAP[templateType]
+  const mapping = INTEGRATION_TYPES[templateType]
 
   // Stable callback ref to avoid re-subscribing on every render
   onDataRef.current = (d: Record<string, unknown>) => {
@@ -52,18 +27,19 @@ export function useIntegrationAppData(
     onDataRef.current?.(d)
   }, [])
 
-  // For PowerBI: compose "workspace_id/report_id" so the backend can parse both
+  // Compose resource ID: "workspace_id/report_id/app_id" for providers that need it
   const rawResourceId = mapping ? (config[mapping.configKey] as string) : undefined
   const compositePrefix = mapping?.compositeKey ? (config[mapping.compositeKey] as string) : undefined
+  const appIdSuffix = mapping?.needsAppId ? appId : undefined
   const resourceId =
     rawResourceId && compositePrefix
-      ? `${compositePrefix}/${rawResourceId}`
+      ? `${compositePrefix}/${rawResourceId}${appIdSuffix ? '/' + appIdSuffix : ''}`
       : rawResourceId
   const resourceType = mapping?.resourceType
   const refreshInterval =
     (config.refresh_interval as number | undefined)
       ? (config.refresh_interval as number) * 1000
-      : DEFAULT_REFRESH[templateType]
+      : mapping?.defaultRefreshMs
 
   useEffect(() => {
     if (!fetcher || !mapping || !integrationId || !resourceId || !resourceType) return
