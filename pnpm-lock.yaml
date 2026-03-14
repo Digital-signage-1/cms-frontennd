@@ -235,6 +235,9 @@ importers:
       pdfjs-dist:
         specifier: 4.10.38
         version: 4.10.38
+      powerbi-client:
+        specifier: ^2.23.9
+        version: 2.23.9
       react:
         specifier: ^19.0.0
         version: 19.2.3
@@ -3155,6 +3158,9 @@ packages:
   es-toolkit@1.44.0:
     resolution: {integrity: sha512-6penXeZalaV88MM3cGkFZZfOoLGWshWWfdy0tWw/RlVVyhvMaWSBTOvXNeiW3e5FwdS5ePW0LGEu17zT139ktg==}
 
+  es6-promise@3.3.1:
+    resolution: {integrity: sha512-SOp9Phqvqn7jtEUxPWdWfWoLmyt2VaJ6MpvP9Comy1MceMXqE6bxvaTu4iaxpYYPzhny28Lc+M87/c2cPK6lDg==}
+
   esbuild@0.25.12:
     resolution: {integrity: sha512-bbPBYYrtZbkt6Os6FiTLCTFxvq4tt3JKall1vRwshA3fdVztsLAatFaZobhkBC8/BrPetoa0oksYoKXoG4ryJg==}
     engines: {node: '>=18'}
@@ -3479,6 +3485,9 @@ packages:
 
   hls.js@1.6.15:
     resolution: {integrity: sha512-E3a5VwgXimGHwpRGV+WxRTKeSp2DW5DI5MWv34ulL3t5UNmyJWCQ1KmLEHbYzcfThfXG8amBL+fCYPneGHC4VA==}
+
+  http-post-message@0.2.5:
+    resolution: {integrity: sha512-3UHhrp/DAq7BcIPVlp1J7cz1L5dA+JMJDhM5gLKCYyAdKWac5anwJk68EXFO9f+eTVM3VRp2bA3Z/dZSslfKHA==}
 
   idb@7.1.1:
     resolution: {integrity: sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ==}
@@ -4282,6 +4291,15 @@ packages:
     resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
+  powerbi-client@2.23.9:
+    resolution: {integrity: sha512-0yeoZrA4pfkxVG/3uahtpN7hI6z7ugzr3QyZfV2+fh+mbgjbORVo3lB1dN6KqFXxNgcNGDPJbSb386EKbsj16Q==}
+
+  powerbi-models@2.0.1:
+    resolution: {integrity: sha512-hYYbxCNB3VJ/vn/mbldWHXLvJYHCS4ECzUEskzlTtaaVFILMhMr2r9p3wUjGTIUmZZQ6Ve8KkVT2o1w+aGjiGw==}
+
+  powerbi-router@0.1.5:
+    resolution: {integrity: sha512-DFJCKxwh/DqMZXtHSo6xZl87mbRviZGn4P7Oi2rT0L4HMI4AjnWIrwg0JCSM7ymBzYnNe5UmrsCaf2Upur5RQA==}
+
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
@@ -4477,6 +4495,9 @@ packages:
     resolution: {integrity: sha512-wDv/Ht1BNHB4upNbK74s9usvl7hObDnvVzknxqY/E/O3X6rW1U1rV1aENEfJ54eFZDTNo7zv1f5N4edCluH7+A==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
+
+  route-recognizer@0.1.11:
+    resolution: {integrity: sha512-7JNu5mXQVa39zxmUKyk/bfpeF2WyEC5JKVTJO5HATcoUQpcQsI3eLzhwGU69xeOagQxfOQ+yr2sSv0G8xy+vQA==}
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
@@ -4975,6 +4996,9 @@ packages:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
     engines: {node: '>= 8'}
     hasBin: true
+
+  window-post-message-proxy@0.2.9:
+    resolution: {integrity: sha512-hHmF5dvY27wy4EKN9c5qukPtzlbrdUzkMiCHud4gYKXCFAiGOBhCfi/dVBvwbUf0qrEGwFNnqkvk6DE54sdlcw==}
 
   word-wrap@1.2.5:
     resolution: {integrity: sha512-BN22B5eaMMI9UMtjrGd5g5eCYPpCPDUy0FJXbYsaT5zYxjFOckS53SQDE3pWkVoWpHXVb3BrYcEN4Twa55B5cA==}
@@ -8022,6 +8046,8 @@ snapshots:
 
   es-toolkit@1.44.0: {}
 
+  es6-promise@3.3.1: {}
+
   esbuild@0.25.12:
     optionalDependencies:
       '@esbuild/aix-ppc64': 0.25.12
@@ -8443,6 +8469,10 @@ snapshots:
       function-bind: 1.1.2
 
   hls.js@1.6.15: {}
+
+  http-post-message@0.2.5:
+    dependencies:
+      es6-promise: 3.3.1
 
   idb@7.1.1: {}
 
@@ -9257,6 +9287,20 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
+  powerbi-client@2.23.9:
+    dependencies:
+      http-post-message: 0.2.5
+      powerbi-models: 2.0.1
+      powerbi-router: 0.1.5
+      window-post-message-proxy: 0.2.9
+
+  powerbi-models@2.0.1: {}
+
+  powerbi-router@0.1.5:
+    dependencies:
+      es6-promise: 3.3.1
+      route-recognizer: 0.1.11
+
   prelude-ls@1.2.1: {}
 
   prettier@3.8.0: {}
@@ -9482,6 +9526,8 @@ snapshots:
       '@rollup/rollup-win32-x64-gnu': 4.55.1
       '@rollup/rollup-win32-x64-msvc': 4.55.1
       fsevents: 2.3.3
+
+  route-recognizer@0.1.11: {}
 
   run-parallel@1.2.0:
     dependencies:
@@ -10101,6 +10147,10 @@ snapshots:
   which@2.0.2:
     dependencies:
       isexe: 2.0.0
+
+  window-post-message-proxy@0.2.9:
+    dependencies:
+      es6-promise: 3.3.1
 
   word-wrap@1.2.5: {}
 

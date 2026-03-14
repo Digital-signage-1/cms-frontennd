@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { ContentRenderer } from '@signage/renderer'
+import { ContentRenderer, IntegrationDataProvider } from '@signage/renderer'
 import { Monitor, Smartphone, Tablet, Maximize2, RotateCw } from 'lucide-react'
 import { Button } from '@/components/ui'
 import type { App } from '@signage/types'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useDashboardIntegrationFetcher } from '@/hooks/useDashboardIntegrationFetcher'
 
 type DeviceType = 'tv-landscape' | 'tv-portrait' | 'tablet' | 'custom'
 
@@ -62,6 +63,7 @@ export function AppPreview({
 }: AppPreviewProps) {
   const [selectedDevice, setSelectedDevice] = useState<DeviceType>(deviceType)
   const [isRotating, setIsRotating] = useState(false)
+  const integrationFetcher = useDashboardIntegrationFetcher()
 
   useEffect(() => {
     setSelectedDevice(deviceType)
@@ -169,16 +171,18 @@ export function AppPreview({
             }}
           >
             <div className="w-full h-full relative">
-              <ContentRenderer
-                appId={app.app_id}
-                app={appWithUrl}
-                onError={(error) => {
-                  console.error('Preview render error:', error)
-                }}
-                onLoad={() => {
-                  console.log('Preview loaded')
-                }}
-              />
+              <IntegrationDataProvider value={integrationFetcher}>
+                <ContentRenderer
+                  appId={app.app_id}
+                  app={appWithUrl}
+                  onError={(error) => {
+                    console.error('Preview render error:', error)
+                  }}
+                  onLoad={() => {
+                    console.log('Preview loaded')
+                  }}
+                />
+              </IntegrationDataProvider>
             </div>
           </div>
 

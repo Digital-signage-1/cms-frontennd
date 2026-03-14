@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { GoogleOAuthButton } from './GoogleOAuthButton'
+import { MicrosoftOAuthButton } from './MicrosoftOAuthButton'
 import {
   useIntegrationCatalog,
   useConnectWithCredentials,
@@ -94,7 +95,12 @@ const PROVIDER_ICONS: Record<string, React.ReactNode> = {
     </svg>
   ),
   powerbi: (
-    <div className="flex h-7 w-7 items-center justify-center rounded bg-yellow-500 text-white font-bold text-xs">PBI</div>
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+      <rect width="24" height="24" rx="4" fill="#F2C811" />
+      <rect x="7" y="12" width="3" height="6" rx="0.5" fill="white" />
+      <rect x="11" y="8" width="3" height="10" rx="0.5" fill="white" />
+      <rect x="15" y="5" width="3" height="13" rx="0.5" fill="white" />
+    </svg>
   ),
   tableau: (
     <div className="flex h-7 w-7 items-center justify-center rounded bg-blue-600 text-white font-bold text-xs">TAB</div>
@@ -254,11 +260,19 @@ function OAuthConnect({ provider, workspaceId, onBack }: OAuthConnectProps) {
         </ul>
       </div>
       <div className="w-full flex flex-col gap-2">
-        <GoogleOAuthButton
-          workspaceId={workspaceId}
-          provider={provider.provider}
-          label={`Connect with Google`}
-        />
+        {provider.provider === 'powerbi' ? (
+          <MicrosoftOAuthButton
+            workspaceId={workspaceId}
+            provider={provider.provider}
+            label="Connect with Microsoft"
+          />
+        ) : (
+          <GoogleOAuthButton
+            workspaceId={workspaceId}
+            provider={provider.provider}
+            label="Connect with Google"
+          />
+        )}
         <Button variant="ghost" size="sm" className="w-full text-text-muted" onClick={onBack}>
           <ArrowLeft className="h-3.5 w-3.5 mr-1" />
           Back

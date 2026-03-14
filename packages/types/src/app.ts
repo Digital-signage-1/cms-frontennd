@@ -22,6 +22,9 @@ export type AppTemplateType =
   | 'looker_studio'
   | 'google_alerts'
   | 'google_sheets'
+  | 'powerbi_report'
+  | 'powerbi_dashboard'
+  | 'powerbi_url'
 
 export interface App {
   id: number
@@ -213,12 +216,11 @@ export interface GoogleSlidesAppConfig extends AppConfig {
 
 export interface GoogleCalendarAppConfig extends AppConfig {
   calendar_id: string
-  display_mode?: 'agenda' | 'day' | 'week' | 'meeting_room'
-  max_events?: number
-  days_ahead?: number
+  display_mode?: 'agenda' | 'day' | 'week' | 'month' | 'meeting_room'
   show_description?: boolean
   show_location?: boolean
   show_attendees?: boolean
+  auto_scroll?: boolean
   room_name?: string
   refresh_interval?: number
   theme?: 'dark' | 'light' | 'google'
@@ -273,6 +275,32 @@ export interface GoogleAlertsAppConfig extends AppConfig {
   show_source?: boolean
   refresh_interval?: number
   theme?: 'dark' | 'light'
+}
+
+export interface PowerBIReportAppConfig extends AppConfig {
+  integration_id: string
+  workspace_id: string
+  report_id: string
+  show_filter_pane?: boolean
+  show_nav_pane?: boolean
+  auto_rotate_pages?: boolean
+  page_duration?: number
+  theme?: 'dark' | 'light'
+  refresh_interval?: number
+}
+
+export interface PowerBIDashboardAppConfig extends AppConfig {
+  integration_id: string
+  workspace_id: string
+  dashboard_id: string
+  theme?: 'dark' | 'light'
+  refresh_interval?: number
+}
+
+export interface PowerBIURLAppConfig extends AppConfig {
+  embed_url: string
+  theme?: 'dark' | 'light'
+  refresh_interval?: number
 }
 
 // Backend dynamic app type metadata

@@ -29,9 +29,18 @@ import { GoogleFormsRenderer } from './GoogleFormsRenderer'
 import { GoogleMapsRenderer } from './GoogleMapsRenderer'
 import { LookerStudioRenderer } from './LookerStudioRenderer'
 import { GoogleAlertsRenderer } from './GoogleAlertsRenderer'
+import { PowerBIURLRenderer } from './PowerBIURLRenderer'
 
 const PDFRenderer = lazy(() =>
   import('./PDFRenderer').then(mod => ({ default: mod.PDFRenderer }))
+)
+
+const PowerBIReportRenderer = lazy(() =>
+  import('./PowerBIReportRenderer').then(mod => ({ default: mod.PowerBIReportRenderer }))
+)
+
+const PowerBIDashboardRenderer = lazy(() =>
+  import('./PowerBIDashboardRenderer').then(mod => ({ default: mod.PowerBIDashboardRenderer }))
 )
 
 export interface RendererProps {
@@ -71,6 +80,9 @@ const registry: Record<string, ComponentType<RendererProps>> = {
   google_maps: GoogleMapsRenderer as ComponentType<RendererProps>,
   looker_studio: LookerStudioRenderer as ComponentType<RendererProps>,
   google_alerts: GoogleAlertsRenderer as ComponentType<RendererProps>,
+  powerbi_report: PowerBIReportRenderer as unknown as ComponentType<RendererProps>,
+  powerbi_dashboard: PowerBIDashboardRenderer as unknown as ComponentType<RendererProps>,
+  powerbi_url: PowerBIURLRenderer as ComponentType<RendererProps>,
 }
 
 export function getRenderer(type: string): ComponentType<RendererProps> | null {

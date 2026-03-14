@@ -30,12 +30,13 @@ export function useIntegrationResources(
   workspaceId: number | string,
   integrationId: number | string,
   resourceType?: string,
-  enabled = true
+  enabled = true,
+  extraParams?: Record<string, string>
 ) {
   return useQuery({
-    queryKey: ['integration-resources', workspaceId, integrationId, resourceType],
+    queryKey: ['integration-resources', workspaceId, integrationId, resourceType, extraParams],
     queryFn: () =>
-      api.integrations.listResources(workspaceId, integrationId, resourceType),
+      api.integrations.listResources(workspaceId, integrationId, resourceType, false, extraParams),
     enabled: !!workspaceId && !!integrationId && enabled,
   })
 }

@@ -13,6 +13,8 @@ const INTEGRATION_DATA_TYPES = new Set([
   'google_alerts',
   'sheets',
   'google_sheets',
+  'powerbi_report',
+  'powerbi_dashboard',
 ])
 
 interface ContentRendererProps {
