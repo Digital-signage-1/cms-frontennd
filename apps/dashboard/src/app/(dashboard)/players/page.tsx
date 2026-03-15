@@ -253,7 +253,7 @@ export default function PlayersPage() {
       </div>
 
       {/* ── Main two-column area ─────────────────────────────────── */}
-      <div className="flex flex-col lg:flex-row flex-1 overflow-auto lg:overflow-hidden gap-4 p-4 sm:p-5 pt-4">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-auto gap-4 p-4 sm:p-5 pt-4">
 
         {/* Left: Map + filter toolbar + legend */}
         <motion.div
@@ -309,17 +309,24 @@ export default function PlayersPage() {
             </div>
           </div>
 
-          {/* Player overview area */}
-          <div className="flex-1 relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#f0f9ff' }}>
-            <div className="text-center px-6">
-              <Monitor className="h-12 w-12 mx-auto mb-3 opacity-20" style={{ color: '#6b7280' }} />
-              <p className="text-sm font-medium mb-1" style={{ color: '#0369a1' }}>
-                {filteredPlayers.length} player{filteredPlayers.length !== 1 ? 's' : ''} {statusFilter !== 'all' ? statusFilter : ''}
-              </p>
-              <p className="text-xs" style={{ color: '#0369a1' }}>
-                Select a player from the list to view details
-              </p>
-            </div>
+          {/* Player list */}
+          <div className="flex-1 overflow-y-auto" style={{ backgroundColor: '#f0f9ff' }}>
+            {filteredPlayers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full px-6 py-16 text-center">
+                <Monitor className="h-10 w-10 mx-auto mb-3 opacity-20" style={{ color: '#6b7280' }} />
+                <p className="text-sm font-medium mb-1" style={{ color: '#0369a1' }}>No players found</p>
+                <p className="text-xs" style={{ color: '#0369a1' }}>Register a player to get started</p>
+              </div>
+            ) : (
+              filteredPlayers.map((player: Player) => (
+                <PlayerCard
+                  key={player.player_id}
+                  player={player}
+                  isSelected={selectedPlayer === player.player_id}
+                  onClick={() => setSelectedPlayer(player.player_id)}
+                />
+              ))
+            )}
           </div>
 
           {/* Legend */}

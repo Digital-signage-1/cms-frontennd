@@ -271,7 +271,7 @@ export default function AnalyticsPage() {
       </div>
 
       {analyticsTab === 'overview' && (
-        <div className="page-container pt-4 pb-5 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4">
+        <div className="page-container pt-4 pb-5 grid grid-cols-1 gap-4">
 
           <div
             className="rounded-xl p-5"
@@ -352,55 +352,6 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
-          <div
-            className="rounded-xl p-5"
-            style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
-          >
-            <h2 className="text-base font-bold mb-0.5" style={{ color: '#0c4a6e' }}>Playback Summary</h2>
-            <p className="text-xs mb-5" style={{ color: '#0369a1' }}>
-              Last {summary.period_days ?? days} days
-            </p>
-
-            <div className="space-y-4">
-              {[
-                {
-                  label: 'Total Content Views',
-                  value: summary.total_content_views?.toLocaleString() ?? '—',
-                  color: '#0ea5e9',
-                },
-                {
-                  label: 'Active Players',
-                  value: summary.active_players?.toLocaleString() ?? '—',
-                  color: '#0ea5e9',
-                },
-                {
-                  label: 'Total Playback Duration',
-                  value: (() => {
-                    const s = summary.total_playback_duration_seconds
-                    if (!s) return '—'
-                    const h = Math.floor(s / 3600)
-                    const m = Math.floor((s % 3600) / 60)
-                    return h > 0 ? `${h}h ${m}m` : `${m}m`
-                  })(),
-                  color: '#34D399',
-                },
-                {
-                  label: 'Total Errors',
-                  value: summary.total_errors?.toLocaleString() ?? '—',
-                  color: '#F87171',
-                },
-              ].map(({ label, value, color }) => (
-                <div
-                  key={label}
-                  className="flex items-center justify-between p-3 rounded-lg"
-                  style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd' }}
-                >
-                  <span className="text-sm" style={{ color: '#0369a1' }}>{label}</span>
-                  <span className="text-sm font-bold" style={{ color }}>{value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       )}
 

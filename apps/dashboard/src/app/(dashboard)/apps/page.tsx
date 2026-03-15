@@ -3,7 +3,7 @@
 import {
   Search, Plus, AlertCircle, ImageIcon, FileVideo, Globe, Code,
   Clock, Cloud, LayoutGrid, Youtube, FileText, Sparkles, Play,
-  MessageSquare, Grid2X2, List, Eye,
+  Grid2X2, List, Eye,
 } from 'lucide-react'
 import { useState, useMemo, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -14,6 +14,25 @@ import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { formatDate } from '@/lib/utils'
 import { AppPreviewModal } from '@/components/apps/AppPreviewModal'
 import type { App as SignageApp } from '@signage/types'
+
+// ── SVG icon resolver (mirrors create/page.tsx) ────────────────────────────────
+const APP_SVG_ICONS = new Set([
+  'youtube','image','video','pdf','slideshow','docx','web','html','audio',
+  'clock','weather','social','countdown','qrcode','rss_feed','sheets','stock',
+  'google-slides','google-calendar','google-docs','google-photos',
+  'google-forms','google-maps','looker-studio','google-alerts','iframe',
+])
+const SVG_ALIAS: Record<string, string> = {
+  react: 'html', 'qr-code': 'qrcode', qr: 'qrcode', spreadsheet: 'sheets',
+  slides: 'slideshow', picture_as_pdf: 'pdf', photo: 'image',
+  view_carousel: 'slideshow', play_circle: 'video', 'cloud-sun': 'weather',
+  rss: 'rss_feed', maps: 'web', table: 'sheets',
+}
+function getAppSvgPath(typeId: string): string | null {
+  const key = SVG_ALIAS[typeId] || typeId
+  if (APP_SVG_ICONS.has(key)) return `/icons/app-types/${key}.svg`
+  return null
+}
 
 // ── Template type → visual config ─────────────────────────────────────────────
 const TEMPLATE_CONFIG: Record<string, {
@@ -124,63 +143,60 @@ const CATEGORIES = ['All', 'Media', 'Social', 'Utilities', 'Data', 'Interactive'
 const STATUS_TABS = ['all', 'active', 'draft', 'archived'] as const
 type StatusTab = typeof STATUS_TABS[number]
 
-// ── App Card (clean, compact) ─────────────────────────────────────────────────
+// ── App Card ──────────────────────────────────────────────────────────────────
 function AppCard({ app, onEdit, onDelete, onPreview }: { app: SignageApp; onEdit: () => void; onDelete: () => void; onPreview: () => void }) {
   const cfg = getConfig(app.template_type)
-  const { Icon, iconBgColor, iconColor, category } = cfg
+  const { Icon, iconBgColor, iconColor } = cfg
+  const svgPath = getAppSvgPath(app.template_type)
 
-  const isActive  = app.status === 'active'
-  const isDraft   = app.status === 'draft'
+  const isActive = app.status === 'active'
+  const isDraft  = app.status === 'draft'
+  const statusColor = isActive ? '#059669' : isDraft ? '#0ea5e9' : '#9ca3af'
 
   return (
     <div
-      className="group rounded-xl overflow-hidden flex flex-col cursor-pointer transition-colors"
-      style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+      className="group rounded-xl overflow-hidden flex flex-col cursor-pointer"
+      style={{ backgroundColor: '#FFFFFF', border: '1px solid #e0f2fe', transition: 'border-color 0.15s, box-shadow 0.15s' }}
       onClick={onEdit}
+      onMouseEnter={e => {
+        (e.currentTarget as HTMLElement).style.borderColor = '#7dd3fc'
+        ;(e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(14,165,233,0.10)'
+      }}
+      onMouseLeave={e => {
+        (e.currentTarget as HTMLElement).style.borderColor = '#e0f2fe'
+        ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
+      }}
     >
-      {/* ── Icon area ── */}
-      <div className="relative flex-shrink-0 flex items-center justify-center" style={{ height: 100, backgroundColor: '#f0f9ff' }}>
-        <div
-          className="w-12 h-12 rounded-xl flex items-center justify-center"
-          style={{ backgroundColor: iconBgColor }}
-        >
-          <Icon className="h-6 w-6" style={{ color: iconColor }} />
-        </div>
-
-        {/* Status dot — top right */}
-        <div
-          className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full"
-          style={{ backgroundColor: isActive ? '#34D399' : isDraft ? '#0ea5e9' : '#6b7280' }}
+      {/* Icon area */}
+      <div className="relative flex items-center justify-center flex-shrink-0" style={{ height: 80, backgroundColor: '#f8fbff' }}>
+        {svgPath ? (
+          <img src={svgPath} alt={app.template_type} className="w-10 h-10 rounded-lg object-cover" />
+        ) : (
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: iconBgColor }}>
+            <Icon className="h-5 w-5" style={{ color: iconColor }} />
+          </div>
+        )}
+        {/* Status dot */}
+        <span
+          className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full"
+          style={{ backgroundColor: statusColor }}
           title={isActive ? 'Active' : isDraft ? 'Draft' : 'Archived'}
         />
-
-        {/* Hover overlay */}
-        <div
-          className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-          style={{ backgroundColor: 'rgba(0,0,0,0.82)' }}
+        {/* Hover: preview button */}
+        <button
+          onClick={e => { e.stopPropagation(); onPreview() }}
+          className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium"
+          style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
         >
-          <button
-            onClick={(e) => { e.stopPropagation(); onPreview() }}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5"
-            style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
-          >
-            <Eye className="h-3.5 w-3.5" />
-            Preview
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onEdit() }}
-            className="px-3 py-1.5 rounded-lg text-xs font-medium"
-            style={{ backgroundColor: '#bae6fd', color: '#0c4a6e', border: '1px solid #6b7280' }}
-          >
-            Edit
-          </button>
-        </div>
+          <Eye className="h-3 w-3" />
+          Preview
+        </button>
       </div>
 
-      {/* ── Name + type ── */}
-      <div className="px-3 py-2.5" style={{ borderTop: '1px solid #bae6fd' }}>
-        <h3 className="text-xs font-semibold leading-tight truncate" style={{ color: '#0c4a6e' }}>{app.name}</h3>
-        <p className="text-[11px] mt-0.5 truncate" style={{ color: '#0369a1' }}>{category} &middot; {app.template_type}</p>
+      {/* Name */}
+      <div className="px-3 py-2" style={{ borderTop: '1px solid #f0f9ff' }}>
+        <h3 className="text-xs font-semibold truncate leading-snug" style={{ color: '#0c4a6e' }}>{app.name}</h3>
+        <p className="text-[11px] truncate mt-0.5 capitalize" style={{ color: '#94a3b8' }}>{app.template_type.replace(/_/g, ' ')}</p>
       </div>
     </div>
   )
@@ -347,7 +363,7 @@ export default function AppsPage() {
         </div>
 
         {/* Toolbar row */}
-        <div className="page-container pb-2 flex flex-col sm:flex-row sm:items-center gap-2.5 flex-wrap" style={{ borderBottom: '1px solid #bae6fd' }}>
+        <div className="page-container pb-2 flex flex-col sm:flex-row sm:items-center gap-2.5" style={{ borderBottom: '1px solid #bae6fd' }}>
         {/* Status filter tabs */}
         <div className="flex items-center gap-1">
           {STATUS_TABS.map((s) => {
@@ -374,7 +390,7 @@ export default function AppsPage() {
         <div className="w-px h-5 flex-shrink-0" style={{ backgroundColor: '#bae6fd' }} />
 
         {/* Category tabs */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 overflow-x-auto scroll-x flex-shrink-0">
           {CATEGORIES.map((cat) => {
             const isActive = categoryFilter === cat
             return (

@@ -49,6 +49,20 @@ function ProviderIcon({ provider }: { provider: string }) {
   )
 }
 
+function formatIntegrationError(msg: string): string {
+  try {
+    const parsed = JSON.parse(msg)
+    if (parsed.error_description) return parsed.error_description
+    const CODE_MAP: Record<string, string> = {
+      invalid_grant: 'Authentication expired',
+      token_expired: 'Authentication expired',
+    }
+    if (parsed.error && CODE_MAP[parsed.error]) return CODE_MAP[parsed.error]
+    if (parsed.error) return parsed.error
+  } catch {}
+  return msg.length > 80 ? msg.slice(0, 77) + '…' : msg
+}
+
 const AUTH_FLOW_LABELS: Record<string, string> = {
   oauth2: 'OAuth',
   api_key: 'API Key',
@@ -125,7 +139,17 @@ export function IntegrationCard({
         </div>
 
         {integration.error_message && (
-          <p className="mt-1.5 text-xs text-red-400 line-clamp-1">{integration.error_message}</p>
+          <p className="mt-1.5 text-xs text-red-400 line-clamp-1">{formatIntegrationError(integration.error_message)}</p>
+        )}
+        {integration.status === 'error' && (
+          <button
+            onClick={onManage}
+            className="mt-2 flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg"
+            style={{ backgroundColor: 'rgba(220,38,38,0.08)', color: '#DC2626', border: '1px solid rgba(220,38,38,0.20)' }}
+          >
+            <RefreshCw className="h-3 w-3" />
+            Reconnect
+          </button>
         )}
       </div>
 
