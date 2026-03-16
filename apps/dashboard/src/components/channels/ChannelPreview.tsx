@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Play, Monitor, Smartphone, Tablet, X } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { ChannelRenderer } from '@signage/renderer'
+import { ChannelRenderer, IntegrationDataProvider } from '@signage/renderer'
+import { useDashboardIntegrationFetcher } from '@/hooks/useDashboardIntegrationFetcher'
 
 interface ChannelPreviewProps {
   children: React.ReactNode
@@ -33,6 +34,7 @@ const ZONE_BG = ['#E8E6FF', '#E0EAFF', '#DDEEFF', '#EDE8FF', '#E0F0E8', '#E8E0F0
 export function ChannelPreview({ children, channelManifest, workspaceId, isOpen = false, onOpenChange }: ChannelPreviewProps) {
   const [selectedDevice, setSelectedDevice] = useState<DeviceFrame>(deviceFrames[0])
   const [streamToken, setStreamToken] = useState<string | null>(null)
+  const integrationFetcher = useDashboardIntegrationFetcher()
 
   useEffect(() => {
     if (isOpen && typeof window !== 'undefined')
@@ -161,15 +163,17 @@ export function ChannelPreview({ children, channelManifest, workspaceId, isOpen 
               >
                 {manifestWithAuth?.slides?.length ? (
                   <div style={{ position: 'absolute', inset: 0 }}>
-                    <ChannelRenderer
-                      manifest={{
-                        channel: manifestWithAuth.channel ?? { channel_id: manifestWithAuth.channel_id, name: manifestWithAuth.name, background: manifestWithAuth.background },
-                        slides: manifestWithAuth.slides,
-                        zones: manifestWithAuth.zones,
-                      }}
-                      isPreview
-                      className="w-full h-full"
-                    />
+                    <IntegrationDataProvider value={integrationFetcher}>
+                      <ChannelRenderer
+                        manifest={{
+                          channel: manifestWithAuth.channel ?? { channel_id: manifestWithAuth.channel_id, name: manifestWithAuth.name, background: manifestWithAuth.background },
+                          slides: manifestWithAuth.slides,
+                          zones: manifestWithAuth.zones,
+                        }}
+                        isPreview
+                        className="w-full h-full"
+                      />
+                    </IntegrationDataProvider>
                   </div>
                 ) : (
                   <>
