@@ -513,6 +513,13 @@ export default function SchedulesPage() {
         </div>
       </div>
 
+      {/* ── Timezone label ── */}
+      <div className="page-container pb-1 flex justify-end">
+        <span className="text-xs" style={{ color: '#6b7280' }}>
+          Timezone: {typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC'}
+        </span>
+      </div>
+
       {/* ── Legend ── */}
       {filteredSchedules.length > 0 && (
         <div className="page-container pb-3 flex items-center gap-5 flex-wrap">
@@ -541,12 +548,30 @@ export default function SchedulesPage() {
             style={{ height: 400, backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
           />
         ) : viewMode === 'timeline' ? (
-          <GanttTimeline
-            schedules={filteredSchedules}
-            currentHourDecimal={currentHourDecimal}
-            currentHourLabel={currentHourLabel}
-            todayIndex={todayIndex}
-          />
+          <div className="relative">
+            <GanttTimeline
+              schedules={filteredSchedules}
+              currentHourDecimal={currentHourDecimal}
+              currentHourLabel={currentHourLabel}
+              todayIndex={todayIndex}
+            />
+            {filteredSchedules.length === 0 && (
+              <div className="absolute inset-0 flex items-center justify-center z-10 rounded-xl" style={{ backgroundColor: 'rgba(240,249,255,0.90)' }}>
+                <div className="text-center px-6">
+                  <Calendar className="h-12 w-12 mx-auto mb-3 opacity-30" style={{ color: '#0369a1' }} />
+                  <h3 className="text-base font-semibold mb-1" style={{ color: '#0c4a6e' }}>No schedules yet</h3>
+                  <p className="text-sm mb-4" style={{ color: '#0369a1' }}>Click any time slot to schedule your first broadcast</p>
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="px-4 py-2 rounded-lg text-sm font-semibold"
+                    style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+                  >
+                    Create Schedule
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         ) : (
           /* Grid / card view */
           filteredSchedules.length === 0 ? (

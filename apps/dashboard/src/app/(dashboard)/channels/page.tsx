@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
   Plus, Search, Monitor, Layers, Tv, FileText,
   LayoutGrid, List, ChevronDown,
@@ -11,7 +11,6 @@ import { useRouter } from 'next/navigation'
 import { useChannels } from '@/hooks/queries'
 import { useAuthStore } from '@/stores/auth-store'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
-import { formatDate } from '@/lib/utils'
 
 // ── Zone color palette (light pastel per-zone bg gradients) ────────────────
 const ZONE_COLORS = [
@@ -169,126 +168,51 @@ function StatusBadge({ status }: { status: string }) {
 // ── Channel card ───────────────────────────────────────────────────────────
 function ChannelCard({ channel }: { channel: any }) {
   const router = useRouter()
-  const [hovered, setHovered] = useState(false)
-
   const zoneCount   = channel.zone_count ?? channel.zones?.length ?? 0
   const playerCount = channel.player_count ?? 0
-  const w           = channel.layout?.width  ?? 1920
-  const h           = channel.layout?.height ?? 1080
-  const orient      = channel.layout?.orientation
-    ? channel.layout.orientation.charAt(0).toUpperCase() + channel.layout.orientation.slice(1)
-    : 'Landscape'
 
   return (
     <motion.div
-      className="rounded-xl overflow-hidden cursor-pointer"
-      style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
-      initial={{ opacity: 0, y: 16 }}
+      className="group rounded-xl overflow-hidden cursor-pointer"
+      style={{ backgroundColor: '#FFFFFF', border: '1px solid #e0f2fe', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       onClick={() => router.push(`/channels/${channel.id}/studio`)}
+      onMouseEnter={e => {
+        ;(e.currentTarget as HTMLElement).style.borderColor = '#7dd3fc'
+        ;(e.currentTarget as HTMLElement).style.boxShadow = '0 2px 8px rgba(14,165,233,0.10)'
+      }}
+      onMouseLeave={e => {
+        ;(e.currentTarget as HTMLElement).style.borderColor = '#e0f2fe'
+        ;(e.currentTarget as HTMLElement).style.boxShadow = 'none'
+      }}
     >
-      {/* ── Preview area ── */}
-      <div
-        className="relative overflow-hidden"
-        style={{ height: '196px', backgroundColor: '#e0f2fe' }}
-      >
-        {/* TV icon — top-left */}
-        <div className="absolute top-3 left-3 z-10">
-          <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center"
-            style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
-          >
-            <Tv className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
-          </div>
-        </div>
-
-        {/* Status badge — top-right */}
-        <div className="absolute top-3 right-3 z-10">
-          <StatusBadge status={channel.status} />
-        </div>
-
+      {/* Preview area */}
+      <div className="relative overflow-hidden" style={{ height: 128, backgroundColor: '#f0f9ff' }}>
         {/* Zone layout */}
-        <div className="absolute inset-0 p-7">
+        <div className="absolute inset-0 p-5">
           <ZoneLayoutPreview channel={channel} />
         </div>
 
-        {/* Hover overlay with action buttons */}
-        <AnimatePresence>
-          {hovered && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="absolute inset-0 flex items-end p-3"
-              style={{
-                background: 'linear-gradient(to top, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.5) 60%, transparent 100%)',
-              }}
-            >
-              <div className="flex items-center gap-2 w-full">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    router.push(`/channels/${channel.id}/studio`)
-                  }}
-                  className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-opacity hover:opacity-90"
-                  style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
-                >
-                  Edit Layout
-                </button>
-                <button
-                  onClick={(e) => e.stopPropagation()}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-90"
-                  style={{
-                    backgroundColor: 'rgba(14,165,233,0.08)',
-                    border: '1px solid rgba(14,165,233,0.18)',
-                    color: '#0c4a6e',
-                  }}
-                >
-                  Preview
-                </button>
-                <button
-                  onClick={(e) => e.stopPropagation()}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-90"
-                  style={{
-                    backgroundColor: 'rgba(14,165,233,0.08)',
-                    border: '1px solid rgba(14,165,233,0.18)',
-                    color: '#0c4a6e',
-                  }}
-                >
-                  Duplicate
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Edit button — appears on hover */}
+        <button
+          onClick={e => { e.stopPropagation(); router.push(`/channels/${channel.id}/studio`) }}
+          className="absolute bottom-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-opacity px-2.5 py-1 rounded-lg text-xs font-semibold"
+          style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+        >
+          Edit Layout
+        </button>
       </div>
 
-      {/* ── Info row ── */}
-      <div className="px-4 pt-3 pb-3.5">
-        <h3 className="text-sm font-bold mb-1 truncate" style={{ color: '#0c4a6e' }}>
-          {channel.name}
-        </h3>
-        <p className="text-xs mb-2.5" style={{ color: '#0369a1' }}>
-          {w}×{h} · {orient}
-        </p>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <LayoutGrid className="h-3.5 w-3.5" style={{ color: '#0369a1' }} />
-              <span className="text-xs" style={{ color: '#0369a1' }}>{zoneCount} zones</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <Monitor className="h-3.5 w-3.5" style={{ color: '#0369a1' }} />
-              <span className="text-xs" style={{ color: '#0369a1' }}>{playerCount}</span>
-            </div>
-          </div>
-          <span className="text-xs" style={{ color: '#0369a1' }}>
-            {formatDate(channel.updated_at)}
-          </span>
+      {/* Info */}
+      <div className="px-3 py-2.5" style={{ borderTop: '1px solid #f0f9ff' }}>
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <h3 className="text-xs font-semibold truncate" style={{ color: '#0c4a6e' }}>{channel.name}</h3>
+          <StatusBadge status={channel.status} />
         </div>
+        <p className="text-[11px]" style={{ color: '#94a3b8' }}>
+          {zoneCount} zone{zoneCount !== 1 ? 's' : ''} · {playerCount} player{playerCount !== 1 ? 's' : ''}
+        </p>
       </div>
     </motion.div>
   )

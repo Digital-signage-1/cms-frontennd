@@ -163,10 +163,6 @@ export function Header({ breadcrumbItems }: HeaderProps) {
           aria-label="Notifications"
         >
           <Bell className="h-5 w-5" />
-          <span
-            className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border-2"
-            style={{ backgroundColor: '#0ea5e9', borderColor: '#FFFFFF' }}
-          />
         </button>
 
         {/* User avatar dropdown */}

@@ -2,13 +2,14 @@
 
 import { MetricsStrip } from '@/components/dashboard/MetricsStrip'
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed'
-import { Monitor, Layers, Upload, HardDrive } from 'lucide-react'
+import { Monitor, Layers, Upload, HardDrive, UploadCloud, Plus, AlertTriangle } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { usePlayers, useChannels, useContent, useAuditLogs } from '@/hooks/queries'
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { useRealtimePlayers } from '@/hooks/useRealtimePlayers'
 import type { AuditLogItem } from '@signage/api-client'
+import Link from 'next/link'
 
 function mapResourceType(type: string): 'player' | 'channel' | 'schedule' | 'content' {
   if (type === 'player') return 'player'
@@ -47,6 +48,7 @@ export default function HomePage() {
   }, [])
 
   const onlinePlayers = players.filter((p: any) => p.status === 'online').length
+  const offlinePlayers = players.filter((p: any) => p.status === 'offline').length
 
   const today = new Date().toDateString()
   const newPlayersToday = players.filter(
@@ -216,6 +218,62 @@ export default function HomePage() {
         transition={{ duration: 0.35, delay: 0.08 }}
       >
         <MetricsStrip metrics={metrics} />
+      </motion.div>
+
+      {/* Offline alert banner */}
+      {offlinePlayers > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+          className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl"
+          style={{ backgroundColor: 'rgba(220,38,38,0.07)', border: '1px solid rgba(220,38,38,0.20)' }}
+        >
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" style={{ color: '#DC2626' }} />
+            <p className="text-sm font-medium" style={{ color: '#DC2626' }}>
+              {offlinePlayers} player{offlinePlayers !== 1 ? 's' : ''} offline — check your network
+            </p>
+          </div>
+          <Link
+            href="/players"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0"
+            style={{ backgroundColor: 'rgba(220,38,38,0.12)', color: '#DC2626', border: '1px solid rgba(220,38,38,0.25)' }}
+          >
+            View Players
+          </Link>
+        </motion.div>
+      )}
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.12 }}
+        className="rounded-xl px-5 py-4"
+        style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}
+      >
+        <p className="text-xs font-semibold mb-3" style={{ color: '#0369a1' }}>Quick Actions</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { label: 'Upload Content', href: '/content', Icon: UploadCloud, color: '#059669', bg: 'rgba(5,150,105,0.10)' },
+            { label: 'Create App',     href: '/apps/create', Icon: Plus,        color: '#0ea5e9', bg: 'rgba(14,165,233,0.10)' },
+            { label: 'Build Channel',  href: '/channels',    Icon: Layers,      color: '#6366f1', bg: 'rgba(99,102,241,0.10)' },
+            { label: 'Add Player',     href: '/players',     Icon: Monitor,     color: '#D97706', bg: 'rgba(217,119,6,0.10)' },
+          ].map(({ label, href, Icon, color, bg }) => (
+            <Link
+              key={label}
+              href={href}
+              className="flex flex-col items-center gap-2 px-3 py-4 rounded-xl text-center transition-all hover:opacity-80"
+              style={{ backgroundColor: bg, border: `1px solid ${color}22` }}
+            >
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ backgroundColor: `${color}18` }}>
+                <Icon className="h-4.5 w-4.5" style={{ color }} />
+              </div>
+              <span className="text-xs font-semibold leading-tight" style={{ color }}>{label}</span>
+            </Link>
+          ))}
+        </div>
       </motion.div>
 
       {/* Player Network + Activity */}

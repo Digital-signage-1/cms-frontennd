@@ -531,7 +531,15 @@ export default function ContentPage() {
               </button>
             )}
           </div>
-        ) : filteredAssets.length === 0 ? null : (
+        ) : filteredAssets.length === 0 ? (
+          <p className="py-8 text-center text-sm" style={{ color: '#0369a1' }}>
+            {typeFilter !== 'all'
+              ? `No ${typeFilter}s match your filter`
+              : searchQuery
+              ? 'No files match your search'
+              : 'No files in this folder'}
+          </p>
+        ) : (
           <AnimatePresence>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {filteredAssets.map((asset: any, idx: number) => {

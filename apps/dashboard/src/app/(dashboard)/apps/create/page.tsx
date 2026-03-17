@@ -310,22 +310,22 @@ export default function CreateAppPage() {
         <h1 style={{ color: '#0c4a6e', fontWeight: 600, fontSize: 15, flex: 1, margin: 0 }}>Create New App</h1>
 
         {/* Stepper */}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div className="flex items-center">
           {STEPS.map((label, i) => {
             const isActive = step === i
             const isDone   = step > i
             return (
-              <div key={label} style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '4px 12px', borderRadius: 8, backgroundColor: isActive ? 'rgba(14,165,233,0.08)' : 'transparent' }}>
+              <div key={label} className="flex items-center">
+                <div className="flex items-center gap-1.5 px-2 sm:px-3 py-1" style={{ borderRadius: 8, backgroundColor: isActive ? 'rgba(14,165,233,0.08)' : 'transparent' }}>
                   <div style={{ width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, background: isActive || isDone ? 'linear-gradient(135deg, #0ea5e9, #06b6d4)' : '#e0f2fe', color: isActive || isDone ? '#FFFFFF' : '#6b7280', flexShrink: 0 }}>
                     {i + 1}
                   </div>
-                  <span style={{ fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? '#0ea5e9' : isDone ? '#0369a1' : '#6b7280' }}>
+                  <span className="hidden sm:block" style={{ fontSize: 13, fontWeight: isActive ? 600 : 400, color: isActive ? '#0ea5e9' : isDone ? '#0369a1' : '#6b7280' }}>
                     {label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
-                  <ChevronRight className="h-4 w-4" style={{ color: '#bae6fd', margin: '0 2px' }} />
+                  <ChevronRight className="h-4 w-4" style={{ color: '#bae6fd', margin: '0 1px' }} />
                 )}
               </div>
             )
@@ -334,10 +334,10 @@ export default function CreateAppPage() {
       </div>
 
       {/* ── 3-Column Body ── */}
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div className="flex flex-1 overflow-hidden">
 
-        {/* ── Left Sidebar ── */}
-        <div style={{ width: 200, flexShrink: 0, borderRight: '1px solid #bae6fd', display: 'flex', flexDirection: 'column', backgroundColor: '#FFFFFF' }}>
+        {/* ── Left Sidebar ── hidden on mobile */}
+        <div className="hidden md:flex w-[200px] flex-shrink-0 flex-col bg-white" style={{ borderRight: '1px solid #bae6fd' }}>
           <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0ea5e9', padding: '16px 16px 8px' }}>
             App Types
           </p>
@@ -373,8 +373,25 @@ export default function CreateAppPage() {
           </div>
         </div>
 
-        {/* ── Middle Panel ── */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
+        {/* ── Middle Panel ── full width on mobile (step 0 only), flex-1 on desktop */}
+        <div className={`${step === 1 ? 'hidden md:flex' : 'flex'} flex-1 flex-col overflow-hidden bg-white`}>
+          {/* Mobile category pills — visible only below md */}
+          <div className="flex md:hidden items-center gap-1.5 px-3 py-2 overflow-x-auto flex-shrink-0" style={{ borderBottom: '1px solid #bae6fd' }}>
+            {categories.map((cat) => {
+              const isActive = selectedCategory === cat.id
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className="flex-shrink-0 px-3 py-1 rounded-lg text-xs font-medium"
+                  style={isActive ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' } : { backgroundColor: '#e0f2fe', color: '#0369a1' }}
+                >
+                  {cat.label}
+                </button>
+              )
+            })}
+          </div>
+
           {/* Search bar + view toggle */}
           <div style={{ padding: '12px 16px', borderBottom: '1px solid #bae6fd', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ position: 'relative', flex: 1 }}>
@@ -413,7 +430,7 @@ export default function CreateAppPage() {
           <div style={{ flex: 1, overflowY: 'auto', padding: templateViewMode === 'grid' ? 12 : '8px 0' }}>
             {templateViewMode === 'grid' ? (
               /* ── Card Grid View ── */
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
                 {filtered.map((tpl) => {
                   const isSelected = selectedType?.type_id === tpl.type_id
                   const iconPath   = getAppTypeIconPath(tpl.icon, tpl.type_id)
@@ -518,18 +535,35 @@ export default function CreateAppPage() {
           </div>
         </div>
 
-        {/* ── Right Panel ── */}
-        <div style={{ width: 420, flexShrink: 0, borderLeft: '1px solid #bae6fd', display: 'flex', flexDirection: 'column', overflow: 'hidden', backgroundColor: '#FFFFFF' }}>
+        {/* ── Right Panel ── full width on mobile (step 1 only), fixed 360px on desktop */}
+        <div className={`${step === 0 ? 'hidden md:flex md:w-[360px] md:flex-shrink-0' : 'flex flex-1 md:flex-none md:w-[360px] md:flex-shrink-0'} flex-col overflow-hidden bg-white`} style={{ borderLeft: '1px solid #bae6fd' }}>
           {!selectedType ? (
-            /* Empty state */
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24 }}>
-              <div style={{ width: 48, height: 48, borderRadius: '50%', border: '2px solid #bae6fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ChevronRight className="h-5 w-5" style={{ color: '#6b7280' }} />
+            /* Workflow prompt empty state */
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20, padding: 32 }}>
+              <div style={{ width: 52, height: 52, borderRadius: 14, background: 'linear-gradient(135deg, rgba(14,165,233,0.12), rgba(6,182,212,0.12))', border: '1px solid #bae6fd', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Sparkles style={{ width: 24, height: 24, color: '#0ea5e9' }} />
               </div>
-              <p style={{ fontSize: 14, fontWeight: 600, color: '#0369a1', textAlign: 'center', margin: 0 }}>Select a template</p>
-              <p style={{ fontSize: 12, color: '#6b7280', textAlign: 'center', lineHeight: 1.5, margin: 0 }}>
-                Choose a template from the list to configure and deploy your app
-              </p>
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#0ea5e9', margin: '0 0 6px' }}>Step 1 of 3</p>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#0c4a6e', margin: '0 0 8px' }}>Choose a template</p>
+                <p style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.6, margin: 0, maxWidth: 260 }}>
+                  Select an app type from the list to get started. Then configure and deploy.
+                </p>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 280 }}>
+                {[
+                  { step: '1', label: 'Select a template', active: true },
+                  { step: '2', label: 'Configure your app', active: false },
+                  { step: '3', label: 'Deploy to players', active: false },
+                ].map(({ step, label, active }) => (
+                  <div key={step} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', borderRadius: 8, backgroundColor: active ? 'rgba(14,165,233,0.06)' : 'transparent', border: active ? '1px solid rgba(14,165,233,0.15)' : '1px solid transparent' }}>
+                    <div style={{ width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, background: active ? 'linear-gradient(135deg, #0ea5e9, #06b6d4)' : '#e0f2fe', color: active ? '#FFFFFF' : '#6b7280', flexShrink: 0 }}>
+                      {step}
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: active ? 600 : 400, color: active ? '#0ea5e9' : '#9ca3af' }}>{label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : (
             /* Configure form */

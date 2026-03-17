@@ -17,7 +17,8 @@ import {
 } from '@/hooks/queries/useChannels'
 import { useApps } from '@/hooks/queries'
 import { useContentItem } from '@/hooks/queries/useContent'
-import { ChannelRenderer } from '@signage/renderer'
+import { ChannelRenderer, IntegrationDataProvider } from '@signage/renderer'
+import { useDashboardIntegrationFetcher } from '@/hooks/useDashboardIntegrationFetcher'
 import { ZoneBuilder, ZoneToolbar } from '@/components/channels/ZoneBuilder'
 import { ZonePropertiesEditor } from '@/components/channels/ZonePropertiesEditor'
 import { getAllLayoutTemplates, type LayoutTemplate } from '@/lib/layout-templates'
@@ -159,6 +160,7 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const [showAddSlideModal, setShowAddSlideModal] = useState(false)
   const [previewStreamToken, setPreviewStreamToken] = useState<string | null>(null)
   const [showPreviewModal, setShowPreviewModal] = useState(false)
+  const integrationFetcher = useDashboardIntegrationFetcher()
   const [previewSlideIndex, setPreviewSlideIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(false)
   const [autoPlayElapsed, setAutoPlayElapsed] = useState(0)
@@ -1006,11 +1008,13 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                         }))
                       : slideZones
                     return (
-                      <ChannelRenderer
-                        manifest={{ channel, zones: zonesWithAuth }}
-                        isPreview
-                        className="w-full h-full"
-                      />
+                      <IntegrationDataProvider value={integrationFetcher}>
+                        <ChannelRenderer
+                          manifest={{ channel, zones: zonesWithAuth }}
+                          isPreview
+                          className="w-full h-full"
+                        />
+                      </IntegrationDataProvider>
                     )
                   })()}
                 </div>

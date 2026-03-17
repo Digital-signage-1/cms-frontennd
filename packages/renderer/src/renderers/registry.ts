@@ -30,6 +30,13 @@ import { GoogleMapsRenderer } from './GoogleMapsRenderer'
 import { LookerStudioRenderer } from './LookerStudioRenderer'
 import { GoogleAlertsRenderer } from './GoogleAlertsRenderer'
 import { PowerBIURLRenderer } from './PowerBIURLRenderer'
+import { MenuBoardRenderer } from './MenuBoardRenderer'
+import { EventBoardRenderer } from './EventBoardRenderer'
+import { RoomDirectoryRenderer } from './RoomDirectoryRenderer'
+import { SportsScoresRenderer } from './SportsScoresRenderer'
+import { CryptoTickerRenderer } from './CryptoTickerRenderer'
+import { EventbriteEventsRenderer } from './EventbriteEventsRenderer'
+import { CanvaRenderer } from './CanvaRenderer'
 
 const PDFRenderer = lazy(() =>
   import('./PDFRenderer').then(mod => ({ default: mod.PDFRenderer }))
@@ -88,6 +95,13 @@ const registry: Record<string, ComponentType<RendererProps>> = {
   powerbi_realtime_report: PowerBIRealtimeReportRenderer as unknown as ComponentType<RendererProps>,
   powerbi_dashboard: PowerBIDashboardRenderer as unknown as ComponentType<RendererProps>,
   powerbi_url: PowerBIURLRenderer as ComponentType<RendererProps>,
+  menu_board: MenuBoardRenderer as ComponentType<RendererProps>,
+  event_board: EventBoardRenderer as ComponentType<RendererProps>,
+  room_directory: RoomDirectoryRenderer as ComponentType<RendererProps>,
+  sports_scores: SportsScoresRenderer as ComponentType<RendererProps>,
+  crypto_ticker: CryptoTickerRenderer as ComponentType<RendererProps>,
+  events_near_me: EventbriteEventsRenderer as ComponentType<RendererProps>,
+  canva: CanvaRenderer as ComponentType<RendererProps>,
 }
 
 export function getRenderer(type: string): ComponentType<RendererProps> | null {
