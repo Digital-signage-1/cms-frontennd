@@ -283,6 +283,16 @@ export function FormFieldRenderer({
           />
         )
 
+      case 'repeater':
+        return (
+          <RepeaterField
+            field={field}
+            value={fieldValue}
+            onChange={onChange}
+            workspaceId={workspaceId}
+          />
+        )
+
       default:
         return (
           <Input
@@ -566,5 +576,140 @@ function ResourceMultiPickerField({
       powerbiWorkspaceId={formData?.workspace_id as string | undefined}
       powerbiReportId={dependsOnValue as string | undefined}
     />
+  )
+}
+
+function RepeaterField({
+  field,
+  value,
+  onChange,
+  workspaceId,
+}: {
+  field: FormField
+  value: any
+  onChange: (value: any) => void
+  workspaceId?: string | number
+}) {
+  const items: Record<string, any>[] = Array.isArray(value) ? value : []
+  const itemSchema: FormField[] = (field as any).item_schema || []
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(items.length > 0 ? 0 : null)
+
+  const getItemTitle = (item: Record<string, any>, idx: number): string => {
+    for (const s of itemSchema) {
+      if ((s.type === 'text' || s.type === 'url') && item[s.name]) {
+        return String(item[s.name])
+      }
+    }
+    return `Item ${idx + 1}`
+  }
+
+  const addItem = () => {
+    const defaults: Record<string, any> = {}
+    for (const s of itemSchema) {
+      if (s.default_value !== undefined) {
+        defaults[s.name] = s.default_value
+      } else if (s.type === 'checkbox') {
+        defaults[s.name] = true
+      } else {
+        defaults[s.name] = ''
+      }
+    }
+    const newItems = [...items, defaults]
+    onChange(newItems)
+    setExpandedIdx(newItems.length - 1)
+  }
+
+  const removeItem = (idx: number) => {
+    const newItems = items.filter((_, i) => i !== idx)
+    onChange(newItems)
+    if (expandedIdx === idx) setExpandedIdx(null)
+  }
+
+  const updateItem = (idx: number, fieldName: string, val: any) => {
+    const newItems = items.map((item, i) =>
+      i === idx ? { ...item, [fieldName]: val } : item
+    )
+    onChange(newItems)
+  }
+
+  const moveItem = (idx: number, dir: -1 | 1) => {
+    const newIdx = idx + dir
+    if (newIdx < 0 || newIdx >= items.length) return
+    const arr = [...items]
+    const tmp = arr[idx]
+    arr[idx] = arr[newIdx]
+    arr[newIdx] = tmp
+    onChange(arr)
+    setExpandedIdx(newIdx)
+  }
+
+  return (
+    <div className="space-y-2">
+      {items.map((item, idx) => (
+        <div key={idx} className="border border-border rounded-lg overflow-hidden">
+          <div
+            className="flex items-center justify-between px-3 py-2 bg-surface-alt cursor-pointer hover:bg-surface-alt/80 transition-colors select-none"
+            onClick={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-xs text-text-muted font-mono shrink-0">#{idx + 1}</span>
+              <span className="text-sm font-medium text-text-primary truncate">
+                {getItemTitle(item, idx)}
+              </span>
+            </div>
+            <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                disabled={idx === 0}
+                onClick={() => moveItem(idx, -1)}
+                className="p-1 rounded text-text-muted hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed text-xs"
+                title="Move up"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                disabled={idx === items.length - 1}
+                onClick={() => moveItem(idx, 1)}
+                className="p-1 rounded text-text-muted hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed text-xs"
+                title="Move down"
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                onClick={() => removeItem(idx)}
+                className="p-1 rounded text-error hover:bg-error/10 text-xs"
+                title="Remove"
+              >
+                ✕
+              </button>
+              <span className="text-text-muted text-xs ml-1">{expandedIdx === idx ? '▲' : '▼'}</span>
+            </div>
+          </div>
+          {expandedIdx === idx && (
+            <div className="p-3 space-y-3 border-t border-border">
+              {itemSchema.map((subField) => (
+                <FormFieldRenderer
+                  key={subField.name}
+                  field={subField}
+                  value={item[subField.name]}
+                  onChange={(val) => updateItem(idx, subField.name, val)}
+                  formData={item}
+                  workspaceId={workspaceId}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={addItem}
+        className="w-full py-2 border-2 border-dashed border-border rounded-lg text-sm text-text-muted hover:border-primary hover:text-primary transition-colors"
+      >
+        + Add {field.label ? field.label.replace(/s$/, '') : 'Item'}
+      </button>
+    </div>
   )
 }

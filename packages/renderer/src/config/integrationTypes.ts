@@ -67,6 +67,11 @@ export const INTEGRATION_TYPES: Record<string, IntegrationTypeConfig> = {
     compositeKey: 'workspace_id',
     defaultRefreshMs: 30 * 60 * 1000,
   },
+  canva: {
+    configKey: 'design_id',
+    resourceType: 'design',
+    defaultRefreshMs: 5 * 60 * 1000,
+  },
 }
 
 /** Set of all template types that need live integration data fetching. */
