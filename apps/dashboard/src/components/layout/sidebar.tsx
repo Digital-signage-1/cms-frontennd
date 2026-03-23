@@ -1,10 +1,9 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { LayoutGrid, Monitor, Calendar, Settings, BarChart, ChevronLeft, Layers, Upload, Box, HelpCircle, X, Plug } from 'lucide-react'
+import { LayoutGrid, Monitor, Calendar, Settings, BarChart, ChevronLeft, Layers, Upload, Box, HelpCircle, X, Plug, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Button } from '../ui/button'
 import { useSidebar } from '@/contexts/sidebar-context'
 import { useAuthStore } from '@/stores/auth-store'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -276,21 +275,70 @@ export function Sidebar() {
             })}
           </div>
 
-          {/* Collapse toggle - desktop only */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggle}
-            className="hidden md:flex w-full justify-center mb-3 h-8 rounded-lg transition-colors"
-            style={{ color: '#6b7280' }}
-          >
-            <motion.div
-              animate={{ rotate: collapsed ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
+          {/* Collapse toggle - divider with centered button, desktop only */}
+          <div className="hidden md:block my-1">
+            <button
+              onClick={toggle}
+              className="group relative flex items-center justify-center w-full cursor-pointer px-2"
+              style={{ padding: '8px 8px' }}
             >
-              <ChevronLeft className="h-4 w-4" />
-            </motion.div>
-          </Button>
+              {(actualExpanded || mobileOpen) && (
+                <div className="flex-1" style={{ height: '2px', backgroundColor: '#bae6fd', borderRadius: '1px' }} />
+              )}
+              <motion.div
+                className={cn(
+                  'flex items-center justify-center rounded-full shrink-0',
+                  actualExpanded ? 'mx-3' : 'mx-auto'
+                )}
+                style={{
+                  width: '28px',
+                  height: '28px',
+                  backgroundColor: '#e0f2fe',
+                  border: '2px solid #7dd3fc',
+                  color: '#0369a1',
+                  boxShadow: '0 2px 6px rgba(14,165,233,0.15)',
+                }}
+                whileHover={{
+                  scale: 1.2,
+                  backgroundColor: '#bae6fd',
+                  boxShadow: '0 3px 10px rgba(14,165,233,0.25)',
+                }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <motion.div
+                  animate={{ rotate: collapsed ? 180 : 0 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </motion.div>
+              </motion.div>
+              {(actualExpanded || mobileOpen) && (
+                <div className="flex-1" style={{ height: '2px', backgroundColor: '#bae6fd', borderRadius: '1px' }} />
+              )}
+              {/* Tooltip */}
+              <div
+                className="pointer-events-none absolute left-1/2 -translate-x-1/2 -top-9 whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                style={{
+                  backgroundColor: '#0c4a6e',
+                  color: '#FFFFFF',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                }}
+              >
+                {collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                {/* Tooltip arrow */}
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 -bottom-1"
+                  style={{
+                    width: 0,
+                    height: 0,
+                    borderLeft: '4px solid transparent',
+                    borderRight: '4px solid transparent',
+                    borderTop: '4px solid #0c4a6e',
+                  }}
+                />
+              </div>
+            </button>
+          </div>
 
           {/* User profile */}
           <div
@@ -322,6 +370,35 @@ export function Sidebar() {
               )}
             </AnimatePresence>
           </div>
+
+          {/* Sign out */}
+          <button
+            onClick={async () => {
+              const { signOut } = await import('@/services/auth')
+              await signOut()
+              window.location.href = '/sign-in'
+            }}
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 w-full text-sm font-medium transition-all cursor-pointer mt-1"
+            style={{ color: '#DC2626', backgroundColor: 'transparent' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(239,68,68,0.06)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent' }}
+            title={!actualExpanded && !mobileOpen ? 'Sign out' : undefined}
+          >
+            <LogOut className="h-4 w-4 shrink-0" />
+            <AnimatePresence>
+              {(actualExpanded || mobileOpen) && (
+                <motion.span
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: 'auto' }}
+                  exit={{ opacity: 0, width: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="whitespace-nowrap"
+                >
+                  Sign out
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </button>
         </div>
       </aside>
     </>

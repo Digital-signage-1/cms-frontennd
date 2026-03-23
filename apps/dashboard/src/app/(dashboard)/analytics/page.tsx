@@ -157,7 +157,10 @@ export default function AnalyticsPage() {
   const hasMorePlayback = playbackItems.length >= PAGE_SIZE
 
   return (
-    <div style={{ backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+    <div className="flex flex-col h-full" style={{ backgroundColor: '#f0f9ff' }}>
+
+      {/* ── Fixed Header ── */}
+      <div className="flex-shrink-0">
 
       <div className="page-container pt-4 sm:pt-5">
         <div
@@ -270,6 +273,11 @@ export default function AnalyticsPage() {
         })}
       </div>
 
+      </div>{/* end fixed header */}
+
+      {/* ── Scrollable content ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+
       {analyticsTab === 'overview' && (
         <div className="page-container pt-4 pb-5 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4">
 
@@ -284,7 +292,7 @@ export default function AnalyticsPage() {
                   Content plays and unique players over time
                 </p>
               </div>
-              <div className="flex items-center gap-5 flex-shrink-0">
+              <div className="hidden sm:flex items-center gap-5 flex-shrink-0">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-0.5 rounded-full" style={{ backgroundColor: '#0ea5e9' }} />
                   <span className="text-xs" style={{ color: '#0369a1' }}>Total Plays</span>
@@ -418,7 +426,8 @@ export default function AnalyticsPage() {
             ) : auditItems.length === 0 ? (
               <div className="py-12 text-center text-sm" style={{ color: '#0369a1' }}>No audit events found</div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <div className="overflow-x-auto">
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 600 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #bae6fd' }}>
                     {['Actor', 'Action', 'Resource', 'Timestamp'].map((h) => (
@@ -448,6 +457,7 @@ export default function AnalyticsPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
             <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #bae6fd' }}>
               <span style={{ fontSize: 12, color: '#0369a1' }}>
@@ -488,7 +498,8 @@ export default function AnalyticsPage() {
             ) : playbackItems.length === 0 ? (
               <div className="py-12 text-center text-sm" style={{ color: '#0369a1' }}>No playback records found</div>
             ) : (
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <div className="overflow-x-auto">
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 700 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #bae6fd' }}>
                     {['Player ID', 'Channel ID', 'Duration', 'Started At', 'Ended At'].map((h) => (
@@ -520,6 +531,7 @@ export default function AnalyticsPage() {
                   })}
                 </tbody>
               </table>
+              </div>
             )}
             <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #bae6fd' }}>
               <span style={{ fontSize: 12, color: '#0369a1' }}>Page {playbackPage + 1}</span>
@@ -543,6 +555,8 @@ export default function AnalyticsPage() {
           </div>
         </div>
       )}
+
+      </div>{/* end scrollable content */}
 
     </div>
   )

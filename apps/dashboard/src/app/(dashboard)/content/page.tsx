@@ -242,9 +242,10 @@ export default function ContentPage() {
   // ── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="page-container space-y-4 sm:space-y-5" style={{ backgroundColor: '#f0f9ff', minHeight: '100%' }}>
+    <div className="page-container flex flex-col h-full" style={{ backgroundColor: '#f0f9ff' }}>
 
-      {/* ── Hero banner ───────────────────────────────────────── */}
+      {/* ── Hero banner (fixed) ──────────────────────────────── */}
+      <div className="flex-shrink-0 pb-4 sm:pb-5">
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -331,6 +332,10 @@ export default function ContentPage() {
           ))}
         </div>
       </motion.div>
+      </div>{/* end fixed header */}
+
+      {/* ── Scrollable content ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto space-y-4 sm:space-y-5 pb-4 sm:pb-5">
 
       {/* ── Upload progress ────────────────────────────────────── */}
       {Object.keys(uploadStatus).length > 0 && (
@@ -680,6 +685,8 @@ export default function ContentPage() {
           </AnimatePresence>
         )}
       </motion.div>
+
+      </div>{/* end scrollable content */}
 
       {/* Create Folder Modal */}
       <CreateFolderModal

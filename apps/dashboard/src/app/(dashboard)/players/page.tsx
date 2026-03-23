@@ -297,7 +297,7 @@ export default function PlayersPage() {
                   placeholder="Search players..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-44"
+                  className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-full sm:w-44"
                   style={{
                     backgroundColor: '#f0f9ff',
                     border: '1px solid #bae6fd',
@@ -348,7 +348,7 @@ export default function PlayersPage() {
           initial={{ opacity: 0, x: 16 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, delay: 0.12 }}
-          className="w-80 flex flex-col rounded-xl overflow-hidden flex-shrink-0"
+          className="w-full lg:w-80 flex flex-col rounded-xl overflow-hidden flex-shrink-0"
           style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
         >
           {/* Panel header */}

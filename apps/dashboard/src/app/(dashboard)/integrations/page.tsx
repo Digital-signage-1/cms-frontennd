@@ -20,9 +20,10 @@ export default function IntegrationsPage() {
   const { data: workspacesData } = useWorkspaces()
   const workspaceId = workspacesData?.[0]?.id || workspacesData?.[0]?.workspace_id || 0
 
-  const { data, isLoading, refetch } = useIntegrations(workspaceId)
+  const { data, isLoading, isFetching, refetch } = useIntegrations(workspaceId)
   const disconnect = useDisconnectIntegration()
   const remove = useDeleteIntegration()
+  const isRefreshing = isFetching && !isLoading
 
   const integrations = data?.integrations ?? []
 
@@ -46,10 +47,11 @@ export default function IntegrationsPage() {
             variant="ghost"
             size="sm"
             onClick={() => refetch()}
+            disabled={isRefreshing}
             className="gap-1.5 text-text-muted"
           >
-            <RefreshCw className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Refresh</span>
+            <RefreshCw className={`h-3.5 w-3.5 transition-transform ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:inline">{isRefreshing ? 'Refreshing...' : 'Refresh'}</span>
           </Button>
           <Button size="sm" className="gap-1.5" onClick={() => setShowAdd(true)}>
             <Plus className="h-4 w-4" />

@@ -137,7 +137,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="page-container space-y-4 sm:space-y-5" style={{ backgroundColor: '#f0f9ff', minHeight: '100%' }}>
+    <div className="page-container flex flex-col gap-4 sm:gap-5 h-full" style={{ backgroundColor: '#f0f9ff' }}>
 
       {/* Hero banner */}
       <motion.div
@@ -223,11 +223,11 @@ export default function HomePage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.16 }}
-        className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5"
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 flex-1 min-h-0"
       >
         {/* Player Network card */}
         <div
-          className="lg:col-span-2 rounded-xl overflow-hidden"
+          className="lg:col-span-2 rounded-xl overflow-hidden flex flex-col"
           style={{
             backgroundColor: '#FFFFFF',
             border: '1px solid #bae6fd',
@@ -255,7 +255,7 @@ export default function HomePage() {
             <span className="text-xs font-medium" style={{ color: '#6b7280' }}>Live</span>
           </div>
 
-          <div className="h-72 flex items-center justify-center" style={{ backgroundColor: '#f0f9ff' }}>
+          <div className="flex-1 flex items-center justify-center py-6" style={{ backgroundColor: '#f0f9ff' }}>
             <div className="grid grid-cols-2 gap-4 px-6 w-full max-w-xs">
               {[
                 { label: 'Online',  count: players.filter((p: any) => p.status === 'online').length,  color: '#059669' },
@@ -304,7 +304,7 @@ export default function HomePage() {
 
         {/* Recent Activity card */}
         <div
-          className="rounded-xl"
+          className="rounded-xl flex flex-col"
           style={{
             backgroundColor: '#FFFFFF',
             border: '1px solid #bae6fd',
@@ -319,7 +319,7 @@ export default function HomePage() {
             <span className="text-xs font-medium" style={{ color: '#6b7280' }}>Last 5 events</span>
           </div>
 
-          <div className="px-5 py-4">
+          <div className="px-5 py-4 flex-1">
             <ActivityFeed activities={recentActivity} />
           </div>
         </div>

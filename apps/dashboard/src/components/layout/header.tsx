@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
 import { useAuthStore } from '@/stores/auth-store'
-import { Bell, HelpCircle, LogOut, Search, Settings, User, Building2, Menu } from 'lucide-react'
+import { HelpCircle, LogOut, Search, Settings, User, Building2, Menu } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
@@ -142,32 +142,6 @@ export function Header({ breadcrumbItems }: HeaderProps) {
           </kbd>
         </motion.div>
 
-        {/* Search icon – mobile only */}
-        <button
-          onClick={() => setMobileSearchOpen(true)}
-          className="sm:hidden relative p-2 rounded-lg touch-target transition-colors"
-          style={{ color: '#0369a1' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.color = '#0c4a6e' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#0369a1' }}
-          aria-label="Search"
-        >
-          <Search className="h-5 w-5" />
-        </button>
-
-        {/* Notification bell */}
-        <button
-          className="relative p-2 rounded-lg transition-all touch-target"
-          style={{ color: '#0369a1' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.color = '#0c4a6e' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#0369a1' }}
-          aria-label="Notifications"
-        >
-          <Bell className="h-5 w-5" />
-          <span
-            className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full border-2"
-            style={{ backgroundColor: '#0ea5e9', borderColor: '#FFFFFF' }}
-          />
-        </button>
 
         {/* User avatar dropdown */}
         <DropdownMenu>

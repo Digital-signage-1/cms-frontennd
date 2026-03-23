@@ -250,7 +250,7 @@ export default function EditAppPage() {
             <Skeleton className="h-9 w-24" />
           </div>
         </div>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
           <Skeleton className="h-48 rounded-xl" />
           <Skeleton className="h-64 rounded-xl" />
           <Skeleton className="h-40 rounded-xl" />
@@ -276,7 +276,7 @@ export default function EditAppPage() {
     <div className="min-h-full bg-background">
       {/* ── Sticky header bar ── */}
       <div className="sticky top-0 z-10 bg-surface/95 backdrop-blur-md border-b border-border">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 h-14">
             {/* Back */}
             <button
@@ -342,7 +342,7 @@ export default function EditAppPage() {
 
       {/* ── Error banner ── */}
       {errors.submit && (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 pt-4">
           <div className="p-3 bg-[rgba(239,68,68,0.06)] border border-[rgba(239,68,68,0.16)] rounded-lg flex items-center gap-2">
             <AlertCircle className="h-4 w-4 text-error flex-shrink-0" />
             <p className="text-sm text-error">{errors.submit}</p>
@@ -351,8 +351,8 @@ export default function EditAppPage() {
       )}
 
       {/* ── Main content ── */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
 
           {/* ─── Left column: forms ─── */}
           <div className="lg:col-span-2 space-y-5">
@@ -492,8 +492,13 @@ export default function EditAppPage() {
               </div>
             </Section>
 
+          </div>
+
+          {/* ─── Right column: sidebar info ─── */}
+          <div className="lg:col-span-3 space-y-5 lg:sticky lg:top-[4.5rem] lg:self-start">
+
             {/* Preview section */}
-            <Section icon={Eye} title="Preview" description="See how your app looks on screen" defaultOpen={false}>
+            <Section icon={Eye} title="Preview" description="See how your app looks on screen" defaultOpen={true}>
               <div className="pt-3">
                 <AppPreview
                   app={app}
@@ -504,10 +509,6 @@ export default function EditAppPage() {
                 />
               </div>
             </Section>
-          </div>
-
-          {/* ─── Right column: sidebar info ─── */}
-          <div className="space-y-5 lg:sticky lg:top-[4.5rem] lg:self-start">
 
             {/* App info card */}
             <motion.div

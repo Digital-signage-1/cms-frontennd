@@ -290,7 +290,10 @@ export default function SchedulesPage() {
   ] as const
 
   return (
-    <div style={{ backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+    <div className="flex flex-col h-full" style={{ backgroundColor: '#f0f9ff' }}>
+
+      {/* ── Fixed Header: Hero + Toolbar + Legend ── */}
+      <div className="flex-shrink-0">
 
       {/* ── Hero Banner ── */}
       <div className="page-container pt-4 sm:pt-5">
@@ -476,7 +479,7 @@ export default function SchedulesPage() {
               placeholder="Search schedules..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 text-sm rounded-lg outline-none w-52"
+              className="pl-9 pr-4 py-2 text-sm rounded-lg outline-none w-full sm:w-52"
               style={{
                 backgroundColor: '#FFFFFF',
                 border: '1px solid #bae6fd',
@@ -532,6 +535,11 @@ export default function SchedulesPage() {
           })}
         </div>
       )}
+
+      </div>{/* end fixed header */}
+
+      {/* ── Scrollable content ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
 
       {/* ── Main content ── */}
       <div className="page-container pb-5">
@@ -622,7 +630,7 @@ export default function SchedulesPage() {
           {/* Inline form */}
           {showOverrideForm && (
             <div className="px-5 py-4" style={{ borderBottom: '1px solid #bae6fd', backgroundColor: 'rgba(14,165,233,0.06)' }}>
-              <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label style={{ fontSize: 11, color: '#0369a1', display: 'block', marginBottom: 4 }}>Override Name *</label>
                   <input
@@ -715,7 +723,7 @@ export default function SchedulesPage() {
           ) : (
             <div className="divide-y" style={{ borderColor: '#bae6fd' }}>
               {(upcomingOverrides as any[]).map((override: any) => (
-                <div key={override.override_id} className="flex items-center justify-between px-5 py-4">
+                <div key={override.override_id} className="flex items-center justify-between gap-3 px-3 sm:px-5 py-4 flex-wrap">
                   <div className="flex items-center gap-3">
                     <div style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#0ea5e9', flexShrink: 0 }} />
                     <div>
@@ -742,6 +750,8 @@ export default function SchedulesPage() {
           )}
         </div>
       </div>
+
+      </div>{/* end scrollable content */}
 
       {/* ── Modal ── */}
       <ScheduleModal

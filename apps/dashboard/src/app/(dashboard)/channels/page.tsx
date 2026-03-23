@@ -222,12 +222,12 @@ function ChannelCard({ channel }: { channel: any }) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="absolute inset-0 flex items-end p-3"
+              className="absolute inset-0 flex items-center justify-center"
               style={{
-                background: 'linear-gradient(to top, rgba(255,255,255,0.90) 0%, rgba(255,255,255,0.5) 60%, transparent 100%)',
+                background: 'rgba(0,0,0,0.45)',
               }}
             >
-              <div className="flex items-center gap-2 w-full">
+              <div className="flex items-center justify-center">
                 <button
                   onClick={(e) => {
                     e.stopPropagation()
@@ -237,28 +237,6 @@ function ChannelCard({ channel }: { channel: any }) {
                   style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
                 >
                   Edit Layout
-                </button>
-                <button
-                  onClick={(e) => e.stopPropagation()}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-90"
-                  style={{
-                    backgroundColor: 'rgba(14,165,233,0.08)',
-                    border: '1px solid rgba(14,165,233,0.18)',
-                    color: '#0c4a6e',
-                  }}
-                >
-                  Preview
-                </button>
-                <button
-                  onClick={(e) => e.stopPropagation()}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium transition-opacity hover:opacity-90"
-                  style={{
-                    backgroundColor: 'rgba(14,165,233,0.08)',
-                    border: '1px solid rgba(14,165,233,0.18)',
-                    color: '#0c4a6e',
-                  }}
-                >
-                  Duplicate
                 </button>
               </div>
             </motion.div>
@@ -308,6 +286,9 @@ export default function ChannelsPage() {
   const [searchQuery, setSearchQuery]   = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [searchFocused, setSearchFocused] = useState(false)
+  const [viewMode, setViewMode]         = useState<'grid' | 'list'>('grid')
+  const [sortOrder, setSortOrder]       = useState<'newest' | 'oldest' | 'name_asc' | 'name_desc'>('newest')
+  const [showSortMenu, setShowSortMenu] = useState(false)
 
   const { setBreadcrumbItems } = useBreadcrumb()
   useEffect(() => {
@@ -316,13 +297,28 @@ export default function ChannelsPage() {
 
   const channels = Array.isArray(channelsData) ? channelsData : []
 
-  const filteredChannels = channels.filter((c: any) => {
-    const matchSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchStatus =
-      statusFilter === 'all' ||
-      c.status === statusFilter
-    return matchSearch && matchStatus
-  })
+  const filteredChannels = channels
+    .filter((c: any) => {
+      const matchSearch = c.name.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchStatus =
+        statusFilter === 'all' ||
+        c.status === statusFilter
+      return matchSearch && matchStatus
+    })
+    .sort((a: any, b: any) => {
+      switch (sortOrder) {
+        case 'newest':
+          return new Date(b.updated_at || b.created_at || 0).getTime() - new Date(a.updated_at || a.created_at || 0).getTime()
+        case 'oldest':
+          return new Date(a.updated_at || a.created_at || 0).getTime() - new Date(b.updated_at || b.created_at || 0).getTime()
+        case 'name_asc':
+          return (a.name || '').localeCompare(b.name || '')
+        case 'name_desc':
+          return (b.name || '').localeCompare(a.name || '')
+        default:
+          return 0
+      }
+    })
 
   // ── Stats ────────────────────────────────────────────────────────────────
   const totalChannels  = channels.length
@@ -346,9 +342,10 @@ export default function ChannelsPage() {
   ]
 
   return (
-    <div className="page-container space-y-4 sm:space-y-5" style={{ backgroundColor: '#f0f9ff', minHeight: '100%' }}>
+    <div className="page-container flex flex-col h-full" style={{ backgroundColor: '#f0f9ff' }}>
 
       {/* ── Hero banner ───────────────────────────────────────── */}
+      <div className="flex-shrink-0 space-y-4 sm:space-y-5 pb-4 sm:pb-5">
       <motion.div
         initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -399,7 +396,7 @@ export default function ChannelsPage() {
         </div>
 
         {/* Stat cards */}
-        <div className="relative grid grid-cols-2 sm:grid-cols-5 gap-2 px-3 sm:px-5 pb-3">
+        <div className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 px-3 sm:px-5 pb-3">
           {STAT_CARDS.map(({ label, value, color, iconType }) => (
             <div
               key={label}
@@ -455,7 +452,7 @@ export default function ChannelsPage() {
               className="px-4 py-2 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target"
               style={
                 statusFilter === tab.value
-                  ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
+                  ? { backgroundColor: '#0ea5e9', color: '#FFFFFF', border: '1px solid #0ea5e9' }
                   : {
                       color: '#0369a1',
                       backgroundColor: 'transparent',
@@ -482,7 +479,7 @@ export default function ChannelsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-48"
+              className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-full sm:w-48"
               style={{
                 backgroundColor: '#FFFFFF',
                 border: `1px solid ${searchFocused ? '#0ea5e9' : '#bae6fd'}`,
@@ -497,15 +494,25 @@ export default function ChannelsPage() {
             style={{ border: '1px solid #bae6fd' }}
           >
             <button
+              onClick={() => setViewMode('grid')}
               className="p-2 transition-colors"
-              style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+              style={
+                viewMode === 'grid'
+                  ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
+                  : { backgroundColor: '#FFFFFF', color: '#6b7280' }
+              }
               title="Grid view"
             >
               <LayoutGrid className="h-4 w-4" />
             </button>
             <button
+              onClick={() => setViewMode('list')}
               className="p-2 transition-colors"
-              style={{ backgroundColor: '#FFFFFF', color: '#6b7280' }}
+              style={
+                viewMode === 'list'
+                  ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
+                  : { backgroundColor: '#FFFFFF', color: '#6b7280' }
+              }
               title="List view"
             >
               <List className="h-4 w-4" />
@@ -513,19 +520,49 @@ export default function ChannelsPage() {
           </div>
 
           {/* Sort */}
-          <button
-            className="flex items-center gap-2 h-9 px-3 text-sm rounded-lg"
-            style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd', color: '#0369a1' }}
-          >
-            Newest First
-            <ChevronDown className="h-3.5 w-3.5" />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowSortMenu(!showSortMenu)}
+              className="flex items-center gap-2 h-9 px-3 text-sm rounded-lg"
+              style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd', color: '#0369a1' }}
+            >
+              {sortOrder === 'newest' ? 'Newest First' : sortOrder === 'oldest' ? 'Oldest First' : sortOrder === 'name_asc' ? 'Name A–Z' : 'Name Z–A'}
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showSortMenu ? 'rotate-180' : ''}`} />
+            </button>
+            {showSortMenu && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
+                <div
+                  className="absolute right-0 top-full mt-1 z-20 rounded-lg py-1 shadow-lg min-w-[150px]"
+                  style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+                >
+                  {([
+                    { value: 'newest' as const, label: 'Newest First' },
+                    { value: 'oldest' as const, label: 'Oldest First' },
+                    { value: 'name_asc' as const, label: 'Name A–Z' },
+                    { value: 'name_desc' as const, label: 'Name Z–A' },
+                  ]).map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => { setSortOrder(opt.value); setShowSortMenu(false) }}
+                      className="w-full text-left px-3 py-2 text-sm transition-colors hover:bg-sky-50"
+                      style={{ color: sortOrder === opt.value ? '#0ea5e9' : '#0369a1', fontWeight: sortOrder === opt.value ? 600 : 400 }}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </motion.div>
+      </div>
 
-      {/* ── Channel grid ──────────────────────────────────────── */}
+      {/* ── Channel grid (scrollable) ─────────────────────────── */}
+      <div className="flex-1 min-h-0 overflow-y-auto pb-4 sm:pb-5">
       {isLoading ? (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
             <div
               key={i}
@@ -561,18 +598,86 @@ export default function ChannelsPage() {
             No channels match your search
           </p>
         </div>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {filteredChannels.map((channel: any) => (
             <ChannelCard key={channel.id} channel={channel} />
           ))}
         </motion.div>
+      ) : (
+        /* List view */
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="flex flex-col gap-2"
+        >
+          {filteredChannels.map((channel: any) => {
+            const zoneCount   = channel.zone_count ?? channel.zones?.length ?? 0
+            const playerCount = channel.player_count ?? 0
+            const w           = channel.layout?.width  ?? 1920
+            const h           = channel.layout?.height ?? 1080
+            const orient      = channel.layout?.orientation
+              ? channel.layout.orientation.charAt(0).toUpperCase() + channel.layout.orientation.slice(1)
+              : 'Landscape'
+
+            return (
+              <motion.div
+                key={channel.id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-xl cursor-pointer transition-colors hover:bg-sky-50/50"
+                style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+                onClick={() => router.push(`/channels/${channel.id}/studio`)}
+              >
+                {/* Zone preview thumbnail */}
+                <div
+                  className="flex-shrink-0 w-12 h-8 sm:w-16 sm:h-10 rounded-lg overflow-hidden p-1"
+                  style={{ backgroundColor: '#e0f2fe' }}
+                >
+                  <ZoneLayoutPreview channel={channel} />
+                </div>
+
+                {/* Name + resolution */}
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold truncate" style={{ color: '#0c4a6e' }}>
+                    {channel.name}
+                  </h3>
+                  <p className="text-xs" style={{ color: '#0369a1' }}>
+                    {w}x{h} · {orient}
+                  </p>
+                </div>
+
+                {/* Status */}
+                <StatusBadge status={channel.status} />
+
+                {/* Stats - hidden on mobile */}
+                <div className="hidden sm:flex items-center gap-4 flex-shrink-0">
+                  <div className="flex items-center gap-1">
+                    <LayoutGrid className="h-3.5 w-3.5" style={{ color: '#0369a1' }} />
+                    <span className="text-xs" style={{ color: '#0369a1' }}>{zoneCount}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Monitor className="h-3.5 w-3.5" style={{ color: '#0369a1' }} />
+                    <span className="text-xs" style={{ color: '#0369a1' }}>{playerCount}</span>
+                  </div>
+                </div>
+
+                {/* Date - hidden on mobile */}
+                <span className="hidden md:block text-xs flex-shrink-0" style={{ color: '#0369a1' }}>
+                  {formatDate(channel.updated_at)}
+                </span>
+              </motion.div>
+            )
+          })}
+        </motion.div>
       )}
+      </div>
     </div>
   )
 }

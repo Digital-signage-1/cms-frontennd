@@ -260,7 +260,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <div style={{ backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+    <div className="flex flex-col h-full" style={{ backgroundColor: '#f0f9ff' }}>
+
+      {/* ── Fixed Header: Hero + Mobile Nav ── */}
+      <div className="flex-shrink-0">
 
       {/* ── Slim hero banner ── */}
       <div className="page-container pt-4 sm:pt-5">
@@ -314,6 +317,11 @@ export default function SettingsPage() {
           })}
         </div>
       </div>
+
+      </div>{/* end fixed header */}
+
+      {/* ── Scrollable content ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
 
       {/* ── Two-column layout (desktop) / stacked (mobile) ── */}
       <div className="page-container py-4 flex flex-col md:flex-row gap-4 items-start">
@@ -451,7 +459,7 @@ export default function SettingsPage() {
 
                 <div className="space-y-4">
                   {/* Org Name + Timezone */}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label style={LABEL_STYLE}>Organization Name</label>
                       <input
@@ -495,7 +503,7 @@ export default function SettingsPage() {
               <div style={SECTION_CARD}>
                 <SectionHeader Icon={AlertTriangle} title="Danger Zone" subtitle="Irreversible account actions" danger />
 
-                <div className="flex items-start justify-between">
+                <div className="flex flex-col sm:flex-row items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold mb-1" style={{ color: '#DC2626' }}>
                       Delete Account
@@ -506,7 +514,7 @@ export default function SettingsPage() {
                   </div>
                   <button
                     onClick={() => setShowDeleteDialog(true)}
-                    className="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold ml-6"
+                    className="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-semibold"
                     style={{
                       backgroundColor: 'rgba(220,38,38,0.12)',
                       color: '#F87171',
@@ -696,7 +704,7 @@ export default function SettingsPage() {
                     <p className="text-xs" style={{ color: '#0369a1' }}>per month</p>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 mb-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-5">
                   {['Up to 5 screens', '1GB storage', 'Basic templates', 'Email support'].map((f) => (
                     <div key={f} className="flex items-center gap-2 text-sm" style={{ color: '#0369a1' }}>
                       <CheckCircle2 className="h-4 w-4 flex-shrink-0" style={{ color: '#34D399' }} />
@@ -733,7 +741,7 @@ export default function SettingsPage() {
                       onBlur={(e)  => (e.currentTarget.style.borderColor = '#bae6fd')}
                     />
                   </div>
-                  <div style={{ width: 140 }}>
+                  <div className="w-full sm:w-[140px]">
                     <label style={LABEL_STYLE}>Role</label>
                     <Select
                       value={inviteForm.role}
@@ -841,6 +849,8 @@ export default function SettingsPage() {
 
         </div>
       </div>
+
+      </div>{/* end scrollable content */}
 
       {/* ── Delete Account Confirmation Dialog ── */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

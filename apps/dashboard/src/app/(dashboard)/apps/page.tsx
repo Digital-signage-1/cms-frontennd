@@ -268,10 +268,10 @@ export default function AppsPage() {
   }
 
   return (
-    <div style={{ backgroundColor: '#f0f9ff', minHeight: '100vh' }}>
+    <div className="flex flex-col h-full" style={{ backgroundColor: '#f0f9ff' }}>
 
-      {/* ── Sticky Header: Hero + Stats + Toolbar ── */}
-      <div className="sticky top-0 z-20" style={{ backgroundColor: '#f0f9ff' }}>
+      {/* ── Fixed Header: Hero + Stats + Toolbar ── */}
+      <div className="flex-shrink-0" style={{ backgroundColor: '#f0f9ff' }}>
 
         {/* Hero banner — compact 2-row layout */}
         <div className="page-container pt-3 pb-2">
@@ -312,7 +312,7 @@ export default function AppsPage() {
               </div>
 
               {/* Stat cards row */}
-              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 {[
                   { label: 'Total Apps', value: stats.total, color: '#0ea5e9', emoji: '📦' },
                   { label: 'Active', value: stats.active, color: '#34D399', dot: '#22C55E' },
@@ -371,7 +371,7 @@ export default function AppsPage() {
         </div>
 
         {/* Divider */}
-        <div className="w-px h-5 flex-shrink-0" style={{ backgroundColor: '#bae6fd' }} />
+        <div className="hidden sm:block w-px h-5 flex-shrink-0" style={{ backgroundColor: '#bae6fd' }} />
 
         {/* Category tabs */}
         <div className="flex items-center gap-1">
@@ -405,7 +405,7 @@ export default function AppsPage() {
               placeholder="Search apps..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 text-sm rounded-lg outline-none w-48"
+              className="pl-9 pr-4 py-2 text-sm rounded-lg outline-none w-full sm:w-48"
               style={{
                 backgroundColor: '#FFFFFF',
                 border: '1px solid #bae6fd',
@@ -437,8 +437,8 @@ export default function AppsPage() {
 
       </div>{/* end sticky header */}
 
-      {/* ── App grid ── */}
-      <div className="page-container pb-5">
+      {/* ── App grid (scrollable) ── */}
+      <div className="flex-1 min-h-0 overflow-y-auto page-container pb-5">
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
@@ -497,7 +497,7 @@ export default function AppsPage() {
               return (
                 <div
                   key={app.app_id}
-                  className="flex items-center gap-4 px-4 py-3 rounded-xl"
+                  className="flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-xl"
                   style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
                 >
                   <div
@@ -531,12 +531,12 @@ export default function AppsPage() {
                   >
                     {isActive ? 'Active' : isDraft ? 'Draft' : 'Archived'}
                   </span>
-                  <span className="text-xs flex-shrink-0" style={{ color: '#0369a1' }}>
+                  <span className="hidden sm:block text-xs flex-shrink-0" style={{ color: '#0369a1' }}>
                     {playerCount} players
                   </span>
                   <button
                     onClick={() => setPreviewApp(app)}
-                    className="text-xs px-3 py-1.5 rounded-lg font-medium flex-shrink-0 flex items-center gap-1.5"
+                    className="hidden sm:flex text-xs px-3 py-1.5 rounded-lg font-medium flex-shrink-0 items-center gap-1.5"
                     style={{ backgroundColor: 'rgba(14,165,233,0.12)', color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.3)' }}
                   >
                     <Eye className="h-3 w-3" />
