@@ -8,21 +8,39 @@ import { getErrorMessage } from '@/lib/errors'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react'
 
+const expo: [number, number, number, number] = [0.16, 1, 0.3, 1]
+
+const inputBase: React.CSSProperties = {
+  width: '100%', height: 44, borderRadius: 8, paddingLeft: 38, paddingRight: 16,
+  fontSize: 14, outline: 'none', transition: 'border-color 200ms, box-shadow 200ms',
+  backgroundColor: 'rgba(255,255,255,0.025)',
+  border: '1px solid var(--line)',
+  color: 'var(--w1)',
+  boxSizing: 'border-box',
+}
+
+const btnSocial: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+  height: 44, borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+  backgroundColor: 'rgba(255,255,255,0.025)',
+  border: '1px solid rgba(255,255,255,0.055)',
+  color: 'var(--w1)', transition: 'background 200ms, border-color 200ms',
+}
+
 export default function SignInPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [focused, setFocused] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError('')
-
     const formData = new FormData(e.currentTarget)
     const email = formData.get('email') as string
     const password = formData.get('password') as string
-
     try {
       await signIn(email, password)
       router.push('/home')
@@ -32,152 +50,153 @@ export default function SignInPage() {
     }
   }
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      {/* Header */}
-      <div className="mb-7">
-        <h1 className="text-3xl font-bold tracking-tight" style={{ color: '#0c4a6e' }}>Welcome back</h1>
-        <p className="mt-1.5 text-sm" style={{ color: '#0369a1' }}>Sign in to your account to continue</p>
-      </div>
+  const fieldStyle = (field: string): React.CSSProperties => ({
+    ...inputBase,
+    borderColor: focused === field ? 'var(--gold)' : 'var(--line)',
+    boxShadow: focused === field ? '0 0 0 3px var(--gold-g)' : 'none',
+  })
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+  return (
+    <div>
+      {/* Card header */}
+      <motion.div
+        initial={{ y: 8, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.55, ease: expo, delay: 0.34 }}
+        style={{ marginBottom: 24 }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+          <div style={{ flex: 1, height: 1, background: 'var(--line-s)' }} />
+          <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.14em', color: 'var(--gold)', textTransform: 'uppercase' }}>
+            Secure Access
+          </span>
+          <div style={{ flex: 1, height: 1, background: 'var(--line-s)' }} />
+        </div>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: 'var(--w1)', letterSpacing: '-0.02em', marginBottom: 4 }}>
+          Welcome back
+        </h1>
+        <p style={{ fontSize: 13, color: 'var(--w2)' }}>Sign in to your account to continue</p>
+      </motion.div>
+
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {error && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-start gap-3 rounded-lg p-4"
-            style={{ backgroundColor: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.16)' }}
+            style={{
+              display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px',
+              borderRadius: 8, backgroundColor: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.18)',
+            }}
           >
-            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" style={{ color: '#DC2626' }} />
-            <p className="text-sm" style={{ color: '#DC2626' }}>{error}</p>
+            <AlertCircle style={{ width: 15, height: 15, color: '#f87171', flexShrink: 0, marginTop: 1 }} />
+            <p style={{ fontSize: 13, color: '#f87171' }}>{error}</p>
           </motion.div>
         )}
 
         {/* Email */}
-        <div className="space-y-1.5">
-          <label htmlFor="email" className="block text-sm font-medium" style={{ color: '#0c4a6e' }}>
+        <motion.div
+          initial={{ y: 8, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.55, ease: expo, delay: 0.46 }}
+        >
+          <label htmlFor="email" style={{ fontSize: 12, fontWeight: 500, color: 'var(--w2)', display: 'block', marginBottom: 6 }}>
             Email
           </label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6b7280' }} />
+          <div style={{ position: 'relative' }}>
+            <Mail style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: focused === 'email' ? 'var(--gold)' : 'var(--w3)', transition: 'color 200ms' }} />
             <input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="you@company.com"
-              required
-              autoComplete="email"
-              className="w-full h-12 rounded-lg pl-10 pr-4 text-sm outline-none transition-all focus:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
-              style={{
-                backgroundColor: '#e0f2fe',
-                border: '1px solid #bae6fd',
-                color: '#0c4a6e',
-              }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.backgroundColor = '#FFFFFF' }}
-              onBlur={e => { e.currentTarget.style.borderColor = '#bae6fd'; e.currentTarget.style.backgroundColor = '#e0f2fe' }}
+              id="email" name="email" type="email"
+              placeholder="you@company.com" required autoComplete="email"
+              style={fieldStyle('email')}
+              onFocus={() => setFocused('email')}
+              onBlur={() => setFocused(null)}
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Password */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label htmlFor="password" className="block text-sm font-medium" style={{ color: '#0c4a6e' }}>
+        <motion.div
+          initial={{ y: 8, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.55, ease: expo, delay: 0.525 }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <label htmlFor="password" style={{ fontSize: 12, fontWeight: 500, color: 'var(--w2)' }}>
               Password
             </label>
             <Link
               href="/forgot-password"
-              className="text-sm font-medium transition-colors"
-              style={{ color: '#0ea5e9' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0284c7' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#0ea5e9' }}
+              style={{ fontSize: 12, color: 'var(--gold-h)', textDecoration: 'none', transition: 'opacity 200ms' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.75' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
             >
               Forgot?
             </Link>
           </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6b7280' }} />
+          <div style={{ position: 'relative' }}>
+            <Lock style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: focused === 'password' ? 'var(--gold)' : 'var(--w3)', transition: 'color 200ms' }} />
             <input
-              id="password"
-              name="password"
+              id="password" name="password"
               type={showPassword ? 'text' : 'password'}
-              placeholder="••••••••••"
-              required
-              autoComplete="current-password"
-              className="w-full h-12 rounded-lg pl-10 pr-10 text-sm outline-none transition-all focus:shadow-[0_0_0_3px_rgba(14,165,233,0.12)]"
-              style={{
-                backgroundColor: '#e0f2fe',
-                border: '1px solid #bae6fd',
-                color: '#0c4a6e',
-              }}
-              onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.backgroundColor = '#FFFFFF' }}
-              onBlur={e => { e.currentTarget.style.borderColor = '#bae6fd'; e.currentTarget.style.backgroundColor = '#e0f2fe' }}
+              placeholder="••••••••••" required autoComplete="current-password"
+              style={{ ...fieldStyle('password'), paddingRight: 40 }}
+              onFocus={() => setFocused('password')}
+              onBlur={() => setFocused(null)}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
-              style={{ color: '#6b7280' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0891B2' }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#6b7280' }}
+              style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--w3)', padding: 0, display: 'flex' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--w2)' }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--w3)' }}
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? <EyeOff style={{ width: 15, height: 15 }} /> : <Eye style={{ width: 15, height: 15 }} />}
             </button>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Sign In Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full h-12 rounded-lg font-semibold text-sm text-white transition-all disabled:opacity-60 mt-1 active:scale-[0.98]"
-          style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }}
-          onMouseEnter={e => { if (!loading) (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 14px rgba(14,165,233,0.35)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.boxShadow = 'none' }}
+        {/* Sign in button */}
+        <motion.div
+          initial={{ y: 8, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.55, ease: expo, delay: 0.60 }}
         >
-          {loading ? (
-            <span className="flex items-center justify-center gap-2">
-              <span
-                className="w-4 h-4 rounded-full animate-spin"
-                style={{ border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff' }}
-              />
-              Signing in...
-            </span>
-          ) : (
-            'Sign in'
-          )}
-        </button>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: '100%', height: 44, borderRadius: 8, fontWeight: 600, fontSize: 14,
+              background: 'var(--gold)', color: '#0B0B0D', cursor: loading ? 'not-allowed' : 'pointer',
+              border: 'none', transition: 'background 200ms, box-shadow 200ms, transform 150ms',
+              opacity: loading ? 0.65 : 1,
+            }}
+            onMouseEnter={e => { if (!loading) { const el = e.currentTarget as HTMLElement; el.style.background = 'var(--gold-h)'; el.style.boxShadow = '0 4px 16px var(--gold-g), 0 2px 6px rgba(0,0,0,0.3)'; el.style.transform = 'translateY(-1px)' } }}
+            onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'var(--gold)'; el.style.boxShadow = 'none'; el.style.transform = 'none' }}
+          >
+            {loading ? (
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                <span style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(11,11,13,0.3)', borderTopColor: '#0B0B0D', animation: 'spin 0.8s linear infinite', display: 'inline-block' }} />
+                Signing in...
+              </span>
+            ) : 'Sign in'}
+          </button>
+        </motion.div>
       </form>
 
-      {/* Divider */}
-      <div className="relative my-7">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t" style={{ borderColor: '#bae6fd' }} />
-        </div>
-        <div className="relative flex justify-center">
-          <span
-            className="px-4 text-xs uppercase tracking-widest font-medium"
-            style={{ backgroundColor: '#FFFFFF', color: '#6b7280' }}
-          >
-            or
-          </span>
-        </div>
+      {/* OR divider */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
+        <div style={{ flex: 1, height: 1, background: 'var(--line-s)' }} />
+        <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', color: 'var(--w3)', textTransform: 'uppercase' }}>or</span>
+        <div style={{ flex: 1, height: 1, background: 'var(--line-s)' }} />
       </div>
 
-      {/* Social Buttons */}
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          type="button"
-          className="flex items-center justify-center gap-2.5 h-12 rounded-lg text-sm font-medium transition-all"
-          style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#0c4a6e' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.borderColor = '#7dd3fc' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd' }}
+      {/* Social buttons */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+        <button type="button" style={btnSocial}
+          onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'rgba(255,255,255,0.05)'; el.style.borderColor = 'rgba(255,255,255,0.1)' }}
+          onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'rgba(255,255,255,0.025)'; el.style.borderColor = 'rgba(255,255,255,0.055)' }}
         >
-          <svg className="h-4 w-4" viewBox="0 0 24 24">
+          <svg width="16" height="16" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
@@ -185,33 +204,29 @@ export default function SignInPage() {
           </svg>
           Google
         </button>
-        <button
-          type="button"
-          className="flex items-center justify-center gap-2.5 h-12 rounded-lg text-sm font-medium transition-all"
-          style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#0c4a6e' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.borderColor = '#7dd3fc' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.borderColor = '#bae6fd' }}
+        <button type="button" style={btnSocial}
+          onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'rgba(255,255,255,0.05)'; el.style.borderColor = 'rgba(255,255,255,0.1)' }}
+          onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.backgroundColor = 'rgba(255,255,255,0.025)'; el.style.borderColor = 'rgba(255,255,255,0.055)' }}
         >
-          <svg className="h-4 w-4" fill="#0c4a6e" viewBox="0 0 24 24">
+          <svg width="16" height="16" fill="var(--w1)" viewBox="0 0 24 24">
             <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701" />
           </svg>
           Apple
         </button>
       </div>
 
-      {/* Sign Up Link */}
-      <p className="mt-7 text-center text-sm" style={{ color: '#0369a1' }}>
+      {/* Sign up link */}
+      <p style={{ marginTop: 20, textAlign: 'center', fontSize: 13, color: 'var(--w3)' }}>
         Don&apos;t have an account?{' '}
         <Link
           href="/sign-up"
-          className="font-semibold transition-colors"
-          style={{ color: '#0ea5e9' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#0284c7' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#0ea5e9' }}
+          style={{ color: 'var(--gold-h)', fontWeight: 500, textDecoration: 'none', transition: 'opacity 200ms' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.75' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
         >
-          Sign up
+          Sign up free
         </Link>
       </p>
-    </motion.div>
+    </div>
   )
 }

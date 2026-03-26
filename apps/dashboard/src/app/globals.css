@@ -7,6 +7,7 @@
   /* Typography */
   --font-sans: var(--font-inter, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
   --font-mono: var(--font-jetbrains-mono, "JetBrains Mono", "SF Mono", monospace);
+  --font-plus-jakarta: "Plus Jakarta Sans", sans-serif;
 
   /* Layout System - 4px Base Unit */
   --space-1: 0.25rem;
@@ -193,6 +194,27 @@
   }
 }
 
+/* ── Auth Dark Design System tokens ── */
+.auth-root {
+  --bg: #6c5c5d;
+  --panel: #c7c7c7;
+  --card: #18181C;
+  --line: rgba(255,255,255,0.15);
+  --line-s: rgba(255,255,255,0.08);
+  --gold: #C07C10;
+  --gold-h: #D99224;
+  --gold-g: rgba(192,124,16,0.18);
+  --gold-gl: rgba(192,124,16,0.40);
+  --w1: #ffffff;
+  --w2: rgba(255,255,255,0.80);
+  --w3: rgba(255,255,255,0.50);
+  --ok: #3DBF7A;
+  --r: 10px;
+  background: #6c5c5d;
+  min-height: 100vh;
+  width: 100%;
+}
+
 @layer components {
   /* ── Glass Effects ── */
   .glass-light {
@@ -337,6 +359,16 @@
   }
 
   /* ── Animations ── */
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
   @keyframes shimmer {
     0%   { background-position: -1000px 0; }
     100% { background-position: 1000px 0; }
