@@ -40,6 +40,8 @@ export class PlayerEngine {
   private startTime: number = Date.now()
   private integrationDataCache: IntegrationDataCache = {}
   private integrationDataListeners: Map<string, Set<(data: Record<string, unknown>) => void>> = new Map()
+  private playbackBuffer: Array<Record<string, unknown>> = []
+  private playbackFlushInterval: ReturnType<typeof setInterval> | null = null
 
   constructor(deviceManager: DeviceManager) {
     this.deviceManager = deviceManager
@@ -54,9 +56,32 @@ export class PlayerEngine {
 
       const raw = await response.json()
       this.currentManifest = this.normalizeManifest(raw)
+      try {
+        if (typeof localStorage !== 'undefined' && this.currentManifest?.channel?.channel_id) {
+          localStorage.setItem(
+            `signage_manifest_${this.currentManifest.channel.channel_id}`,
+            JSON.stringify(this.currentManifest),
+          )
+          localStorage.setItem('signage_manifest_last', JSON.stringify(this.currentManifest))
+        }
+      } catch {
+        /* ignore */
+      }
       return this.currentManifest
     } catch (err) {
       console.error('Failed to load channel:', err)
+      try {
+        if (typeof localStorage !== 'undefined') {
+          const last = localStorage.getItem('signage_manifest_last')
+          if (last) {
+            const parsed = JSON.parse(last) as Record<string, unknown>
+            this.currentManifest = this.normalizeManifest(parsed)
+            return this.currentManifest
+          }
+        }
+      } catch {
+        /* ignore */
+      }
       return this.getMockManifest()
     }
   }
@@ -159,6 +184,11 @@ export class PlayerEngine {
     this.commandsPollInterval = setInterval(() => {
       this.pollCommands()
     }, COMMANDS_POLL_INTERVAL)
+
+    void this.flushPlayback()
+    this.playbackFlushInterval = setInterval(() => {
+      void this.flushPlayback()
+    }, 45000)
   }
 
   stopHeartbeat(): void {
@@ -170,6 +200,11 @@ export class PlayerEngine {
       clearInterval(this.commandsPollInterval)
       this.commandsPollInterval = null
     }
+    if (this.playbackFlushInterval) {
+      clearInterval(this.playbackFlushInterval)
+      this.playbackFlushInterval = null
+    }
+    void this.flushPlayback()
     this.stopAllIntegrationDataFetches()
   }
 
@@ -288,6 +323,34 @@ export class PlayerEngine {
     const commands = await this.fetchPendingCommands()
     for (const cmd of commands) {
       await this.executeCommand(cmd)
+    }
+  }
+
+  enqueuePlayback(event: Record<string, unknown>): void {
+    this.playbackBuffer.push(event)
+    if (this.playbackBuffer.length >= 25) {
+      void this.flushPlayback()
+    }
+  }
+
+  private async flushPlayback(): Promise<void> {
+    if (this.playbackBuffer.length === 0) return
+    const playerId = this.deviceManager.getPlayerId()
+    const deviceToken = this.deviceManager.getDeviceToken()
+    if (!playerId || !deviceToken) return
+    const events = this.playbackBuffer.splice(0, this.playbackBuffer.length)
+    try {
+      await fetch(`${API_BASE_URL}/players/${playerId}/playback-events`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Device-Token': deviceToken,
+        },
+        body: JSON.stringify({ events }),
+      })
+    } catch (err) {
+      console.error('Failed to send playback events:', err)
+      this.playbackBuffer.unshift(...events)
     }
   }
 

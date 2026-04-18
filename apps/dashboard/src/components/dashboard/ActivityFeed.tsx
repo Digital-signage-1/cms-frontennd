@@ -10,9 +10,9 @@ interface ActivityItem {
 
 const TYPE_COLORS: Record<ActivityItem['type'], string> = {
   player: '#059669',   // green
-  channel: '#0ea5e9',  // cyan
+  channel: 'var(--color-primary)',  // cyan
   schedule: '#D97706', // amber
-  content: '#06B6D4',  // sky-blue
+  content: 'var(--color-primary)',  // sky-blue
 }
 
 function formatTimeAgo(date: Date): string {
@@ -32,7 +32,7 @@ export function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
   if (activities.length === 0) {
     return (
       <div className="py-8 text-center">
-        <p className="text-sm" style={{ color: '#6b7280' }}>No recent activity</p>
+        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>No recent activity</p>
       </div>
     )
   }
@@ -57,12 +57,12 @@ export function ActivityFeed({ activities }: { activities: ActivityItem[] }) {
 
             {/* Message + timestamp */}
             <div className="flex-1 min-w-0 flex items-start justify-between gap-3">
-              <p className="text-sm leading-snug" style={{ color: '#0c4a6e' }}>
+              <p className="text-sm leading-snug" style={{ color: 'var(--color-text-primary)' }}>
                 {activity.message}
               </p>
               <span
                 className="text-xs flex-shrink-0 mt-0.5"
-                style={{ color: '#6b7280' }}
+                style={{ color: 'var(--color-text-muted)' }}
               >
                 {formatTimeAgo(activity.timestamp)}
               </span>

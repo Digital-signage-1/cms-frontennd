@@ -265,7 +265,7 @@ export function ZoneBuilder({
                   isDropTarget && !isDragOver && !isRecentDrop &&
                     'border-dashed border-primary/60 animate-pulse',
                   isDragOver &&
-                    '!border-solid !border-primary !bg-primary/15 ring-2 ring-primary/40 ring-offset-1 ring-offset-white shadow-[0_0_20px_rgba(14,165,233,0.25)] scale-[1.01]',
+                    '!border-solid !border-primary !bg-primary/15 ring-2 ring-primary/40 ring-offset-1 ring-offset-background shadow-[0_0_20px_color-mix(in srgb, var(--color-primary) 25%, transparent)] scale-[1.01]',
                   isRecentDrop &&
                     '!border-success !bg-success/15 ring-2 ring-success/40',
                 )}

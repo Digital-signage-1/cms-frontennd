@@ -69,8 +69,8 @@ function ContentLibraryCard({
     dragEl.style.transform = 'rotate(2deg)'
     dragEl.style.position = 'absolute'
     dragEl.style.top = '-9999px'
-    dragEl.style.borderColor = '#0ea5e9'
-    dragEl.style.boxShadow = '0 8px 25px rgba(14,165,233,0.3)'
+    dragEl.style.borderColor = 'var(--color-primary)'
+    dragEl.style.boxShadow = '0 8px 25px color-mix(in srgb, var(--color-primary) 30%, transparent)'
     document.body.appendChild(dragEl)
     e.dataTransfer.setDragImage(dragEl, 110, 30)
     setTimeout(() => document.body.removeChild(dragEl), 0)

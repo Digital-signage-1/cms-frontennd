@@ -80,7 +80,6 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile backdrop */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -88,8 +87,7 @@ export function Sidebar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-30 md:hidden"
-            style={{ backgroundColor: 'rgba(12,74,110,0.35)', backdropFilter: 'blur(4px)' }}
+            className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:hidden"
             onClick={closeMobile}
             aria-hidden="true"
           />
@@ -100,27 +98,15 @@ export function Sidebar() {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className={cn(
-          'fixed left-0 top-0 z-40 flex h-screen flex-col border-r transition-all duration-300 ease-in-out',
+          'fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-border bg-surface transition-all duration-300 ease-in-out',
           'md:translate-x-0',
           mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
           actualExpanded ? 'w-[240px]' : 'md:w-[56px] w-[240px]'
         )}
-        style={{
-          backgroundColor: '#FFFFFF',
-          borderColor: '#bae6fd',
-          boxShadow: '1px 0 0 0 #bae6fd',
-        }}
       >
-        {/* Logo */}
-        <div
-          className="flex h-14 items-center px-4 transition-all"
-          style={{ borderBottom: '1px solid #e0f2fe' }}
-        >
-          <Link href="/home" className="flex items-center gap-3 overflow-hidden flex-1" onClick={closeMobile}>
-            <div
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-              style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }}
-            >
+        <div className="flex h-14 items-center border-b border-border-subtle px-4 transition-all">
+          <Link href="/home" className="flex flex-1 items-center gap-3 overflow-hidden" onClick={closeMobile}>
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary">
               <span className="text-sm font-bold text-white">S</span>
             </div>
             <AnimatePresence>
@@ -132,31 +118,26 @@ export function Sidebar() {
                   transition={{ duration: 0.2 }}
                   className="overflow-hidden"
                 >
-                  <p className="text-base font-bold leading-none whitespace-nowrap" style={{ color: '#0c4a6e' }}>
+                  <p className="whitespace-nowrap text-base font-bold leading-none text-text-primary">
                     Studio
                   </p>
-                  <p className="text-xs whitespace-nowrap mt-0.5" style={{ color: '#6b7280' }}>
+                  <p className="mt-0.5 whitespace-nowrap text-xs text-text-muted">
                     {planLabel}
                   </p>
                 </motion.div>
               )}
             </AnimatePresence>
           </Link>
-          {/* Mobile close button */}
           <button
             onClick={closeMobile}
-            className="md:hidden flex items-center justify-center h-8 w-8 rounded-lg ml-1 flex-shrink-0 transition-colors"
-            style={{ color: '#6b7280' }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.color = '#0284c7' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#6b7280' }}
+            className="ml-1 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary md:hidden"
             aria-label="Close navigation menu"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Main navigation */}
-        <nav className="flex-1 space-y-0.5 py-4 px-2 overflow-y-auto">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto px-2 py-4">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
             const Icon = item.icon
@@ -170,31 +151,12 @@ export function Sidebar() {
               >
                 <div
                   className={cn(
-                    'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all relative cursor-pointer',
+                    'group relative flex cursor-pointer items-center gap-3 rounded-full px-3 py-2.5 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-nav-active text-text-primary'
+                      : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
                   )}
-                  style={{
-                    backgroundColor: isActive ? 'rgba(14,165,233,0.08)' : 'transparent',
-                    color: isActive ? '#0ea5e9' : '#0369a1',
-                  }}
-                  onMouseEnter={e => {
-                    if (!isActive) {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'
-                      ;(e.currentTarget as HTMLElement).style.color = '#0c4a6e'
-                    }
-                  }}
-                  onMouseLeave={e => {
-                    if (!isActive) {
-                      (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
-                      ;(e.currentTarget as HTMLElement).style.color = '#0369a1'
-                    }
-                  }}
                 >
-                  {isActive && (
-                    <div
-                      className="absolute left-0 top-1 bottom-1 w-0.5 rounded-r-full"
-                      style={{ background: 'linear-gradient(to bottom, #0ea5e9, #06b6d4)' }}
-                    />
-                  )}
                   <Icon className="h-4 w-4 shrink-0 transition-colors" />
                   <AnimatePresence>
                     {(actualExpanded || mobileOpen) && (
@@ -203,17 +165,14 @@ export function Sidebar() {
                         animate={{ opacity: 1, width: 'auto' }}
                         exit={{ opacity: 0, width: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="whitespace-nowrap flex-1"
+                        className="flex-1 whitespace-nowrap"
                       >
                         {item.label}
                       </motion.span>
                     )}
                   </AnimatePresence>
                   {(actualExpanded || mobileOpen) && item.badge !== undefined && (
-                    <span
-                      className="ml-auto text-xs font-semibold px-1.5 py-0.5 rounded-full leading-none text-white"
-                      style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)', minWidth: '18px', textAlign: 'center' }}
-                    >
+                    <span className="ml-auto min-w-[18px] rounded-full bg-primary px-1.5 py-0.5 text-center text-xs font-semibold leading-none text-white">
                       {item.badge}
                     </span>
                   )}
@@ -223,9 +182,8 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* Bottom nav + user profile */}
-        <div className="px-2 pb-2" style={{ borderTop: '1px solid #e0f2fe' }}>
-          <div className="space-y-0.5 py-3">
+        <div className="px-2 pb-2">
+          <div className="space-y-0.5 border-t border-border-subtle py-3">
             {BOTTOM_NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href
               const Icon = item.icon
@@ -237,23 +195,12 @@ export function Sidebar() {
                   onClick={closeMobile}
                 >
                   <div
-                    className="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all cursor-pointer"
-                    style={{
-                      backgroundColor: isActive ? 'rgba(14,165,233,0.08)' : 'transparent',
-                      color: isActive ? '#0ea5e9' : '#0369a1',
-                    }}
-                    onMouseEnter={e => {
-                      if (!isActive) {
-                        (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'
-                        ;(e.currentTarget as HTMLElement).style.color = '#0c4a6e'
-                      }
-                    }}
-                    onMouseLeave={e => {
-                      if (!isActive) {
-                        (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
-                        ;(e.currentTarget as HTMLElement).style.color = '#0369a1'
-                      }
-                    }}
+                    className={cn(
+                      'group flex cursor-pointer items-center gap-3 rounded-full px-3 py-2.5 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-nav-active text-text-primary'
+                        : 'text-text-secondary hover:bg-surface-hover hover:text-text-primary'
+                    )}
                   >
                     <Icon className="h-4 w-4 shrink-0 transition-colors" />
                     <AnimatePresence>
@@ -340,15 +287,8 @@ export function Sidebar() {
             </button>
           </div>
 
-          {/* User profile */}
-          <div
-            className="flex items-center gap-3 rounded-lg px-2 py-2.5"
-            style={{ borderTop: '1px solid #e0f2fe' }}
-          >
-            <div
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
-              style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }}
-            >
+          <div className="flex items-center gap-3 rounded-xl border-t border-border-subtle px-2 py-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
               {userInitials}
             </div>
             <AnimatePresence>
@@ -358,12 +298,12 @@ export function Sidebar() {
                   animate={{ opacity: 1, width: 'auto' }}
                   exit={{ opacity: 0, width: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="overflow-hidden min-w-0 flex-1"
+                  className="min-w-0 flex-1 overflow-hidden"
                 >
-                  <p className="text-sm font-medium whitespace-nowrap truncate leading-none" style={{ color: '#0c4a6e' }}>
+                  <p className="truncate whitespace-nowrap text-sm font-medium leading-none text-text-primary">
                     {userDisplayName}
                   </p>
-                  <p className="text-xs whitespace-nowrap truncate mt-0.5" style={{ color: '#6b7280' }}>
+                  <p className="mt-0.5 truncate whitespace-nowrap text-xs text-text-muted">
                     {userEmail}
                   </p>
                 </motion.div>

@@ -31,15 +31,22 @@ export function useIntegrationAppData(
   const rawResourceId = mapping ? (config[mapping.configKey] as string) : undefined
   const compositePrefix = mapping?.compositeKey ? (config[mapping.compositeKey] as string) : undefined
   const appIdSuffix = mapping?.needsAppId ? appId : undefined
-  const resourceId =
-    rawResourceId && compositePrefix
-      ? `${compositePrefix}/${rawResourceId}${appIdSuffix ? '/' + appIdSuffix : ''}`
-      : rawResourceId
+  let resourceId: string | undefined
+  if (rawResourceId && mapping?.appendAppIdWithoutComposite && appIdSuffix) {
+    resourceId = `${rawResourceId}/${appIdSuffix}`
+  } else if (rawResourceId && compositePrefix) {
+    resourceId = `${compositePrefix}/${rawResourceId}${appIdSuffix ? '/' + appIdSuffix : ''}`
+  } else {
+    resourceId = rawResourceId
+  }
   const resourceType = mapping?.resourceType
-  const refreshInterval =
-    (config.refresh_interval as number | undefined)
-      ? (config.refresh_interval as number) * 1000
+  let refreshIntervalMs =
+    (config.refresh_interval as number | undefined) != null
+      ? Number(config.refresh_interval) * 1000
       : mapping?.defaultRefreshMs
+  if (templateType === 'canva' && config.refresh_interval != null) {
+    refreshIntervalMs = Math.max(60_000, Number(config.refresh_interval) * 60_000)
+  }
 
   useEffect(() => {
     if (!fetcher || !mapping || !integrationId || !resourceId || !resourceType) return
@@ -48,7 +55,7 @@ export function useIntegrationAppData(
     setError(null)
 
     fetcher
-      .startFetch(integrationId, resourceId, resourceType, refreshInterval, stableOnData)
+      .startFetch(integrationId, resourceId, resourceType, refreshIntervalMs, stableOnData)
       .then((initial) => {
         if (initial) {
           setData(initial)
@@ -63,7 +70,7 @@ export function useIntegrationAppData(
     return () => {
       fetcher.stopFetch(integrationId, resourceId, resourceType, stableOnData)
     }
-  }, [fetcher, integrationId, resourceId, resourceType, refreshInterval, stableOnData, mapping])
+  }, [fetcher, integrationId, resourceId, resourceType, refreshIntervalMs, stableOnData, mapping])
 
   return { data, loading, error }
 }

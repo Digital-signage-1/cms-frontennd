@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowLeft, Check, ExternalLink, Loader2, Search, X } from 'lucide-react'
 import type { CredentialField, IntegrationProvider } from '@signage/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Select } from '@/components/ui/select'
 import { GoogleOAuthButton } from './GoogleOAuthButton'
 import { MicrosoftOAuthButton } from './MicrosoftOAuthButton'
 import {
@@ -18,6 +20,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   google: 'Google',
   analytics: 'Analytics',
   communication: 'Communication',
+  crm: 'CRM',
   data: 'Data',
   social: 'Social',
 }
@@ -111,6 +114,19 @@ const PROVIDER_ICONS: Record<string, React.ReactNode> = {
       <path d="M9 8.5a1.5 1.5 0 1 1-3 0v-1a1.5 1.5 0 0 1 3 0M14 8.5V7a1.5 1.5 0 0 1 3 0v1.5M14 15.5a1.5 1.5 0 0 1 3 0v1a1.5 1.5 0 0 1-3 0M9 15.5v1a1.5 1.5 0 0 1-3 0v-1.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   ),
+  salesforce_v2: (
+    <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none">
+      <rect width="24" height="24" rx="4" fill="#00A1E0" />
+      <path
+        d="M8 16c0-2 1.5-3.5 3.5-3.5S15 14 15 16"
+        stroke="white"
+        strokeWidth="1.5"
+        fill="none"
+      />
+      <circle cx="10" cy="10" r="1.2" fill="white" />
+      <circle cx="14" cy="10" r="1.2" fill="white" />
+    </svg>
+  ),
 }
 
 function ProviderIcon({ provider }: { provider: string }) {
@@ -136,6 +152,21 @@ function CredentialForm({ provider, workspaceId, onSuccess, onBack }: Credential
   const [values, setValues] = useState<Record<string, string>>({})
   const [errors, setErrors] = useState<Record<string, string>>({})
   const connect = useConnectWithCredentials()
+
+  useEffect(() => {
+    setValues((prev) => {
+      const next = { ...prev }
+      let changed = false
+      for (const f of provider.credential_fields) {
+        if (next[f.name] !== undefined && next[f.name] !== '') continue
+        if (f.type === 'select' && f.options && f.options.length > 0) {
+          next[f.name] = f.options[0].value
+          changed = true
+        }
+      }
+      return changed ? next : prev
+    })
+  }, [provider.provider])
 
   const validate = () => {
     const newErrors: Record<string, string> = {}
@@ -179,17 +210,42 @@ function CredentialForm({ provider, workspaceId, onSuccess, onBack }: Credential
             {f.label}
             {f.required && <span className="text-red-400 ml-0.5">*</span>}
           </Label>
-          <Input
-            id={f.name}
-            type={f.type === 'password' ? 'password' : f.type === 'url' ? 'url' : 'text'}
-            placeholder={f.placeholder}
-            value={values[f.name] ?? ''}
-            onChange={(e) => {
-              setValues((v) => ({ ...v, [f.name]: e.target.value }))
-              if (errors[f.name]) setErrors((e) => ({ ...e, [f.name]: '' }))
-            }}
-            className={errors[f.name] ? 'border-red-500/50' : ''}
-          />
+          {f.type === 'select' && f.options && f.options.length > 0 ? (
+            <Select
+              id={f.name}
+              value={values[f.name] ?? f.options[0].value}
+              onValueChange={(val) => {
+                setValues((v) => ({ ...v, [f.name]: val }))
+                if (errors[f.name]) setErrors((e) => ({ ...e, [f.name]: '' }))
+              }}
+              options={f.options.map((o) => ({ value: o.value, label: o.label }))}
+              placeholder={f.placeholder || 'Select...'}
+              error={!!errors[f.name]}
+            />
+          ) : f.type === 'textarea' ? (
+            <Textarea
+              id={f.name}
+              placeholder={f.placeholder}
+              value={values[f.name] ?? ''}
+              onChange={(e) => {
+                setValues((v) => ({ ...v, [f.name]: e.target.value }))
+                if (errors[f.name]) setErrors((e) => ({ ...e, [f.name]: '' }))
+              }}
+              className={`min-h-[120px] font-mono text-xs ${errors[f.name] ? 'border-red-500/50' : ''}`}
+            />
+          ) : (
+            <Input
+              id={f.name}
+              type={f.type === 'password' ? 'password' : f.type === 'url' ? 'url' : 'text'}
+              placeholder={f.placeholder}
+              value={values[f.name] ?? ''}
+              onChange={(e) => {
+                setValues((v) => ({ ...v, [f.name]: e.target.value }))
+                if (errors[f.name]) setErrors((e) => ({ ...e, [f.name]: '' }))
+              }}
+              className={errors[f.name] ? 'border-red-500/50' : ''}
+            />
+          )}
           {f.help_text && !errors[f.name] && (
             <p className="text-xs text-text-muted">{f.help_text}</p>
           )}
@@ -267,11 +323,7 @@ function OAuthConnect({ provider, workspaceId, onBack }: OAuthConnectProps) {
             label="Connect with Microsoft"
           />
         ) : (
-          <GoogleOAuthButton
-            workspaceId={workspaceId}
-            provider={provider.provider}
-            label="Connect with Google"
-          />
+          <GoogleOAuthButton workspaceId={workspaceId} provider={provider.provider} />
         )}
         <Button variant="ghost" size="sm" className="w-full text-text-muted" onClick={onBack}>
           <ArrowLeft className="h-3.5 w-3.5 mr-1" />
@@ -414,6 +466,7 @@ export function AddIntegrationModal({
               />
             ) : (
               <CredentialForm
+                key={selected.provider}
                 provider={selected}
                 workspaceId={workspaceId}
                 onSuccess={handleSuccess}

@@ -42,16 +42,16 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
             padding: '8px 14px',
             backgroundColor: '#FFFFFF',
             borderRadius: '12px 12px 0 0',
-            border: '1px solid #bae6fd',
+            border: '1px solid var(--color-border)',
             borderBottom: 'none',
             width: '100%',
             boxSizing: 'border-box',
-            boxShadow: '0 -4px 16px rgba(14,165,233,0.08)',
+            boxShadow: '0 -4px 16px var(--color-primary-light)',
           }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: '#0c4a6e', margin: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)', margin: 0, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {app.name}
             </p>
-            <span style={{ fontSize: 11, color: '#6b7280', textTransform: 'capitalize', flexShrink: 0 }}>
+            <span style={{ fontSize: 11, color: 'var(--color-text-muted)', textTransform: 'capitalize', flexShrink: 0 }}>
               {app.template_type}
             </span>
 
@@ -61,14 +61,14 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
               title={isLandscape ? 'Switch to portrait' : 'Switch to landscape'}
               style={{
                 width: 28, height: 28, borderRadius: 6,
-                backgroundColor: '#e0f2fe', border: '1px solid #bae6fd',
+                backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', flexShrink: 0,
               }}
             >
               {isLandscape
-                ? <Smartphone style={{ width: 14, height: 14, color: '#0369a1' }} />
-                : <Monitor style={{ width: 14, height: 14, color: '#0369a1' }} />
+                ? <Smartphone style={{ width: 14, height: 14, color: 'var(--color-text-secondary)' }} />
+                : <Monitor style={{ width: 14, height: 14, color: 'var(--color-text-secondary)' }} />
               }
             </button>
 
@@ -78,19 +78,19 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
               onClick={onClose}
               style={{
                 width: 28, height: 28, borderRadius: 6,
-                backgroundColor: '#e0f2fe', border: '1px solid #bae6fd',
+                backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', flexShrink: 0,
               }}
             >
-              <X style={{ width: 14, height: 14, color: '#0369a1' }} />
+              <X style={{ width: 14, height: 14, color: 'var(--color-text-secondary)' }} />
             </button>
           </div>
 
           {/* Screen — the "display" */}
           <div style={{
             backgroundColor: '#000',
-            border: '3px solid #bae6fd',
+            border: '3px solid var(--color-border)',
             borderRadius: '0 0 4px 4px',
             overflow: 'hidden',
             aspectRatio: `${aspectW} / ${aspectH}`,
@@ -99,7 +99,7 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
             maxHeight: '75vh',
             maxWidth: '80vw',
             position: 'relative',
-            boxShadow: '0 8px 40px rgba(14,165,233,0.15)',
+            boxShadow: '0 8px 40px color-mix(in srgb, var(--color-primary) 15%, transparent)',
           }}>
             <div style={{ width: '100%', height: '100%', position: 'relative' }}>
               <IntegrationDataProvider value={integrationFetcher}>
@@ -117,16 +117,16 @@ export function AppPreviewModal({ isOpen, onClose, app, config, contentUrl }: Ap
           <div style={{
             width: 80,
             height: 6,
-            backgroundColor: '#bae6fd',
+            backgroundColor: 'var(--color-border)',
             borderRadius: '0 0 4px 4px',
             marginTop: 0,
           }} />
           <div style={{
             width: 40,
             height: 20,
-            backgroundColor: '#e0f2fe',
+            backgroundColor: 'var(--color-surface-alt)',
             borderRadius: '0 0 6px 6px',
-            border: '1px solid #bae6fd',
+            border: '1px solid var(--color-border)',
             borderTop: 'none',
           }} />
         </div>

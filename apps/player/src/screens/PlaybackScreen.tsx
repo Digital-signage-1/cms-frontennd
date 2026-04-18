@@ -84,7 +84,14 @@ export function PlaybackScreen({ config }: PlaybackScreenProps) {
             console.error(`Zone ${zoneId} error:`, error)
           }}
           onAppChange={(zoneId, appId) => {
-            console.log(`Zone ${zoneId} now showing app ${appId}`)
+            const ch = manifest.channel?.channel_id ?? (manifest as { channel_id?: string }).channel_id
+            engineRef.current?.enqueuePlayback({
+              channel_id: ch,
+              zone_id: zoneId,
+              app_id: appId,
+              duration_seconds: 10,
+              started_at: new Date().toISOString(),
+            })
           }}
         />
       </div>

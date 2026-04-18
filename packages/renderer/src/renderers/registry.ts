@@ -30,6 +30,10 @@ import { GoogleMapsRenderer } from './GoogleMapsRenderer'
 import { LookerStudioRenderer } from './LookerStudioRenderer'
 import { GoogleAlertsRenderer } from './GoogleAlertsRenderer'
 import { PowerBIURLRenderer } from './PowerBIURLRenderer'
+import { EventBoardRenderer } from './EventBoardRenderer'
+import { MenuBoardRenderer } from './MenuBoardRenderer'
+import { RoomDirectoryRenderer } from './RoomDirectoryRenderer'
+import { CanvaRenderer } from './CanvaRenderer'
 
 const PDFRenderer = lazy(() =>
   import('./PDFRenderer').then(mod => ({ default: mod.PDFRenderer }))
@@ -45,6 +49,12 @@ const PowerBIRealtimeReportRenderer = lazy(() =>
 
 const PowerBIDashboardRenderer = lazy(() =>
   import('./PowerBIDashboardRenderer').then(mod => ({ default: mod.PowerBIDashboardRenderer }))
+)
+
+const SalesforceDashboardV2Renderer = lazy(() =>
+  import('./SalesforceDashboardV2Renderer').then(mod => ({
+    default: mod.SalesforceDashboardV2Renderer,
+  }))
 )
 
 export interface RendererProps {
@@ -85,9 +95,15 @@ const registry: Record<string, ComponentType<RendererProps>> = {
   looker_studio: LookerStudioRenderer as ComponentType<RendererProps>,
   google_alerts: GoogleAlertsRenderer as ComponentType<RendererProps>,
   powerbi_report: PowerBIReportRenderer as unknown as ComponentType<RendererProps>,
+  salesforce_dashboard_v2: SalesforceDashboardV2Renderer as unknown as ComponentType<RendererProps>,
+  salesforce_report_v2: SalesforceDashboardV2Renderer as unknown as ComponentType<RendererProps>,
   powerbi_realtime_report: PowerBIRealtimeReportRenderer as unknown as ComponentType<RendererProps>,
   powerbi_dashboard: PowerBIDashboardRenderer as unknown as ComponentType<RendererProps>,
   powerbi_url: PowerBIURLRenderer as ComponentType<RendererProps>,
+  event_board: EventBoardRenderer as ComponentType<RendererProps>,
+  menu_board: MenuBoardRenderer as ComponentType<RendererProps>,
+  room_directory: RoomDirectoryRenderer as ComponentType<RendererProps>,
+  canva: CanvaRenderer as ComponentType<RendererProps>,
 }
 
 export function getRenderer(type: string): ComponentType<RendererProps> | null {

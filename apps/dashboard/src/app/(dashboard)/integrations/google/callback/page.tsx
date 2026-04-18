@@ -35,11 +35,11 @@ export default function GoogleOAuthCallbackPage() {
     hasRun.current = true
 
     const code = searchParams.get('code')
-    const stateParam = searchParams.get('state')
+    const stateParam = searchParams.get('state') ?? ''
     const error = searchParams.get('error')
-    // Provider defaults to google_sheets — doesn't matter much since the backend
-    // creates integrations for ALL google_* providers in one OAuth dance.
-    const provider = searchParams.get('provider') ?? 'google_sheets'
+    const providerFromState = stateParam.includes('::') ? stateParam.split('::')[0] : null
+    const provider =
+      providerFromState || searchParams.get('provider') || 'google_sheets'
 
     if (error) {
       setState('error')
@@ -79,7 +79,7 @@ export default function GoogleOAuthCallbackPage() {
             </div>
             <h2 className="text-xl font-semibold text-text-primary">Connecting...</h2>
             <p className="mt-2 text-sm text-text-muted">
-              Completing authorization with Google. This will only take a moment.
+              Completing authorization. This will only take a moment.
             </p>
           </>
         )}
@@ -91,7 +91,7 @@ export default function GoogleOAuthCallbackPage() {
             </div>
             <h2 className="text-xl font-semibold text-text-primary">Connected!</h2>
             <p className="mt-2 text-sm text-text-muted">
-              Your Google account has been connected successfully.
+              Your account has been connected successfully.
             </p>
             <Button className="mt-6 w-full" onClick={() => router.push('/integrations')}>
               Back to Integrations

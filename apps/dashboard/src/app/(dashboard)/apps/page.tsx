@@ -99,7 +99,7 @@ const TEMPLATE_CONFIG: Record<string, {
   weather: {
     category: 'Data',
     iconBgColor: 'rgba(56,189,248,0.28)',
-    iconColor: '#38BDF8',
+    iconColor: 'var(--color-primary)',
     Icon: Cloud,
     tags: ['Real-time', 'Multi-city', '7-day forecast'],
     defaultDesc: 'Display live weather data and forecasts for one or more locations.',
@@ -135,11 +135,11 @@ function AppCard({ app, onEdit, onDelete, onPreview }: { app: SignageApp; onEdit
   return (
     <div
       className="group rounded-xl overflow-hidden flex flex-col cursor-pointer transition-colors"
-      style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+      style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
       onClick={onEdit}
     >
       {/* ── Icon area ── */}
-      <div className="relative flex-shrink-0 flex items-center justify-center" style={{ height: 100, backgroundColor: '#f0f9ff' }}>
+      <div className="relative flex-shrink-0 flex items-center justify-center" style={{ height: 100, backgroundColor: 'var(--color-background)' }}>
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center"
           style={{ backgroundColor: iconBgColor }}
@@ -150,7 +150,7 @@ function AppCard({ app, onEdit, onDelete, onPreview }: { app: SignageApp; onEdit
         {/* Status dot — top right */}
         <div
           className="absolute top-2.5 right-2.5 w-2 h-2 rounded-full"
-          style={{ backgroundColor: isActive ? '#34D399' : isDraft ? '#0ea5e9' : '#6b7280' }}
+          style={{ backgroundColor: isActive ? '#34D399' : isDraft ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
           title={isActive ? 'Active' : isDraft ? 'Draft' : 'Archived'}
         />
 
@@ -162,7 +162,7 @@ function AppCard({ app, onEdit, onDelete, onPreview }: { app: SignageApp; onEdit
           <button
             onClick={(e) => { e.stopPropagation(); onPreview() }}
             className="px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5"
-            style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+            style={{ backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }}
           >
             <Eye className="h-3.5 w-3.5" />
             Preview
@@ -170,7 +170,7 @@ function AppCard({ app, onEdit, onDelete, onPreview }: { app: SignageApp; onEdit
           <button
             onClick={(e) => { e.stopPropagation(); onEdit() }}
             className="px-3 py-1.5 rounded-lg text-xs font-medium"
-            style={{ backgroundColor: '#bae6fd', color: '#0c4a6e', border: '1px solid #6b7280' }}
+            style={{ backgroundColor: 'var(--color-border)', color: 'var(--color-text-primary)', border: '1px solid var(--color-text-muted)' }}
           >
             Edit
           </button>
@@ -178,9 +178,9 @@ function AppCard({ app, onEdit, onDelete, onPreview }: { app: SignageApp; onEdit
       </div>
 
       {/* ── Name + type ── */}
-      <div className="px-3 py-2.5" style={{ borderTop: '1px solid #bae6fd' }}>
-        <h3 className="text-xs font-semibold leading-tight truncate" style={{ color: '#0c4a6e' }}>{app.name}</h3>
-        <p className="text-[11px] mt-0.5 truncate" style={{ color: '#0369a1' }}>{category} &middot; {app.template_type}</p>
+      <div className="px-3 py-2.5" style={{ borderTop: '1px solid var(--color-border)' }}>
+        <h3 className="text-xs font-semibold leading-tight truncate" style={{ color: 'var(--color-text-primary)' }}>{app.name}</h3>
+        <p className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--color-text-secondary)' }}>{category} &middot; {app.template_type}</p>
       </div>
     </div>
   )
@@ -248,17 +248,17 @@ export default function AppsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#f0f9ff' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
         <div className="text-center max-w-md">
           <AlertCircle className="h-12 w-12 mx-auto mb-4" style={{ color: '#DC2626' }} />
-          <h2 className="text-lg font-semibold mb-2" style={{ color: '#0c4a6e' }}>Failed to load apps</h2>
-          <p className="text-sm mb-4" style={{ color: '#0369a1' }}>
+          <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>Failed to load apps</h2>
+          <p className="text-sm mb-4" style={{ color: 'var(--color-text-secondary)' }}>
             {error instanceof Error ? error.message : 'Unknown error'}
           </p>
           <button
             onClick={() => refetch()}
             className="px-4 py-2 rounded-lg text-sm font-semibold"
-            style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+            style={{ backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }}
           >
             Try Again
           </button>
@@ -278,8 +278,8 @@ export default function AppsPage() {
           <div
             className="rounded-xl relative overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
-              border: '1px solid #bae6fd',
+              background: 'linear-gradient(135deg, var(--color-background) 0%, var(--color-surface-alt) 50%, var(--color-border) 100%)',
+              border: '1px solid var(--color-border)',
             }}
           >
             {/* Grid overlay */}
@@ -287,7 +287,7 @@ export default function AppsPage() {
               className="absolute inset-0 pointer-events-none"
               style={{
                 backgroundImage:
-                  'linear-gradient(rgba(14,165,233,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.06) 1px, transparent 1px)',
+                  'linear-gradient(color-mix(in srgb, var(--color-primary) 6%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 6%, transparent) 1px, transparent 1px)',
                 backgroundSize: '40px 40px',
               }}
             />
@@ -296,15 +296,15 @@ export default function AppsPage() {
               {/* Title row */}
               <div className="flex items-center justify-between gap-3 mb-3">
                 <div>
-                  <p className="text-[10px] font-semibold tracking-widest uppercase mb-1" style={{ color: '#0ea5e9' }}>
+                  <p className="text-[10px] font-semibold tracking-widest uppercase mb-1" style={{ color: 'var(--color-primary)' }}>
                     App Gallery
                   </p>
-                  <h1 className="text-xl font-bold" style={{ color: '#0c4a6e' }}>Apps</h1>
+                  <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Apps</h1>
                 </div>
                 <button
                   onClick={() => router.push('/apps/create')}
                   className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm flex-shrink-0"
-                  style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+                  style={{ backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }}
                 >
                   <Plus className="h-4 w-4" />
                   New App
@@ -314,20 +314,20 @@ export default function AppsPage() {
               {/* Stat cards row */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 {[
-                  { label: 'Total Apps', value: stats.total, color: '#0ea5e9', emoji: '📦' },
+                  { label: 'Total Apps', value: stats.total, color: 'var(--color-primary)', emoji: '📦' },
                   { label: 'Active', value: stats.active, color: '#34D399', dot: '#22C55E' },
-                  { label: 'Drafts', value: stats.draft, color: '#0ea5e9', emoji: '📝' },
-                  { label: 'Archived', value: stats.archived, color: '#0c4a6e', emoji: '🗂' },
-                  { label: 'Deployments', value: stats.deployments, color: '#0ea5e9', emoji: '🚀' },
+                  { label: 'Drafts', value: stats.draft, color: 'var(--color-primary)', emoji: '📝' },
+                  { label: 'Archived', value: stats.archived, color: 'var(--color-text-primary)', emoji: '🗂' },
+                  { label: 'Deployments', value: stats.deployments, color: 'var(--color-primary)', emoji: '🚀' },
                 ].map((s) => (
                   <div
                     key={s.label}
                     className="rounded-lg p-2.5 flex items-center gap-2"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.75)', border: '1px solid rgba(14,165,233,0.07)' }}
+                    style={{ backgroundColor: 'rgba(255,255,255,0.75)', border: '1px solid color-mix(in srgb, var(--color-primary) 7%, transparent)' }}
                   >
                     <div
                       className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
+                      style={{ backgroundColor: 'var(--color-primary-light)' }}
                     >
                       {s.dot ? (
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: s.dot }} />
@@ -336,7 +336,7 @@ export default function AppsPage() {
                       )}
                     </div>
                     <div>
-                      <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>{s.label}</p>
+                      <p className="text-[10px] leading-tight" style={{ color: 'var(--color-text-secondary)' }}>{s.label}</p>
                       <p className="text-sm font-bold leading-tight" style={{ color: s.color }}>{s.value}</p>
                     </div>
                   </div>
@@ -347,7 +347,7 @@ export default function AppsPage() {
         </div>
 
         {/* Toolbar row */}
-        <div className="page-container pb-2 flex flex-col sm:flex-row sm:items-center gap-2.5 flex-wrap" style={{ borderBottom: '1px solid #bae6fd' }}>
+        <div className="page-container pb-2 flex flex-col sm:flex-row sm:items-center gap-2.5 flex-wrap" style={{ borderBottom: '1px solid var(--color-border)' }}>
         {/* Status filter tabs */}
         <div className="flex items-center gap-1">
           {STATUS_TABS.map((s) => {
@@ -360,8 +360,8 @@ export default function AppsPage() {
                 className="px-4 py-1.5 rounded-lg text-sm font-medium transition-all"
                 style={
                   isActive
-                    ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
-                    : { color: '#0369a1' }
+                    ? { backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }
+                    : { color: 'var(--color-text-secondary)' }
                 }
               >
                 {label}
@@ -384,8 +384,8 @@ export default function AppsPage() {
                 className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
                 style={
                   isActive
-                    ? { backgroundColor: '#e0f2fe', color: '#0c4a6e', border: '1px solid #bae6fd' }
-                    : { color: '#0369a1' }
+                    ? { backgroundColor: 'var(--color-surface-alt)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }
+                    : { color: 'var(--color-text-secondary)' }
                 }
               >
                 {cat}
@@ -399,7 +399,7 @@ export default function AppsPage() {
           <div className="relative">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4"
-              style={{ color: '#0369a1' }}
+              style={{ color: 'var(--color-text-secondary)' }}
             />
             <input
               placeholder="Search apps..."
@@ -408,8 +408,8 @@ export default function AppsPage() {
               className="pl-9 pr-4 py-2 text-sm rounded-lg outline-none w-full sm:w-48"
               style={{
                 backgroundColor: '#FFFFFF',
-                border: '1px solid #bae6fd',
-                color: '#0c4a6e',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-primary)',
               }}
             />
           </div>
@@ -425,8 +425,8 @@ export default function AppsPage() {
               title={title}
               style={
                 viewMode === mode
-                  ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
-                  : { backgroundColor: '#FFFFFF', border: '1px solid #bae6fd', color: '#0369a1' }
+                  ? { backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }
+                  : { backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }
               }
             >
               <BtnIcon className="h-4 w-4" />
@@ -445,20 +445,20 @@ export default function AppsPage() {
               <div
                 key={i}
                 className="rounded-xl animate-pulse"
-                style={{ height: 148, backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+                style={{ height: 148, backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
               />
             ))}
           </div>
         ) : filtered.length === 0 ? (
           <div
             className="rounded-xl flex flex-col items-center justify-center py-20"
-            style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+            style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
           >
-            <Sparkles className="h-10 w-10 mb-4" style={{ color: '#bae6fd' }} />
-            <p className="text-sm font-medium mb-1" style={{ color: '#0c4a6e' }}>
+            <Sparkles className="h-10 w-10 mb-4" style={{ color: 'var(--color-border)' }} />
+            <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
               {searchQuery ? 'No apps found' : 'No apps yet'}
             </p>
-            <p className="text-xs mb-4" style={{ color: '#0369a1' }}>
+            <p className="text-xs mb-4" style={{ color: 'var(--color-text-secondary)' }}>
               {searchQuery
                 ? 'Try adjusting your search or filters'
                 : 'Create your first app to get started'}
@@ -467,7 +467,7 @@ export default function AppsPage() {
               <button
                 onClick={() => router.push('/apps/create')}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
-                style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+                style={{ backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }}
               >
                 <Plus className="h-4 w-4" /> Create App
               </button>

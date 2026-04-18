@@ -25,9 +25,9 @@ function ChartTooltip({ active, payload, label }: any) {
   return (
     <div
       className="px-3 py-2 rounded-lg text-xs"
-      style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+      style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
     >
-      <p className="mb-1 font-medium" style={{ color: '#0369a1' }}>{label}</p>
+      <p className="mb-1 font-medium" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
       {payload.map((p: any) => (
         <p key={p.dataKey} style={{ color: p.color }}>
           {p.name}: {p.value.toLocaleString()}
@@ -104,18 +104,18 @@ export default function AnalyticsPage() {
       label: 'Total Content Views',
       value: totalViews,
       change: `Last ${summary.period_days ?? days} days`,
-      valueColor: '#0ea5e9',
-      iconColor: '#0ea5e9',
-      iconBg: 'rgba(14,165,233,0.12)',
+      valueColor: 'var(--color-primary)',
+      iconColor: 'var(--color-primary)',
+      iconBg: 'color-mix(in srgb, var(--color-primary) 12%, transparent)',
       Icon: Eye,
     },
     {
       label: 'Active Players',
       value: activePlayers,
       change: 'Unique players with activity',
-      valueColor: '#0ea5e9',
-      iconColor: '#0ea5e9',
-      iconBg: 'rgba(14,165,233,0.12)',
+      valueColor: 'var(--color-primary)',
+      iconColor: 'var(--color-primary)',
+      iconBg: 'color-mix(in srgb, var(--color-primary) 12%, transparent)',
       Icon: Users,
     },
     {
@@ -166,15 +166,15 @@ export default function AnalyticsPage() {
         <div
           className="rounded-xl relative overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
-            border: '1px solid #bae6fd',
+            background: 'linear-gradient(135deg, var(--color-background) 0%, var(--color-surface-alt) 50%, var(--color-border) 100%)',
+            border: '1px solid var(--color-border)',
           }}
         >
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
-                'linear-gradient(rgba(14,165,233,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.06) 1px, transparent 1px)',
+                'linear-gradient(color-mix(in srgb, var(--color-primary) 6%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 6%, transparent) 1px, transparent 1px)',
               backgroundSize: '40px 40px',
             }}
           />
@@ -182,11 +182,11 @@ export default function AnalyticsPage() {
           <div className="relative z-10 responsive-hero pb-3">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
               <div>
-                <p className="text-[10px] font-semibold tracking-widest uppercase mb-0.5" style={{ color: '#0ea5e9' }}>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-0.5" style={{ color: 'var(--color-primary)' }}>
                   Analytics
                 </p>
-                <h1 className="text-lg sm:text-xl font-bold" style={{ color: '#0c4a6e' }}>Performance Metrics</h1>
-                <p className="text-xs mt-0.5 max-w-2xl" style={{ color: '#0369a1' }}>
+                <h1 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Performance Metrics</h1>
+                <p className="text-xs mt-0.5 max-w-2xl" style={{ color: 'var(--color-text-secondary)' }}>
                   Track audience engagement, content performance, and device health across your display network.
                 </p>
               </div>
@@ -201,11 +201,11 @@ export default function AnalyticsPage() {
                       className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex-shrink-0 touch-target"
                       style={
                         isActive
-                          ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
+                          ? { backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }
                           : {
-                              color: '#0369a1',
-                              backgroundColor: 'rgba(14,165,233,0.06)',
-                              border: '1px solid rgba(14,165,233,0.08)',
+                              color: 'var(--color-text-secondary)',
+                              backgroundColor: 'color-mix(in srgb, var(--color-primary) 6%, transparent)',
+                              border: '1px solid var(--color-primary-light)',
                             }
                       }
                     >
@@ -223,7 +223,7 @@ export default function AnalyticsPage() {
                   className="rounded-lg px-3 py-2.5"
                   style={{
                     backgroundColor: 'rgba(255,255,255,0.75)',
-                    border: '1px solid rgba(14,165,233,0.07)',
+                    border: '1px solid color-mix(in srgb, var(--color-primary) 7%, transparent)',
                   }}
                 >
                   <div className="flex items-center gap-2 mb-1.5">
@@ -233,12 +233,12 @@ export default function AnalyticsPage() {
                     >
                       <Icon className="h-3.5 w-3.5" style={{ color: iconColor }} />
                     </div>
-                    <span className="text-xs" style={{ color: '#0369a1' }}>{label}</span>
+                    <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{label}</span>
                   </div>
                   <p className="text-xl font-bold tracking-tight" style={{ color: valueColor }}>
                     {value}
                   </p>
-                  <p className="text-[10px] mt-1" style={{ color: '#0369a1' }}>
+                  <p className="text-[10px] mt-1" style={{ color: 'var(--color-text-secondary)' }}>
                     {change}
                   </p>
                 </div>
@@ -262,8 +262,8 @@ export default function AnalyticsPage() {
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all"
               style={
                 active
-                  ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
-                  : { color: '#0369a1', backgroundColor: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.08)' }
+                  ? { backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }
+                  : { color: 'var(--color-text-secondary)', backgroundColor: 'color-mix(in srgb, var(--color-primary) 6%, transparent)', border: '1px solid var(--color-primary-light)' }
               }
             >
               <Icon className="h-3.5 w-3.5" />
@@ -283,25 +283,25 @@ export default function AnalyticsPage() {
 
           <div
             className="rounded-xl p-5"
-            style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+            style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
           >
             <div className="flex items-start justify-between mb-1">
               <div>
-                <h2 className="text-base font-bold" style={{ color: '#0c4a6e' }}>Playback Trends</h2>
-                <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
+                <h2 className="text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>Playback Trends</h2>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
                   Content plays and unique players over time
                 </p>
               </div>
               <div className="hidden sm:flex items-center gap-5 flex-shrink-0">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-0.5 rounded-full" style={{ backgroundColor: '#0ea5e9' }} />
-                  <span className="text-xs" style={{ color: '#0369a1' }}>Total Plays</span>
+                  <div className="w-6 h-0.5 rounded-full" style={{ backgroundColor: 'var(--color-primary)' }} />
+                  <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Total Plays</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <svg width="24" height="2">
-                    <line x1="0" y1="1" x2="24" y2="1" stroke="#06B6D4" strokeWidth="2" strokeDasharray="5 3" />
+                    <line x1="0" y1="1" x2="24" y2="1" stroke="var(--color-primary)" strokeWidth="2" strokeDasharray="5 3" />
                   </svg>
-                  <span className="text-xs" style={{ color: '#0369a1' }}>Unique Players</span>
+                  <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Unique Players</span>
                 </div>
               </div>
             </div>
@@ -309,26 +309,26 @@ export default function AnalyticsPage() {
             <div className="mt-4" style={{ height: 280 }}>
               {viewerTrends.length === 0 ? (
                 <div className="h-full flex items-center justify-center">
-                  <p className="text-sm" style={{ color: '#0369a1' }}>No playback data for this period</p>
+                  <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>No playback data for this period</p>
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <ComposedChart data={viewerTrends} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                     <defs>
                       <linearGradient id="viewsAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%"  stopColor="rgba(14,165,233,1)" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="rgba(14,165,233,1)" stopOpacity={0.02} />
+                        <stop offset="5%"  stopColor="var(--color-primary)" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0.02} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid vertical={false} stroke="rgba(14,165,233,0.06)" />
+                    <CartesianGrid vertical={false} stroke="color-mix(in srgb, var(--color-primary) 6%, transparent)" />
                     <XAxis
                       dataKey="date"
-                      tick={{ fill: '#0369a1', fontSize: 11 }}
+                      tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fill: '#0369a1', fontSize: 11 }}
+                      tick={{ fill: 'var(--color-text-secondary)', fontSize: 11 }}
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(v: number) => v >= 1000 ? `${v / 1000}k` : `${v}`}
@@ -337,21 +337,21 @@ export default function AnalyticsPage() {
                     <Area
                       type="monotone"
                       dataKey="views"
-                      stroke="#0ea5e9"
+                      stroke="var(--color-primary)"
                       strokeWidth={2}
                       fill="url(#viewsAreaGrad)"
-                      dot={{ fill: '#0ea5e9', r: 3.5, strokeWidth: 0 }}
-                      activeDot={{ r: 5, fill: '#0ea5e9', strokeWidth: 0 }}
+                      dot={{ fill: 'var(--color-primary)', r: 3.5, strokeWidth: 0 }}
+                      activeDot={{ r: 5, fill: 'var(--color-primary)', strokeWidth: 0 }}
                       name="Total Plays"
                     />
                     <Line
                       type="monotone"
                       dataKey="unique"
-                      stroke="#06B6D4"
+                      stroke="var(--color-primary)"
                       strokeWidth={2}
                       strokeDasharray="6 3"
                       dot={false}
-                      activeDot={{ r: 4, fill: '#06B6D4', strokeWidth: 0 }}
+                      activeDot={{ r: 4, fill: 'var(--color-primary)', strokeWidth: 0 }}
                       name="Unique Players"
                     />
                   </ComposedChart>
@@ -362,10 +362,10 @@ export default function AnalyticsPage() {
 
           <div
             className="rounded-xl p-5"
-            style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+            style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
           >
-            <h2 className="text-base font-bold mb-0.5" style={{ color: '#0c4a6e' }}>Playback Summary</h2>
-            <p className="text-xs mb-5" style={{ color: '#0369a1' }}>
+            <h2 className="text-base font-bold mb-0.5" style={{ color: 'var(--color-text-primary)' }}>Playback Summary</h2>
+            <p className="text-xs mb-5" style={{ color: 'var(--color-text-secondary)' }}>
               Last {summary.period_days ?? days} days
             </p>
 
@@ -374,12 +374,12 @@ export default function AnalyticsPage() {
                 {
                   label: 'Total Content Views',
                   value: summary.total_content_views?.toLocaleString() ?? '—',
-                  color: '#0ea5e9',
+                  color: 'var(--color-primary)',
                 },
                 {
                   label: 'Active Players',
                   value: summary.active_players?.toLocaleString() ?? '—',
-                  color: '#0ea5e9',
+                  color: 'var(--color-primary)',
                 },
                 {
                   label: 'Total Playback Duration',
@@ -401,9 +401,9 @@ export default function AnalyticsPage() {
                 <div
                   key={label}
                   className="flex items-center justify-between p-3 rounded-lg"
-                  style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd' }}
+                  style={{ backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)' }}
                 >
-                  <span className="text-sm" style={{ color: '#0369a1' }}>{label}</span>
+                  <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{label}</span>
                   <span className="text-sm font-bold" style={{ color }}>{value}</span>
                 </div>
               ))}
@@ -414,24 +414,24 @@ export default function AnalyticsPage() {
 
       {analyticsTab === 'audit' && (
         <div className="px-5 pt-4 pb-5">
-          <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}>
-            <div className="px-5 py-4 border-b" style={{ borderColor: '#bae6fd' }}>
-              <h2 className="text-base font-bold" style={{ color: '#0c4a6e' }}>Audit Log</h2>
-              <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
+          <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}>
+            <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+              <h2 className="text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>Audit Log</h2>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
                 All actions performed in your workspace
               </p>
             </div>
             {auditLoading ? (
-              <div className="py-12 text-center text-sm" style={{ color: '#0369a1' }}>Loading…</div>
+              <div className="py-12 text-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>Loading…</div>
             ) : auditItems.length === 0 ? (
-              <div className="py-12 text-center text-sm" style={{ color: '#0369a1' }}>No audit events found</div>
+              <div className="py-12 text-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>No audit events found</div>
             ) : (
               <div className="overflow-x-auto">
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 600 }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #bae6fd' }}>
+                  <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
                     {['Actor', 'Action', 'Resource', 'Timestamp'].map((h) => (
-                      <th key={h} style={{ textAlign: 'left', padding: '10px 20px', color: '#0369a1', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      <th key={h} style={{ textAlign: 'left', padding: '10px 20px', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         {h}
                       </th>
                     ))}
@@ -439,18 +439,18 @@ export default function AnalyticsPage() {
                 </thead>
                 <tbody>
                   {auditItems.map((row, i) => (
-                    <tr key={row.log_id ?? i} style={{ borderBottom: '1px solid rgba(14,165,233,0.06)' }}>
-                      <td style={{ padding: '12px 20px', color: '#0c4a6e' }}>{row.actor_email || '—'}</td>
+                    <tr key={row.log_id ?? i} style={{ borderBottom: '1px solid color-mix(in srgb, var(--color-primary) 6%, transparent)' }}>
+                      <td style={{ padding: '12px 20px', color: 'var(--color-text-primary)' }}>{row.actor_email || '—'}</td>
                       <td style={{ padding: '12px 20px' }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, backgroundColor: 'rgba(14,165,233,0.12)', color: '#0ea5e9', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, backgroundColor: 'color-mix(in srgb, var(--color-primary) 12%, transparent)', color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                           {row.action || '—'}
                         </span>
                       </td>
-                      <td style={{ padding: '12px 20px', color: '#0369a1' }}>
-                        {row.resource_type && <span style={{ color: '#0369a1', marginRight: 4 }}>{row.resource_type} ·</span>}
+                      <td style={{ padding: '12px 20px', color: 'var(--color-text-secondary)' }}>
+                        {row.resource_type && <span style={{ color: 'var(--color-text-secondary)', marginRight: 4 }}>{row.resource_type} ·</span>}
                         {row.resource_name || row.resource_id || '—'}
                       </td>
-                      <td style={{ padding: '12px 20px', color: '#0369a1', fontSize: 12 }}>
+                      <td style={{ padding: '12px 20px', color: 'var(--color-text-secondary)', fontSize: 12 }}>
                         {row.timestamp ? new Date(row.timestamp).toLocaleString() : '—'}
                       </td>
                     </tr>
@@ -459,22 +459,22 @@ export default function AnalyticsPage() {
               </table>
               </div>
             )}
-            <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #bae6fd' }}>
-              <span style={{ fontSize: 12, color: '#0369a1' }}>
+            <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+              <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
                 Page {auditPage + 1}
               </span>
               <div className="flex gap-2">
                 <button
                   onClick={() => setAuditPage(p => Math.max(0, p - 1))}
                   disabled={auditPage === 0}
-                  style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: '#e0f2fe', border: 'none', color: auditPage === 0 ? '#6b7280' : '#0369a1', cursor: auditPage === 0 ? 'default' : 'pointer' }}
+                  style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: 'var(--color-surface-alt)', border: 'none', color: auditPage === 0 ? 'var(--color-text-muted)' : 'var(--color-text-secondary)', cursor: auditPage === 0 ? 'default' : 'pointer' }}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setAuditPage(p => p + 1)}
                   disabled={!hasMoreAudit}
-                  style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: '#e0f2fe', border: 'none', color: !hasMoreAudit ? '#6b7280' : '#0369a1', cursor: !hasMoreAudit ? 'default' : 'pointer' }}
+                  style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: 'var(--color-surface-alt)', border: 'none', color: !hasMoreAudit ? 'var(--color-text-muted)' : 'var(--color-text-secondary)', cursor: !hasMoreAudit ? 'default' : 'pointer' }}
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -486,24 +486,24 @@ export default function AnalyticsPage() {
 
       {analyticsTab === 'playback' && (
         <div className="px-5 pt-4 pb-5">
-          <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}>
-            <div className="px-5 py-4 border-b" style={{ borderColor: '#bae6fd' }}>
-              <h2 className="text-base font-bold" style={{ color: '#0c4a6e' }}>Playback Log</h2>
-              <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
+          <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}>
+            <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--color-border)' }}>
+              <h2 className="text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>Playback Log</h2>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
                 Content playback history across all players
               </p>
             </div>
             {playbackLoading ? (
-              <div className="py-12 text-center text-sm" style={{ color: '#0369a1' }}>Loading…</div>
+              <div className="py-12 text-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>Loading…</div>
             ) : playbackItems.length === 0 ? (
-              <div className="py-12 text-center text-sm" style={{ color: '#0369a1' }}>No playback records found</div>
+              <div className="py-12 text-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>No playback records found</div>
             ) : (
               <div className="overflow-x-auto">
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 700 }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #bae6fd' }}>
+                  <tr style={{ borderBottom: '1px solid var(--color-border)' }}>
                     {['Player ID', 'Channel ID', 'Duration', 'Started At', 'Ended At'].map((h) => (
-                      <th key={h} style={{ textAlign: 'left', padding: '10px 20px', color: '#0369a1', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      <th key={h} style={{ textAlign: 'left', padding: '10px 20px', color: 'var(--color-text-secondary)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         {h}
                       </th>
                     ))}
@@ -514,16 +514,16 @@ export default function AnalyticsPage() {
                     const durMin = Math.floor((row.duration_seconds ?? 0) / 60)
                     const durSec = (row.duration_seconds ?? 0) % 60
                     return (
-                      <tr key={row.log_id ?? i} style={{ borderBottom: '1px solid rgba(14,165,233,0.06)' }}>
-                        <td style={{ padding: '12px 20px', color: '#0c4a6e', fontFamily: 'monospace', fontSize: 12 }}>{row.player_id ?? '—'}</td>
-                        <td style={{ padding: '12px 20px', color: '#0369a1', fontFamily: 'monospace', fontSize: 12 }}>{row.channel_id ?? '—'}</td>
-                        <td style={{ padding: '12px 20px', color: '#0ea5e9', fontWeight: 600 }}>
+                      <tr key={row.log_id ?? i} style={{ borderBottom: '1px solid color-mix(in srgb, var(--color-primary) 6%, transparent)' }}>
+                        <td style={{ padding: '12px 20px', color: 'var(--color-text-primary)', fontFamily: 'monospace', fontSize: 12 }}>{row.player_id ?? '—'}</td>
+                        <td style={{ padding: '12px 20px', color: 'var(--color-text-secondary)', fontFamily: 'monospace', fontSize: 12 }}>{row.channel_id ?? '—'}</td>
+                        <td style={{ padding: '12px 20px', color: 'var(--color-primary)', fontWeight: 600 }}>
                           {durMin}m {durSec}s
                         </td>
-                        <td style={{ padding: '12px 20px', color: '#0369a1', fontSize: 12 }}>
+                        <td style={{ padding: '12px 20px', color: 'var(--color-text-secondary)', fontSize: 12 }}>
                           {row.started_at ? new Date(row.started_at).toLocaleString() : '—'}
                         </td>
-                        <td style={{ padding: '12px 20px', color: '#0369a1', fontSize: 12 }}>
+                        <td style={{ padding: '12px 20px', color: 'var(--color-text-secondary)', fontSize: 12 }}>
                           {row.ended_at ? new Date(row.ended_at).toLocaleString() : '—'}
                         </td>
                       </tr>
@@ -533,20 +533,20 @@ export default function AnalyticsPage() {
               </table>
               </div>
             )}
-            <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid #bae6fd' }}>
-              <span style={{ fontSize: 12, color: '#0369a1' }}>Page {playbackPage + 1}</span>
+            <div className="flex items-center justify-between px-5 py-3" style={{ borderTop: '1px solid var(--color-border)' }}>
+              <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>Page {playbackPage + 1}</span>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPlaybackPage(p => Math.max(0, p - 1))}
                   disabled={playbackPage === 0}
-                  style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: '#e0f2fe', border: 'none', color: playbackPage === 0 ? '#6b7280' : '#0369a1', cursor: playbackPage === 0 ? 'default' : 'pointer' }}
+                  style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: 'var(--color-surface-alt)', border: 'none', color: playbackPage === 0 ? 'var(--color-text-muted)' : 'var(--color-text-secondary)', cursor: playbackPage === 0 ? 'default' : 'pointer' }}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setPlaybackPage(p => p + 1)}
                   disabled={!hasMorePlayback}
-                  style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: '#e0f2fe', border: 'none', color: !hasMorePlayback ? '#6b7280' : '#0369a1', cursor: !hasMorePlayback ? 'default' : 'pointer' }}
+                  style={{ padding: '4px 10px', borderRadius: 6, backgroundColor: 'var(--color-surface-alt)', border: 'none', color: !hasMorePlayback ? 'var(--color-text-muted)' : 'var(--color-text-secondary)', cursor: !hasMorePlayback ? 'default' : 'pointer' }}
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>

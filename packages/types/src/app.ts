@@ -23,9 +23,15 @@ export type AppTemplateType =
   | 'google_alerts'
   | 'google_sheets'
   | 'powerbi_report'
+  | 'salesforce_dashboard_v2'
+  | 'salesforce_report_v2'
   | 'powerbi_realtime_report'
   | 'powerbi_dashboard'
   | 'powerbi_url'
+  | 'event_board'
+  | 'menu_board'
+  | 'room_directory'
+  | 'canva'
 
 export interface App {
   id: number
@@ -288,6 +294,36 @@ export interface PowerBIReportAppConfig extends AppConfig {
   refresh_interval?: number
   _data?: {
     screenshot_urls: string[]
+    captured_at?: string
+    page_count?: number
+    capture_error?: string
+  }
+}
+
+export interface SalesforceDashboardV2AppConfig extends AppConfig {
+  integration_id: string
+  dashboard_id: string
+  page_duration?: number
+  theme?: 'dark' | 'light'
+  refresh_interval?: number
+  _data?: {
+    screenshot_urls: string[]
+    page_names?: string[]
+    captured_at?: string
+    page_count?: number
+    capture_error?: string
+  }
+}
+
+export interface SalesforceReportV2AppConfig extends AppConfig {
+  integration_id: string
+  report_id: string
+  page_duration?: number
+  theme?: 'dark' | 'light'
+  refresh_interval?: number
+  _data?: {
+    screenshot_urls: string[]
+    page_names?: string[]
     captured_at?: string
     page_count?: number
     capture_error?: string

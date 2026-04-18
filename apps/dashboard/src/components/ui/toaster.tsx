@@ -8,22 +8,22 @@ import { cn } from '@/lib/utils'
 
 const variantStyles: Record<ToastVariant, { bg: string; border: string; icon: typeof Info; iconColor: string }> = {
   default: {
-    bg: 'bg-white',
-    border: 'border-[#bae6fd]',
+    bg: 'bg-surface',
+    border: 'border-border',
     icon: Info,
-    iconColor: 'text-[#0ea5e9]',
+    iconColor: 'text-primary',
   },
   error: {
-    bg: 'bg-white',
-    border: 'border-[#fca5a5]',
+    bg: 'bg-surface',
+    border: 'border-error/40',
     icon: AlertCircle,
-    iconColor: 'text-[#ef4444]',
+    iconColor: 'text-error',
   },
   success: {
-    bg: 'bg-white',
-    border: 'border-[#86efac]',
+    bg: 'bg-surface',
+    border: 'border-success/40',
     icon: CheckCircle2,
-    iconColor: 'text-[#22c55e]',
+    iconColor: 'text-success',
   },
 }
 
@@ -37,7 +37,7 @@ export function Toaster() {
   if (toasts.length === 0) return null
 
   return (
-    <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 max-w-sm">
+    <div className="fixed bottom-4 right-4 z-[100] flex max-w-sm flex-col gap-2">
       {toasts.map((t) => {
         const style = variantStyles[t.variant]
         const Icon = style.icon
@@ -45,22 +45,23 @@ export function Toaster() {
           <div
             key={t.id}
             className={cn(
-              'flex items-start gap-3 rounded-xl border p-4 shadow-[0_8px_24px_-4px_rgba(0,0,0,0.08)]',
+              'flex items-start gap-3 rounded-2xl border p-4',
               'animate-in slide-in-from-right-full fade-in duration-300',
               style.bg,
               style.border,
             )}
+            style={{ boxShadow: 'var(--shadow-elevated)' }}
           >
-            <Icon className={cn('h-5 w-5 flex-shrink-0 mt-0.5', style.iconColor)} />
-            <div className="flex-1 min-w-0">
+            <Icon className={cn('mt-0.5 h-5 w-5 flex-shrink-0', style.iconColor)} />
+            <div className="min-w-0 flex-1">
               {t.title && (
-                <p className="text-sm font-semibold text-[#0c4a6e]">{t.title}</p>
+                <p className="text-sm font-semibold text-text-primary">{t.title}</p>
               )}
-              <p className="text-sm text-[#0369a1]">{t.description}</p>
+              <p className="text-sm text-text-secondary">{t.description}</p>
             </div>
             <button
               onClick={() => dismiss(t.id)}
-              className="flex-shrink-0 p-1 rounded-lg hover:bg-[#e0f2fe] text-[#6b7280] hover:text-[#0c4a6e] transition-colors"
+              className="flex-shrink-0 rounded-lg p-1 text-text-muted transition-colors hover:bg-surface-hover hover:text-text-primary"
             >
               <X className="h-4 w-4" />
             </button>

@@ -5,11 +5,12 @@ export type IntegrationStatus = 'active' | 'expired' | 'error' | 'disconnected'
 export interface CredentialField {
   name: string
   label: string
-  type: 'text' | 'password' | 'url' | 'email' | 'number'
+  type: 'text' | 'password' | 'url' | 'email' | 'number' | 'select' | 'textarea'
   required: boolean
   placeholder?: string
   help_text?: string
   secret?: boolean
+  options?: Array<{ value: string; label: string }>
 }
 
 export interface IntegrationProvider {

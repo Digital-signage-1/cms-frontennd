@@ -43,11 +43,11 @@ function PlayerCard({
       onClick={onClick}
       className="flex items-start gap-3 px-4 py-3.5 cursor-pointer transition-colors"
       style={{
-        backgroundColor: isSelected ? 'rgba(14,165,233,0.07)' : 'transparent',
-        borderBottom: '1px solid #bae6fd',
+        backgroundColor: isSelected ? 'color-mix(in srgb, var(--color-primary) 7%, transparent)' : 'transparent',
+        borderBottom: '1px solid var(--color-border)',
       }}
       onMouseEnter={(e) => {
-        if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'
+        if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = 'var(--color-surface-alt)'
       }}
       onMouseLeave={(e) => {
         if (!isSelected) (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'
@@ -64,7 +64,7 @@ function PlayerCard({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-0.5">
-          <p className="text-sm font-semibold truncate leading-tight" style={{ color: '#0c4a6e' }}>
+          <p className="text-sm font-semibold truncate leading-tight" style={{ color: 'var(--color-text-primary)' }}>
             {player.name}
           </p>
           {/* Status badge */}
@@ -79,7 +79,7 @@ function PlayerCard({
 
         {/* Platform */}
         {platform && (
-          <p className="text-xs capitalize mb-1" style={{ color: '#0369a1' }}>
+          <p className="text-xs capitalize mb-1" style={{ color: 'var(--color-text-secondary)' }}>
             {platform}
           </p>
         )}
@@ -87,8 +87,8 @@ function PlayerCard({
         {/* Pairing code */}
         {code && (
           <div className="flex items-center gap-1.5">
-            <span className="text-xs" style={{ color: '#0369a1' }}>Code:</span>
-            <code className="text-xs font-mono font-bold tracking-widest" style={{ color: '#0ea5e9' }}>
+            <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Code:</span>
+            <code className="text-xs font-mono font-bold tracking-widest" style={{ color: 'var(--color-primary)' }}>
               {code}
             </code>
             <button
@@ -98,7 +98,7 @@ function PlayerCard({
               }}
               className="opacity-50 hover:opacity-100 transition-opacity"
             >
-              <Copy className="h-3 w-3" style={{ color: '#6b7280' }} />
+              <Copy className="h-3 w-3" style={{ color: 'var(--color-text-muted)' }} />
             </button>
           </div>
         )}
@@ -143,7 +143,7 @@ export default function PlayersPage() {
     {
       label: 'Total Players',
       value: totalPlayers,
-      color: '#0ea5e9',
+      color: 'var(--color-primary)',
       iconType: 'monitor' as const,
     },
     { label: 'Online',  value: onlineCount,  color: '#059669', iconType: 'dot' as const },
@@ -162,7 +162,7 @@ export default function PlayersPage() {
     <div
       className="flex flex-col overflow-hidden"
       style={{
-        backgroundColor: '#f0f9ff',
+        backgroundColor: 'var(--color-background)',
         height: '100%',
       }}
     >
@@ -174,8 +174,8 @@ export default function PlayersPage() {
           transition={{ duration: 0.35 }}
           className="relative overflow-hidden rounded-xl"
           style={{
-            background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
-            border: '1px solid #bae6fd',
+            background: 'linear-gradient(135deg, var(--color-background) 0%, var(--color-surface-alt) 50%, var(--color-border) 100%)',
+            border: '1px solid var(--color-border)',
           }}
         >
           {/* Grid overlay */}
@@ -183,8 +183,8 @@ export default function PlayersPage() {
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
-                'linear-gradient(rgba(14,165,233,0.06) 1px,transparent 1px),' +
-                'linear-gradient(90deg,rgba(14,165,233,0.06) 1px,transparent 1px)',
+                'linear-gradient(color-mix(in srgb, var(--color-primary) 6%, transparent) 1px,transparent 1px),' +
+                'linear-gradient(90deg,color-mix(in srgb, var(--color-primary) 6%, transparent) 1px,transparent 1px)',
               backgroundSize: '40px 40px',
             }}
           />
@@ -194,14 +194,14 @@ export default function PlayersPage() {
             <div>
               <p
                 className="text-[10px] uppercase font-semibold mb-0.5"
-                style={{ color: '#0ea5e9', letterSpacing: '0.15em' }}
+                style={{ color: 'var(--color-primary)', letterSpacing: '0.15em' }}
               >
                 Control Center
               </p>
-              <h1 className="text-lg sm:text-xl font-bold leading-tight" style={{ color: '#0c4a6e' }}>
+              <h1 className="text-lg sm:text-xl font-bold leading-tight" style={{ color: 'var(--color-text-primary)' }}>
                 Player Network
               </h1>
-              <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
                 Monitor and manage your display network. Track status, deploy content, and configure devices.
               </p>
             </div>
@@ -209,7 +209,7 @@ export default function PlayersPage() {
             <button
               onClick={() => setIsRegistrationOpen(true)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold flex-shrink-0 self-start sm:self-center transition-opacity hover:opacity-90 touch-target"
-              style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+              style={{ backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }}
             >
               <Plus className="h-4 w-4" />
               Register Player
@@ -224,7 +224,7 @@ export default function PlayersPage() {
                 className="flex items-center gap-2.5 px-3 py-2 rounded-lg"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
-                  border: '1px solid rgba(14,165,233,0.07)',
+                  border: '1px solid color-mix(in srgb, var(--color-primary) 7%, transparent)',
                 }}
               >
                 {/* Icon */}
@@ -243,7 +243,7 @@ export default function PlayersPage() {
                 </div>
                 {/* Label + value */}
                 <div>
-                  <p className="text-[10px] font-medium leading-tight" style={{ color: '#0369a1' }}>{label}</p>
+                  <p className="text-[10px] font-medium leading-tight" style={{ color: 'var(--color-text-secondary)' }}>{label}</p>
                   <p className="text-sm font-bold leading-tight" style={{ color }}>{value}</p>
                 </div>
               </div>
@@ -261,12 +261,12 @@ export default function PlayersPage() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35, delay: 0.08 }}
           className="flex-1 flex flex-col overflow-hidden rounded-xl"
-          style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+          style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
         >
           {/* Filter toolbar */}
           <div
             className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 gap-2 flex-shrink-0"
-            style={{ borderBottom: '1px solid #bae6fd' }}
+            style={{ borderBottom: '1px solid var(--color-border)' }}
           >
             {/* Status filter tabs */}
             <div className="flex items-center gap-1 overflow-x-auto scroll-x">
@@ -277,8 +277,8 @@ export default function PlayersPage() {
                   className="px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target"
                   style={
                     statusFilter === tab.value
-                      ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
-                      : { color: '#0369a1' }
+                      ? { backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }
+                      : { color: 'var(--color-text-secondary)' }
                   }
                 >
                   {tab.label}
@@ -291,7 +291,7 @@ export default function PlayersPage() {
               <div className="relative">
                 <Search
                   className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-                  style={{ color: '#6b7280' }}
+                  style={{ color: 'var(--color-text-muted)' }}
                 />
                 <input
                   placeholder="Search players..."
@@ -299,9 +299,9 @@ export default function PlayersPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="h-9 pl-9 pr-4 text-sm rounded-lg outline-none w-full sm:w-44"
                   style={{
-                    backgroundColor: '#f0f9ff',
-                    border: '1px solid #bae6fd',
-                    color: '#0c4a6e',
+                    backgroundColor: 'var(--color-background)',
+                    border: '1px solid var(--color-border)',
+                    color: 'var(--color-text-primary)',
                   }}
                 />
               </div>
@@ -310,13 +310,13 @@ export default function PlayersPage() {
           </div>
 
           {/* Player overview area */}
-          <div className="flex-1 relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: '#f0f9ff' }}>
+          <div className="flex-1 relative overflow-hidden flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
             <div className="text-center px-6">
-              <Monitor className="h-12 w-12 mx-auto mb-3 opacity-20" style={{ color: '#6b7280' }} />
-              <p className="text-sm font-medium mb-1" style={{ color: '#0369a1' }}>
+              <Monitor className="h-12 w-12 mx-auto mb-3 opacity-20" style={{ color: 'var(--color-text-muted)' }} />
+              <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
                 {filteredPlayers.length} player{filteredPlayers.length !== 1 ? 's' : ''} {statusFilter !== 'all' ? statusFilter : ''}
               </p>
-              <p className="text-xs" style={{ color: '#0369a1' }}>
+              <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                 Select a player from the list to view details
               </p>
             </div>
@@ -325,7 +325,7 @@ export default function PlayersPage() {
           {/* Legend */}
           <div
             className="flex items-center gap-5 px-5 py-3 flex-shrink-0"
-            style={{ borderTop: '1px solid #bae6fd' }}
+            style={{ borderTop: '1px solid var(--color-border)' }}
           >
             {[
               { label: 'Online',  color: '#059669' },
@@ -337,7 +337,7 @@ export default function PlayersPage() {
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: color }}
                 />
-                <span className="text-xs" style={{ color: '#0369a1' }}>{label}</span>
+                <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>{label}</span>
               </div>
             ))}
           </div>
@@ -354,15 +354,15 @@ export default function PlayersPage() {
           {/* Panel header */}
           <div
             className="flex items-center justify-between px-5 py-4 flex-shrink-0"
-            style={{ borderBottom: '1px solid #bae6fd' }}
+            style={{ borderBottom: '1px solid var(--color-border)' }}
           >
             <div className="flex items-center gap-2.5">
-              <h2 className="text-sm font-semibold" style={{ color: '#0c4a6e' }}>
+              <h2 className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
                 Active Players
               </h2>
               <span
                 className="text-xs font-bold px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: 'rgba(14,165,233,0.12)', color: '#0ea5e9' }}
+                style={{ backgroundColor: 'color-mix(in srgb, var(--color-primary) 12%, transparent)', color: 'var(--color-primary)' }}
               >
                 {totalPlayers}
               </span>
@@ -377,7 +377,7 @@ export default function PlayersPage() {
                   <div
                     key={i}
                     className="h-20 rounded-xl animate-pulse"
-                    style={{ backgroundColor: '#e0f2fe' }}
+                    style={{ backgroundColor: 'var(--color-surface-alt)' }}
                   />
                 ))}
               </div>
@@ -385,18 +385,18 @@ export default function PlayersPage() {
               <div className="py-12 px-4 text-center">
                 <Monitor
                   className="h-10 w-10 mx-auto mb-3 opacity-25"
-                  style={{ color: '#6b7280' }}
+                  style={{ color: 'var(--color-text-muted)' }}
                 />
-                <p className="text-sm font-medium mb-1" style={{ color: '#0369a1' }}>
+                <p className="text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>
                   No players yet
                 </p>
-                <p className="text-xs mb-4" style={{ color: '#0369a1' }}>
+                <p className="text-xs mb-4" style={{ color: 'var(--color-text-secondary)' }}>
                   Open the player app on your display to get a pairing code
                 </p>
                 <button
                   onClick={() => setIsRegistrationOpen(true)}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold"
-                  style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+                  style={{ backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }}
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Register Player
@@ -404,7 +404,7 @@ export default function PlayersPage() {
               </div>
             ) : filteredPlayers.length === 0 ? (
               <div className="py-12 px-4 text-center">
-                <p className="text-sm" style={{ color: '#0369a1' }}>
+                <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                   No players match "{searchQuery}"
                 </p>
               </div>

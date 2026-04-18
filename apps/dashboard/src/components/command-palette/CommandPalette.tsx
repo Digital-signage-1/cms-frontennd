@@ -49,29 +49,33 @@ export function CommandPalette() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent hideClose className="!p-0 max-w-2xl overflow-hidden">
-        {/* ── Search row ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 16px', height: 52, borderBottom: '1px solid #bae6fd' }}>
-          <Search className="h-4 w-4" style={{ color: '#6b7280', flexShrink: 0 }} />
+        <div
+          className="flex items-center gap-3 border-b border-border px-4"
+          style={{ height: 52 }}
+        >
+          <Search className="h-4 w-4 flex-shrink-0 text-text-muted" />
           <input
             placeholder="Search or type a command..."
             value={search}
             onChange={e => setSearch(e.target.value)}
             autoFocus
-            style={{ flex: 1, height: '100%', backgroundColor: 'transparent', border: 'none', outline: 'none', fontSize: 15, color: '#0c4a6e' }}
+            className="h-full flex-1 border-none bg-transparent text-[15px] text-text-primary outline-none"
           />
-          <kbd style={{ fontSize: 11, color: '#0369a1', backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 6, padding: '2px 6px', fontFamily: 'monospace', flexShrink: 0 }}>
+          <kbd
+            className="flex-shrink-0 rounded-md border border-border px-1.5 py-0.5 font-mono text-[11px] text-text-secondary"
+            style={{ backgroundColor: 'var(--color-surface-alt)' }}
+          >
             ESC
           </kbd>
         </div>
 
-        {/* ── Command list ── */}
-        <div style={{ maxHeight: 380, overflowY: 'auto', padding: '8px 0' }}>
+        <div className="max-h-[380px] overflow-y-auto py-2">
           {(['recent', 'action', 'navigation'] as const).map(category => {
             const items = filtered.filter(c => c.category === category)
             if (!items.length) return null
             return (
-              <div key={category} style={{ marginBottom: 4 }}>
-                <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6b7280', padding: '6px 16px 4px' }}>
+              <div key={category} className="mb-1">
+                <p className="px-4 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-wider text-text-muted">
                   {CATEGORY_LABEL[category]}
                 </p>
                 {items.map(cmd => (
@@ -80,13 +84,23 @@ export function CommandPalette() {
                     onClick={() => { cmd.action(); setOpen(false) }}
                     onMouseEnter={() => setActive(cmd.id)}
                     onMouseLeave={() => setActive(null)}
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 16px', cursor: 'pointer', border: 'none', textAlign: 'left', backgroundColor: active === cmd.id ? 'rgba(14,165,233,0.06)' : 'transparent', borderLeft: active === cmd.id ? '2px solid #0ea5e9' : '2px solid transparent', paddingLeft: 14, transition: 'all 0.1s' }}
+                    className="flex w-full cursor-pointer items-center justify-between border-l-2 border-transparent py-2.5 pl-3.5 pr-4 text-left transition-colors"
+                    style={{
+                      backgroundColor: active === cmd.id ? 'var(--color-primary-light)' : 'transparent',
+                      borderLeftColor: active === cmd.id ? 'var(--color-primary)' : 'transparent',
+                    }}
                   >
-                    <span style={{ fontSize: 14, color: active === cmd.id ? '#0c4a6e' : '#0369a1', fontWeight: active === cmd.id ? 500 : 400 }}>
+                    <span
+                      className="text-sm text-text-secondary"
+                      style={{ fontWeight: active === cmd.id ? 500 : 400, color: active === cmd.id ? 'var(--color-text-primary)' : undefined }}
+                    >
                       {cmd.label}
                     </span>
                     {cmd.shortcut && (
-                      <kbd style={{ fontSize: 11, color: '#0369a1', backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 6, padding: '2px 7px', fontFamily: 'monospace', flexShrink: 0 }}>
+                      <kbd
+                        className="flex-shrink-0 rounded-md border border-border px-1.5 py-0.5 font-mono text-[11px] text-text-secondary"
+                        style={{ backgroundColor: 'var(--color-surface-alt)' }}
+                      >
                         {cmd.shortcut}
                       </kbd>
                     )}
@@ -97,18 +111,22 @@ export function CommandPalette() {
           })}
 
           {filtered.length === 0 && (
-            <div style={{ padding: '32px 16px', textAlign: 'center' }}>
-              <p style={{ fontSize: 13, color: '#0369a1' }}>No commands found for &ldquo;{search}&rdquo;</p>
+            <div className="px-4 py-8 text-center">
+              <p className="text-sm text-text-secondary">No commands found for &ldquo;{search}&rdquo;</p>
             </div>
           )}
         </div>
 
-        {/* ── Footer hint ── */}
-        <div style={{ borderTop: '1px solid #bae6fd', padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="flex items-center gap-3 border-t border-border px-4 py-2">
           {[['↑↓', 'navigate'], ['↵', 'select'], ['esc', 'close']].map(([key, label]) => (
-            <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <kbd style={{ fontSize: 10, color: '#0369a1', backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 5, padding: '1px 6px', fontFamily: 'monospace' }}>{key}</kbd>
-              <span style={{ fontSize: 11, color: '#0369a1' }}>{label}</span>
+            <div key={key} className="flex items-center gap-1.5">
+              <kbd
+                className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-text-secondary"
+                style={{ backgroundColor: 'var(--color-surface-alt)' }}
+              >
+                {key}
+              </kbd>
+              <span className="text-[11px] text-text-secondary">{label}</span>
             </div>
           ))}
         </div>

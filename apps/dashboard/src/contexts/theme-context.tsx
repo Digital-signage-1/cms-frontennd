@@ -12,17 +12,18 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined)
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark')
+  const [theme, setTheme] = useState<Theme>('light')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    const stored = localStorage.getItem('theme') as Theme
-    if (stored) {
-      setTheme(stored)
-      if (stored === 'dark') {
-        document.documentElement.classList.add('dark')
-      }
+    const stored = localStorage.getItem('theme') as Theme | null
+    if (stored === 'dark') {
+      setTheme('dark')
+      document.documentElement.classList.add('dark')
+    } else {
+      setTheme('light')
+      document.documentElement.classList.remove('dark')
     }
   }, [])
 

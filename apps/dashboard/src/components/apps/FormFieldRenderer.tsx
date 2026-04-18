@@ -6,6 +6,7 @@ import { AlertCircle, Loader2, Link as LinkIcon } from 'lucide-react'
 import { GoogleResourcePicker } from '@/components/integrations/GoogleResourcePicker'
 import { GoogleOAuthButton } from '@/components/integrations/GoogleOAuthButton'
 import { PowerBIResourcePicker } from '@/components/integrations/PowerBIResourcePicker'
+import { SalesforceResourcePicker } from '@/components/integrations/SalesforceResourcePicker'
 import { PowerBIResourceMultiPicker } from '@/components/integrations/PowerBIResourceMultiPicker'
 import { MicrosoftOAuthButton } from '@/components/integrations/MicrosoftOAuthButton'
 import { useIntegrations } from '@/hooks/queries/useIntegrations'
@@ -348,6 +349,7 @@ function IntegrationSelectorField({
 }) {
   const isGoogle = provider.startsWith('google')
   const isPowerBI = provider === 'powerbi'
+  const isSalesforce = provider === 'salesforce_v2'
   // Normalize provider for backend query: google_sheets/google_calendar → google
   const queryProvider = isGoogle ? 'google' : provider
   const { data, isLoading } = useIntegrations(workspaceId ?? '', queryProvider)
@@ -378,7 +380,13 @@ function IntegrationSelectorField({
   }
 
   if (displayOptions.length === 0) {
-    const providerLabel = isPowerBI ? 'Microsoft' : isGoogle ? 'Google' : provider
+    const providerLabel = isPowerBI
+      ? 'Microsoft'
+      : isGoogle
+        ? 'Google'
+        : isSalesforce
+          ? 'Salesforce (JWT)'
+          : provider
     return (
       <div className="flex flex-col gap-3 rounded-xl border border-dashed border-border p-4 text-center">
         <p className="text-sm text-text-muted">
@@ -402,7 +410,13 @@ function IntegrationSelectorField({
     )
   }
 
-  const selectLabel = isPowerBI ? 'Select a Microsoft account...' : isGoogle ? 'Select a Google account...' : 'Select an account...'
+  const selectLabel = isPowerBI
+    ? 'Select a Microsoft account...'
+    : isGoogle
+      ? 'Select a Google account...'
+      : isSalesforce
+        ? 'Select a Salesforce connection...'
+        : 'Select an account...'
 
   return (
     <Select
@@ -434,6 +448,9 @@ function ResourcePickerField({
 }) {
   const [manualMode, setManualMode] = useState(false)
   const isPowerBI = field.provider === 'powerbi'
+  const isSalesforce = field.provider === 'salesforce_v2'
+  const isGoogle =
+    field.provider?.startsWith('google') && field.provider !== 'salesforce_v2'
 
   // Check depends_on: if this field depends on another and that field is empty, show disabled state
   const dependsOnField = field.depends_on
@@ -441,11 +458,16 @@ function ResourcePickerField({
   const isDependencyMissing = dependsOnField && !dependsOnValue
 
   if (!integrationId) {
+    const who = isPowerBI
+      ? 'a Microsoft account'
+      : isSalesforce
+        ? 'a Salesforce connection'
+        : isGoogle
+          ? 'a Google account'
+          : 'an account'
     return (
       <div className="rounded-lg border border-border bg-surface-alt/30 px-3 py-3">
-        <p className="text-sm text-text-muted">
-          Select {isPowerBI ? 'a Microsoft account' : 'a Google account'} first
-        </p>
+        <p className="text-sm text-text-muted">Select {who} first</p>
       </div>
     )
   }
@@ -491,6 +513,14 @@ function ResourcePickerField({
           onSelect={(resourceId) => onChange(resourceId)}
           selectedId={value}
           powerbiWorkspaceId={dependsOnValue as string | undefined}
+        />
+      ) : isSalesforce ? (
+        <SalesforceResourcePicker
+          workspaceId={workspaceId ?? ''}
+          integrationId={integrationId}
+          resourceType={field.resource_type || 'dashboard'}
+          onSelect={(resourceId) => onChange(resourceId)}
+          selectedId={value}
         />
       ) : (
         <GoogleResourcePicker

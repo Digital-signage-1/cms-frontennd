@@ -32,9 +32,10 @@ export default function MicrosoftOAuthCallbackPage() {
     hasRun.current = true
 
     const code = searchParams.get('code')
-    const stateParam = searchParams.get('state')
+    const stateParam = searchParams.get('state') ?? ''
     const error = searchParams.get('error')
-    const provider = searchParams.get('provider') ?? 'powerbi'
+    const providerFromState = stateParam.includes('::') ? stateParam.split('::')[0] : null
+    const provider = providerFromState || searchParams.get('provider') || 'powerbi'
 
     if (error) {
       setState('error')

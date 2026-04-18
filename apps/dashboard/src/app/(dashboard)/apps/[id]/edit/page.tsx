@@ -55,7 +55,7 @@ const getAppIcon = (icon: string) => {
 const statusConfig: Record<string, { label: string; dot: 'online' | 'pending' | 'offline'; bg: string; text: string; border: string }> = {
   active: { label: 'Active', dot: 'online', bg: 'bg-[rgba(16,185,129,0.08)]', text: 'text-[#10b981]', border: 'border-[rgba(16,185,129,0.16)]' },
   draft: { label: 'Draft', dot: 'pending', bg: 'bg-[rgba(245,158,11,0.08)]', text: 'text-[#f59e0b]', border: 'border-[rgba(245,158,11,0.16)]' },
-  archived: { label: 'Archived', dot: 'offline', bg: 'bg-[rgba(107,114,128,0.08)]', text: 'text-[#6b7280]', border: 'border-[rgba(107,114,128,0.16)]' },
+  archived: { label: 'Archived', dot: 'offline', bg: 'bg-[rgba(107,114,128,0.08)]', text: 'text-[var(--color-text-muted)]', border: 'border-[rgba(107,114,128,0.16)]' },
 }
 
 /* ───────── Section wrapper ───────── */
@@ -74,7 +74,7 @@ function Section({ icon: IconComp, title, description, children, defaultOpen = t
         onClick={() => setOpen(v => !v)}
         className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-surface-alt/40 transition-colors"
       >
-        <div className="w-8 h-8 rounded-lg bg-[rgba(14,165,233,0.10)] flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-lg bg-[color-mix(in srgb, var(--color-primary) 10%, transparent)] flex items-center justify-center flex-shrink-0">
           <IconComp className="h-4 w-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
@@ -290,7 +290,7 @@ export default function EditAppPage() {
             <div className="w-px h-6 bg-border" />
 
             {/* App identity */}
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#0ea5e9] to-[#06b6d4] flex items-center justify-center flex-shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
               <Icon className="h-4.5 w-4.5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -389,7 +389,7 @@ export default function EditAppPage() {
                     onChange={(e) => handleChange('description', e.target.value)}
                     placeholder="Brief description of this app..."
                     rows={2}
-                    className="w-full px-3 py-2.5 text-sm bg-surface-alt border border-border rounded-lg focus:outline-none focus:border-primary focus:bg-surface focus:ring-[3px] focus:ring-[rgba(14,165,233,0.15)] resize-none text-text-primary placeholder:text-text-muted transition-all"
+                    className="w-full px-3 py-2.5 text-sm bg-surface-alt border border-border rounded-lg focus:outline-none focus:border-primary focus:bg-surface focus:ring-[3px] focus:ring-[color-mix(in srgb, var(--color-primary) 15%, transparent)] resize-none text-text-primary placeholder:text-text-muted transition-all"
                   />
                 </div>
 
@@ -517,7 +517,7 @@ export default function EditAppPage() {
               className="bg-surface border border-border rounded-xl p-5"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-[#0ea5e9] to-[#06b6d4] flex items-center justify-center flex-shrink-0">
+                <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
                   <Icon className="h-5.5 w-5.5 text-white" />
                 </div>
                 <div className="min-w-0">

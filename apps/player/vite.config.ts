@@ -58,7 +58,7 @@ export default defineConfig({
         name: 'SignageOS Player',
         short_name: 'Player',
         description: 'Digital Signage Player',
-        theme_color: '#4F46E5',
+        theme_color: '#1A73E8',
         background_color: '#000000',
         display: 'fullscreen',
         orientation: 'landscape',

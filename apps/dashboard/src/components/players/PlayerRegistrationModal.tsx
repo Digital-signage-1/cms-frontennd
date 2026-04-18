@@ -124,7 +124,7 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
                   </div>
                   <div>
                     <p className="text-sm font-semibold" style={{ color: '#059669' }}>Player paired successfully!</p>
-                    <p className="text-xs" style={{ color: '#0369a1' }}>Use the URL below to open this player in any browser or tab.</p>
+                    <p className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>Use the URL below to open this player in any browser or tab.</p>
                   </div>
                 </div>
 
@@ -135,13 +135,13 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
                       readOnly
                       value={playerUrl || ''}
                       className="flex-1 h-10 px-3 rounded-lg text-xs font-mono"
-                      style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#0c4a6e', outline: 'none' }}
+                      style={{ backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', color: 'var(--color-text-primary)', outline: 'none' }}
                       onClick={(e) => (e.target as HTMLInputElement).select()}
                     />
                     <button
                       onClick={handleCopyUrl}
                       className="h-10 px-3 rounded-lg flex items-center gap-1.5 text-xs font-semibold"
-                      style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: copied ? '#059669' : '#6b7280', cursor: 'pointer' }}
+                      style={{ backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', color: copied ? '#059669' : 'var(--color-text-muted)', cursor: 'pointer' }}
                     >
                       <Copy className="h-3.5 w-3.5" />
                       {copied ? 'Copied!' : 'Copy'}
@@ -155,7 +155,7 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 h-10 rounded-lg flex items-center justify-center gap-2 text-sm font-semibold"
-                    style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)', color: '#FFFFFF' }}
+                    style={{ background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary))', color: '#FFFFFF' }}
                   >
                     <ExternalLink className="h-4 w-4" />
                     Open Player

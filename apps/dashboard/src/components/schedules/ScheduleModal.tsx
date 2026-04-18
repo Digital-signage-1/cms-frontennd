@@ -42,12 +42,12 @@ interface ScheduleModalProps {
 const inputStyle: React.CSSProperties = {
   width: '100%',
   height: 44,
-  backgroundColor: '#e0f2fe',
-  border: '1px solid #bae6fd',
+  backgroundColor: 'var(--color-surface-alt)',
+  border: '1px solid var(--color-border)',
   borderRadius: 10,
   padding: '0 12px',
   fontSize: 13,
-  color: '#0c4a6e',
+  color: 'var(--color-text-primary)',
   outline: 'none',
   boxSizing: 'border-box',
 }
@@ -55,7 +55,7 @@ const inputStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontSize: 13,
   fontWeight: 600,
-  color: '#0c4a6e',
+  color: 'var(--color-text-primary)',
   display: 'block',
   marginBottom: 8,
 }
@@ -117,10 +117,10 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
   const summaryText = `${selectedDays.length} day${selectedDays.length !== 1 ? 's' : ''} · ${selectedChannelIds.length} channel${selectedChannelIds.length !== 1 ? 's' : ''} · ${PRIORITY_OPTIONS.find(p => p.id === priority)?.label} priority`
 
   const focusPrimary = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    e.currentTarget.style.borderColor = '#0ea5e9'
+    e.currentTarget.style.borderColor = 'var(--color-primary)'
   }
   const blurDefault = (e: React.FocusEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    e.currentTarget.style.borderColor = '#bae6fd'
+    e.currentTarget.style.borderColor = 'var(--color-border)'
   }
 
   return (
@@ -130,18 +130,18 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
         className="!p-0 max-w-[480px] max-h-[90vh] flex flex-col overflow-hidden"
       >
         {/* ── Header ── */}
-        <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid #bae6fd', display: 'flex', alignItems: 'flex-start', gap: 14, flexShrink: 0 }}>
+        <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'flex-start', gap: 14, flexShrink: 0 }}>
           {/* Calendar icon badge */}
-          <div style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Calendar className="h-5 w-5" style={{ color: '#0ea5e9' }} />
+          <div style={{ width: 48, height: 48, borderRadius: 12, backgroundColor: 'var(--color-primary-light)', border: '1px solid color-mix(in srgb, var(--color-primary) 16%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Calendar className="h-5 w-5" style={{ color: 'var(--color-primary)' }} />
           </div>
 
           {/* Title + subtitle */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h2 style={{ fontSize: 21, fontWeight: 700, color: '#0c4a6e', margin: 0, lineHeight: 1.2 }}>
+            <h2 style={{ fontSize: 21, fontWeight: 700, color: 'var(--color-text-primary)', margin: 0, lineHeight: 1.2 }}>
               {schedule ? 'Edit Schedule' : 'Create New Schedule'}
             </h2>
-            <p style={{ fontSize: 13, color: '#0369a1', margin: '4px 0 0' }}>
+            <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '4px 0 0' }}>
               Configure when your content should play
             </p>
           </div>
@@ -150,9 +150,9 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
           <button
             type="button"
             onClick={handleClose}
-            style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+            style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
           >
-            <X className="h-4 w-4" style={{ color: '#6b7280' }} />
+            <X className="h-4 w-4" style={{ color: 'var(--color-text-muted)' }} />
           </button>
         </div>
 
@@ -181,7 +181,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                 <div key={label}>
                   <label style={labelStyle}>{label}</label>
                   <div style={{ position: 'relative' }}>
-                    <Clock className="h-4 w-4" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none', zIndex: 1 }} />
+                    <Clock className="h-4 w-4" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-text-muted)', pointerEvents: 'none', zIndex: 1 }} />
                     <input
                       type="time"
                       value={value}
@@ -198,9 +198,9 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
 
             {/* ── Duration row ── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: -10 }}>
-              <Clock className="h-3.5 w-3.5" style={{ color: '#6b7280', flexShrink: 0 }} />
-              <span style={{ fontSize: 12, color: '#0369a1' }}>
-                Duration: <span style={{ color: '#0ea5e9', fontWeight: 700 }}>{duration.perDay}</span> per day · {duration.perWeek} / week
+              <Clock className="h-3.5 w-3.5" style={{ color: 'var(--color-text-muted)', flexShrink: 0 }} />
+              <span style={{ fontSize: 12, color: 'var(--color-text-secondary)' }}>
+                Duration: <span style={{ color: 'var(--color-primary)', fontWeight: 700 }}>{duration.perDay}</span> per day · {duration.perWeek} / week
               </span>
             </div>
 
@@ -218,7 +218,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                       key={label as string}
                       type="button"
                       onClick={fn as () => void}
-                      style={{ fontSize: 12, color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                      style={{ fontSize: 12, color: 'var(--color-text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
                     >
                       {label as string}
                     </button>
@@ -233,7 +233,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                       key={day}
                       type="button"
                       onClick={() => toggleDay(idx)}
-                      style={{ height: 44, borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', background: isSelected ? 'linear-gradient(135deg, #0ea5e9, #06b6d4)' : '#e0f2fe', color: isSelected ? '#FFFFFF' : '#0369a1', transition: 'all 0.15s' }}
+                      style={{ height: 44, borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', background: isSelected ? 'linear-gradient(135deg, var(--color-primary), var(--color-primary))' : 'var(--color-surface-alt)', color: isSelected ? '#FFFFFF' : 'var(--color-text-secondary)', transition: 'all 0.15s' }}
                     >
                       {day}
                     </button>
@@ -268,7 +268,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                   type="date"
                   value={startDate}
                   onChange={e => setStartDate(e.target.value)}
-                  style={{ ...inputStyle, color: startDate ? '#0c4a6e' : '#6b7280' }}
+                  style={{ ...inputStyle, color: startDate ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}
                   onFocus={focusPrimary}
                   onBlur={blurDefault}
                 />
@@ -281,7 +281,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                   type="date"
                   value={endDate}
                   onChange={e => setEndDate(e.target.value)}
-                  style={{ ...inputStyle, color: endDate ? '#0c4a6e' : '#6b7280' }}
+                  style={{ ...inputStyle, color: endDate ? 'var(--color-text-primary)' : 'var(--color-text-muted)' }}
                   onFocus={focusPrimary}
                   onBlur={blurDefault}
                 />
@@ -299,15 +299,15 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                       key={opt.id}
                       type="button"
                       onClick={() => setPriority(opt.id)}
-                      style={{ padding: '12px 14px', borderRadius: 10, textAlign: 'left', cursor: 'pointer', border: isSelected ? '1px solid rgba(14,165,233,0.50)' : '1px solid #bae6fd', backgroundColor: isSelected ? 'rgba(14,165,233,0.08)' : '#FFFFFF', transition: 'all 0.15s' }}
+                      style={{ padding: '12px 14px', borderRadius: 10, textAlign: 'left', cursor: 'pointer', border: isSelected ? '1px solid color-mix(in srgb, var(--color-primary) 50%, transparent)' : '1px solid var(--color-border)', backgroundColor: isSelected ? 'var(--color-primary-light)' : '#FFFFFF', transition: 'all 0.15s' }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                        <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: isSelected ? '#0ea5e9' : '#6b7280', flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, fontWeight: isSelected ? 700 : 500, color: isSelected ? '#0ea5e9' : '#0369a1' }}>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: isSelected ? 'var(--color-primary)' : 'var(--color-text-muted)', flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, fontWeight: isSelected ? 700 : 500, color: isSelected ? 'var(--color-primary)' : 'var(--color-text-secondary)' }}>
                           {opt.label}
                         </span>
                       </div>
-                      <p style={{ fontSize: 11, color: '#6b7280', margin: 0, lineHeight: 1.35 }}>{opt.desc}</p>
+                      <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: 0, lineHeight: 1.35 }}>{opt.desc}</p>
                     </button>
                   )
                 })}
@@ -318,14 +318,14 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                 <label style={{ ...labelStyle, marginBottom: 0 }}>Channels</label>
-                <span style={{ fontSize: 12, color: '#6b7280' }}>
+                <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                   {selectedChannelIds.length} of {channels.length} selected
                 </span>
               </div>
               <div style={{ maxHeight: 180, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {channels.length === 0 ? (
                   <div style={{ padding: '16px', textAlign: 'center' }}>
-                    <p style={{ fontSize: 13, color: '#6b7280', margin: 0 }}>No channels available. Create channels first.</p>
+                    <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>No channels available. Create channels first.</p>
                   </div>
                 ) : (
                   channels.map((ch: any) => {
@@ -336,15 +336,15 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
                         key={ch.channel_id}
                         type="button"
                         onClick={() => toggleChannel(ch.channel_id)}
-                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, cursor: 'pointer', border: 'none', textAlign: 'left', backgroundColor: isChSelected ? 'rgba(14,165,233,0.08)' : '#FFFFFF', outline: isChSelected ? '1px solid rgba(14,165,233,0.30)' : '1px solid #bae6fd', transition: 'all 0.15s' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 10, cursor: 'pointer', border: 'none', textAlign: 'left', backgroundColor: isChSelected ? 'var(--color-primary-light)' : '#FFFFFF', outline: isChSelected ? '1px solid color-mix(in srgb, var(--color-primary) 30%, transparent)' : '1px solid var(--color-border)', transition: 'all 0.15s' }}
                       >
                         {/* Channel TV icon */}
-                        <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#e0f2fe', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <div style={{ width: 14, height: 10, borderRadius: 2, border: '1.5px solid #6b7280' }} />
+                        <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'var(--color-surface-alt)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <div style={{ width: 14, height: 10, borderRadius: 2, border: '1.5px solid var(--color-text-muted)' }} />
                         </div>
-                        <span style={{ fontSize: 13, fontWeight: 500, color: '#0c4a6e', flex: 1 }}>{ch.name}</span>
-                        <span style={{ fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, color: isPublished ? '#059669' : '#6b7280' }}>
-                          <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: isPublished ? '#059669' : '#6b7280', display: 'inline-block', flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--color-text-primary)', flex: 1 }}>{ch.name}</span>
+                        <span style={{ fontSize: 11, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, color: isPublished ? '#059669' : 'var(--color-text-muted)' }}>
+                          <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: isPublished ? '#059669' : 'var(--color-text-muted)', display: 'inline-block', flexShrink: 0 }} />
                           {isPublished ? 'Published' : ch.status || 'Draft'}
                         </span>
                       </button>
@@ -357,13 +357,13 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
           </div>{/* end scroll area */}
 
           {/* ── Fixed Footer ── */}
-          <div style={{ borderTop: '1px solid #bae6fd', padding: '14px 22px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-            <span style={{ fontSize: 12, color: '#6b7280', flex: 1 }}>{summaryText}</span>
+          <div style={{ borderTop: '1px solid var(--color-border)', padding: '14px 22px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+            <span style={{ fontSize: 12, color: 'var(--color-text-muted)', flex: 1 }}>{summaryText}</span>
 
             <button
               type="button"
               onClick={handleClose}
-              style={{ height: 44, padding: '0 20px', borderRadius: 10, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#0369a1', fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}
+              style={{ height: 44, padding: '0 20px', borderRadius: 10, backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}
             >
               Cancel
             </button>
@@ -371,7 +371,7 @@ export function ScheduleModal({ isOpen, onClose, schedule, workspaceId }: Schedu
             <button
               type="submit"
               disabled={isPending}
-              style={{ height: 44, padding: '0 20px', borderRadius: 10, background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)', color: '#FFFFFF', fontSize: 13, fontWeight: 700, cursor: isPending ? 'not-allowed' : 'pointer', opacity: isPending ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, border: 'none', whiteSpace: 'nowrap' }}
+              style={{ height: 44, padding: '0 20px', borderRadius: 10, background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary))', color: '#FFFFFF', fontSize: 13, fontWeight: 700, cursor: isPending ? 'not-allowed' : 'pointer', opacity: isPending ? 0.7 : 1, display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, border: 'none', whiteSpace: 'nowrap' }}
             >
               {isPending ? (
                 <>

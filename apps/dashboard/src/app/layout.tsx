@@ -6,8 +6,9 @@ import { Toaster } from '@/components/ui/toaster'
 
 const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-roboto',
   display: 'swap',
+  weight: ['300', '400', '500', '700'],
 })
 
 const jetbrainsMono = JetBrains_Mono({

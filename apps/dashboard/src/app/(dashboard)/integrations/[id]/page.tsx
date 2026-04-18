@@ -72,6 +72,10 @@ export default function IntegrationDetailPage() {
   const deleteIntegration = useDeleteIntegration()
 
   const isGoogle = integration?.provider?.startsWith('google')
+  const showOAuthReconnect =
+    integration?.status !== 'active' &&
+    !!integration?.provider &&
+    (integration.provider.startsWith('google') || integration.provider === 'canva')
 
   const handleDisconnect = () => {
     disconnect.mutate(
@@ -208,11 +212,11 @@ export default function IntegrationDetailPage() {
         )}
 
         <div className="mt-6 flex gap-3 flex-wrap">
-          {integration.status !== 'active' && isGoogle && (
+          {showOAuthReconnect && (
             <GoogleOAuthButton
               workspaceId={workspaceId}
               provider={integration.provider}
-              label="Reconnect"
+              label={integration.provider === 'canva' ? 'Reconnect with Canva' : 'Reconnect'}
               size="sm"
             />
           )}

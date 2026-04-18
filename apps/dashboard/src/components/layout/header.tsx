@@ -55,49 +55,33 @@ export function Header({ breadcrumbItems }: HeaderProps) {
 
   return (
     <header
-      className="z-30 flex h-14 items-center justify-between px-3 sm:px-6 flex-shrink-0"
-      style={{
-        backgroundColor: '#FFFFFF',
-        borderBottom: '1px solid #bae6fd',
-        boxShadow: '0 1px 3px rgba(14,165,233,0.06)',
-      }}
+      className="z-30 flex h-14 flex-shrink-0 items-center justify-between border-b border-border bg-surface px-3 sm:px-6"
+      style={{ boxShadow: 'var(--shadow-xs)' }}
     >
-      {/* Left: hamburger (mobile) + breadcrumb */}
-      <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
-        {/* Hamburger – mobile only */}
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
         <button
           onClick={openMobile}
-          className="md:hidden flex items-center justify-center h-9 w-9 rounded-lg flex-shrink-0 touch-target transition-colors"
-          style={{ color: '#0369a1' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLElement).style.color = '#0c4a6e' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#0369a1' }}
+          className="touch-target flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-surface-hover hover:text-text-primary md:hidden"
           aria-label="Open navigation menu"
         >
           <Menu className="h-5 w-5" />
         </button>
 
-        {/* Mobile search expand overlay */}
         {mobileSearchOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute inset-x-0 top-0 h-14 flex items-center px-3 z-10 sm:hidden"
-            style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #bae6fd' }}
+            className="absolute inset-x-0 top-0 z-10 flex h-14 items-center border-b border-border bg-surface px-3 sm:hidden"
           >
             <Search
-              className="absolute left-7 h-3.5 w-3.5 pointer-events-none"
-              style={{ color: '#6b7280' }}
+              className="pointer-events-none absolute left-7 h-3.5 w-3.5 text-text-muted"
             />
             <input
               autoFocus
               placeholder="Search..."
               onBlur={() => setMobileSearchOpen(false)}
-              className="w-full h-9 pl-9 pr-4 text-sm rounded-lg outline-none transition-all"
-              style={{
-                backgroundColor: '#e0f2fe',
-                border: '1px solid #0ea5e9',
-                color: '#0c4a6e',
-              }}
+              className="h-9 w-full rounded-full border border-primary pl-9 pr-4 text-sm text-text-primary outline-none transition-all"
+              style={{ backgroundColor: 'var(--color-search-field)' }}
             />
           </motion.div>
         )}
@@ -105,53 +89,46 @@ export function Header({ breadcrumbItems }: HeaderProps) {
         {breadcrumbItems && breadcrumbItems.length > 0 ? (
           <Breadcrumb items={breadcrumbItems} className="min-w-0" />
         ) : (
-          <span className="text-sm font-medium" style={{ color: '#6b7280' }}>Dashboard</span>
+          <span className="text-sm font-medium text-text-muted">Dashboard</span>
         )}
       </div>
 
-      {/* Right: search + bell + avatar */}
       <div className="flex items-center gap-1 sm:gap-3">
 
-        {/* Search – desktop */}
         <motion.div
           animate={{ width: searchFocused ? '260px' : '180px' }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
           className="relative hidden sm:block"
         >
           <Search
-            className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 pointer-events-none"
-            style={{ color: searchFocused ? '#0ea5e9' : '#6b7280' }}
+            className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2"
+            style={{ color: searchFocused ? 'var(--color-primary)' : 'var(--color-text-muted)' }}
           />
           <input
             placeholder="Search..."
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
-            className="w-full h-9 pl-9 pr-10 text-sm rounded-lg outline-none transition-all"
+            className="h-9 w-full rounded-full border pl-9 pr-10 text-sm text-text-primary outline-none transition-all"
             style={{
-              backgroundColor: '#e0f2fe',
-              border: `1px solid ${searchFocused ? '#0ea5e9' : '#bae6fd'}`,
-              color: '#0c4a6e',
-              boxShadow: searchFocused ? '0 0 0 3px rgba(14,165,233,0.12)' : 'none',
+              backgroundColor: 'var(--color-search-field)',
+              borderColor: searchFocused ? 'var(--color-primary)' : 'var(--color-border)',
+              boxShadow: searchFocused ? '0 0 0 3px var(--color-primary-light)' : 'none',
             }}
           />
           <kbd
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs px-1.5 py-0.5 rounded"
-            style={{ color: '#6b7280', backgroundColor: '#e0f2fe', fontFamily: 'inherit' }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md px-1.5 py-0.5 text-xs text-text-muted"
+            style={{ backgroundColor: 'var(--color-surface-alt)', fontFamily: 'inherit' }}
           >
             ⌘K
           </kbd>
         </motion.div>
 
 
-        {/* User avatar dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="focus:outline-none rounded-full ring-2 ring-transparent hover:ring-[#bae6fd] transition-all">
+            <button className="rounded-full ring-2 ring-transparent transition-all hover:ring-border focus:outline-none">
               <Avatar className="h-8 w-8 cursor-pointer">
-                <AvatarFallback
-                  className="text-xs font-semibold text-white"
-                  style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }}
-                >
+                <AvatarFallback className="bg-primary text-xs font-semibold text-white">
                   {userInitials}
                 </AvatarFallback>
               </Avatar>
@@ -159,66 +136,59 @@ export function Header({ breadcrumbItems }: HeaderProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             align="end"
-            className="w-64 p-2 rounded-xl"
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #bae6fd',
-              boxShadow: '0 8px 24px rgba(14,165,233,0.10), 0 2px 8px rgba(0,0,0,0.06)',
-            }}
+            className="w-64 rounded-2xl border border-border bg-surface p-2"
+            style={{ boxShadow: 'var(--shadow-elevated)' }}
           >
-            <DropdownMenuLabel className="font-normal px-3 py-2">
+            <DropdownMenuLabel className="px-3 py-2 font-normal">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback
-                    className="text-sm font-semibold text-white"
-                    style={{ background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)' }}
-                  >
+                  <AvatarFallback className="bg-primary text-sm font-semibold text-white">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="text-sm font-semibold" style={{ color: '#0c4a6e' }}>{userDisplayName}</p>
-                  <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>{userRole}</p>
+                  <p className="text-sm font-semibold text-text-primary">{userDisplayName}</p>
+                  <p className="mt-0.5 text-xs text-text-muted">{userRole}</p>
                 </div>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator style={{ backgroundColor: '#e0f2fe' }} className="my-2" />
+            <DropdownMenuSeparator className="my-2 bg-border-subtle" />
             <Link href="/profile">
-              <DropdownMenuItem className="gap-3 cursor-pointer rounded-lg px-3 py-2 focus:bg-[#e0f2fe]">
-                <User className="h-4 w-4" style={{ color: '#6b7280' }} />
-                <span className="text-sm" style={{ color: '#0c4a6e' }}>Profile</span>
+              <DropdownMenuItem className="cursor-pointer gap-3 rounded-xl px-3 py-2 focus:bg-surface-hover">
+                <User className="h-4 w-4 text-text-muted" />
+                <span className="text-sm text-text-primary">Profile</span>
               </DropdownMenuItem>
             </Link>
             <Link href="/settings">
-              <DropdownMenuItem className="gap-3 cursor-pointer rounded-lg px-3 py-2 focus:bg-[#e0f2fe]">
-                <Settings className="h-4 w-4" style={{ color: '#6b7280' }} />
-                <span className="text-sm" style={{ color: '#0c4a6e' }}>Settings</span>
+              <DropdownMenuItem className="cursor-pointer gap-3 rounded-xl px-3 py-2 focus:bg-surface-hover">
+                <Settings className="h-4 w-4 text-text-muted" />
+                <span className="text-sm text-text-primary">Settings</span>
               </DropdownMenuItem>
             </Link>
             <Link href="/workspace">
-              <DropdownMenuItem className="gap-3 cursor-pointer rounded-lg px-3 py-2 focus:bg-[#e0f2fe]">
-                <Building2 className="h-4 w-4" style={{ color: '#6b7280' }} />
-                <span className="text-sm" style={{ color: '#0c4a6e' }}>{workspaceName}</span>
+              <DropdownMenuItem className="cursor-pointer gap-3 rounded-xl px-3 py-2 focus:bg-surface-hover">
+                <Building2 className="h-4 w-4 text-text-muted" />
+                <span className="text-sm text-text-primary">{workspaceName}</span>
               </DropdownMenuItem>
             </Link>
-            <DropdownMenuSeparator style={{ backgroundColor: '#e0f2fe' }} className="my-2" />
+            <DropdownMenuSeparator className="my-2 bg-border-subtle" />
             <Link href="/help">
-              <DropdownMenuItem className="gap-3 cursor-pointer rounded-lg px-3 py-2 focus:bg-[#e0f2fe]">
-                <HelpCircle className="h-4 w-4" style={{ color: '#6b7280' }} />
-                <span className="text-sm" style={{ color: '#0c4a6e' }}>Help & Support</span>
+              <DropdownMenuItem className="cursor-pointer gap-3 rounded-xl px-3 py-2 focus:bg-surface-hover">
+                <HelpCircle className="h-4 w-4 text-text-muted" />
+                <span className="text-sm text-text-primary">Help & Support</span>
               </DropdownMenuItem>
             </Link>
-            <DropdownMenuSeparator style={{ backgroundColor: '#e0f2fe' }} className="my-2" />
+            <DropdownMenuSeparator className="my-2 bg-border-subtle" />
             <DropdownMenuItem
-              className="gap-3 cursor-pointer rounded-lg px-3 py-2 focus:bg-red-50"
+              className="cursor-pointer gap-3 rounded-xl px-3 py-2 focus:bg-[var(--color-error-light)]"
               onClick={async () => {
                 const { signOut } = await import('@/services/auth')
                 await signOut()
                 window.location.href = '/sign-in'
               }}
             >
-              <LogOut className="h-4 w-4" style={{ color: '#DC2626' }} />
-              <span className="text-sm font-medium" style={{ color: '#DC2626' }}>Sign out</span>
+              <LogOut className="h-4 w-4 text-error" />
+              <span className="text-sm font-medium text-error">Sign out</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

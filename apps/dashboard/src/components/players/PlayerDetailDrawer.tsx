@@ -20,12 +20,12 @@ import type { Player, PlayerCommand } from '@signage/types'
 // ── Shared inline styles ──────────────────────────────────────────────────────
 const cardStyle: React.CSSProperties = {
   backgroundColor: '#FFFFFF',
-  border: '1px solid #bae6fd',
+  border: '1px solid var(--color-border)',
   borderRadius: 12,
   padding: '14px 16px',
 }
-const labelStyle: React.CSSProperties = { fontSize: 12, color: '#6b7280', marginBottom: 6, display: 'block' }
-const valueStyle: React.CSSProperties = { fontSize: 13, color: '#0c4a6e' }
+const labelStyle: React.CSSProperties = { fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 6, display: 'block' }
+const valueStyle: React.CSSProperties = { fontSize: 13, color: 'var(--color-text-primary)' }
 
 type DrawerTab = 'info' | 'commands' | 'screenshots' | 'metrics'
 const TABS: { key: DrawerTab; label: string; Icon: any }[] = [
@@ -39,7 +39,7 @@ const TABS: { key: DrawerTab; label: string; Icon: any }[] = [
 const STATUS_CFG: Record<string, { bg: string; text: string; dot: string; Icon: any }> = {
   online:  { bg: 'rgba(5,150,105,0.15)',   text: '#059669', dot: '#059669', Icon: Wifi    },
   offline: { bg: 'rgba(220,38,38,0.15)',   text: '#DC2626', dot: '#DC2626', Icon: WifiOff },
-  pending: { bg: 'rgba(14,165,233,0.12)',  text: '#0ea5e9', dot: '#0ea5e9', Icon: Clock   },
+  pending: { bg: 'color-mix(in srgb, var(--color-primary) 12%, transparent)',  text: 'var(--color-primary)', dot: 'var(--color-primary)', Icon: Clock   },
 }
 
 // Command status colors
@@ -48,8 +48,8 @@ const CMD_STATUS_COLOR: Record<string, string> = {
   failed:       '#DC2626',
   acknowledged: '#60A5FA',
   sent:         '#A78BFA',
-  pending:      '#0ea5e9',
-  expired:      '#6b7280',
+  pending:      'var(--color-primary)',
+  expired:      'var(--color-text-muted)',
 }
 
 interface PlayerDetailDrawerProps {
@@ -113,7 +113,7 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
   const typedPlayer = player as Player | undefined
   const deviceInfo  = typedPlayer?.device_info
   const statusCfg   = STATUS_CFG[typedPlayer?.status || ''] || {
-    bg: 'rgba(107,114,128,0.15)', text: '#6b7280', dot: '#6b7280', Icon: Info,
+    bg: 'rgba(107,114,128,0.15)', text: 'var(--color-text-muted)', dot: 'var(--color-text-muted)', Icon: Info,
   }
 
   const PLAYER_BASE_URL = typeof window !== 'undefined'
@@ -146,14 +146,14 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
           <DrawerContent>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[1, 2, 3].map(i => (
-                <div key={i} style={{ height: 80, backgroundColor: '#e0f2fe', borderRadius: 12, opacity: 0.5 }} />
+                <div key={i} style={{ height: 80, backgroundColor: 'var(--color-surface-alt)', borderRadius: 12, opacity: 0.5 }} />
               ))}
             </div>
           </DrawerContent>
         ) : typedPlayer ? (
           <>
             {/* ── Tab Bar ── */}
-            <div style={{ display: 'flex', gap: 4, padding: '0 16px 12px', borderBottom: '1px solid #bae6fd' }}>
+            <div style={{ display: 'flex', gap: 4, padding: '0 16px 12px', borderBottom: '1px solid var(--color-border)' }}>
               {TABS.map(({ key, label, Icon }) => {
                 const active = activeTab === key
                 return (
@@ -163,9 +163,9 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                     style={{
                       display: 'flex', alignItems: 'center', gap: 6,
                       padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-                      border: active ? 'none' : '1px solid #bae6fd',
-                      background: active ? 'linear-gradient(135deg, #0ea5e9, #06b6d4)' : 'transparent',
-                      color: active ? '#FFFFFF' : '#0369a1',
+                      border: active ? 'none' : '1px solid var(--color-border)',
+                      background: active ? 'linear-gradient(135deg, var(--color-primary), var(--color-primary))' : 'transparent',
+                      color: active ? '#FFFFFF' : 'var(--color-text-secondary)',
                       cursor: 'pointer',
                     }}
                   >
@@ -186,12 +186,12 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                     <div style={cardStyle}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: 'rgba(14,165,233,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <Monitor className="h-5 w-5" style={{ color: '#0ea5e9' }} />
+                          <div style={{ width: 40, height: 40, borderRadius: 10, backgroundColor: 'var(--color-primary-light)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Monitor className="h-5 w-5" style={{ color: 'var(--color-primary)' }} />
                           </div>
                           <div>
-                            <p style={{ fontSize: 13, fontWeight: 600, color: '#0c4a6e', margin: 0, textTransform: 'capitalize' }}>{typedPlayer.device_type}</p>
-                            <p style={{ fontSize: 11, color: '#6b7280', margin: '2px 0 0' }}>
+                            <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)', margin: 0, textTransform: 'capitalize' }}>{typedPlayer.device_type}</p>
+                            <p style={{ fontSize: 11, color: 'var(--color-text-muted)', margin: '2px 0 0' }}>
                               Last seen: {typedPlayer.last_seen_at ? new Date(typedPlayer.last_seen_at).toLocaleString() : 'Never'}
                             </p>
                           </div>
@@ -206,8 +206,8 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                     {/* Channel assignment */}
                     <div style={cardStyle}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                        <Tv className="h-4 w-4" style={{ color: '#6b7280' }} />
-                        <label style={{ ...labelStyle, marginBottom: 0, fontSize: 13, fontWeight: 600, color: '#0c4a6e' }}>Channel</label>
+                        <Tv className="h-4 w-4" style={{ color: 'var(--color-text-muted)' }} />
+                        <label style={{ ...labelStyle, marginBottom: 0, fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)' }}>Channel</label>
                       </div>
                       <Select
                         value={typedPlayer.channel_id || undefined}
@@ -222,24 +222,24 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                         ]}
                       />
                       {assignChannelMutation.isPending && (
-                        <p style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>Updating channel...</p>
+                        <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 4 }}>Updating channel...</p>
                       )}
                     </div>
 
                     {/* Display Name */}
                     <div style={cardStyle}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                        <Edit3 className="h-4 w-4" style={{ color: '#6b7280' }} />
-                        <label style={{ ...labelStyle, marginBottom: 0, fontSize: 13, fontWeight: 600, color: '#0c4a6e' }}>Display Name</label>
+                        <Edit3 className="h-4 w-4" style={{ color: 'var(--color-text-muted)' }} />
+                        <label style={{ ...labelStyle, marginBottom: 0, fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)' }}>Display Name</label>
                       </div>
                       <input
                         value={editName}
                         onChange={e => { setEditName(e.target.value); setNameChanged(e.target.value !== typedPlayer.name) }}
                         onKeyDown={e => { if (e.key === 'Enter') handleSaveName() }}
                         placeholder="Player name"
-                        style={{ width: '100%', height: 40, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 8, padding: '0 12px', fontSize: 13, color: '#0c4a6e', outline: 'none', boxSizing: 'border-box' }}
-                        onFocus={e => { e.currentTarget.style.borderColor = '#0ea5e9' }}
-                        onBlur={e => { e.currentTarget.style.borderColor = '#bae6fd' }}
+                        style={{ width: '100%', height: 40, backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', borderRadius: 8, padding: '0 12px', fontSize: 13, color: 'var(--color-text-primary)', outline: 'none', boxSizing: 'border-box' }}
+                        onFocus={e => { e.currentTarget.style.borderColor = 'var(--color-primary)' }}
+                        onBlur={e => { e.currentTarget.style.borderColor = 'var(--color-border)' }}
                       />
                     </div>
 
@@ -247,8 +247,8 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                     {deviceInfo && (
                       <div style={cardStyle}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                          <Info className="h-4 w-4" style={{ color: '#6b7280' }} />
-                          <p style={{ fontSize: 13, fontWeight: 600, color: '#0c4a6e', margin: 0 }}>Device Info</p>
+                          <Info className="h-4 w-4" style={{ color: 'var(--color-text-muted)' }} />
+                          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>Device Info</p>
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                           {deviceInfo.os && (
@@ -277,10 +277,10 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                     {playerUrl && typedPlayer.status !== 'pending' && (
                       <div style={cardStyle}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                          <Link className="h-4 w-4" style={{ color: '#6b7280' }} />
-                          <p style={{ fontSize: 13, fontWeight: 600, color: '#0c4a6e', margin: 0 }}>Player URL</p>
+                          <Link className="h-4 w-4" style={{ color: 'var(--color-text-muted)' }} />
+                          <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)', margin: 0 }}>Player URL</p>
                         </div>
-                        <p style={{ fontSize: 11, color: '#6b7280', marginBottom: 8 }}>
+                        <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginBottom: 8 }}>
                           Open this URL in any browser to display this player.
                         </p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -288,23 +288,23 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                             readOnly
                             value={playerUrl}
                             onClick={(e) => (e.target as HTMLInputElement).select()}
-                            style={{ flex: 1, height: 34, padding: '0 10px', fontSize: 11, fontFamily: 'monospace', backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 8, color: '#0c4a6e', outline: 'none', boxSizing: 'border-box' }}
+                            style={{ flex: 1, height: 34, padding: '0 10px', fontSize: 11, fontFamily: 'monospace', backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', borderRadius: 8, color: 'var(--color-text-primary)', outline: 'none', boxSizing: 'border-box' }}
                           />
                           <button
                             onClick={handleCopyUrl}
-                            style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                             title="Copy URL"
                           >
-                            <Copy className="h-4 w-4" style={{ color: urlCopied ? '#059669' : '#6b7280' }} />
+                            <Copy className="h-4 w-4" style={{ color: urlCopied ? '#059669' : 'var(--color-text-muted)' }} />
                           </button>
                           <a
                             href={playerUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+                            style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: 'var(--color-primary-light)', border: '1px solid color-mix(in srgb, var(--color-primary) 16%, transparent)', display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
                             title="Open player"
                           >
-                            <ExternalLink className="h-4 w-4" style={{ color: '#0ea5e9' }} />
+                            <ExternalLink className="h-4 w-4" style={{ color: 'var(--color-primary)' }} />
                           </a>
                         </div>
                       </div>
@@ -313,22 +313,22 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                     {/* Pairing Code */}
                     {typedPlayer.status === 'pending' && typedPlayer.pairing_code && (
                       <div style={cardStyle}>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: '#0c4a6e', margin: '0 0 10px' }}>Pairing Code</p>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)', margin: '0 0 10px' }}>Pairing Code</p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <code style={{ fontSize: 20, fontWeight: 700, letterSpacing: '0.12em', fontFamily: 'monospace', color: '#0ea5e9', backgroundColor: 'rgba(14,165,233,0.08)', padding: '6px 14px', borderRadius: 8 }}>
+                          <code style={{ fontSize: 20, fontWeight: 700, letterSpacing: '0.12em', fontFamily: 'monospace', color: 'var(--color-primary)', backgroundColor: 'var(--color-primary-light)', padding: '6px 14px', borderRadius: 8 }}>
                             {typedPlayer.pairing_code}
                           </code>
                           <button
                             onClick={() => navigator.clipboard.writeText(typedPlayer.pairing_code!)}
-                            style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+                            style={{ width: 34, height: 34, borderRadius: 8, backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                           >
-                            <Copy className="h-4 w-4" style={{ color: '#6b7280' }} />
+                            <Copy className="h-4 w-4" style={{ color: 'var(--color-text-muted)' }} />
                           </button>
                         </div>
                       </div>
                     )}
 
-                    <p style={{ fontSize: 11, color: '#6b7280' }}>
+                    <p style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>
                       Created {new Date(typedPlayer.created_at).toLocaleDateString()}
                     </p>
                   </div>
@@ -346,7 +346,7 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                     <button
                       onClick={handleSaveName}
                       disabled={!nameChanged || !editName.trim() || updatePlayerMutation.isPending}
-                      style={{ height: 38, padding: '0 20px', borderRadius: 8, background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)', color: '#FFFFFF', fontSize: 13, fontWeight: 700, border: 'none', cursor: (!nameChanged || !editName.trim() || updatePlayerMutation.isPending) ? 'not-allowed' : 'pointer', opacity: (!nameChanged || !editName.trim() || updatePlayerMutation.isPending) ? 0.5 : 1 }}
+                      style={{ height: 38, padding: '0 20px', borderRadius: 8, background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary))', color: '#FFFFFF', fontSize: 13, fontWeight: 700, border: 'none', cursor: (!nameChanged || !editName.trim() || updatePlayerMutation.isPending) ? 'not-allowed' : 'pointer', opacity: (!nameChanged || !editName.trim() || updatePlayerMutation.isPending) ? 0.5 : 1 }}
                     >
                       {updatePlayerMutation.isPending ? 'Saving...' : 'Save Changes'}
                     </button>
@@ -359,18 +359,18 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
             {activeTab === 'commands' && (
               <DrawerContent>
                 {commandsLoading ? (
-                  <div style={{ textAlign: 'center', padding: '32px 0', color: '#6b7280', fontSize: 13 }}>Loading commands…</div>
+                  <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--color-text-muted)', fontSize: 13 }}>Loading commands…</div>
                 ) : commands.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '32px 0', color: '#6b7280', fontSize: 13 }}>No commands sent yet</div>
+                  <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--color-text-muted)', fontSize: 13 }}>No commands sent yet</div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {commands.map((cmd) => (
                       <div key={cmd.command_id} style={cardStyle}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                          <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', backgroundColor: 'rgba(14,165,233,0.08)', padding: '3px 8px', borderRadius: 6, color: '#0ea5e9' }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', backgroundColor: 'var(--color-primary-light)', padding: '3px 8px', borderRadius: 6, color: 'var(--color-primary)' }}>
                             {cmd.type}
                           </span>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: CMD_STATUS_COLOR[cmd.status] ?? '#6b7280', textTransform: 'capitalize' }}>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: CMD_STATUS_COLOR[cmd.status] ?? 'var(--color-text-muted)', textTransform: 'capitalize' }}>
                             {cmd.status}
                           </span>
                         </div>
@@ -398,15 +398,15 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
               <>
                 <DrawerContent>
                   {screenshotsLoading ? (
-                    <div style={{ textAlign: 'center', padding: '32px 0', color: '#6b7280', fontSize: 13 }}>Loading screenshots…</div>
+                    <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--color-text-muted)', fontSize: 13 }}>Loading screenshots…</div>
                   ) : screenshots.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '32px 0', color: '#6b7280', fontSize: 13 }}>
+                    <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--color-text-muted)', fontSize: 13 }}>
                       No screenshots yet. Request one below.
                     </div>
                   ) : (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                       {screenshots.map((shot: any, i: number) => (
-                        <div key={shot.screenshot_id ?? i} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #bae6fd', backgroundColor: '#FFFFFF' }}>
+                        <div key={shot.screenshot_id ?? i} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--color-border)', backgroundColor: '#FFFFFF' }}>
                           {shot.thumbnail_url || shot.url ? (
                             <img
                               src={shot.thumbnail_url || shot.url}
@@ -414,12 +414,12 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                               style={{ width: '100%', height: 120, objectFit: 'cover', display: 'block' }}
                             />
                           ) : (
-                            <div style={{ width: '100%', height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>
+                            <div style={{ width: '100%', height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-muted)' }}>
                               <Camera style={{ width: 24, height: 24 }} />
                             </div>
                           )}
                           {shot.captured_at && (
-                            <p style={{ fontSize: 10, color: '#6b7280', padding: '6px 8px', margin: 0 }}>
+                            <p style={{ fontSize: 10, color: 'var(--color-text-muted)', padding: '6px 8px', margin: 0 }}>
                               {new Date(shot.captured_at).toLocaleString()}
                             </p>
                           )}
@@ -432,7 +432,7 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                   <button
                     onClick={() => requestScreenshotMutation.mutate({ workspaceId, playerId: playerId! })}
                     disabled={requestScreenshotMutation.isPending}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: 40, borderRadius: 8, background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)', color: '#FFFFFF', fontSize: 13, fontWeight: 700, border: 'none', cursor: requestScreenshotMutation.isPending ? 'not-allowed' : 'pointer', opacity: requestScreenshotMutation.isPending ? 0.6 : 1 }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', height: 40, borderRadius: 8, background: 'linear-gradient(135deg, var(--color-primary), var(--color-primary))', color: '#FFFFFF', fontSize: 13, fontWeight: 700, border: 'none', cursor: requestScreenshotMutation.isPending ? 'not-allowed' : 'pointer', opacity: requestScreenshotMutation.isPending ? 0.6 : 1 }}
                   >
                     <RefreshCw className="h-4 w-4" />
                     {requestScreenshotMutation.isPending ? 'Requesting...' : 'Request Screenshot'}
@@ -445,20 +445,20 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
             {activeTab === 'metrics' && (
               <DrawerContent>
                 {metricsLoading ? (
-                  <div style={{ textAlign: 'center', padding: '32px 0', color: '#6b7280', fontSize: 13 }}>Loading metrics…</div>
+                  <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--color-text-muted)', fontSize: 13 }}>Loading metrics…</div>
                 ) : Object.keys(metrics).length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '32px 0', color: '#6b7280', fontSize: 13 }}>No metrics available</div>
+                  <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--color-text-muted)', fontSize: 13 }}>No metrics available</div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                     {metrics.cpu_usage !== undefined && (
                       <div style={cardStyle}>
                         <p style={labelStyle}>CPU Usage</p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <p style={{ ...valueStyle, fontSize: 22, fontWeight: 700, color: '#0ea5e9' }}>
+                          <p style={{ ...valueStyle, fontSize: 22, fontWeight: 700, color: 'var(--color-primary)' }}>
                             {Number(metrics.cpu_usage).toFixed(1)}%
                           </p>
-                          <div style={{ flex: 1, height: 6, backgroundColor: '#e0f2fe', borderRadius: 3, overflow: 'hidden' }}>
-                            <div style={{ height: '100%', width: `${Math.min(Number(metrics.cpu_usage), 100)}%`, backgroundColor: '#0ea5e9', borderRadius: 3 }} />
+                          <div style={{ flex: 1, height: 6, backgroundColor: 'var(--color-surface-alt)', borderRadius: 3, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', width: `${Math.min(Number(metrics.cpu_usage), 100)}%`, backgroundColor: 'var(--color-primary)', borderRadius: 3 }} />
                           </div>
                         </div>
                       </div>
@@ -470,7 +470,7 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                           <p style={{ ...valueStyle, fontSize: 22, fontWeight: 700, color: '#60A5FA' }}>
                             {Number(metrics.memory_usage).toFixed(1)}%
                           </p>
-                          <div style={{ flex: 1, height: 6, backgroundColor: '#e0f2fe', borderRadius: 3, overflow: 'hidden' }}>
+                          <div style={{ flex: 1, height: 6, backgroundColor: 'var(--color-surface-alt)', borderRadius: 3, overflow: 'hidden' }}>
                             <div style={{ height: '100%', width: `${Math.min(Number(metrics.memory_usage), 100)}%`, backgroundColor: '#60A5FA', borderRadius: 3 }} />
                           </div>
                         </div>
@@ -491,14 +491,14 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                           <p style={{ ...valueStyle, fontSize: 22, fontWeight: 700, color: '#A78BFA' }}>
                             {Number(metrics.storage_usage).toFixed(1)}%
                           </p>
-                          <div style={{ flex: 1, height: 6, backgroundColor: '#e0f2fe', borderRadius: 3, overflow: 'hidden' }}>
+                          <div style={{ flex: 1, height: 6, backgroundColor: 'var(--color-surface-alt)', borderRadius: 3, overflow: 'hidden' }}>
                             <div style={{ height: '100%', width: `${Math.min(Number(metrics.storage_usage), 100)}%`, backgroundColor: '#A78BFA', borderRadius: 3 }} />
                           </div>
                         </div>
                       </div>
                     )}
                     {!!metrics.timestamp && (
-                      <p style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>
+                      <p style={{ fontSize: 11, color: 'var(--color-text-muted)', marginTop: 4 }}>
                         Last updated: {new Date(metrics.timestamp as string).toLocaleString()}
                       </p>
                     )}
@@ -510,8 +510,8 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
         ) : (
           <DrawerContent>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: 48, gap: 8 }}>
-              <AlertCircle className="h-8 w-8" style={{ color: '#6b7280' }} />
-              <p style={{ fontSize: 13, color: '#6b7280' }}>Player not found</p>
+              <AlertCircle className="h-8 w-8" style={{ color: 'var(--color-text-muted)' }} />
+              <p style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>Player not found</p>
             </div>
           </DrawerContent>
         )}
@@ -520,13 +520,13 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
       {/* ── Delete Confirmation Dialog ── */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent hideClose className="!p-0 max-w-sm">
-          <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid #bae6fd', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+          <div style={{ padding: '20px 22px 16px', borderBottom: '1px solid var(--color-border)', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
             <div style={{ width: 44, height: 44, borderRadius: 10, backgroundColor: 'rgba(220,38,38,0.15)', border: '1px solid rgba(220,38,38,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <AlertTriangle className="h-5 w-5" style={{ color: '#DC2626' }} />
             </div>
             <div style={{ flex: 1 }}>
-              <h2 style={{ fontSize: 17, fontWeight: 700, color: '#0c4a6e', margin: 0 }}>Delete Player</h2>
-              <p style={{ fontSize: 13, color: '#0369a1', margin: '4px 0 0', lineHeight: 1.4 }}>
+              <h2 style={{ fontSize: 17, fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>Delete Player</h2>
+              <p style={{ fontSize: 13, color: 'var(--color-text-secondary)', margin: '4px 0 0', lineHeight: 1.4 }}>
                 Are you sure you want to delete &ldquo;{typedPlayer?.name}&rdquo;? This action cannot be undone.
               </p>
             </div>
@@ -534,7 +534,7 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
           <div style={{ padding: '14px 22px', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
             <button
               onClick={() => setShowDeleteDialog(false)}
-              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#0369a1', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+              style={{ height: 40, padding: '0 18px', borderRadius: 10, backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
             >
               Cancel
             </button>

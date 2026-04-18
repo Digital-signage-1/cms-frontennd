@@ -67,7 +67,7 @@ function ArcGauge({ color, uid, label, progress }: { color: string; uid: string;
         cy={cy}
         r={r}
         fill="none"
-        stroke="#e0f2fe"
+        stroke="var(--color-surface-alt)"
         strokeWidth={strokeW}
         strokeDasharray={`${arcLen} ${circumference}`}
         strokeLinecap="round"
@@ -107,7 +107,7 @@ function ArcGauge({ color, uid, label, progress }: { color: string; uid: string;
         dominantBaseline="central"
         fontSize="13"
         fontWeight="700"
-        fill="#0c4a6e"
+        fill="var(--color-text-primary)"
       >
         {fill}%
       </text>
@@ -115,11 +115,11 @@ function ArcGauge({ color, uid, label, progress }: { color: string; uid: string;
   )
 }
 
-function MetricCard({ label, value, change, dotColor = '#0ea5e9', progress }: MetricCardProps) {
+function MetricCard({ label, value, change, dotColor = 'var(--color-primary)', progress }: MetricCardProps) {
   const uid = useId().replace(/:/g, '-')
 
   const trendColor =
-    change?.trend === 'up' ? '#059669' : change?.trend === 'down' ? '#DC2626' : '#6b7280'
+    change?.trend === 'up' ? '#059669' : change?.trend === 'down' ? '#DC2626' : 'var(--color-text-muted)'
   const trendBg =
     change?.trend === 'up'
       ? 'rgba(5,150,105,0.08)'
@@ -132,17 +132,17 @@ function MetricCard({ label, value, change, dotColor = '#0ea5e9', progress }: Me
       className="rounded-xl relative overflow-hidden transition-all duration-200 group"
       style={{
         backgroundColor: '#FFFFFF',
-        border: '1px solid #bae6fd',
-        boxShadow: '0 1px 3px rgba(14,165,233,0.06)',
+        border: '1px solid var(--color-border)',
+        boxShadow: '0 1px 3px color-mix(in srgb, var(--color-primary) 6%, transparent)',
       }}
       onMouseEnter={e => {
-        (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px rgba(14,165,233,0.14), 0 2px 6px rgba(0,0,0,0.04)'
+        (e.currentTarget as HTMLElement).style.boxShadow = 'var(--shadow-elevated)'
         ;(e.currentTarget as HTMLElement).style.borderColor = dotColor
         ;(e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'
       }}
       onMouseLeave={e => {
-        (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px rgba(14,165,233,0.06)'
-        ;(e.currentTarget as HTMLElement).style.borderColor = '#bae6fd'
+        (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 3px color-mix(in srgb, var(--color-primary) 6%, transparent)'
+        ;(e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border)'
         ;(e.currentTarget as HTMLElement).style.transform = 'translateY(0)'
       }}
     >
@@ -158,16 +158,16 @@ function MetricCard({ label, value, change, dotColor = '#0ea5e9', progress }: Me
         <div className="flex flex-col gap-1 min-w-0">
           <span
             className="text-[11px] uppercase font-semibold tracking-wider"
-            style={{ color: '#6b7280' }}
+            style={{ color: 'var(--color-text-muted)' }}
           >
             {label}
           </span>
 
-          <p className="text-2xl font-bold leading-none tracking-tight" style={{ color: '#0c4a6e' }}>
+          <p className="text-2xl font-bold leading-none tracking-tight" style={{ color: 'var(--color-text-primary)' }}>
             {typeof value === 'string' && value.endsWith(' GB') ? (
               <>
                 {value.slice(0, -3)}
-                <span className="text-sm font-semibold ml-0.5" style={{ color: '#6b7280' }}>GB</span>
+                <span className="text-sm font-semibold ml-0.5" style={{ color: 'var(--color-text-muted)' }}>GB</span>
               </>
             ) : value}
           </p>

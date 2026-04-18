@@ -13,6 +13,8 @@ export interface IntegrationTypeConfig {
   compositeKey?: string
   /** Whether this type needs the app ID appended to the resource ID */
   needsAppId?: boolean
+  /** Append /app_id without a workspace-style composite prefix */
+  appendAppIdWithoutComposite?: boolean
   /** Default refresh interval in milliseconds */
   defaultRefreshMs: number
 }
@@ -55,6 +57,20 @@ export const INTEGRATION_TYPES: Record<string, IntegrationTypeConfig> = {
     needsAppId: true,
     defaultRefreshMs: 5 * 60 * 1000,
   },
+  salesforce_dashboard_v2: {
+    configKey: 'dashboard_id',
+    resourceType: 'screenshot_salesforce',
+    needsAppId: true,
+    appendAppIdWithoutComposite: true,
+    defaultRefreshMs: 5 * 60 * 1000,
+  },
+  salesforce_report_v2: {
+    configKey: 'report_id',
+    resourceType: 'screenshot_salesforce',
+    needsAppId: true,
+    appendAppIdWithoutComposite: true,
+    defaultRefreshMs: 5 * 60 * 1000,
+  },
   powerbi_realtime_report: {
     configKey: 'report_id',
     resourceType: 'report',
@@ -66,6 +82,11 @@ export const INTEGRATION_TYPES: Record<string, IntegrationTypeConfig> = {
     resourceType: 'dashboard',
     compositeKey: 'workspace_id',
     defaultRefreshMs: 30 * 60 * 1000,
+  },
+  canva: {
+    configKey: 'design_id',
+    resourceType: 'design',
+    defaultRefreshMs: 5 * 60 * 1000,
   },
 }
 

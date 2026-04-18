@@ -50,54 +50,49 @@ export function Drawer({ isOpen, onClose, children, title, description, width = 
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             variants={backdropVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
             onClick={onClose}
-            className="fixed inset-0 bg-black/65 backdrop-blur-[2px] z-40"
+            className="fixed inset-0 z-40 bg-black/65 backdrop-blur-[2px]"
           />
 
-          {/* Panel */}
           <motion.div
             variants={slideVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
             className={cn(
-              'fixed top-0 right-0 h-full z-50 flex flex-col shadow-2xl',
-              'bg-white border-l border-[#bae6fd] shadow-[-8px_0_32px_rgba(14,165,233,0.10)]',
+              'fixed top-0 right-0 z-50 flex h-full flex-col border-l border-border bg-surface shadow-2xl',
               widthClasses[width],
               className
             )}
+            style={{ boxShadow: 'var(--shadow-elevated)' }}
           >
             {(title || description) && (
-              <div className="flex-shrink-0 px-6 py-4 border-b border-[#e0f2fe]">
+              <div className="flex-shrink-0 border-b border-border-subtle px-6 py-4">
                 <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     {title && (
-                      <h2 className="text-lg font-semibold mb-0.5" style={{ color: '#0c4a6e' }}>{title}</h2>
+                      <h2 className="mb-0.5 text-lg font-semibold text-text-primary">{title}</h2>
                     )}
                     {description && (
-                      <p className="text-sm" style={{ color: '#0369a1' }}>{description}</p>
+                      <p className="text-sm text-text-secondary">{description}</p>
                     )}
                   </div>
                   <button
                     onClick={onClose}
                     aria-label="Close drawer"
-                    className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-all"
-                    style={{ backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', color: '#6b7280' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLButtonElement).style.color = '#0c4a6e' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#e0f2fe'; (e.currentTarget as HTMLButtonElement).style.color = '#6b7280' }}
+                    className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-border bg-surface-alt text-text-muted transition-colors hover:text-text-primary"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
               </div>
             )}
-            <div className="flex-1 min-h-0 flex flex-col">
+            <div className="flex min-h-0 flex-1 flex-col">
               {children}
             </div>
           </motion.div>
@@ -109,7 +104,7 @@ export function Drawer({ isOpen, onClose, children, title, description, width = 
 
 export function DrawerHeader({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('flex-shrink-0 px-6 py-4 border-b border-[#e0f2fe]', className)}>
+    <div className={cn('flex-shrink-0 border-b border-border-subtle px-6 py-4', className)}>
       {children}
     </div>
   )
@@ -117,7 +112,7 @@ export function DrawerHeader({ children, className }: { children: ReactNode; cla
 
 export function DrawerContent({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('flex-1 min-h-0 overflow-y-auto px-6 py-6', className)}>
+    <div className={cn('min-h-0 flex-1 overflow-y-auto px-6 py-6', className)}>
       {children}
     </div>
   )
@@ -125,7 +120,7 @@ export function DrawerContent({ children, className }: { children: ReactNode; cl
 
 export function DrawerFooter({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn('flex-shrink-0 px-6 py-4 border-t border-[#e0f2fe]', className)}>
+    <div className={cn('flex-shrink-0 border-t border-border-subtle px-6 py-4', className)}>
       {children}
     </div>
   )

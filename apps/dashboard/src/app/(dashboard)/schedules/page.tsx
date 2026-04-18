@@ -53,7 +53,7 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
   return (
     <div
       className="rounded-xl overflow-hidden"
-      style={{ backgroundColor: '#f0f9ff', border: '1px solid #bae6fd' }}
+      style={{ backgroundColor: 'var(--color-background)', border: '1px solid var(--color-border)' }}
     >
       <div className="overflow-x-auto">
         <div style={{ minWidth: `${60 + 24 * HOUR_W}px` }}>
@@ -61,12 +61,12 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
           {/* ── Time header row ── */}
           <div
             className="flex sticky top-0 z-20"
-            style={{ backgroundColor: '#f0f9ff', borderBottom: '1px solid #bae6fd' }}
+            style={{ backgroundColor: 'var(--color-background)', borderBottom: '1px solid var(--color-border)' }}
           >
             {/* DAY label */}
             <div
               className="flex-shrink-0 flex items-center justify-center text-xs font-semibold tracking-widest uppercase"
-              style={{ width: 60, height: 40, color: '#0369a1', borderRight: '1px solid #bae6fd' }}
+              style={{ width: 60, height: 40, color: 'var(--color-text-secondary)', borderRight: '1px solid var(--color-border)' }}
             >
               DAY
             </div>
@@ -80,7 +80,7 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
                   style={{
                     width: HOUR_W,
                     height: 40,
-                    color: isCurrent ? '#0ea5e9' : '#0369a1',
+                    color: isCurrent ? 'var(--color-primary)' : 'var(--color-text-secondary)',
                     borderRight: '1px solid rgba(186,230,253,0.6)',
                   }}
                 >
@@ -89,7 +89,7 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
                   {isCurrent && (
                     <div
                       className="absolute bottom-0 left-0 w-0.5"
-                      style={{ height: 6, backgroundColor: '#0ea5e9', left: (currentHourDecimal - h) * HOUR_W }}
+                      style={{ height: 6, backgroundColor: 'var(--color-primary)', left: (currentHourDecimal - h) * HOUR_W }}
                     />
                   )}
                 </div>
@@ -109,8 +109,8 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
                 className="flex relative"
                 style={{
                   height: rowHeight,
-                  borderBottom: '1px solid #bae6fd',
-                  backgroundColor: isToday ? 'rgba(14,165,233,0.06)' : 'transparent',
+                  borderBottom: '1px solid var(--color-border)',
+                  backgroundColor: isToday ? 'color-mix(in srgb, var(--color-primary) 6%, transparent)' : 'transparent',
                 }}
               >
                 {/* Day label */}
@@ -118,8 +118,8 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
                   className="flex-shrink-0 flex items-center justify-center text-xs font-semibold"
                   style={{
                     width: 60,
-                    color: isToday ? '#0ea5e9' : '#0369a1',
-                    borderRight: '1px solid #bae6fd',
+                    color: isToday ? 'var(--color-primary)' : 'var(--color-text-secondary)',
+                    borderRight: '1px solid var(--color-border)',
                   }}
                 >
                   {day}
@@ -146,7 +146,7 @@ function GanttTimeline({ schedules, currentHourDecimal, currentHourLabel, todayI
                     style={{
                       left: currentHourDecimal * HOUR_W,
                       width: 2,
-                      backgroundColor: '#0ea5e9',
+                      backgroundColor: 'var(--color-primary)',
                     }}
                   />
 
@@ -300,8 +300,8 @@ export default function SchedulesPage() {
         <div
           className="rounded-xl relative overflow-hidden"
           style={{
-            background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)',
-            border: '1px solid #bae6fd',
+            background: 'linear-gradient(135deg, var(--color-background) 0%, var(--color-surface-alt) 50%, var(--color-border) 100%)',
+            border: '1px solid var(--color-border)',
           }}
         >
           {/* Grid overlay */}
@@ -309,7 +309,7 @@ export default function SchedulesPage() {
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage:
-                'linear-gradient(rgba(14,165,233,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.06) 1px, transparent 1px)',
+                'linear-gradient(color-mix(in srgb, var(--color-primary) 6%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 6%, transparent) 1px, transparent 1px)',
               backgroundSize: '40px 40px',
             }}
           />
@@ -320,19 +320,19 @@ export default function SchedulesPage() {
               <div>
                 <p
                   className="text-[10px] font-semibold tracking-widest uppercase mb-0.5"
-                  style={{ color: '#0ea5e9' }}
+                  style={{ color: 'var(--color-primary)' }}
                 >
                   Schedule Timeline
                 </p>
-                <h1 className="text-lg sm:text-xl font-bold" style={{ color: '#0c4a6e' }}>Schedules</h1>
-                <p className="text-xs mt-0.5 max-w-xl" style={{ color: '#0369a1' }}>
+                <h1 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>Schedules</h1>
+                <p className="text-xs mt-0.5 max-w-xl" style={{ color: 'var(--color-text-secondary)' }}>
                   Visualize and manage your content schedules. Automate playback across your display network.
                 </p>
               </div>
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm flex-shrink-0 self-start sm:self-center touch-target"
-                style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+                style={{ backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }}
               >
                 <Plus className="h-4 w-4" />
                 New Schedule
@@ -346,18 +346,18 @@ export default function SchedulesPage() {
                 className="rounded-lg px-3 py-2 flex items-center gap-2.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
-                  border: '1px solid rgba(14,165,233,0.07)',
+                  border: '1px solid color-mix(in srgb, var(--color-primary) 7%, transparent)',
                 }}
               >
                 <div
                   className="w-7 h-7 rounded-md flex items-center justify-center text-sm flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
+                  style={{ backgroundColor: 'var(--color-primary-light)' }}
                 >
                   📅
                 </div>
                 <div>
-                  <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>Total Schedules</p>
-                  <p className="text-sm font-bold" style={{ color: '#0ea5e9' }}>{stats.total}</p>
+                  <p className="text-[10px] leading-tight" style={{ color: 'var(--color-text-secondary)' }}>Total Schedules</p>
+                  <p className="text-sm font-bold" style={{ color: 'var(--color-primary)' }}>{stats.total}</p>
                 </div>
               </div>
 
@@ -366,17 +366,17 @@ export default function SchedulesPage() {
                 className="rounded-lg px-3 py-2 flex items-center gap-2.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
-                  border: '1px solid rgba(14,165,233,0.07)',
+                  border: '1px solid color-mix(in srgb, var(--color-primary) 7%, transparent)',
                 }}
               >
                 <div
                   className="w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
+                  style={{ backgroundColor: 'var(--color-primary-light)' }}
                 >
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#22C55E' }} />
                 </div>
                 <div>
-                  <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>Active</p>
+                  <p className="text-[10px] leading-tight" style={{ color: 'var(--color-text-secondary)' }}>Active</p>
                   <p className="text-sm font-bold" style={{ color: '#34D399' }}>{stats.active}</p>
                 </div>
               </div>
@@ -386,18 +386,18 @@ export default function SchedulesPage() {
                 className="rounded-lg px-3 py-2 flex items-center gap-2.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
-                  border: '1px solid rgba(14,165,233,0.07)',
+                  border: '1px solid color-mix(in srgb, var(--color-primary) 7%, transparent)',
                 }}
               >
                 <div
                   className="w-7 h-7 rounded-md flex items-center justify-center text-sm flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
+                  style={{ backgroundColor: 'var(--color-primary-light)' }}
                 >
                   ⏸
                 </div>
                 <div>
-                  <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>Paused</p>
-                  <p className="text-sm font-bold" style={{ color: '#0c4a6e' }}>{stats.paused}</p>
+                  <p className="text-[10px] leading-tight" style={{ color: 'var(--color-text-secondary)' }}>Paused</p>
+                  <p className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>{stats.paused}</p>
                 </div>
               </div>
 
@@ -406,18 +406,18 @@ export default function SchedulesPage() {
                 className="rounded-lg px-3 py-2 flex items-center gap-2.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
-                  border: '1px solid rgba(14,165,233,0.07)',
+                  border: '1px solid color-mix(in srgb, var(--color-primary) 7%, transparent)',
                 }}
               >
                 <div
                   className="w-7 h-7 rounded-md flex items-center justify-center text-sm flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
+                  style={{ backgroundColor: 'var(--color-primary-light)' }}
                 >
                   📝
                 </div>
                 <div>
-                  <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>Drafts</p>
-                  <p className="text-sm font-bold" style={{ color: '#0c4a6e' }}>{stats.drafts}</p>
+                  <p className="text-[10px] leading-tight" style={{ color: 'var(--color-text-secondary)' }}>Drafts</p>
+                  <p className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>{stats.drafts}</p>
                 </div>
               </div>
 
@@ -426,18 +426,18 @@ export default function SchedulesPage() {
                 className="rounded-lg px-3 py-2 flex items-center gap-2.5"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.75)',
-                  border: '1px solid rgba(14,165,233,0.07)',
+                  border: '1px solid color-mix(in srgb, var(--color-primary) 7%, transparent)',
                 }}
               >
                 <div
                   className="w-7 h-7 rounded-md flex items-center justify-center text-sm flex-shrink-0"
-                  style={{ backgroundColor: 'rgba(14,165,233,0.08)' }}
+                  style={{ backgroundColor: 'var(--color-primary-light)' }}
                 >
                   ⏰
                 </div>
                 <div>
-                  <p className="text-[10px] leading-tight" style={{ color: '#0369a1' }}>Time Slots</p>
-                  <p className="text-sm font-bold" style={{ color: '#0ea5e9' }}>{stats.timeSlots}</p>
+                  <p className="text-[10px] leading-tight" style={{ color: 'var(--color-text-secondary)' }}>Time Slots</p>
+                  <p className="text-sm font-bold" style={{ color: 'var(--color-primary)' }}>{stats.timeSlots}</p>
                 </div>
               </div>
             </div>
@@ -458,8 +458,8 @@ export default function SchedulesPage() {
                 className="px-4 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 touch-target"
                 style={
                   isActive
-                    ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
-                    : { color: '#0369a1' }
+                    ? { backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }
+                    : { color: 'var(--color-text-secondary)' }
                 }
               >
                 {label}
@@ -473,7 +473,7 @@ export default function SchedulesPage() {
           <div className="relative">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4"
-              style={{ color: '#0369a1' }}
+              style={{ color: 'var(--color-text-secondary)' }}
             />
             <input
               placeholder="Search schedules..."
@@ -482,8 +482,8 @@ export default function SchedulesPage() {
               className="pl-9 pr-4 py-2 text-sm rounded-lg outline-none w-full sm:w-52"
               style={{
                 backgroundColor: '#FFFFFF',
-                border: '1px solid #bae6fd',
-                color: '#0c4a6e',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-primary)',
               }}
             />
           </div>
@@ -494,8 +494,8 @@ export default function SchedulesPage() {
             className="p-2 rounded-lg transition-colors"
             style={
               viewMode === 'timeline'
-                ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
-                : { backgroundColor: '#FFFFFF', border: '1px solid #bae6fd', color: '#0369a1' }
+                ? { backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }
+                : { backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }
             }
           >
             <Calendar className="h-4 w-4" />
@@ -507,8 +507,8 @@ export default function SchedulesPage() {
             className="p-2 rounded-lg transition-colors"
             style={
               viewMode === 'grid'
-                ? { backgroundColor: '#0ea5e9', color: '#FFFFFF' }
-                : { backgroundColor: '#FFFFFF', border: '1px solid #bae6fd', color: '#0369a1' }
+                ? { backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }
+                : { backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)', color: 'var(--color-text-secondary)' }
             }
           >
             <Grid3X3 className="h-4 w-4" />
@@ -527,7 +527,7 @@ export default function SchedulesPage() {
                   className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                   style={{ backgroundColor: pal.dot }}
                 />
-                <span className="text-xs" style={{ color: '#0369a1' }}>
+                <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                   {s.name}
                 </span>
               </div>
@@ -546,7 +546,7 @@ export default function SchedulesPage() {
         {isLoading ? (
           <div
             className="rounded-xl animate-pulse"
-            style={{ height: 400, backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+            style={{ height: 400, backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
           />
         ) : viewMode === 'timeline' ? (
           <GanttTimeline
@@ -560,9 +560,9 @@ export default function SchedulesPage() {
           filteredSchedules.length === 0 ? (
             <div
               className="rounded-xl flex flex-col items-center justify-center py-16"
-              style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+              style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
             >
-              <p className="text-sm" style={{ color: '#0369a1' }}>No schedules found</p>
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>No schedules found</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -572,17 +572,17 @@ export default function SchedulesPage() {
                   <div
                     key={s.schedule_id}
                     className="rounded-xl p-4"
-                    style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
+                    style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
                   >
                     <div className="flex items-center gap-3 mb-3">
                       <div
                         className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                         style={{ backgroundColor: pal.dot }}
                       />
-                      <p className="text-sm font-semibold truncate" style={{ color: '#0c4a6e' }}>{s.name}</p>
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>{s.name}</p>
                     </div>
                     {s.start_time && s.end_time && (
-                      <p className="text-xs mb-2" style={{ color: '#0369a1' }}>
+                      <p className="text-xs mb-2" style={{ color: 'var(--color-text-secondary)' }}>
                         {s.start_time} – {s.end_time}
                       </p>
                     )}
@@ -592,8 +592,8 @@ export default function SchedulesPage() {
                         s.status === 'active'
                           ? { backgroundColor: 'rgba(52,211,153,0.15)', color: '#34D399' }
                           : s.status === 'paused'
-                          ? { backgroundColor: 'rgba(14,165,233,0.12)', color: '#0ea5e9' }
-                          : { backgroundColor: 'rgba(148,163,184,0.15)', color: '#6b7280' }
+                          ? { backgroundColor: 'color-mix(in srgb, var(--color-primary) 12%, transparent)', color: 'var(--color-primary)' }
+                          : { backgroundColor: 'rgba(148,163,184,0.15)', color: 'var(--color-text-muted)' }
                       }
                     >
                       {s.status === 'active' ? 'Active' : s.status === 'paused' ? 'Paused' : 'Draft'}
@@ -608,19 +608,19 @@ export default function SchedulesPage() {
 
       {/* ── Overrides Panel ── */}
       <div className="px-5 pb-5">
-        <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}>
+        <div className="rounded-xl overflow-hidden" style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}>
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid #bae6fd' }}>
+          <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
             <div>
-              <h2 className="text-base font-bold" style={{ color: '#0c4a6e' }}>Schedule Overrides</h2>
-              <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
+              <h2 className="text-base font-bold" style={{ color: 'var(--color-text-primary)' }}>Schedule Overrides</h2>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
                 Temporary overrides that take priority over regular schedules
               </p>
             </div>
             <button
               onClick={() => setShowOverrideForm(!showOverrideForm)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
-              style={{ backgroundColor: '#0ea5e9', color: '#FFFFFF' }}
+              style={{ backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }}
             >
               {showOverrideForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
               {showOverrideForm ? 'Cancel' : 'Add Override'}
@@ -632,18 +632,18 @@ export default function SchedulesPage() {
             <div className="px-5 py-4" style={{ borderBottom: '1px solid #bae6fd', backgroundColor: 'rgba(14,165,233,0.06)' }}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label style={{ fontSize: 11, color: '#0369a1', display: 'block', marginBottom: 4 }}>Override Name *</label>
+                  <label style={{ fontSize: 11, color: 'var(--color-text-secondary)', display: 'block', marginBottom: 4 }}>Override Name *</label>
                   <input
                     value={overrideData.name}
                     onChange={(e) => setOverrideData({ ...overrideData, name: e.target.value })}
                     placeholder="e.g. Holiday Special"
-                    style={{ width: '100%', height: 36, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#0c4a6e', outline: 'none', boxSizing: 'border-box' }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = '#bae6fd')}
+                    style={{ width: '100%', height: 36, backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', borderRadius: 8, padding: '0 10px', fontSize: 13, color: 'var(--color-text-primary)', outline: 'none', boxSizing: 'border-box' }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, color: '#0369a1', display: 'block', marginBottom: 4 }}>Channel *</label>
+                  <label style={{ fontSize: 11, color: 'var(--color-text-secondary)', display: 'block', marginBottom: 4 }}>Channel *</label>
                   <Select
                     value={overrideData.channel_id || undefined}
                     onValueChange={(val) => setOverrideData({ ...overrideData, channel_id: val })}
@@ -654,7 +654,7 @@ export default function SchedulesPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, color: '#0369a1', display: 'block', marginBottom: 4 }}>Type *</label>
+                  <label style={{ fontSize: 11, color: 'var(--color-text-secondary)', display: 'block', marginBottom: 4 }}>Type *</label>
                   <Select
                     value={overrideData.type}
                     onValueChange={(val) => setOverrideData({ ...overrideData, type: val as 'emergency' | 'special' | 'maintenance' })}
@@ -666,46 +666,46 @@ export default function SchedulesPage() {
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, color: '#0369a1', display: 'block', marginBottom: 4 }}>Start Date & Time *</label>
+                  <label style={{ fontSize: 11, color: 'var(--color-text-secondary)', display: 'block', marginBottom: 4 }}>Start Date & Time *</label>
                   <input
                     type="datetime-local"
                     value={overrideData.start_datetime}
                     onChange={(e) => setOverrideData({ ...overrideData, start_datetime: e.target.value })}
-                    style={{ width: '100%', height: 36, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#0c4a6e', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', height: 36, backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', borderRadius: 8, padding: '0 10px', fontSize: 13, color: 'var(--color-text-primary)', outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: 11, color: '#0369a1', display: 'block', marginBottom: 4 }}>End Date & Time *</label>
+                  <label style={{ fontSize: 11, color: 'var(--color-text-secondary)', display: 'block', marginBottom: 4 }}>End Date & Time *</label>
                   <input
                     type="datetime-local"
                     value={overrideData.end_datetime}
                     onChange={(e) => setOverrideData({ ...overrideData, end_datetime: e.target.value })}
-                    style={{ width: '100%', height: 36, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#0c4a6e', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ width: '100%', height: 36, backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', borderRadius: 8, padding: '0 10px', fontSize: 13, color: 'var(--color-text-primary)', outline: 'none', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
               <div className="mb-4">
-                <label style={{ fontSize: 11, color: '#0369a1', display: 'block', marginBottom: 4 }}>Reason (optional)</label>
+                <label style={{ fontSize: 11, color: 'var(--color-text-secondary)', display: 'block', marginBottom: 4 }}>Reason (optional)</label>
                 <input
                   value={overrideData.reason}
                   onChange={(e) => setOverrideData({ ...overrideData, reason: e.target.value })}
                   placeholder="e.g. Public holiday, special event..."
-                  style={{ width: '100%', height: 36, backgroundColor: '#e0f2fe', border: '1px solid #bae6fd', borderRadius: 8, padding: '0 10px', fontSize: 13, color: '#0c4a6e', outline: 'none', boxSizing: 'border-box' }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#0ea5e9')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = '#bae6fd')}
+                  style={{ width: '100%', height: 36, backgroundColor: 'var(--color-surface-alt)', border: '1px solid var(--color-border)', borderRadius: 8, padding: '0 10px', fontSize: 13, color: 'var(--color-text-primary)', outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-primary)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
                 />
               </div>
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => setShowOverrideForm(false)}
-                  style={{ height: 36, padding: '0 16px', borderRadius: 8, backgroundColor: '#e0f2fe', border: 'none', color: '#0369a1', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                  style={{ height: 36, padding: '0 16px', borderRadius: 8, backgroundColor: 'var(--color-surface-alt)', border: 'none', color: 'var(--color-text-secondary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleCreateOverride}
                   disabled={!overrideData.name || !overrideData.channel_id || !overrideData.start_datetime || !overrideData.end_datetime || createOverrideMutation.isPending}
-                  style={{ height: 36, padding: '0 20px', borderRadius: 8, backgroundColor: '#0ea5e9', color: '#FFFFFF', fontSize: 13, fontWeight: 700, border: 'none', cursor: createOverrideMutation.isPending ? 'not-allowed' : 'pointer', opacity: (!overrideData.name || !overrideData.channel_id || !overrideData.start_datetime || !overrideData.end_datetime || createOverrideMutation.isPending) ? 0.6 : 1 }}
+                  style={{ height: 36, padding: '0 20px', borderRadius: 8, backgroundColor: 'var(--color-primary)', color: '#FFFFFF', fontSize: 13, fontWeight: 700, border: 'none', cursor: createOverrideMutation.isPending ? 'not-allowed' : 'pointer', opacity: (!overrideData.name || !overrideData.channel_id || !overrideData.start_datetime || !overrideData.end_datetime || createOverrideMutation.isPending) ? 0.6 : 1 }}
                 >
                   {createOverrideMutation.isPending ? 'Creating...' : 'Create Override'}
                 </button>
@@ -715,20 +715,20 @@ export default function SchedulesPage() {
 
           {/* Override list */}
           {overridesLoading ? (
-            <div className="py-8 text-center text-sm" style={{ color: '#0369a1' }}>Loading overrides…</div>
+            <div className="py-8 text-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>Loading overrides…</div>
           ) : (upcomingOverrides as any[]).length === 0 ? (
-            <div className="py-8 text-center text-sm" style={{ color: '#0369a1' }}>
+            <div className="py-8 text-center text-sm" style={{ color: 'var(--color-text-secondary)' }}>
               No upcoming overrides scheduled
             </div>
           ) : (
-            <div className="divide-y" style={{ borderColor: '#bae6fd' }}>
+            <div className="divide-y" style={{ borderColor: 'var(--color-border)' }}>
               {(upcomingOverrides as any[]).map((override: any) => (
                 <div key={override.override_id} className="flex items-center justify-between gap-3 px-3 sm:px-5 py-4 flex-wrap">
                   <div className="flex items-center gap-3">
-                    <div style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: '#0ea5e9', flexShrink: 0 }} />
+                    <div style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: 'var(--color-primary)', flexShrink: 0 }} />
                     <div>
-                      <p className="text-sm font-semibold" style={{ color: '#0c4a6e' }}>{override.name}</p>
-                      <p className="text-xs mt-0.5" style={{ color: '#0369a1' }}>
+                      <p className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>{override.name}</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>
                         {override.start_datetime ? new Date(override.start_datetime).toLocaleString() : '—'}
                         {' → '}
                         {override.end_datetime ? new Date(override.end_datetime).toLocaleString() : '—'}
