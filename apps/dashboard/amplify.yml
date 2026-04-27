@@ -10,7 +10,7 @@ applications:
             - cd ../.. && pnpm install --frozen-lockfile
         build:
           commands:
-            - cd ../.. && ./node_modules/.bin/turbo build --filter=@signage/dashboard
+            - cd ../.. && pnpm --filter @signage/dashboard build
       artifacts:
         baseDirectory: .next
         files:
