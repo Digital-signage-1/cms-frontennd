@@ -10,7 +10,7 @@ applications:
             - cd ../.. && pnpm install --frozen-lockfile
         build:
           commands:
-            - cd ../.. && pnpm --filter @signage/dashboard build
+            - cd ../.. && pnpm exec next build apps/dashboard
       artifacts:
         baseDirectory: .next
         files:
