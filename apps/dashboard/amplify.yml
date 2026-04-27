@@ -10,7 +10,9 @@ applications:
             - cd ../.. && pnpm install --frozen-lockfile
         build:
           commands:
-            - cd ../.. && pnpm exec next build apps/dashboard
+            - cd ../.. && pnpm --filter @signage/dashboard build
+            - cp -r .next/static .next/standalone/apps/dashboard/.next/static
+            - cp -r public .next/standalone/apps/dashboard/public
       artifacts:
         baseDirectory: .next
         files:
