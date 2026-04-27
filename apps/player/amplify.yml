@@ -10,7 +10,7 @@ applications:
             - cd ../.. && pnpm install --frozen-lockfile
         build:
           commands:
-            - cd ../.. && pnpm exec turbo build --filter=@signage/player
+            - cd ../.. && ./node_modules/.bin/turbo build --filter=@signage/player
       artifacts:
         baseDirectory: dist
         files:
