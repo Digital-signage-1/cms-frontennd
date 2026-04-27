@@ -1,0 +1,22 @@
+version: 1
+applications:
+  - appRoot: apps/dashboard
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - corepack enable
+            - corepack prepare pnpm@9.15.0 --activate
+            - cd ../.. && pnpm install --frozen-lockfile
+        build:
+          commands:
+            - cd ../.. && pnpm exec turbo build --filter=@signage/dashboard
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - ../../node_modules/**/*
+          - ../../.pnpm-store/**/*
+          - .next/cache/**/*

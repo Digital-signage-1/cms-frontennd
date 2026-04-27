@@ -1,0 +1,21 @@
+version: 1
+applications:
+  - appRoot: apps/player
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - corepack enable
+            - corepack prepare pnpm@9.15.0 --activate
+            - cd ../.. && pnpm install --frozen-lockfile
+        build:
+          commands:
+            - cd ../.. && pnpm exec turbo build --filter=@signage/player
+      artifacts:
+        baseDirectory: dist
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - ../../node_modules/**/*
+          - ../../.pnpm-store/**/*
