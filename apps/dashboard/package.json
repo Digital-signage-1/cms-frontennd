@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "./dev.sh",
-    "build": "next build",
+    "build": "next build && cp -r .next/static .next/standalone/apps/dashboard/.next/static && cp -r public .next/standalone/apps/dashboard/public",
     "start": "next start",
     "lint": "next lint"
   },

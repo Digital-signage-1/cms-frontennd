@@ -10,18 +10,7 @@ applications:
             - cd ../.. && pnpm install --frozen-lockfile
         build:
           commands:
-            - |
-              set -ex
-              cd ../..
-              pnpm --filter @signage/dashboard build
-              echo "=== apps/dashboard/.next/ ==="
-              ls -la apps/dashboard/.next/ || true
-              echo "=== apps/dashboard/.next/standalone/ ==="
-              ls -la apps/dashboard/.next/standalone/ || true
-              echo "=== apps/dashboard/.next/standalone/apps/dashboard/ ==="
-              ls -la apps/dashboard/.next/standalone/apps/dashboard/ || true
-              cp -r apps/dashboard/.next/static apps/dashboard/.next/standalone/apps/dashboard/.next/static
-              cp -r apps/dashboard/public apps/dashboard/.next/standalone/apps/dashboard/public
+            - cd ../.. && pnpm --filter @signage/dashboard build
       artifacts:
         baseDirectory: .next
         files:
