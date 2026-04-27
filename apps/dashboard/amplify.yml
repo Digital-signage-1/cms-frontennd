@@ -11,7 +11,7 @@ applications:
         build:
           commands:
             - |
-              set -euxo pipefail
+              set -ex
               cd ../..
               pnpm --filter @signage/dashboard build
               echo "=== apps/dashboard/.next/ ==="
