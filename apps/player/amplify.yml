@@ -5,17 +5,32 @@ applications:
       phases:
         preBuild:
           commands:
-            - corepack enable
-            - corepack prepare pnpm@9.15.0 --activate
-            - cd ../.. && pnpm install --frozen-lockfile
+            - |
+              set -e
+              corepack enable
+              corepack prepare pnpm@9.15.0 --activate
+              ROOT="$(git rev-parse --show-toplevel)"
+              echo "repo root: $ROOT"
+              cd "$ROOT"
+              rm -rf node_modules apps/*/node_modules packages/*/node_modules
+              pnpm install --frozen-lockfile
+              echo "===binary check==="
+              ls -la "$ROOT/node_modules/typescript/bin/tsc" || echo "MISSING: tsc"
+              ls -la "$ROOT/node_modules/vite/bin/vite.js" || echo "MISSING: vite"
         build:
           commands:
-            - cd ../.. && pnpm --filter @signage/player build
+            - |
+              set -e
+              ROOT="$(git rev-parse --show-toplevel)"
+              cd "$ROOT/apps/player"
+              node "$ROOT/node_modules/typescript/bin/tsc" -b
+              node "$ROOT/node_modules/vite/bin/vite.js" build
+              echo "===dist contents==="
+              ls -la dist/
       artifacts:
         baseDirectory: dist
         files:
           - '**/*'
       cache:
         paths:
-          - ../../node_modules/**/*
           - ../../.pnpm-store/**/*
