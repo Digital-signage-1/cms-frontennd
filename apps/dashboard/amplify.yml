@@ -5,18 +5,28 @@ applications:
       phases:
         preBuild:
           commands:
-            - corepack enable
-            - corepack prepare pnpm@9.15.0 --activate
-            - cd ../.. && rm -rf node_modules apps/*/node_modules packages/*/node_modules
-            - cd ../.. && pnpm install --frozen-lockfile
-            - cd ../.. && echo "===node_modules/next exists?===" && ls -la node_modules/next/dist/bin/next 2>&1
-            - cd ../.. && echo "===node_modules/.bin/next exists?===" && ls -la node_modules/.bin/next 2>&1 || true
+            - |
+              set -e
+              corepack enable
+              corepack prepare pnpm@9.15.0 --activate
+              ROOT="$(git rev-parse --show-toplevel)"
+              echo "repo root: $ROOT"
+              cd "$ROOT"
+              rm -rf node_modules apps/*/node_modules packages/*/node_modules
+              pnpm install --frozen-lockfile
+              echo "===node binary check==="
+              ls -la "$ROOT/node_modules/next/dist/bin/next" || echo "MISSING: next CLI"
+              ls -la "$ROOT/node_modules/.bin/next" || echo "MISSING: .bin/next symlink"
         build:
           commands:
-            - node ../../node_modules/next/dist/bin/next build
-            - mkdir -p .next/standalone/apps/dashboard/.next
-            - cp -r .next/static .next/standalone/apps/dashboard/.next/static
-            - cp -r public .next/standalone/apps/dashboard/public
+            - |
+              set -e
+              ROOT="$(git rev-parse --show-toplevel)"
+              cd "$ROOT/apps/dashboard"
+              node "$ROOT/node_modules/next/dist/bin/next" build
+              mkdir -p .next/standalone/apps/dashboard/.next
+              cp -r .next/static .next/standalone/apps/dashboard/.next/static
+              cp -r public .next/standalone/apps/dashboard/public
       artifacts:
         baseDirectory: .next
         files:
