@@ -7,10 +7,11 @@ applications:
           commands:
             - corepack enable
             - corepack prepare pnpm@9.15.0 --activate
-            - cd ../.. && pnpm install --frozen-lockfile
+            - cd ../.. && rm -rf node_modules apps/*/node_modules packages/*/node_modules && pnpm install --frozen-lockfile
         build:
           commands:
-            - cd ../.. && pnpm --filter @signage/dashboard build
+            - cd ../.. && pnpm --filter @signage/dashboard exec next build
+            - mkdir -p apps/dashboard/.next/standalone/apps/dashboard/.next
             - cp -r apps/dashboard/.next/static apps/dashboard/.next/standalone/apps/dashboard/.next/static
             - cp -r apps/dashboard/public apps/dashboard/.next/standalone/apps/dashboard/public
       artifacts:
@@ -19,6 +20,5 @@ applications:
           - '**/*'
       cache:
         paths:
-          - ../../node_modules/**/*
           - ../../.pnpm-store/**/*
           - .next/cache/**/*
