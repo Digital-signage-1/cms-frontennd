@@ -18,13 +18,19 @@ export function createContentEndpoints(client: ApiClient) {
     delete: (workspaceId: number | string, contentId: number | string) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/content/${contentId}`),
     
-    listFolders: (workspaceId: number | string, parentId?: string | null) =>
+    listFolders: (workspaceId: number | string, parentId?: string | null, folderType?: string) =>
       client.get<Folder[]>(`/api/v1/workspaces/${workspaceId}/folders`, { 
-        params: parentId !== undefined ? { parent_id: parentId || undefined } : undefined 
+        params: { 
+          parent_id: parentId || undefined,
+          folder_type: folderType 
+        } 
       }),
     
-    createFolder: (workspaceId: number | string, data: { name: string; parent_id?: string }) =>
+    createFolder: (workspaceId: number | string, data: { name: string; parent_id?: string; folder_type?: string }) =>
       client.post<Folder>(`/api/v1/workspaces/${workspaceId}/folders`, data),
+    
+    updateFolder: (workspaceId: number | string, folderId: number | string, data: { name: string }) =>
+      client.patch<Folder>(`/api/v1/workspaces/${workspaceId}/folders/${folderId}`, data),
     
     deleteFolder: (workspaceId: number | string, folderId: number | string) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/folders/${folderId}`),

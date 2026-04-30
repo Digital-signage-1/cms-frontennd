@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, UploadCloud, ChevronRight, AlertCircle, FolderOpen,
   Loader2, CheckCircle2, XCircle, FileText, HardDrive,
-  Image as ImageIcon, Film, Plus,
+  Image as ImageIcon, Film, Plus, Music,
 } from 'lucide-react'
 import {
   useContent, useFolders, useAllFolders, useUploadContent,
@@ -26,6 +26,8 @@ function getMimeLabel(asset: any): string {
   const mime: string = asset.mime_type || ''
   const name: string = (asset.name || '').toLowerCase()
   if (mime.includes('pdf'))   return 'PDF'
+  if (mime.includes('presentation') || name.endsWith('.pptx') || name.endsWith('.ppt')) return 'PPT'
+  if (mime.includes('word') || name.endsWith('.docx') || name.endsWith('.doc')) return 'DOC'
   if (mime.includes('mp4') || (mime.includes('video') && name.endsWith('.mp4'))) return 'MP4'
   if (mime.includes('video')) return 'MP4'
   if (mime.includes('png')  || name.endsWith('.png'))  return 'PNG'
@@ -45,6 +47,8 @@ const BADGE: Record<string, { bg: string; color: string }> = {
   GIF:  { bg: 'rgba(100,116,139,0.25)', color: 'var(--color-text-muted)' },
   WEBP: { bg: 'rgba(100,116,139,0.25)', color: 'var(--color-text-muted)' },
   PDF:  { bg: 'rgba(245,158,11,0.22)',  color: '#F59E0B' },
+  PPT:  { bg: 'rgba(239,68,68,0.22)',   color: '#F87171' },
+  DOC:  { bg: 'rgba(37,99,235,0.22)',   color: '#60A5FA' },
   MP4:  { bg: 'rgba(20,184,166,0.22)',  color: '#14B8A6' },
   PSD:  { bg: 'rgba(239,68,68,0.22)',   color: '#F87171' },
   ZIP:  { bg: 'rgba(100,116,139,0.25)', color: 'var(--color-text-muted)' },
@@ -58,6 +62,8 @@ const PREVIEW_BG: Record<string, string> = {
   GIF:  'linear-gradient(145deg,var(--color-background) 0%,var(--color-surface-alt) 100%)',
   WEBP: 'linear-gradient(145deg,var(--color-background) 0%,var(--color-surface-alt) 100%)',
   PDF:  'linear-gradient(145deg,#FFFBEB 0%,#FEF3C7 100%)',
+  PPT:  'linear-gradient(145deg,#FFF1F2 0%,#FFE4E6 100%)',
+  DOC:  'linear-gradient(145deg,#EFF6FF 0%,#DBEAFE 100%)',
   MP4:  'linear-gradient(145deg,#F0FDFA 0%,#CCFBF1 100%)',
   PSD:  'linear-gradient(145deg,#FFF1F2 0%,#FFE4E6 100%)',
   ZIP:  'linear-gradient(145deg,var(--color-background) 0%,var(--color-surface-alt) 100%)',
@@ -85,7 +91,7 @@ export default function ContentPage() {
   const [parentFolderForNew, setParentFolderForNew] = useState<string | null>(null)
   const [uploadStatus, setUploadStatus]         = useState<Record<string, 'uploading' | 'success' | 'error'>>({})
   const [uploadProgress, setUploadProgress]     = useState<Record<string, number>>({})
-  const [typeFilter, setTypeFilter]             = useState<'all' | 'image' | 'video'>('all')
+  const [typeFilter, setTypeFilter]             = useState<'all' | 'image' | 'video' | 'audio' | 'document'>('all')
 
   const workspace          = useAuthStore((s) => s.workspace)
   const workspaces         = useAuthStore((s) => s.workspaces)
@@ -121,7 +127,8 @@ export default function ContentPage() {
   )
   const filteredAssets = (assets as any[]).filter((a) =>
     a.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    (typeFilter === 'all' || a.content_type === typeFilter)
+    (typeFilter === 'all' || 
+     (typeFilter === 'document' ? (a.content_type === 'document' || a.content_type === 'pdf') : a.content_type === typeFilter))
   )
 
   // Derived stats
@@ -129,6 +136,8 @@ export default function ContentPage() {
   const storageUsed = (assets as any[]).reduce((acc, a) => acc + (a.size_bytes || 0), 0)
   const imageCount  = (assets as any[]).filter((a) => a.content_type === 'image').length
   const videoCount  = (assets as any[]).filter((a) => a.content_type === 'video').length
+  const audioCount  = (assets as any[]).filter((a) => a.content_type === 'audio').length
+  const docCount    = (assets as any[]).filter((a) => a.content_type === 'document' || a.content_type === 'pdf').length
 
   const parentFolderName = (allFolders as any[]).find((f) => f.folder_id === parentFolderForNew)?.name
 
@@ -303,12 +312,14 @@ export default function ContentPage() {
         </div>
 
         {/* Stat cards */}
-        <div className="relative grid grid-cols-2 sm:grid-cols-4 gap-2 px-3 sm:px-5 pb-3">
+        <div className="relative grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 px-3 sm:px-5 pb-3">
           {[
             { label: 'Total Files',   value: totalFiles.toString(),   Icon: FileText   },
-            { label: 'Storage Used',  value: formatBytes(storageUsed), Icon: HardDrive  },
             { label: 'Images',        value: imageCount.toString(),    Icon: ImageIcon  },
             { label: 'Videos',        value: videoCount.toString(),    Icon: Film       },
+            { label: 'Docs',          value: docCount.toString(),      Icon: FileText   },
+            { label: 'Audio',         value: audioCount.toString(),    Icon: Music      },
+            { label: 'Storage Used',  value: formatBytes(storageUsed), Icon: HardDrive  },
           ].map(({ label, value, Icon }) => (
             <div
               key={label}
@@ -316,6 +327,7 @@ export default function ContentPage() {
               style={{
                 backgroundColor: 'rgba(255,255,255,0.75)',
                 border: '1px solid color-mix(in srgb, var(--color-primary) 7%, transparent)',
+                minWidth: 'fit-content'
               }}
             >
               <div
@@ -454,7 +466,7 @@ export default function ContentPage() {
               className="flex items-center gap-1 p-1 rounded-lg"
               style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
             >
-              {(['all', 'image', 'video'] as const).map((tab) => (
+              {(['all', 'image', 'video', 'audio', 'document'] as const).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setTypeFilter(tab)}
@@ -465,7 +477,7 @@ export default function ContentPage() {
                       : { color: 'var(--color-text-secondary)' }
                   }
                 >
-                  {tab === 'all' ? 'All' : tab === 'image' ? 'Images' : 'Videos'}
+                  {tab === 'all' ? 'All' : tab === 'image' ? 'Images' : tab === 'video' ? 'Videos' : tab === 'audio' ? 'Audio' : 'Docs'}
                 </button>
               ))}
             </div>
@@ -649,6 +661,10 @@ export default function ContentPage() {
                           {!asset.thumbnail_url && (
                             <FileText className="h-10 w-10 opacity-40" style={{ color: 'var(--color-text-muted)' }} />
                           )}
+                        </>
+                      ) : label === 'MP3' ? (
+                        <>
+                          <Music className="h-10 w-10 opacity-40" style={{ color: '#A78BFA' }} />
                         </>
                       ) : (
                         <>

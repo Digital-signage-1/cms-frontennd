@@ -98,6 +98,18 @@ export function useDeleteChannel() {
   })
 }
 
+export function useBulkDeleteChannels() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ workspaceId, channelIds }: { workspaceId: number; channelIds: string[] }) =>
+      api.channels.bulkDelete(workspaceId, channelIds),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['channels', variables.workspaceId] })
+    },
+  })
+}
+
 export function useChannelSlides(workspaceId: number, channelId: number) {
   return useQuery({
     queryKey: ['channels', workspaceId, channelId, 'slides'],

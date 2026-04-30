@@ -199,21 +199,12 @@ export default function ChannelBuilderPage({ params }: { params: Promise<{ id: s
                 disabled={!manifestData}
               />
               <Button
-                variant="outline"
                 onClick={handleSave}
                 disabled={updateChannelMutation.isPending || !channelName}
-                className="gap-2"
+                className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Save className="h-4 w-4" />
                 {updateChannelMutation.isPending ? 'Saving...' : 'Save'}
-              </Button>
-              <Button
-                onClick={handlePublish}
-                disabled={publishChannelMutation.isPending || !channelData}
-                className="bg-primary hover:bg-primary-hover text-white gap-2"
-              >
-                <Upload className="h-4 w-4" />
-                {publishChannelMutation.isPending ? 'Publishing...' : 'Publish'}
               </Button>
             </div>
           </div>

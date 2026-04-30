@@ -23,6 +23,9 @@ export function createChannelsEndpoints(client: ApiClient) {
     delete: (workspaceId: number, channelId: number) =>
       client.delete<void>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}`),
     
+    bulkDelete: (workspaceId: number, channelIds: string[]) =>
+      client.post<{ success: boolean; deleted_count: number }>(`/api/v1/workspaces/${workspaceId}/channels/bulk-delete`, { channel_ids: channelIds }),
+    
     publish: (workspaceId: number, channelId: number) =>
       client.post<Channel>(`/api/v1/workspaces/${workspaceId}/channels/${channelId}/publish`),
     

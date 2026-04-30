@@ -23,18 +23,18 @@ export function useContentItem(
   })
 }
 
-export function useFolders(workspaceId: number | string, parentId?: string | null) {
+export function useFolders(workspaceId: number | string, parentId?: string | null, folderType?: string) {
   return useQuery({
-    queryKey: ['folders', workspaceId, parentId],
-    queryFn: () => api.content.listFolders(workspaceId, parentId),
+    queryKey: ['folders', workspaceId, parentId, folderType],
+    queryFn: () => api.content.listFolders(workspaceId, parentId, folderType),
     enabled: !!workspaceId,
   })
 }
 
-export function useAllFolders(workspaceId: number | string) {
+export function useAllFolders(workspaceId: number | string, folderType?: string) {
   return useQuery({
-    queryKey: ['folders', workspaceId, 'all'],
-    queryFn: () => api.content.listFolders(workspaceId),
+    queryKey: ['folders', workspaceId, 'all', folderType],
+    queryFn: () => api.content.listFolders(workspaceId, undefined, folderType),
     enabled: !!workspaceId,
   })
 }
@@ -91,7 +91,7 @@ export function useCreateFolder() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ workspaceId, data }: { workspaceId: number | string; data: { name: string; parent_id?: string } }) => {
+    mutationFn: ({ workspaceId, data }: { workspaceId: number | string; data: { name: string; parent_id?: string; folder_type?: string } }) => {
       if (!workspaceId) {
         throw new Error('Workspace ID is required')
       }
@@ -112,6 +112,18 @@ export function useDeleteFolder() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['folders', variables.workspaceId] })
       queryClient.invalidateQueries({ queryKey: ['content', variables.workspaceId] })
+    },
+  })
+}
+
+export function useUpdateFolder() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ workspaceId, folderId, data }: { workspaceId: number | string; folderId: number | string; data: { name: string } }) =>
+      api.content.updateFolder(workspaceId, folderId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['folders', variables.workspaceId] })
     },
   })
 }

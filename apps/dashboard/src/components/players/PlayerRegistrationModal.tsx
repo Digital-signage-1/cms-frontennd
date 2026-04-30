@@ -85,8 +85,11 @@ export function PlayerRegistrationModal({ isOpen, onClose }: PlayerRegistrationM
 
   if (!isOpen) return null
 
-  const playerUrl = pairedResult
-    ? `${PLAYER_BASE_URL}/player/${pairedResult.player_id}?token=${encodeURIComponent(pairedResult.device_token)}`
+  const playerId = (pairedResult as any)?.player?.player_id || pairedResult?.player_id
+  const deviceToken = (pairedResult as any)?.device_token || pairedResult?.device_token || ''
+  
+  const playerUrl = pairedResult && playerId
+    ? `${PLAYER_BASE_URL}/player/${playerId}?token=${encodeURIComponent(deviceToken)}`
     : null
 
   const handleCopyUrl = () => {

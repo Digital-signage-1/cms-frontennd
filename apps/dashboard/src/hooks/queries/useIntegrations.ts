@@ -41,6 +41,19 @@ export function useIntegrationResources(
   })
 }
 
+export function useSheetTabs(
+  workspaceId: number | string,
+  integrationId: number | string,
+  spreadsheetId: string,
+  enabled = true
+) {
+  return useQuery({
+    queryKey: ['sheet-tabs', workspaceId, integrationId, spreadsheetId],
+    queryFn: () => api.integrations.listSheetTabs(workspaceId, integrationId, spreadsheetId),
+    enabled: !!workspaceId && !!integrationId && !!spreadsheetId && enabled,
+  })
+}
+
 export function useInitiateOAuth() {
   return useMutation({
     mutationFn: ({

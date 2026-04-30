@@ -106,21 +106,12 @@ export function ChannelDesigner({
             Preview
           </Button>
           <Button
-            variant="outline"
             onClick={onSave}
             disabled={isSaving}
-            className="gap-2"
+            className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Save className="h-4 w-4" />
             {isSaving ? 'Saving...' : 'Save'}
-          </Button>
-          <Button
-            onClick={onPublish}
-            disabled={isPublishing || zones.length === 0}
-            className="gap-2"
-          >
-            <Play className="h-4 w-4" />
-            {isPublishing ? 'Publishing...' : 'Publish'}
           </Button>
         </div>
       </div>

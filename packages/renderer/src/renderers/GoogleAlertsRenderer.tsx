@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo, CSSProperties } from 'react'
+import { useAutoScroll } from '../hooks/useAutoScroll'
 
 interface NewsArticle {
   title: string
@@ -17,6 +18,8 @@ interface GoogleAlertsConfig {
   max_items?: number
   display_mode?: 'ticker' | 'cards' | 'list'
   show_source?: boolean
+  auto_scroll?: boolean
+  scroll_speed?: 'slow' | 'medium' | 'fast'
   refresh_interval?: number
   theme?: 'dark' | 'light'
   _data?: { articles: NewsArticle[] }
@@ -92,9 +95,14 @@ function TickerMode({ articles, colors }: { articles: NewsArticle[]; colors: Ret
   )
 }
 
-function CardsMode({ articles, colors, showSource }: { articles: NewsArticle[]; colors: ReturnType<typeof resolveTheme>; showSource: boolean }) {
+function CardsMode({ articles, colors, showSource, autoScroll, scrollSpeed }: { articles: NewsArticle[]; colors: ReturnType<typeof resolveTheme>; showSource: boolean; autoScroll?: boolean; scrollSpeed?: 'slow' | 'medium' | 'fast' }) {
+  const scrollRef = useAutoScroll({
+    autoScroll,
+    scrollSpeed,
+  })
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'auto', padding: '1rem' }}>
+    <div ref={scrollRef} style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', padding: '1rem' }}>
       {articles.map((article, i) => (
         <div key={i} style={{
           padding: '1rem',
@@ -118,9 +126,14 @@ function CardsMode({ articles, colors, showSource }: { articles: NewsArticle[]; 
   )
 }
 
-function ListMode({ articles, colors, showSource }: { articles: NewsArticle[]; colors: ReturnType<typeof resolveTheme>; showSource: boolean }) {
+function ListMode({ articles, colors, showSource, autoScroll, scrollSpeed }: { articles: NewsArticle[]; colors: ReturnType<typeof resolveTheme>; showSource: boolean; autoScroll?: boolean; scrollSpeed?: 'slow' | 'medium' | 'fast' }) {
+  const scrollRef = useAutoScroll({
+    autoScroll,
+    scrollSpeed,
+  })
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'auto', padding: '0.5rem 1rem' }}>
+    <div ref={scrollRef} style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden', padding: '0.5rem 1rem' }}>
       {articles.map((article, i) => (
         <div key={i} style={{
           padding: '0.75rem 0',
@@ -146,6 +159,8 @@ export function GoogleAlertsRenderer({ config }: GoogleAlertsRendererProps) {
   const {
     display_mode = 'cards',
     show_source = true,
+    auto_scroll = false,
+    scroll_speed = 'medium',
     theme = 'dark',
     _data,
   } = config
@@ -175,9 +190,9 @@ export function GoogleAlertsRenderer({ config }: GoogleAlertsRendererProps) {
       {display_mode === 'ticker' ? (
         <TickerMode articles={articles} colors={colors} />
       ) : display_mode === 'list' ? (
-        <ListMode articles={articles} colors={colors} showSource={show_source} />
+        <ListMode articles={articles} colors={colors} showSource={show_source} autoScroll={auto_scroll} scrollSpeed={scroll_speed} />
       ) : (
-        <CardsMode articles={articles} colors={colors} showSource={show_source} />
+        <CardsMode articles={articles} colors={colors} showSource={show_source} autoScroll={auto_scroll} scrollSpeed={scroll_speed} />
       )}
     </div>
   )

@@ -362,18 +362,21 @@ export class PlayerEngine {
     integrationId: string | number,
     resourceId: string,
     resourceType: string = 'default',
+    extraParams: Record<string, string> = {},
   ): Promise<Record<string, unknown> | null> {
     const playerId = this.deviceManager.getPlayerId()
     const deviceToken = this.deviceManager.getDeviceToken()
     if (!playerId || !deviceToken) return null
 
-    const cacheKey = `${integrationId}:${resourceId}:${resourceType}`
+    const extraKey = Object.entries(extraParams).map(([k, v]) => `${k}=${v}`).join('&')
+    const cacheKey = `${integrationId}:${resourceId}:${resourceType}${extraKey ? ':' + extraKey : ''}`
 
     try {
       const params = new URLSearchParams({
         integration_id: String(integrationId),
         resource_id: resourceId,
         resource_type: resourceType,
+        ...extraParams,
       })
       const response = await fetch(
         `${API_BASE_URL}/players/${playerId}/integration-data?${params}`,
@@ -412,8 +415,10 @@ export class PlayerEngine {
     resourceType: string = 'default',
     refreshIntervalMs?: number,
     onData?: (data: Record<string, unknown>) => void,
+    extraParams: Record<string, string> = {},
   ): Promise<Record<string, unknown> | null> {
-    const cacheKey = `${integrationId}:${resourceId}:${resourceType}`
+    const extraKey = Object.entries(extraParams).map(([k, v]) => `${k}=${v}`).join('&')
+    const cacheKey = `${integrationId}:${resourceId}:${resourceType}${extraKey ? ':' + extraKey : ''}`
     const interval = refreshIntervalMs || DEFAULT_DATA_FETCH_INTERVAL
 
     // Register listener
@@ -431,20 +436,20 @@ export class PlayerEngine {
       // Ensure interval is running
       if (!cached.interval) {
         cached.interval = setInterval(() => {
-          this.fetchIntegrationData(integrationId, resourceId, resourceType)
+          this.fetchIntegrationData(integrationId, resourceId, resourceType, extraParams)
         }, interval)
       }
       return cached.data
     }
 
     // Fetch immediately
-    const data = await this.fetchIntegrationData(integrationId, resourceId, resourceType)
+    const data = await this.fetchIntegrationData(integrationId, resourceId, resourceType, extraParams)
 
     // Set up periodic refresh
     const existing = this.integrationDataCache[cacheKey]
     if (existing && !existing.interval) {
       existing.interval = setInterval(() => {
-        this.fetchIntegrationData(integrationId, resourceId, resourceType)
+        this.fetchIntegrationData(integrationId, resourceId, resourceType, extraParams)
       }, interval)
     }
 
@@ -459,8 +464,10 @@ export class PlayerEngine {
     resourceId: string,
     resourceType: string = 'default',
     onData?: (data: Record<string, unknown>) => void,
+    extraParams: Record<string, string> = {},
   ): void {
-    const cacheKey = `${integrationId}:${resourceId}:${resourceType}`
+    const extraKey = Object.entries(extraParams).map(([k, v]) => `${k}=${v}`).join('&')
+    const cacheKey = `${integrationId}:${resourceId}:${resourceType}${extraKey ? ':' + extraKey : ''}`
 
     // Remove listener
     if (onData) {

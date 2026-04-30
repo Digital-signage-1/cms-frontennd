@@ -7,47 +7,7 @@ import { IntegrationStatusBadge } from './IntegrationStatusBadge'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
-const PROVIDER_ICONS: Record<string, React.ReactNode> = {
-  google_sheets: (
-    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
-      <rect width="24" height="24" rx="4" fill="#0F9D58" />
-      <path d="M7 8h10M7 12h10M7 16h6" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  ),
-  google_drive: (
-    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
-      <rect width="24" height="24" rx="4" fill="#4285F4" />
-      <path d="M12 5l7 12H5L12 5z" fill="white" fillOpacity="0.9" />
-      <path d="M5 17h14l-3-5H8L5 17z" fill="white" fillOpacity="0.5" />
-    </svg>
-  ),
-  powerbi: (
-    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
-      <rect width="24" height="24" rx="4" fill="#F2C811" />
-      <rect x="7" y="12" width="3" height="6" rx="0.5" fill="white" />
-      <rect x="11" y="8" width="3" height="10" rx="0.5" fill="white" />
-      <rect x="15" y="5" width="3" height="13" rx="0.5" fill="white" />
-    </svg>
-  ),
-  tableau: (
-    <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-600 text-white font-bold text-[9px]">TAB</div>
-  ),
-  slack: (
-    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
-      <rect width="24" height="24" rx="4" fill="#4A154B" />
-      <path d="M9 8.5a1.5 1.5 0 1 1-3 0v-1a1.5 1.5 0 0 1 3 0M14 8.5V7a1.5 1.5 0 0 1 3 0v1.5M14 15.5a1.5 1.5 0 0 1 3 0v1a1.5 1.5 0 0 1-3 0M9 15.5v1a1.5 1.5 0 0 1-3 0v-1.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  ),
-}
-
-function ProviderIcon({ provider }: { provider: string }) {
-  if (PROVIDER_ICONS[provider]) return <>{PROVIDER_ICONS[provider]}</>
-  return (
-    <div className="flex h-6 w-6 items-center justify-center rounded bg-surface-alt text-xs font-bold text-text-muted uppercase">
-      {provider.slice(0, 2)}
-    </div>
-  )
-}
+import { ProviderIcon } from './ProviderIcon'
 
 const AUTH_FLOW_LABELS: Record<string, string> = {
   oauth2: 'OAuth',
@@ -98,9 +58,7 @@ export function IntegrationCard({
           : 'border-border opacity-70'
       )}
     >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-surface-alt">
-        <ProviderIcon provider={integration.provider} />
-      </div>
+      <ProviderIcon provider={integration.provider} />
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start gap-2 flex-wrap">

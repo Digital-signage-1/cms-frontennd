@@ -9,10 +9,12 @@ import {
   GOOGLE_HUB_TYPE_ID,
   POWERBI_HUB_TYPE_ID,
   SALESFORCE_HUB_TYPE_ID,
+  CONTENT_HUB_TYPE_ID,
   buildDisplayTemplates,
   oauthGoogleChildrenOrdered,
   powerbiHubChildrenOrdered,
   salesforceHubChildrenOrdered,
+  contentHubChildrenOrdered,
   hubMatchesSearch,
   getCategoriesFromTemplates,
   getAppTypeIconPath,
@@ -21,7 +23,6 @@ import {
   isIntegrationHubTypeId,
   HUB_TYPE_ID_TO_BROWSE_KEY,
   HUB_SEARCH_BRAND_TERMS,
-  integrationsCategoryDisplayCount,
   type IntegrationHubBrowseKey,
 } from '@/components/apps/create-app-shared'
 
@@ -77,12 +78,14 @@ const HUB_BROWSE_TITLES: Record<IntegrationHubBrowseKey, string> = {
   google: 'Choose a Google product',
   powerbi: 'Choose a Power BI app',
   salesforce: 'Choose a Salesforce app',
+  content: 'Choose a content type',
 }
 
 function HubTileIcon({ typeId, size }: { typeId: string; size: number }) {
   if (typeId === GOOGLE_HUB_TYPE_ID) return <GoogleGMark size={size} />
   if (typeId === POWERBI_HUB_TYPE_ID) return <PowerBIMark size={size} />
   if (typeId === SALESFORCE_HUB_TYPE_ID) return <SalesforceMark size={size} />
+  if (typeId === CONTENT_HUB_TYPE_ID) return <Grid2X2 style={{ width: size * 0.5, height: size * 0.5, color: 'var(--color-primary)' }} />
   return <Sparkles style={{ width: size * 0.5, height: size * 0.5, color: 'var(--color-text-muted)' }} />
 }
 
@@ -96,7 +99,7 @@ export function CreateAppTemplatePicker({
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
   const [search, setSearch] = useState('')
   const [templateViewMode, setTemplateViewMode] = useState<'grid' | 'list'>('grid')
-  const [hubBrowse, setHubBrowse] = useState<IntegrationHubBrowseKey | null>(null)
+  const [hubBrowse, setHubBrowse] = useState<IntegrationHubBrowseKey | 'content' | null>(null)
 
   const { data: appTypesData } = useAppTypes()
 
@@ -122,9 +125,10 @@ export function CreateAppTemplatePicker({
   const googleOauthChildren = useMemo(() => oauthGoogleChildrenOrdered(templates), [templates])
   const powerbiHubChildren = useMemo(() => powerbiHubChildrenOrdered(templates), [templates])
   const salesforceHubChildren = useMemo(() => salesforceHubChildrenOrdered(templates), [templates])
+  const contentHubChildren = useMemo(() => contentHubChildrenOrdered(templates), [templates])
   const displayTemplates = useMemo(() => buildDisplayTemplates(templates), [templates])
 
-  const categories = getCategoriesFromTemplates(templates)
+  const categories = getCategoriesFromTemplates(displayTemplates)
   const displayTemplateCount = displayTemplates.length
 
   const categoryCounts = useMemo(() => {
@@ -133,19 +137,10 @@ export function CreateAppTemplatePicker({
         acc[cat.id] = displayTemplateCount
         return acc
       }
-      if (cat.id === 'integrations') {
-        acc[cat.id] = integrationsCategoryDisplayCount(
-          templates,
-          googleOauthChildren.length,
-          powerbiHubChildren.length,
-          salesforceHubChildren.length
-        )
-        return acc
-      }
-      acc[cat.id] = templates.filter((t) => t.category === cat.id).length
+      acc[cat.id] = displayTemplates.filter((t) => t.category === cat.id).length
       return acc
     }, {} as Record<string, number>)
-  }, [categories, displayTemplateCount, templates, googleOauthChildren.length, powerbiHubChildren.length, salesforceHubChildren.length])
+  }, [categories, displayTemplateCount, displayTemplates])
 
   const filtered = useMemo(() => {
     return displayTemplates.filter((t) => {
@@ -162,6 +157,9 @@ export function CreateAppTemplatePicker({
       if (t.type_id === SALESFORCE_HUB_TYPE_ID) {
         return hubMatchesSearch(salesforceHubChildren, q, HUB_SEARCH_BRAND_TERMS.salesforce)
       }
+      if (t.type_id === CONTENT_HUB_TYPE_ID) {
+        return hubMatchesSearch(contentHubChildren, q, ['content', 'image', 'video', 'audio', 'pdf', 'ppt'])
+      }
       return (
         t.name.toLowerCase().includes(q)
         || t.description?.toLowerCase().includes(q)
@@ -174,6 +172,7 @@ export function CreateAppTemplatePicker({
     if (hubBrowse === 'google') return googleOauthChildren
     if (hubBrowse === 'powerbi') return powerbiHubChildren
     if (hubBrowse === 'salesforce') return salesforceHubChildren
+    if (hubBrowse === 'content') return contentHubChildren
     return []
   }, [hubBrowse, googleOauthChildren, powerbiHubChildren, salesforceHubChildren])
 

@@ -37,7 +37,7 @@ export const FALLBACK_TEMPLATES: AppType[] = [
   { type_id: 'qrcode', name: 'QR Code Display', description: 'Generate and display QR codes for any URL', category: 'widgets', icon: 'qrcode', popular: false, tags: ['qr', 'code', 'url'] },
   { type_id: 'rss_feed', name: 'News / RSS Feed', description: 'Auto-cycling news and content from any RSS feed', category: 'widgets', icon: 'rss_feed', popular: false, tags: ['rss', 'news', 'feed'] },
   { type_id: 'social', name: 'Social Media Embed', description: 'Display a live social media feed on screen', category: 'integrations', icon: 'social', popular: false, tags: ['social', 'twitter', 'feed'] },
-  { type_id: 'sheets', name: 'Spreadsheet / Sheet', description: 'Display Google Sheets or CSV/Excel files as tables', category: 'widgets', icon: 'sheets', popular: false, tags: ['excel', 'data', 'table'] },
+  { type_id: 'sheets', name: 'Uploaded Spreadsheet', description: 'Display uploaded CSV or Excel files as tables', category: 'media', icon: 'sheets', popular: false, tags: ['excel', 'csv', 'data', 'table', 'spreadsheet'] },
   { type_id: 'stock', name: 'Stock Ticker', description: 'Live stock prices and market indices ticker tape', category: 'widgets', icon: 'stock', popular: false, tags: ['stocks', 'finance', 'market'] },
   { type_id: 'google_slides', name: 'Google Slides', description: 'Display presentations from Google Slides', category: 'integrations', icon: 'google-slides', popular: false, tags: ['google', 'slides', 'presentation'] },
   { type_id: 'google_calendar', name: 'Google Calendar', description: 'Display meeting room schedules and event calendars', category: 'integrations', icon: 'google-calendar', popular: false, tags: ['google', 'calendar', 'events'] },
@@ -56,11 +56,23 @@ export const FALLBACK_TEMPLATES: AppType[] = [
   { type_id: 'salesforce_report_v2', name: 'Salesforce Report (JWT)', description: 'Display Salesforce Lightning reports as auto-refreshed screenshots using JWT bearer authentication.', category: 'integrations', icon: 'salesforce', popular: false, tags: ['salesforce', 'report', 'jwt'] },
 ]
 
-export const CATEGORY_ORDER = ['custom', 'embed', 'media', 'widgets', 'integrations'] as const
+export const CATEGORY_ORDER = ['content', 'custom', 'embed', 'widgets', 'integrations'] as const
+
+export const CONTENT_HUB_TYPE_ID = '__content_hub__'
 
 export const GOOGLE_HUB_TYPE_ID = '__google_hub__'
 export const POWERBI_HUB_TYPE_ID = '__powerbi_hub__'
 export const SALESFORCE_HUB_TYPE_ID = '__salesforce_hub__'
+
+export const CONTENT_APP_TYPE_IDS = [
+  'image',
+  'video',
+  'audio',
+  'slideshow',
+  'pdf',
+  'docx',
+  'sheets',
+] as const
 
 export const GOOGLE_OAUTH_APP_TYPE_IDS = [
   'google_slides',
@@ -83,18 +95,20 @@ export const SALESFORCE_HUB_APP_TYPE_IDS = [
   'salesforce_report_v2',
 ] as const
 
-export type IntegrationHubBrowseKey = 'google' | 'powerbi' | 'salesforce'
+export type IntegrationHubBrowseKey = 'google' | 'powerbi' | 'salesforce' | 'content'
 
 export const HUB_TYPE_ID_TO_BROWSE_KEY: Record<string, IntegrationHubBrowseKey> = {
   [GOOGLE_HUB_TYPE_ID]: 'google',
   [POWERBI_HUB_TYPE_ID]: 'powerbi',
   [SALESFORCE_HUB_TYPE_ID]: 'salesforce',
+  [CONTENT_HUB_TYPE_ID]: 'content',
 }
 
 export const INTEGRATION_HUB_TYPE_IDS = new Set<string>([
   GOOGLE_HUB_TYPE_ID,
   POWERBI_HUB_TYPE_ID,
   SALESFORCE_HUB_TYPE_ID,
+  CONTENT_HUB_TYPE_ID,
 ])
 
 export function isIntegrationHubTypeId(typeId: string): boolean {
@@ -154,6 +168,18 @@ const HUB_DEFINITIONS: Array<{
       tags: ['salesforce', 'dashboard', 'report', 'crm'],
     },
   },
+  {
+    childTypeIds: CONTENT_APP_TYPE_IDS,
+    hub: {
+      type_id: CONTENT_HUB_TYPE_ID,
+      name: 'Content',
+      description: 'Images, Videos, Audio, and Documents from your media library',
+      category: 'content',
+      icon: 'image',
+      popular: true,
+      tags: ['media', 'files', 'upload', 'library'],
+    },
+  },
 ]
 
 export function buildDisplayTemplates(templates: AppType[]): AppType[] {
@@ -194,6 +220,10 @@ export function salesforceHubChildrenOrdered(templates: AppType[]): AppType[] {
   return hubChildrenOrdered(templates, SALESFORCE_HUB_APP_TYPE_IDS)
 }
 
+export function contentHubChildrenOrdered(templates: AppType[]): AppType[] {
+  return hubChildrenOrdered(templates, CONTENT_APP_TYPE_IDS)
+}
+
 export function hubChildrenOrdered(
   templates: AppType[],
   childTypeIds: readonly string[]
@@ -227,21 +257,10 @@ export const HUB_SEARCH_BRAND_TERMS: Record<IntegrationHubBrowseKey, string[]> =
   google: ['google'],
   powerbi: ['power bi', 'powerbi', 'microsoft'],
   salesforce: ['salesforce', 'sfdc'],
+  content: ['image', 'video', 'audio', 'pdf', 'slideshow', 'ppt', 'media'],
 }
 
-export function integrationsCategoryDisplayCount(
-  templates: AppType[],
-  googleChildCount: number,
-  powerbiChildCount: number,
-  salesforceChildCount: number
-): number {
-  const raw = templates.filter((t) => t.category === 'integrations').length
-  let reduction = 0
-  if (googleChildCount > 0) reduction += googleChildCount - 1
-  if (powerbiChildCount > 0) reduction += powerbiChildCount - 1
-  if (salesforceChildCount > 0) reduction += salesforceChildCount - 1
-  return raw - reduction
-}
+// integrationsCategoryDisplayCount removed as category counts are calculated dynamically from displayTemplates.
 
 export function getCategoriesFromTemplates(templates: AppType[]): { id: string; label: string }[] {
   const cats = [...new Set(templates.map((t) => t.category).filter(Boolean))]
@@ -250,6 +269,7 @@ export function getCategoriesFromTemplates(templates: AppType[]): { id: string; 
   const categoryIds = [...order, ...rest]
   const labels: Record<string, string> = {
     all: 'All Types',
+    content: 'Content',
     custom: 'Custom',
     embed: 'Embed',
     media: 'Media',
@@ -290,6 +310,7 @@ export const CAT_STYLE: Record<string, { bg: string; color: string }> = {
   embed:    { bg: 'color-mix(in srgb, var(--color-primary) 22%, transparent)',  color: 'var(--color-primary)' },
   embeds:   { bg: 'color-mix(in srgb, var(--color-primary) 22%, transparent)',  color: 'var(--color-primary)' },
   media:    { bg: 'rgba(59,130,246,0.22)',  color: '#60A5FA' },
+  content:  { bg: 'rgba(59,130,246,0.22)',  color: '#60A5FA' },
   widgets:  { bg: 'rgba(99,102,241,0.22)',  color: '#818CF8' },
   integrations: { bg: 'rgba(16,185,129,0.22)', color: '#34D399' },
   other:    { bg: 'rgba(167,139,250,0.22)', color: 'var(--color-primary)' },

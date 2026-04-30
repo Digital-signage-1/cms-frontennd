@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { AlertCircle, Music, BarChart2, Sparkles } from 'lucide-react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { FormFieldRenderer } from '@/components/apps/FormFieldRenderer'
@@ -28,6 +28,8 @@ export function CreateAppConfigureModal({
   const router = useRouter()
   const workspace = useAuthStore((state) => state.workspace)
   const workspaceId = Number(workspace?.id || workspace?.workspace_id || 0)
+  const searchParams = useSearchParams()
+  const folderId = searchParams.get('folder_id')
 
   const [formData, setFormData] = useState<Record<string, any>>({ name: '', description: '' })
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -98,6 +100,7 @@ export function CreateAppConfigureModal({
           name: formData.name,
           description: formData.description || undefined,
           content_id: contentId,
+          folder_id: folderId || undefined,
           config,
         },
       })

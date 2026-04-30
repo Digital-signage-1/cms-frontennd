@@ -43,6 +43,8 @@ export interface Folder {
   path: string
   depth: number
   content_count: number
+  app_count: number
+  folder_type: 'content' | 'app'
   created_at: string
 }
 

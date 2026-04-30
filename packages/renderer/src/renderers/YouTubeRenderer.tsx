@@ -44,7 +44,7 @@ export function YouTubeRenderer({
     if (!videoId) return null
     const params = new URLSearchParams()
     params.set('autoplay', '1')
-    params.set('mute', '1')
+    params.set('mute', config.muted ? '1' : '0')
     params.set('controls', '0')
     params.set('rel', '0')
     params.set('modestbranding', '1')

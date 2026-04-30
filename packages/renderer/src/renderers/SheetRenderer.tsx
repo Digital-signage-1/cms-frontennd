@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
+import { useIntegrationDataFetcher } from '../IntegrationDataContext'
 
 interface SheetRendererProps {
   config: {
@@ -195,7 +196,11 @@ export function SheetRenderer({ config, contentUrl, onError, onLoad }: SheetRend
     source_type = 'google_sheets',
     sheet_url = '',
     file_content_url,
-    sheet_name,
+    sheet_name, // fallback/legacy
+    integration_id,
+    spreadsheet_id,
+    selected_tabs = [],
+    tab_duration = 10,
     header_row = true,
     show_row_numbers = true,
     show_gridlines = true,
@@ -214,6 +219,10 @@ export function SheetRenderer({ config, contentUrl, onError, onLoad }: SheetRend
   const [rows, setRows] = useState<Row[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentTabIndex, setCurrentTabIndex] = useState(0)
+  const [activeTabName, setActiveTabName] = useState<string | null>(null)
+
+  const fetcher = useIntegrationDataFetcher()
 
   const tableRef = useRef<HTMLDivElement>(null)
   const scrollAnimRef = useRef<number | null>(null)
@@ -225,15 +234,43 @@ export function SheetRenderer({ config, contentUrl, onError, onLoad }: SheetRend
   const fs = FONT_SIZES[font_size] || FONT_SIZES.medium
 
   // ── Fetch & parse data ────────────────────────────────────────────────────
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (tabName?: string) => {
     try {
       setLoading(true)
       setError(null)
 
       let csvText: string | null = null
+      let rowsData: any[][] | null = null
 
-      if (source_type === 'google_sheets' && sheet_url) {
-        const csvUrl = toGoogleCsvUrl(sheet_url, sheet_name)
+      // Priority 1: Integration-based Google Sheets (new flow)
+      if (source_type === 'google_sheets' && integration_id && spreadsheet_id) {
+        if (!fetcher) {
+          setError('Integration fetcher not available')
+          setLoading(false)
+          return
+        }
+
+        const effectiveTab = tabName || (selected_tabs.length > 0 ? selected_tabs[currentTabIndex] : sheet_name)
+        setActiveTabName(effectiveTab || 'Sheet1')
+
+        const data = await fetcher.startFetch(
+          integration_id,
+          spreadsheet_id,
+          'spreadsheet',
+          refresh_interval * 60 * 1000,
+          undefined,
+          { sheet_name: effectiveTab }
+        )
+
+        if (data && data.values) {
+          rowsData = data.values as any[][]
+        } else {
+          throw new Error('Failed to fetch spreadsheet data')
+        }
+      } 
+      // Priority 2: Public Google Sheets URL
+      else if (source_type === 'google_sheets' && sheet_url) {
+        const csvUrl = toGoogleCsvUrl(sheet_url, tabName || sheet_name)
         if (!csvUrl) {
           setError('Invalid Google Sheets URL. Use the full sharing link.')
           setLoading(false)
@@ -242,7 +279,9 @@ export function SheetRenderer({ config, contentUrl, onError, onLoad }: SheetRend
         const res = await fetch(csvUrl)
         if (!res.ok) throw new Error(`Failed to fetch sheet (${res.status})`)
         csvText = await res.text()
-      } else if (source_type === 'upload') {
+      } 
+      // Priority 3: Uploaded File
+      else if (source_type === 'upload') {
         // Use the content URL provided by the manifest or config
         const url = file_content_url || contentUrl
         if (!url) {
@@ -259,25 +298,27 @@ export function SheetRenderer({ config, contentUrl, onError, onLoad }: SheetRend
         return
       }
 
-      if (!csvText || csvText.trim().length === 0) {
-        setError('Spreadsheet is empty')
-        setLoading(false)
-        return
+      if (!rowsData && csvText) {
+        if (csvText.trim().length === 0) {
+          setError('Spreadsheet is empty')
+          setLoading(false)
+          return
+        }
+        rowsData = parseCSV(csvText)
       }
 
-      const parsed = parseCSV(csvText)
-      if (parsed.length === 0) {
+      if (!rowsData || rowsData.length === 0) {
         setError('No data found in spreadsheet')
         setLoading(false)
         return
       }
 
-      if (header_row && parsed.length > 0) {
-        setHeaders(parsed[0].map(v => formatCell(v)))
-        setRows(parsed.slice(1))
+      if (header_row && rowsData.length > 0) {
+        setHeaders(rowsData[0].map(v => formatCell(v)))
+        setRows(rowsData.slice(1))
       } else {
         setHeaders([])
-        setRows(parsed)
+        setRows(rowsData)
       }
 
       setLoading(false)
@@ -288,18 +329,44 @@ export function SheetRenderer({ config, contentUrl, onError, onLoad }: SheetRend
       setLoading(false)
       onError?.(err instanceof Error ? err : new Error(msg))
     }
-  }, [source_type, sheet_url, sheet_name, file_content_url, contentUrl, header_row, onLoad, onError])
+  }, [
+    source_type,
+    sheet_url,
+    sheet_name,
+    integration_id,
+    spreadsheet_id,
+    selected_tabs,
+    currentTabIndex,
+    fetcher,
+    file_content_url,
+    contentUrl,
+    header_row,
+    refresh_interval,
+    onLoad,
+    onError,
+  ])
 
   useEffect(() => {
     fetchData()
   }, [fetchData])
 
+  // ── Tab Cycling Logic ─────────────────────────────────────────────────────
+  useEffect(() => {
+    if (selected_tabs.length <= 1 || tab_duration <= 0) return
+
+    const timer = setInterval(() => {
+      setCurrentTabIndex(prev => (prev + 1) % selected_tabs.length)
+    }, tab_duration * 1000)
+
+    return () => clearInterval(timer)
+  }, [selected_tabs, tab_duration])
+
   // Auto-refresh for Google Sheets
   useEffect(() => {
-    if (source_type !== 'google_sheets' || refresh_interval <= 0) return
-    const interval = setInterval(fetchData, refresh_interval * 60 * 1000)
+    if (source_type !== 'google_sheets' || refresh_interval <= 0 || integration_id) return
+    const interval = setInterval(() => fetchData(), refresh_interval * 60 * 1000)
     return () => clearInterval(interval)
-  }, [source_type, refresh_interval, fetchData])
+  }, [source_type, integration_id, refresh_interval, fetchData])
 
   // ── Auto-scroll ─────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -610,6 +677,54 @@ export function SheetRenderer({ config, contentUrl, onError, onLoad }: SheetRend
         div::-webkit-scrollbar-thumb { background: ${t.scrollbarThumb}; border-radius: 4px; }
         div::-webkit-scrollbar-thumb:hover { opacity: 0.8; }
       `}</style>
+      {/* Tab Indicators */}
+      {selected_tabs.length > 1 && (
+        <div style={{
+          position: 'absolute',
+          bottom: '1rem',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          gap: '0.5rem',
+          zIndex: 10,
+          padding: '0.5rem',
+          backgroundColor: 'rgba(0,0,0,0.3)',
+          borderRadius: '1rem',
+          backdropFilter: 'blur(4px)'
+        }}>
+          {selected_tabs.map((tab, idx) => (
+            <div
+              key={tab}
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                backgroundColor: idx === currentTabIndex ? t.accent : 'rgba(255,255,255,0.3)',
+                transition: 'all 0.3s ease'
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Active Tab Name (Subtle Toast) */}
+      {selected_tabs.length > 1 && (
+        <div style={{
+          position: 'absolute',
+          top: '1rem',
+          right: '1rem',
+          fontSize: '0.75rem',
+          fontWeight: 600,
+          color: t.text,
+          backgroundColor: 'rgba(0,0,0,0.4)',
+          padding: '0.25rem 0.75rem',
+          borderRadius: '1rem',
+          zIndex: 10,
+          pointerEvents: 'none'
+        }}>
+          {activeTabName}
+        </div>
+      )}
     </div>
   )
 }

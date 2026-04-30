@@ -89,7 +89,7 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
 
   const handleChannelChange = (channelId: string) => {
     if (!playerId) return
-    assignChannelMutation.mutate({ workspaceId, playerId, channelId: channelId || null })
+    assignChannelMutation.mutate({ workspaceId, playerId, channelId: channelId === 'none' ? null : channelId })
   }
 
   const handleSaveName = () => {
@@ -210,12 +210,12 @@ export function PlayerDetailDrawer({ playerId, onClose }: PlayerDetailDrawerProp
                         <label style={{ ...labelStyle, marginBottom: 0, fontSize: 13, fontWeight: 600, color: 'var(--color-text-primary)' }}>Channel</label>
                       </div>
                       <Select
-                        value={typedPlayer.channel_id || undefined}
+                        value={typedPlayer.channel_id || 'none'}
                         onValueChange={(val) => handleChannelChange(val)}
                         disabled={assignChannelMutation.isPending}
                         placeholder="No channel"
                         options={[
-                          { value: '', label: 'No channel' },
+                          { value: 'none', label: 'No channel' },
                           ...(channels as { channel_id: string; name: string }[]).map(ch => ({
                             value: ch.channel_id, label: ch.name,
                           })),

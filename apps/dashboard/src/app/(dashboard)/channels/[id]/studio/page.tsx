@@ -8,7 +8,8 @@ import { StatusDot } from '@/components/ui/status-dot'
 import {
   ArrowLeft, Save, Upload, Play, Pause, Settings,
   Image, Video, Clock, Cloud, Globe, Code, LayoutGrid, FileText,
-  Plus, Layers, ChevronLeft, ChevronRight, X, GripVertical
+  Plus, Layers, ChevronLeft, ChevronRight, X, GripVertical,
+  Folder, ChevronDown
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import {
@@ -16,8 +17,9 @@ import {
   useAddZoneApp, useCreateZone, useDeleteZone, useCreateSlide, useUpdateSlide, useDeleteSlide
 } from '@/hooks/queries/useChannels'
 import { useApps } from '@/hooks/queries'
-import { useContentItem } from '@/hooks/queries/useContent'
-import { ChannelRenderer } from '@signage/renderer'
+import { useContentItem, useFolders } from '@/hooks/queries/useContent'
+import { ChannelRenderer, IntegrationDataProvider } from '@signage/renderer'
+import { useDashboardIntegrationFetcher } from '@/hooks/useDashboardIntegrationFetcher'
 import { ZoneBuilder, ZoneToolbar } from '@/components/channels/ZoneBuilder'
 import { ZonePropertiesEditor } from '@/components/channels/ZonePropertiesEditor'
 import { getAllLayoutTemplates, type LayoutTemplate } from '@/lib/layout-templates'
@@ -171,12 +173,16 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
   const [isDraggingContent, setIsDraggingContent] = useState(false)
   const [isCreatingZone, setIsCreatingZone] = useState(false)
   const [deleteZoneConfirm, setDeleteZoneConfirm] = useState<{ zoneId: string; zoneName: string } | null>(null)
+  const [libraryFolderId, setLibraryFolderId] = useState<string | null>(null)
+  const [libraryFolderPath, setLibraryFolderPath] = useState<{ id: string; name: string }[]>([])
 
   const channelIdNum = parseInt(resolvedParams.id, 10)
   const { data: channelData, isLoading: channelLoading } = useChannel(workspaceId, channelIdNum)
   const channelId = (channelData?.id ?? channelIdNum) as number
   const { data: manifestData } = useChannelManifest(workspaceId, channelIdNum)
-  const { data: appsData, isLoading: appsLoading } = useApps(workspaceId)
+  const { data: appsData, isLoading: appsLoading } = useApps(workspaceId, { folder_id: libraryFolderId || undefined })
+  const { data: foldersData = [], isLoading: foldersLoading } = useFolders(workspaceId, libraryFolderId, 'app')
+  const integrationFetcher = useDashboardIntegrationFetcher()
   const updateChannelMutation = useUpdateChannel()
   const publishChannelMutation = usePublishChannel()
   const addZoneAppMutation = useAddZoneApp()
@@ -462,21 +468,12 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                 Preview
               </Button>
               <Button
-                variant="outline"
                 onClick={handleSave}
                 disabled={updateChannelMutation.isPending}
-                className="gap-2"
+                className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Save className="h-4 w-4" />
                 {updateChannelMutation.isPending ? 'Saving...' : 'Save'}
-              </Button>
-              <Button
-                onClick={handlePublish}
-                disabled={publishChannelMutation.isPending}
-                className="bg-primary hover:bg-primary-hover text-white gap-2"
-              >
-                <Upload className="h-4 w-4" />
-                {publishChannelMutation.isPending ? 'Publishing...' : 'Publish'}
               </Button>
             </div>
           </div>
@@ -542,19 +539,67 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                     )}
                   </div>
 
-                  {appsLoading ? (
-                    <div className="space-y-3">
-                      {[1, 2, 3].map(i => (
-                        <div key={i} className="h-24 bg-surface-alt rounded-lg animate-pulse" />
+                  {/* Folder breadcrumb / back navigation */}
+                  {libraryFolderId && (
+                    <div className="mb-3 flex items-center gap-1 text-xs">
+                      <button
+                        onClick={() => {
+                          if (libraryFolderPath.length <= 1) {
+                            setLibraryFolderId(null)
+                            setLibraryFolderPath([])
+                          } else {
+                            const newPath = libraryFolderPath.slice(0, -1)
+                            setLibraryFolderId(newPath[newPath.length - 1].id)
+                            setLibraryFolderPath(newPath)
+                          }
+                        }}
+                        className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors font-medium"
+                      >
+                        <ChevronLeft className="h-3.5 w-3.5" />
+                        Back
+                      </button>
+                      <span className="text-text-muted">/</span>
+                      {libraryFolderPath.map((f, i) => (
+                        <span key={f.id} className="flex items-center gap-1">
+                          {i > 0 && <span className="text-text-muted">/</span>}
+                          <button
+                            onClick={() => {
+                              const newPath = libraryFolderPath.slice(0, i + 1)
+                              setLibraryFolderId(newPath[newPath.length - 1].id)
+                              setLibraryFolderPath(newPath)
+                            }}
+                            className={cn(
+                              "truncate max-w-[80px] transition-colors",
+                              i === libraryFolderPath.length - 1
+                                ? "text-text-primary font-medium"
+                                : "text-text-muted hover:text-text-primary"
+                            )}
+                            title={f.name}
+                          >
+                            {f.name}
+                          </button>
+                        </span>
                       ))}
                     </div>
-                  ) : availableApps.length === 0 ? (
+                  )}
+
+                  {(appsLoading || foldersLoading) ? (
+                    <div className="space-y-3">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="h-16 bg-surface-alt rounded-lg animate-pulse" />
+                      ))}
+                    </div>
+                  ) : (foldersData.length === 0 && availableApps.length === 0) ? (
                     <div className="text-center py-8">
                       <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-3">
                         <Plus className="h-6 w-6 text-primary" />
                       </div>
-                      <p className="text-sm font-medium text-text-primary mb-2">No apps yet</p>
-                      <p className="text-xs text-text-muted mb-4">Create apps to add content to zones</p>
+                      <p className="text-sm font-medium text-text-primary mb-2">
+                        {libraryFolderId ? 'This folder is empty' : 'No apps yet'}
+                      </p>
+                      <p className="text-xs text-text-muted mb-4">
+                        {libraryFolderId ? 'Add apps to this folder from the Apps page' : 'Create apps to add content to zones'}
+                      </p>
                       <Button
                         size="sm"
                         onClick={() => router.push('/apps/create')}
@@ -566,6 +611,29 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                     </div>
                   ) : (
                     <div className="space-y-2">
+                      {/* Folders */}
+                      {foldersData.map((folder: any) => (
+                        <button
+                          key={folder.folder_id}
+                          type="button"
+                          onClick={() => {
+                            setLibraryFolderId(folder.folder_id)
+                            setLibraryFolderPath(prev => [...prev, { id: folder.folder_id, name: folder.name }])
+                          }}
+                          className="w-full flex items-center gap-3 p-3 rounded-lg border border-border hover:border-primary/50 hover:bg-primary/5 transition-all group"
+                        >
+                          <div className="w-10 h-10 flex-shrink-0 rounded-lg flex items-center justify-center bg-blue-500/10">
+                            <Folder className="h-5 w-5 text-blue-500" />
+                          </div>
+                          <div className="flex-1 min-w-0 text-left">
+                            <p className="font-medium text-text-primary text-sm truncate">{folder.name}</p>
+                            <p className="text-xs text-text-muted">{folder.app_count || 0} apps</p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-text-muted group-hover:text-primary transition-colors flex-shrink-0" />
+                        </button>
+                      ))}
+
+                      {/* Apps */}
                       {availableApps.map((app: any) => (
                         <ContentLibraryCard
                           key={app.app_id}
@@ -1006,11 +1074,13 @@ export default function ChannelStudioPage({ params }: { params: Promise<{ id: st
                         }))
                       : slideZones
                     return (
-                      <ChannelRenderer
-                        manifest={{ channel, zones: zonesWithAuth }}
-                        isPreview
-                        className="w-full h-full"
-                      />
+                      <IntegrationDataProvider value={integrationFetcher}>
+                        <ChannelRenderer
+                          manifest={{ channel, zones: zonesWithAuth }}
+                          isPreview
+                          className="w-full h-full"
+                        />
+                      </IntegrationDataProvider>
                     )
                   })()}
                 </div>

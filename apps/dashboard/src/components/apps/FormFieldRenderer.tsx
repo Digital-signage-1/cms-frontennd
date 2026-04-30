@@ -8,6 +8,7 @@ import { GoogleOAuthButton } from '@/components/integrations/GoogleOAuthButton'
 import { PowerBIResourcePicker } from '@/components/integrations/PowerBIResourcePicker'
 import { SalesforceResourcePicker } from '@/components/integrations/SalesforceResourcePicker'
 import { PowerBIResourceMultiPicker } from '@/components/integrations/PowerBIResourceMultiPicker'
+import { GoogleResourceMultiPicker } from '@/components/integrations/GoogleResourceMultiPicker'
 import { MicrosoftOAuthButton } from '@/components/integrations/MicrosoftOAuthButton'
 import { useIntegrations } from '@/hooks/queries/useIntegrations'
 
@@ -585,6 +586,20 @@ function ResourceMultiPickerField({
   }
 
   const selectedIds = Array.isArray(value) ? value : []
+  const isGoogle = field.provider?.startsWith('google')
+
+  if (isGoogle) {
+    return (
+      <GoogleResourceMultiPicker
+        workspaceId={workspaceId ?? ''}
+        integrationId={integrationId}
+        resourceType={field.resource_type || 'sheet_tab'}
+        onSelect={(ids) => onChange(ids)}
+        selectedIds={selectedIds}
+        spreadsheetId={dependsOnValue as string | undefined}
+      />
+    )
+  }
 
   return (
     <PowerBIResourceMultiPicker

@@ -61,16 +61,27 @@ export function createIntegrationsEndpoints(client: ApiClient) {
           },
         }
       ),
+    
+    listSheetTabs: (
+      workspaceId: number | string,
+      integrationId: number | string,
+      spreadsheetId: string
+    ) =>
+      client.get<any[]>(
+        `/api/v1/workspaces/${workspaceId}/integrations/${integrationId}/sheet-tabs`,
+        { params: { spreadsheet_id: spreadsheetId } }
+      ),
 
     getData: (
       workspaceId: number | string,
       integrationId: number | string,
       resourceId: string,
-      resourceType: string = 'default'
+      resourceType: string = 'default',
+      sheetName?: string
     ) =>
       client.get<Record<string, unknown>>(
         `/api/v1/workspaces/${workspaceId}/integrations/${integrationId}/data`,
-        { params: { resource_id: resourceId, resource_type: resourceType } }
+        { params: { resource_id: resourceId, resource_type: resourceType, ...(sheetName ? { sheet_name: sheetName } : {}) } }
       ),
 
     initiateOAuth: (workspaceId: number | string, provider: string, redirectUri: string) =>

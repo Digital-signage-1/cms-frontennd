@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef, CSSProperties } from 'react'
+import { useAutoScroll } from '../hooks/useAutoScroll'
 
 interface CalendarEvent {
   id?: string
@@ -20,7 +21,9 @@ interface GoogleCalendarConfig {
   show_description?: boolean
   show_location?: boolean
   show_attendees?: boolean
+  auto_scroll_time?: boolean
   auto_scroll?: boolean
+  scroll_speed?: 'slow' | 'medium' | 'fast'
   room_name?: string
   refresh_interval?: number
   theme?: 'dark' | 'light' | 'google'
@@ -215,6 +218,11 @@ function getDayLabel(d: Date, today: Date): string {
 // ─── AgendaView ─────────────────────────────────────────────────────────────
 
 function AgendaView({ events, colors, config }: { events: CalendarEvent[]; colors: ThemeColors; config: GoogleCalendarConfig }) {
+  var scrollRef = useAutoScroll({
+    autoScroll: config.auto_scroll,
+    scrollSpeed: config.scroll_speed,
+  })
+
   if (!events.length) {
     return (
       <div style={{ padding: '2rem', textAlign: 'center', color: colors.subtext, fontSize: '1.2rem' }}>
@@ -228,7 +236,7 @@ function AgendaView({ events, colors, config }: { events: CalendarEvent[]; color
   var sortedKeys = Object.keys(grouped).sort()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', overflow: 'auto', height: '100%', padding: '1rem' }}>
+    <div ref={scrollRef} style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', height: '100%', padding: '1rem' }}>
       {sortedKeys.map(function (dateKey) {
         var sp = dateKey.split('-')
         var keyDate = new Date(parseInt(sp[0]), parseInt(sp[1]) - 1, parseInt(sp[2]))
@@ -785,9 +793,9 @@ export function GoogleCalendarRenderer({ config }: GoogleCalendarRendererProps) 
       case 'month':
         return <MonthView events={events} colors={colors} />
       case 'week':
-        return <WeekView events={events} colors={colors} autoScroll={config.auto_scroll} />
+        return <WeekView events={events} colors={colors} autoScroll={config.auto_scroll_time} />
       case 'day':
-        return <DayView events={events} colors={colors} autoScroll={config.auto_scroll} />
+        return <DayView events={events} colors={colors} autoScroll={config.auto_scroll_time} />
       case 'agenda':
       default:
         return <AgendaView events={events} colors={colors} config={config} />

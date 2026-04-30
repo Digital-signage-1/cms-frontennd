@@ -46,10 +46,10 @@ export function PlaybackScreen({ config }: PlaybackScreenProps) {
     const engine = engineRef.current
     if (!engine) return null
     return {
-      startFetch: (integrationId, resourceId, resourceType, refreshIntervalMs, onData) =>
-        engine.startIntegrationDataFetch(integrationId, resourceId, resourceType, refreshIntervalMs, onData),
-      stopFetch: (integrationId, resourceId, resourceType, onData) =>
-        engine.stopIntegrationDataFetch(integrationId, resourceId, resourceType, onData),
+      startFetch: (integrationId, resourceId, resourceType, refreshIntervalMs, onData, extraParams) =>
+        engine.startIntegrationDataFetch(integrationId, resourceId, resourceType, refreshIntervalMs, onData, extraParams),
+      stopFetch: (integrationId, resourceId, resourceType, onData, extraParams) =>
+        engine.stopIntegrationDataFetch(integrationId, resourceId, resourceType, onData, extraParams),
     }
   }, [manifest]) // re-create when manifest loads (engine is ready)
 

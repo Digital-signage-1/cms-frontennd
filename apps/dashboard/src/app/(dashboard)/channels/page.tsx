@@ -8,7 +8,10 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useChannels } from '@/hooks/queries'
+import { useChannels, useDeleteChannel, useBulkDeleteChannels } from '@/hooks/queries'
+import { Trash2, Check } from 'lucide-react'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { toast } from '@/hooks/use-toast'
 import { useAuthStore } from '@/stores/auth-store'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
 import { formatDate } from '@/lib/utils'
@@ -57,6 +60,8 @@ function Zone({
       >
         {name}
       </span>
+      
+
     </div>
   )
 }
@@ -167,7 +172,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 // ── Channel card ───────────────────────────────────────────────────────────
-function ChannelCard({ channel }: { channel: any }) {
+function ChannelCard({ channel, isSelected, onSelect, onDelete }: { channel: any; isSelected?: boolean; onSelect?: (selected: boolean) => void; onDelete?: () => void }) {
   const router = useRouter()
   const [hovered, setHovered] = useState(false)
 
@@ -182,7 +187,7 @@ function ChannelCard({ channel }: { channel: any }) {
   return (
     <motion.div
       className="rounded-xl overflow-hidden cursor-pointer"
-      style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
+      style={{ backgroundColor: '#FFFFFF', border: isSelected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)' }}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       onMouseEnter={() => setHovered(true)}
@@ -194,8 +199,16 @@ function ChannelCard({ channel }: { channel: any }) {
         className="relative overflow-hidden"
         style={{ height: '196px', backgroundColor: 'var(--color-surface-alt)' }}
       >
-        {/* TV icon — top-left */}
-        <div className="absolute top-3 left-3 z-10">
+        {/* Checkbox — top-left */}
+        <div className={`absolute top-3 left-3 z-20 p-1 rounded-lg transition-all duration-200 ${isSelected ? 'opacity-100' : 'opacity-0 hover:opacity-100'}`}
+             style={{ backgroundColor: isSelected ? 'var(--color-primary)' : 'rgba(255,255,255,0.9)' }}
+             onClick={(e) => { e.stopPropagation(); onSelect?.(!isSelected); }}>
+          <div className="w-5 h-5 flex items-center justify-center">
+            {isSelected ? <Check className="h-3.5 w-3.5 text-white" /> : <div className="w-4 h-4 rounded border border-slate-300" />}
+          </div>
+        </div>
+        {/* TV icon — top-left (hidden when selected or hovered) */}
+        <div className={`absolute top-3 left-3 z-10 transition-opacity ${isSelected ? 'opacity-0' : 'opacity-100'}`}>
           <div
             className="w-7 h-7 rounded-lg flex items-center justify-center"
             style={{ backgroundColor: '#FFFFFF', border: '1px solid var(--color-border)' }}
@@ -237,6 +250,16 @@ function ChannelCard({ channel }: { channel: any }) {
                   style={{ backgroundColor: 'var(--color-primary)', color: '#FFFFFF' }}
                 >
                   Edit Layout
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onDelete?.()
+                  }}
+                  className="px-3 py-1.5 ml-2 rounded-lg text-xs font-semibold transition-opacity hover:bg-red-600/90"
+                  style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
+                >
+                  Delete
                 </button>
               </div>
             </motion.div>
@@ -286,6 +309,11 @@ export default function ChannelsPage() {
   const [searchQuery, setSearchQuery]   = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [searchFocused, setSearchFocused] = useState(false)
+  const [selectedChannels, setSelectedChannels] = useState<string[]>([])
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false)
+  const [channelToDelete, setChannelToDelete] = useState<any>(null)
+  const deleteMutation = useDeleteChannel()
+  const bulkDeleteMutation = useBulkDeleteChannels()
   const [viewMode, setViewMode]         = useState<'grid' | 'list'>('grid')
   const [sortOrder, setSortOrder]       = useState<'newest' | 'oldest' | 'name_asc' | 'name_desc'>('newest')
   const [showSortMenu, setShowSortMenu] = useState(false)
@@ -296,6 +324,44 @@ export default function ChannelsPage() {
   }, [setBreadcrumbItems])
 
   const channels = Array.isArray(channelsData) ? channelsData : []
+
+  const toggleSelectAll = () => {
+    if (selectedChannels.length === filteredChannels.length && filteredChannels.length > 0) {
+      setSelectedChannels([])
+    } else {
+      setSelectedChannels(filteredChannels.map((c: any) => c.id))
+    }
+  }
+
+  const handleDeleteChannel = () => {
+    if (!channelToDelete) return
+    deleteMutation.mutate(
+      { workspaceId, channelId: channelToDelete.id },
+      {
+        onSuccess: () => {
+          toast.success('Channel deleted successfully')
+          setChannelToDelete(null)
+          setSelectedChannels(prev => prev.filter(id => id !== channelToDelete.id))
+        },
+        onError: () => toast.error('Failed to delete channel')
+      }
+    )
+  }
+
+  const handleBulkDelete = () => {
+    if (selectedChannels.length === 0) return
+    bulkDeleteMutation.mutate(
+      { workspaceId, channelIds: selectedChannels.map(String) },
+      {
+        onSuccess: () => {
+          toast.success('Channels deleted successfully')
+          setSelectedChannels([])
+          setShowBulkDeleteConfirm(false)
+        },
+        onError: () => toast.error('Failed to delete channels')
+      }
+    )
+  }
 
   const filteredChannels = channels
     .filter((c: any) => {
@@ -559,6 +625,42 @@ export default function ChannelsPage() {
       </motion.div>
       </div>
 
+      {/* ── Bulk Actions Bar ────────────────────────────────────────── */}
+      <AnimatePresence>
+        {selectedChannels.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex items-center justify-between px-4 py-2 mb-4 rounded-lg shadow-sm"
+            style={{ backgroundColor: '#EFF6FF', border: '1px solid #BFDBFE' }}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-semibold" style={{ color: '#1E3A8A' }}>
+                {selectedChannels.length} channel{selectedChannels.length > 1 ? 's' : ''} selected
+              </span>
+              <button
+                onClick={() => setSelectedChannels([])}
+                className="text-xs font-medium hover:underline"
+                style={{ color: '#3B82F6' }}
+              >
+                Clear Selection
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowBulkDeleteConfirm(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-colors"
+                style={{ backgroundColor: '#FEE2E2', color: '#DC2626', border: '1px solid #FECACA' }}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Delete Selected
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ── Channel grid (scrollable) ─────────────────────────── */}
       <div className="flex-1 min-h-0 overflow-y-auto pb-4 sm:pb-5">
       {isLoading ? (
@@ -606,7 +708,16 @@ export default function ChannelsPage() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {filteredChannels.map((channel: any) => (
-            <ChannelCard key={channel.id} channel={channel} />
+            <ChannelCard 
+              key={channel.id} 
+              channel={channel} 
+              isSelected={selectedChannels.includes(channel.id)}
+              onSelect={(selected) => {
+                if (selected) setSelectedChannels(prev => [...prev, channel.id])
+                else setSelectedChannels(prev => prev.filter(id => id !== channel.id))
+              }}
+              onDelete={() => setChannelToDelete(channel)}
+            />
           ))}
         </motion.div>
       ) : (
@@ -635,6 +746,20 @@ export default function ChannelsPage() {
                 style={{ backgroundColor: '#FFFFFF', border: '1px solid #bae6fd' }}
                 onClick={() => router.push(`/channels/${channel.id}/studio`)}
               >
+                <div 
+                  className="flex items-center justify-center p-2 rounded cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const isSelected = selectedChannels.includes(channel.id)
+                    if (!isSelected) setSelectedChannels(prev => [...prev, channel.id])
+                    else setSelectedChannels(prev => prev.filter(id => id !== channel.id))
+                  }}
+                >
+                  <div className={`w-4 h-4 rounded border flex items-center justify-center ${selectedChannels.includes(channel.id) ? 'bg-primary border-primary' : 'bg-white border-slate-300'}`}
+                       style={{ backgroundColor: selectedChannels.includes(channel.id) ? 'var(--color-primary)' : '#FFF' }}>
+                    {selectedChannels.includes(channel.id) && <Check className="h-3 w-3 text-white" />}
+                  </div>
+                </div>
                 {/* Zone preview thumbnail */}
                 <div
                   className="flex-shrink-0 w-12 h-8 sm:w-16 sm:h-10 rounded-lg overflow-hidden p-1"
@@ -672,12 +797,45 @@ export default function ChannelsPage() {
                 <span className="hidden md:block text-xs flex-shrink-0" style={{ color: '#0369a1' }}>
                   {formatDate(channel.updated_at)}
                 </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setChannelToDelete(channel)
+                  }}
+                  className="p-1.5 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors ml-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </motion.div>
             )
           })}
         </motion.div>
       )}
       </div>
+      
+      <ConfirmDialog
+        open={!!channelToDelete}
+        onOpenChange={(open) => { if (!open) setChannelToDelete(null) }}
+        onConfirm={handleDeleteChannel}
+        title="Delete Channel"
+        description={`Are you sure you want to delete "${channelToDelete?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        loading={deleteMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={showBulkDeleteConfirm}
+        onOpenChange={(open) => { if (!open) setShowBulkDeleteConfirm(false) }}
+        onConfirm={handleBulkDelete}
+        title="Delete Channels"
+        description={`Are you sure you want to delete ${selectedChannels.length} channels? This action cannot be undone.`}
+        confirmText="Delete All"
+        cancelText="Cancel"
+        variant="destructive"
+        loading={bulkDeleteMutation.isPending}
+      />
     </div>
   )
 }

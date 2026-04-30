@@ -9,6 +9,7 @@ export interface IntegrationDataFetcher {
     resourceType: string,
     refreshIntervalMs?: number,
     onData?: (data: Record<string, unknown>) => void,
+    extraParams?: Record<string, any>,
   ): Promise<Record<string, unknown> | null>
 
   stopFetch(
@@ -16,6 +17,7 @@ export interface IntegrationDataFetcher {
     resourceId: string,
     resourceType: string,
     onData?: (data: Record<string, unknown>) => void,
+    extraParams?: Record<string, any>,
   ): void
 }
 

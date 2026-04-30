@@ -469,68 +469,18 @@ export function ZoneToolbar({
 }: ZoneToolbarProps) {
   return (
     <div className="flex items-center gap-2 p-3 bg-surface border-b border-border">
-      <div className="flex items-center gap-1">
+      {selectedZone && onDeleteZone && (
         <Button
           size="sm"
-          variant={isCreatingZone ? "default" : "outline"}
-          onClick={onAddZone}
-          className="gap-2"
+          variant="outline"
+          onClick={onDeleteZone}
+          disabled={isDeletingZone}
+          className="gap-1.5 text-error hover:text-error hover:bg-error/5 hover:border-error/30"
+          title="Delete zone"
         >
-          {isCreatingZone ? (
-            <>
-              <RotateCcw className="h-3 w-3" />
-              Cancel
-            </>
-          ) : (
-            <>
-              <Plus className="h-3 w-3" />
-              Add Zone
-            </>
-          )}
+          <Trash2 className="h-3 w-3" />
+          {isDeletingZone ? 'Deleting...' : 'Delete'}
         </Button>
-
-        <Button
-          size="sm"
-          variant={showGrid ? "default" : "outline"}
-          onClick={onToggleGrid}
-          className="gap-2"
-        >
-          <Grid className="h-3 w-3" />
-          Grid
-        </Button>
-      </div>
-
-      {selectedZone && (
-        <>
-          <div className="w-px h-4 bg-border mx-1" />
-          <div className="flex items-center gap-1">
-            {onDuplicateZone && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={onDuplicateZone}
-                className="gap-1.5"
-                title="Duplicate zone"
-              >
-                <Copy className="h-3 w-3" />
-                Duplicate
-              </Button>
-            )}
-            {onDeleteZone && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={onDeleteZone}
-                disabled={isDeletingZone}
-                className="gap-1.5 text-error hover:text-error hover:bg-error/5 hover:border-error/30"
-                title="Delete zone"
-              >
-                <Trash2 className="h-3 w-3" />
-                {isDeletingZone ? 'Deleting...' : 'Delete'}
-              </Button>
-            )}
-          </div>
-        </>
       )}
     </div>
   )

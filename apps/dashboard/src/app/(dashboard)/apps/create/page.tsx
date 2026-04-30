@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronRight, ArrowLeft } from 'lucide-react'
 import { useBreadcrumb } from '@/contexts/breadcrumb-context'
@@ -66,10 +66,12 @@ export default function CreateAppPage() {
         />
       </div>
 
-      <CreateAppConfigureModal
-        appType={configureType}
-        onClose={() => setConfigureType(null)}
-      />
+      <Suspense fallback={null}>
+        <CreateAppConfigureModal
+          appType={configureType}
+          onClose={() => setConfigureType(null)}
+        />
+      </Suspense>
     </div>
   )
 }

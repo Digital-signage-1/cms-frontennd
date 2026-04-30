@@ -42,6 +42,7 @@ export interface App {
   description?: string
   status: 'draft' | 'active' | 'paused' | 'error' | 'archived'
   content_id?: string
+  folder_id?: string
   integration_id?: string
   config: AppConfig
   preview_url?: string

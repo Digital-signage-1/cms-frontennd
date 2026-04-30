@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, CSSProperties } from 'react'
+import { useAutoScroll } from '../hooks/useAutoScroll'
 
 interface QuestionData {
   id: string
@@ -15,6 +16,8 @@ interface GoogleFormsConfig {
   display_mode?: 'summary_charts' | 'live_responses' | 'single_question'
   chart_type?: 'bar' | 'pie' | 'donut'
   show_question_text?: boolean
+  auto_scroll?: boolean
+  scroll_speed?: 'slow' | 'medium' | 'fast'
   refresh_interval?: number
   theme?: 'dark' | 'light' | 'google'
   _data?: {
@@ -78,9 +81,16 @@ export function GoogleFormsRenderer({ config }: GoogleFormsRendererProps) {
     display_mode = 'summary_charts',
     chart_type = 'bar',
     show_question_text = true,
+    auto_scroll = false,
+    scroll_speed = 'medium',
     theme = 'dark',
     _data,
   } = config
+
+  const scrollRef = useAutoScroll({
+    autoScroll: auto_scroll,
+    scrollSpeed: scroll_speed,
+  })
 
   const colors = useMemo(() => resolveTheme(theme), [theme])
   const questions = _data?.questions || []
@@ -113,7 +123,7 @@ export function GoogleFormsRenderer({ config }: GoogleFormsRendererProps) {
         <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>{formTitle}</div>
         <div style={{ fontSize: '0.75rem', color: colors.subtext }}>{totalResponses} responses</div>
       </div>
-      <div style={{ flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+      <div ref={scrollRef} style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {questions.filter(q => Object.keys(q.responses).length > 0).map((q) => {
           const maxVal = Math.max(...Object.values(q.responses), 1)
           return (
